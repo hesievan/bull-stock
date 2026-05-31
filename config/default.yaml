@@ -1,0 +1,46 @@
+# A股牛市热度指数 — 默认配置
+
+# 热度等级阈值（综合热度 0-100）
+heat_levels:
+  cool:        { min: 0,  max: 30,  label: "低温", color: "#22c55e" }   # 绿色 — 安全
+  moderate:    { min: 30, max: 55,  label: "温和", color: "#84cc16" }   # 黄绿
+  warm:        { min: 55, max: 70,  label: "偏热", color: "#eab308" }   # 黄色 — 关注
+  hot:         { min: 70, max: 85,  label: "过热", color: "#f97316" }   # 橙色 — 警惕
+  extreme:     { min: 85, max: 100, label: "极端", color: "#ef4444" }   # 红色 — 预警
+
+# 维度权重（等权，如需调整在此修改）
+dimension_weights:
+  valuation:  0.20   # 估值
+  capital:     0.20   # 资金
+  sentiment:   0.20   # 情绪
+  technical:   0.20   # 技术
+  structure:   0.20   # 结构
+
+# 指数代码
+indices:
+  all_market:   "sh000001"    # 上证综指（全市场代理）
+  chinext:      "sz399006"    # 创业板指
+  hs300:        "sh000300"    # 沪深300
+  zz500:        "sh000905"    # 中证500
+  zz1000:       "sh000852"    # 中证1000
+  bse:          "bj430047"    # 北证50（北交所）
+
+# 数据参数
+data:
+  lookback_years: 10           # 历史分位窗口
+  min_history_days: 250        # 最少交易日
+  db_path: "data/heat_index.db"
+  # 每个 akshare 请求之间的延迟（秒），避免被封
+  request_delay: 1.0
+  max_retries: 3
+
+# 飞书通知（留空则不推送）
+notification:
+  feishu_webhook: ""           # 飞书 Webhook URL
+  notify_on: ["extreme", "hot"]  # 触发通知的热度等级
+  notify_on_recovery: true     # 从热区降至温和区也通知
+
+# 输出
+output:
+  html_path: "web/index.html"
+  json_path: "web/data/latest.json"
