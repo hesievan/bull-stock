@@ -22,6 +22,7 @@ from typing import Optional, List
 import pandas as pd
 
 from src.data.database import get_conn, get_latest_date, save_dataframe, DB_PATH
+import sqlite3
 
 logger = logging.getLogger(__name__)
 
@@ -235,23 +236,30 @@ def fetch_stock_kline(ak_code: str, start: str, end: str,
 def fetch_stocks_kline_batch(codes: List[str], start: str, end: str,
                               db_path=None, label="") -> pd.DataFrame:
     """
-    批量获取多只股票K线，逐批存入 stock_daily
-    每100只打印进度
+    批量获取多只股票K线，每50只分批存入 stock_daily
+    避免全部拉完再一次性写入导致中途失败数据丢失
     """
-    all_dfs = []
+    BATCH_SIZE = 50
     total = len(codes)
-    for i, code in enumerate(codes):
-        if i % 200 == 0:
-            logger.info("  Stock kline progress: %d/%d %s", i, total, label)
-        df = fetch_stock_kline(code, start, end)
-        if not df.empty:
-            all_dfs.append(df)
+    grand_total = 0
+    for batch_start in range(0, total, BATCH_SIZE):
+        batch_codes = codes[batch_start:batch_start + BATCH_SIZE]
+        batch_dfs = []
+        for code in batch_codes:
+            df = fetch_stock_kline(code, start, end)
+            if not df.empty:
+                batch_dfs.append(df)
+        if batch_dfs:
+            result = pd.concat(batch_dfs, ignore_index=True)
+            save_dataframe(result, "stock_daily")
+            grand_total += len(result)
+        done = min(batch_start + BATCH_SIZE, total)
+        logger.info("  Stock kline progress: %d/%d %s (saved %d files, %d total rows)",
+                     done, total, label, len(batch_dfs) if batch_dfs else 0, grand_total)
+        for h in logger.handlers:
+            h.flush()
 
-    if all_dfs:
-        result = pd.concat(all_dfs, ignore_index=True)
-        save_dataframe(result, "stock_daily")
-        logger.info("Saved %d stock-day rows to stock_daily", len(result))
-        return result
+    logger.info("fetch_stocks_kline_batch complete: %d total stock-day rows saved", grand_total)
     return pd.DataFrame()
 
 def fetch_stocks_latest_day(stock_codes: List[str], trade_date: str) -> pd.DataFrame:
@@ -266,6 +274,7 @@ def fetch_stock_industry() -> pd.DataFrame:
     """获取个股行业分类 (baostock query_stock_industry)"""
     import baostock as bs
     try:
+        bs.login()
         _bs_sleep()
         rs = bs.query_stock_industry()
         df = _bs_to_df(rs)
@@ -335,6 +344,9 @@ def fetch_northbound_history(start: str, end: str) -> pd.DataFrame:
             df["trade_date"] = pd.to_datetime(df["trade_date"]).dt.strftime("%Y-%m-%d")
             df["north_net"] = pd.to_numeric(df.get("hgt", 0), errors="coerce").fillna(0) + \
                               pd.to_numeric(df.get("sgt", 0), errors="coerce").fillna(0)
+            # 只保留数据库表中的列
+            _keep = ["trade_date", "hgt", "sgt", "north_net", "south_money"]
+            df = df[[c for c in _keep if c in df.columns]]
         return df if df is not None else pd.DataFrame()
     except Exception as e:
         logger.error("fetch_northbound_history: %s", e)
@@ -418,6 +430,62 @@ def fetch_ah_premium(start: str, end: str) -> pd.DataFrame:
 
 # ── 统一初始化入口 ────────────────────────────────────────────────────────────
 
+# -------------------------------------------------------------------
+# akshare: M2 月度货币供应量
+# -------------------------------------------------------------------
+
+def fetch_m2_history(start: str = "2008-01-01", end: str = None):
+    try:
+        import akshare as ak
+        df = ak.macro_china_money_supply()
+        if df is None or df.empty:
+            return pd.DataFrame()
+        col_month = df.columns[0]
+        col_m2 = df.columns[1]   # M2总量(亿元)
+        col_yoy = df.columns[2]  # M2同比增速
+        result = df[[col_month, col_m2, col_yoy]].copy()
+        result.columns = ["month", "m2_billion", "m2_yoy"]
+        # "2026年04月份" -> "2026-04"
+        result["month"] = result["month"].str.replace("年", "-").str.replace("月份", "").str.strip()
+        result["m2_billion"] = pd.to_numeric(result["m2_billion"], errors="coerce")
+        result["m2_yoy"] = pd.to_numeric(result["m2_yoy"], errors="coerce")
+        result = result.dropna(subset=["month", "m2_billion"])
+        if start:
+            result = result[result["month"] >= start[:7]]
+        if end:
+            result = result[result["month"] <= end[:7]]
+        logger.info("fetch_m2_history: %d rows", len(result))
+        return result
+    except Exception as e:
+        logger.error("fetch_m2_history: %s", e)
+        return pd.DataFrame()
+
+
+# -------------------------------------------------------------------
+# A股总市值: rebuild from stock_daily total_mv
+# -------------------------------------------------------------------
+
+def rebuild_market_cap(db_path: str = None):
+    try:
+        from src.data.database import DB_PATH as _DB
+        conn = sqlite3.connect(db_path or _DB)
+        rows = conn.execute("""
+            SELECT trade_date,
+                   SUM(total_mv) as total_mv,
+                   COUNT(DISTINCT stock_code) as stock_count
+            FROM stock_daily
+            WHERE total_mv IS NOT NULL AND total_mv > 0
+            GROUP BY trade_date ORDER BY trade_date
+        """).fetchall()
+        conn.executemany(
+            "INSERT OR REPLACE INTO stock_market_cap VALUES(?, ?, ?)", rows)
+        conn.commit()
+        conn.close()
+        logger.info("rebuild_market_cap: %d rows", len(rows))
+    except Exception as e:
+        logger.error("rebuild_market_cap: %s", e)
+
+
 def fetch_all_history(start: str = "2015-01-01", end: str = None):
     """
     一次性拉取所有历史数据 (初始化用)
@@ -467,9 +535,14 @@ def fetch_all_history(start: str = "2015-01-01", end: str = None):
         _save(fetch_bond_yield_history(start, end), "bond_yield")
         _save(fetch_index_pe_history(start, end), "index_pe_history")
 
-        # 6. akshare AH溢价
-        logger.info("Step 6/6: AH premium (akshare)...")
+        # 6/7. akshare AH溢价
+        logger.info("Step 6/7: AH premium (akshare)...")
         _save(fetch_ah_premium(start, end), "ah_premium")
+
+        # 7/7. M2 + rebuild market cap
+        logger.info("Step 7/7: M2 + market cap rebuild...")
+        _save(fetch_m2_history("2008-01-01", end), "m2_monthly")
+        rebuild_market_cap()
 
     finally:
         bs_logout()

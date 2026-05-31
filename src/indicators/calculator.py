@@ -54,7 +54,7 @@ def _score_with_fallback(score, fallback_reason=""):
 class HeatIndexCalculator:
     def __init__(self, trade_date: str = None, db_path: str = None):
         self.trade_date = trade_date or date.today().strftime("%Y-%m-%d")
-        self.db_path = db_path
+        self.db_path = db_path or DB_PATH
         self.lookback_start = (
             date.fromisoformat(self.trade_date) - timedelta(days=LOOKBACK_YEARS * 365)
         ).strftime("%Y-%m-%d")
@@ -89,6 +89,13 @@ class HeatIndexCalculator:
             )
         return self._cache["sd_hist"]
 
+
+    def _conn(self):
+        """Get or reuse SQLite connection"""
+        if not hasattr(self, "_db_conn") or self._db_conn is None:
+            import sqlite3
+            self._db_conn = sqlite3.connect(self.db_path)
+        return self._db_conn
     def _get_margin(self) -> pd.DataFrame:
         if "margin" not in self._cache:
             self._cache["margin"] = read_dataframe(
@@ -662,6 +669,118 @@ class HeatIndexCalculator:
 
     # ── 维度合成 ───────────────────────────────────────────────────────────────
 
+    def _series_pct_rank(self, series: pd.Series, value: float) -> float:
+        """Forward percentile rank (0.0-1.0): how much of history <= value"""
+        if series.empty or pd.isna(value):
+            return 0.5
+        return (series <= value).sum() / len(series)
+
+    def _calc_buffett_ratio(self) -> Optional[float]:
+        """
+        Buffett Indicator = M2 / A-share total market cap
+        Monthly M2 forward-filled to daily.
+        Score: reverse percentile -> low ratio (expensive market) -> high heat
+        """
+        try:
+            conn = self._conn()
+            row_m2 = conn.execute(
+                "SELECT m2_billion FROM m2_monthly WHERE month <= ? ORDER BY month DESC LIMIT 1",
+                (self.trade_date[:7],)
+            ).fetchone()
+            if not row_m2 or not row_m2[0]:
+                return None
+            m2 = row_m2[0]
+            row_mc = conn.execute(
+                "SELECT total_mv FROM stock_market_cap WHERE trade_date <= ? ORDER BY trade_date DESC LIMIT 1",
+                (self.trade_date,)
+            ).fetchone()
+            if not row_mc or not row_mc[0]:
+                return None
+            total_mv = row_mc[0]
+            if total_mv <= 0:
+                return None
+            ratio = m2 / total_mv
+
+            # Historical reverse percentile
+            hist_mc = conn.execute(
+                "SELECT trade_date, total_mv FROM stock_market_cap ORDER BY trade_date"
+            ).fetchall()
+            hist_m2 = conn.execute(
+                "SELECT month, m2_billion FROM m2_monthly ORDER BY month"
+            ).fetchall()
+            m2_map = {m[0]: m[1] for m in hist_m2}
+            hist_ratios = []
+            for dt, mv in hist_mc:
+                ym = dt[:7]
+                v2 = None
+                for mm in sorted(m2_map):
+                    if mm <= ym:
+                        v2 = m2_map[mm]
+                if v2 and mv > 0:
+                    hist_ratios.append((dt, v2 / mv))
+            if len(hist_ratios) < 20:
+                return None
+            s = pd.Series({r[0]: r[1] for r in hist_ratios})
+            score = (1.0 - self._series_pct_rank(s, ratio)) * 100
+            logger.info("Buffett ratio: %.4f, score=%.1f", ratio, score)
+            return max(0, min(100, score))
+        except Exception as e:
+            logger.error("Buffett ratio: %s", e)
+            return None
+
+    def _calc_equity_bond_ratio(self) -> Optional[float]:
+        """
+        CSI300 E/P / 10Y government bond yield (equity-bond yield ratio)
+        Score: reverse percentile -> low ratio (expensive equity) -> high heat
+        Classic: >2.0 bottom, 1.5~2.0 cheap, <1.0 expensive
+        """
+        try:
+            conn = self._conn()
+            pe_row = conn.execute(
+                "SELECT pe_ttm FROM index_pe_history WHERE index_code='sh000300' AND trade_date <= ? ORDER BY trade_date DESC LIMIT 1",
+                (self.trade_date,)
+            ).fetchone()
+            if not pe_row or len(pe_row) == 0 or not pe_row[0] or pe_row[0] <= 0:
+                return None
+            ep = 1.0 / pe_row[0] * 100  # earnings yield %
+            bond_row = conn.execute(
+                "SELECT yield_rate FROM bond_yield WHERE trade_date <= ? AND curve_term=10 ORDER BY trade_date DESC LIMIT 1",
+                (self.trade_date,)
+            ).fetchone()
+            bond_yield = bond_row[0] if bond_row and bond_row[0] and bond_row[0] > 0 else 2.5
+            ratio = ep / bond_yield
+
+            # Historical reverse percentile
+            hist_pe = conn.execute(
+                "SELECT trade_date, pe_ttm FROM index_pe_history WHERE index_code='sh000300' AND trade_date <= ? ORDER BY trade_date",
+                (self.trade_date,)
+            ).fetchall()
+            hist_bond = conn.execute(
+                "SELECT trade_date, yield_rate FROM bond_yield WHERE curve_term=10 AND trade_date <= ? ORDER BY trade_date",
+                (self.trade_date,)
+            ).fetchall()
+            bond_map = {b[0]: b[1] for b in hist_bond}
+            hist_ratios = []
+            for dt, pe in hist_pe:
+                if pe <= 0:
+                    continue
+                by = None
+                for bd in sorted(bond_map):
+                    if bd <= dt:
+                        by = bond_map[bd]
+                if by and by > 0:
+                    hist_ratios.append((dt, (1.0 / pe * 100) / by))
+            if len(hist_ratios) < 20:
+                return None
+            s = pd.Series({r[0]: r[1] for r in hist_ratios})
+            score = (1.0 - self._series_pct_rank(s, ratio)) * 100
+            logger.info("Equity/Bond ratio: %.4f (E/P=%.2f%% / Bond=%.2f%%), score=%.1f",
+                        ratio, ep, bond_yield, score)
+            return max(0, min(100, score))
+        except Exception as e:
+            logger.error("Equity/Bond ratio: %s", e)
+            return None
+
     def _combine_dimension(self, scores: list, label: str) -> Optional[float]:
         """
         子指标合成（动态权重）
@@ -703,7 +822,9 @@ class HeatIndexCalculator:
         v2 = self._calc_pb_percentile()
         v3 = self._calc_erp()
         v4 = self._calc_below_net_rate()
-        dim_val = self._combine_dimension([v1, v2, v3, v4], "Valuation")
+        v5 = self._calc_buffett_ratio()          # Buffett: M2/market_cap
+        v6 = self._calc_equity_bond_ratio()       # HS300 E/P / bond_yield
+        dim_val = self._combine_dimension([v1, v2, v3, v4, v5, v6], "Valuation")
 
         # 资金
         f1 = self._calc_margin_ratio()

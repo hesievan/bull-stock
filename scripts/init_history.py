@@ -29,10 +29,15 @@ if os.path.exists(_env_path):
             os.environ["TUSHARE_TOKEN"] = line.split("=", 1)[1]
             break
 
+log_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'data', 'init_history.log')
+os.makedirs(os.path.dirname(log_path), exist_ok=True)
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
-    handlers=[logging.StreamHandler()]
+    handlers=[
+        logging.StreamHandler(),
+        logging.FileHandler(log_path, mode='a', encoding='utf-8')
+    ]
 )
 logger = logging.getLogger(__name__)
 

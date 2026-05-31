@@ -57,6 +57,20 @@ CREATE TABLE IF NOT EXISTS stock_industry (
     PRIMARY KEY (code)
 );
 
+-- M2月度货币供应量 (akshare: macro_china_money_supply)
+CREATE TABLE IF NOT EXISTS m2_monthly (
+    month       TEXT PRIMARY KEY,
+    m2_billion  REAL,
+    m2_yoy      REAL
+);
+
+-- A股总市值 (stock_daily total_mv 成分股加总proxy)
+CREATE TABLE IF NOT EXISTS stock_market_cap (
+    trade_date  TEXT PRIMARY KEY,
+    total_mv    REAL,
+    stock_count INTEGER
+);
+
 -- 个股资产负债表 (baostock: query_balance_data)
 CREATE TABLE IF NOT EXISTS stock_balance (
     stock_code TEXT NOT NULL,
