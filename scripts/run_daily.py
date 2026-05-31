@@ -44,6 +44,7 @@ def run_daily(trade_date: str = None):
         fetch_all_index_incremental,
         fetch_index_constituents,
         fetch_stocks_latest_day,
+        fetch_daily_basic_to_stock_daily,
         fetch_margin_history,
         fetch_northbound_history,
         fetch_bond_yield_history,
@@ -78,26 +79,30 @@ def run_daily(trade_date: str = None):
         logger.info("Fetching %d stocks for %s...", len(all_codes), trade_date)
         fetch_stocks_latest_day(list(all_codes), trade_date)
 
-        # Step 3: tushare (先检查是否已有数据)
-        logger.info("Step 3: Tushare data (margin/northbound/bond)...")
+        # Step 3: tushare daily_basic (全市场 PE/PB/市值)
+        logger.info("Step 3: Full market PE/PB (tushare daily_basic)...")
+        fetch_daily_basic_to_stock_daily(trade_date)
+
+        # Step 4: tushare (融资融券/北向/国债)
+        logger.info("Step 4: Tushare data (margin/northbound/bond)...")
         _fetch_tushare_if_needed(trade_date)
 
     finally:
         bs_logout()
 
-    # Step 4: 计算热度指数
-    logger.info("Step 4: Calculating heat index...")
+    # Step 5: 计算热度指数
+    logger.info("Step 5: Calculating heat index...")
     result = calculate_heat_index(trade_date=trade_date)
 
     if result["composite_score"] is None:
         logger.error("Failed to calculate heat index!")
         return None
 
-    # Step 5: 保存结果
-    logger.info("Step 5: Saving results...")
+    # Step 6: 保存结果
+    logger.info("Step 6: Saving results...")
     save_results(result)
 
-    # Step 6: 红区飞书通知
+    # Step 7: 红区飞书通知
     level = get_heat_level(result["composite_score"])
     if level == "red":
         history_file = os.path.join(os.path.dirname(__file__), "..", "web", "data", "history.json")

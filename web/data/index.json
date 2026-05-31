@@ -1,28 +1,41 @@
 {
-  "trade_date": "2026-05-29",
-  "composite_score": 57.5,
-  "level": "yellow",
-  "dimensions": {
-    "valuation": {
-      "score": null,
-      "label": "估值"
-    },
-    "fund": {
-      "score": null,
-      "label": "资金"
-    },
-    "sentiment": {
-      "score": 52.5,
-      "label": "情绪"
-    },
-    "technical": {
-      "score": 62.5,
-      "label": "技术"
-    },
-    "structure": {
-      "score": null,
-      "label": "结构"
+  "latest": {
+    "trade_date": "2026-05-29",
+    "composite_score": 59.49322758190882,
+    "dim_valuation": 51.965266030633586,
+    "dim_fund": 91.10486891385767,
+    "dim_sentiment": 49.26548734095492,
+    "dim_technical": 45.13051562409793,
+    "dim_structure": 60.0,
+    "indicators": {
+      "valuation": {
+        "PE_percentile": 37.92250618301731,
+        "PB_percentile": 42.78647980214345,
+        "below_net_rate": 98.0626545754328,
+        "ERP": 37.96372629843363,
+        "buffett_ratio": 81.51107882310207,
+        "equity_bond_ratio": 13.545150501672243
+      },
+      "fund": {
+        "margin_ratio": 82.20973782771536,
+        "northbound": 100
+      },
+      "sentiment": {
+        "turnover": 99.95877988458368,
+        "up_down_ratio": 52.26710634789777,
+        "limit_up_ratio": 28.977741137675185,
+        "limit_down_ratio": 2.4732069249793875,
+        "volatility": 62.65060240963856
+      },
+      "technical": {
+        "above_ma250_ratio": 47.81420765027322,
+        "new_high_ratio": 0,
+        "deviation_ma250": 67.70785484611851,
+        "price_volume_divergence": 65.0
+      },
+      "structure": {
+        "sector_divergence": 60.0
+      }
     }
-  },
-  "updated_at": "2026-05-31 00:00:00"
+  }
 }

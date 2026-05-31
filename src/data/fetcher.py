@@ -20,6 +20,7 @@ from datetime import datetime, timedelta, date
 from typing import Optional, List
 
 import pandas as pd
+import numpy as np
 
 from src.data.database import get_conn, get_latest_date, save_dataframe, DB_PATH
 import sqlite3
@@ -484,6 +485,169 @@ def rebuild_market_cap(db_path: str = None):
         logger.info("rebuild_market_cap: %d rows", len(rows))
     except Exception as e:
         logger.error("rebuild_market_cap: %s", e)
+
+
+# -------------------------------------------------------------------
+# tushare daily_basic: 全市场 PE/PB/市值 → stock_daily
+# -------------------------------------------------------------------
+
+def fetch_daily_basic_to_stock_daily(trade_date: str, db_path: str = None) -> int:
+    """
+    拉取 tushare daily_basic (全市场 PE/PB/市值) + daily (涨跌幅)
+    写入 stock_daily 表: peTTM, pbMRQ, total_mv, circ_mv, pct_change, close, turnover_rate
+    已有 baostock K线的股票仅更新 PE/PB/市值字段，不覆盖 OHLCV。
+    返回写入行数。
+    """
+    from src.data.database import DB_PATH as _DB
+    if not TUSHARE_TOKEN:
+        logger.warning("TUSHARE_TOKEN not set, skipping daily_basic")
+        return 0
+
+    _db = db_path or _DB
+    conn = sqlite3.connect(_db)
+
+    # 检查该日期是否已有 tushare PE/PB 数据
+    existing = conn.execute(
+        "SELECT COUNT(*) FROM stock_daily WHERE trade_date=? AND total_mv IS NOT NULL AND total_mv > 0",
+        (trade_date,)
+    ).fetchone()[0]
+    if existing > 100:
+        logger.info("daily_basic %s: already has %d rows with total_mv, skipping", trade_date, existing)
+        conn.close()
+        return 0
+
+    ds = trade_date.replace("-", "")
+
+    # 1. daily_basic: PE/PB/市值/换手率
+    try:
+        import tushare as ts
+        pro = ts.pro_api(TUSHARE_TOKEN)
+        df_basic = pro.daily_basic(trade_date=ds,
+            fields='ts_code,close,turnover_rate,pe_ttm,pb,total_mv,circ_mv')
+        time.sleep(0.35)
+    except Exception as e:
+        logger.error("daily_basic fetch failed for %s: %s", trade_date, str(e)[:80])
+        conn.close()
+        return 0
+
+    if df_basic is None or df_basic.empty:
+        logger.info("daily_basic %s: no data", trade_date)
+        conn.close()
+        return 0
+
+    # 2. daily: 涨跌幅 (pct_chg)
+    pct_map = {}
+    try:
+        df_daily = pro.daily(trade_date=ds, fields='ts_code,pct_chg')
+        time.sleep(0.35)
+        if df_daily is not None and not df_daily.empty:
+            pct_map = dict(zip(df_daily['ts_code'], df_daily['pct_chg']))
+    except Exception as e:
+        logger.warning("daily pct_chg fetch failed for %s: %s", trade_date, str(e)[:60])
+
+    # 转换 ts_code → baostock 格式
+    def _ts_to_bs(ts_code):
+        if ts_code.endswith(".SH"):
+            return "sh" + ts_code.replace(".SH", "")
+        elif ts_code.endswith(".SZ"):
+            return "sz" + ts_code.replace(".SZ", "")
+        return None
+
+    rows = []
+    for _, row in df_basic.iterrows():
+        code = _ts_to_bs(row.get("ts_code", ""))
+        if not code:
+            continue
+        pe = row.get("pe_ttm")
+        pb = row.get("pb")
+        tmv = row.get("total_mv")
+        cmv = row.get("circ_mv")
+        close = row.get("close")
+        tr = row.get("turnover_rate")
+        pct = pct_map.get(row.get("ts_code"))
+
+        def _f(v):
+            if v is None or (isinstance(v, float) and (pd.isna(v) or np.isinf(v))):
+                return None
+            return float(v)
+
+        rows.append((
+            _f(pe), _f(pb), _f(tmv), _f(cmv), _f(pct), _f(close), _f(tr),
+            trade_date, code
+        ))
+
+    if not rows:
+        conn.close()
+        return 0
+
+    conn.executemany("""
+        INSERT INTO stock_daily (peTTM, pbMRQ, total_mv, circ_mv, pct_change, close, turnover_rate, trade_date, stock_code)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ON CONFLICT(trade_date, stock_code) DO UPDATE SET
+            peTTM = COALESCE(excluded.peTTM, stock_daily.peTTM),
+            pbMRQ = COALESCE(excluded.pbMRQ, stock_daily.pbMRQ),
+            total_mv = COALESCE(excluded.total_mv, stock_daily.total_mv),
+            circ_mv = COALESCE(excluded.circ_mv, stock_daily.circ_mv),
+            pct_change = COALESCE(excluded.pct_change, stock_daily.pct_change),
+            close = COALESCE(excluded.close, stock_daily.close),
+            turnover_rate = COALESCE(excluded.turnover_rate, stock_daily.turnover_rate)
+    """, rows)
+    conn.commit()
+
+    written = len(rows)
+    logger.info("daily_basic %s: wrote %d stocks (PE/PB/mv/pct/tr)", trade_date, written)
+    conn.close()
+    return written
+
+
+def backfill_full_market_pe(start: str = "2015-01-01", end: str = None,
+                            db_path: str = None) -> dict:
+    """
+    批量回填全市场 PE/PB 到 stock_daily (通过 tushare daily_basic)
+    用于一次性初始化或补全历史数据。
+    返回 {"dates": N, "written": N, "errors": N}
+    """
+    from src.data.database import DB_PATH as _DB
+    _db = db_path or _DB
+    end = end or date.today().strftime("%Y-%m-%d")
+
+    # 获取日期范围内所有交易日 (从 index_daily 表)
+    conn = sqlite3.connect(_db)
+    trade_dates = [r[0] for r in conn.execute(
+        "SELECT DISTINCT trade_date FROM index_daily WHERE trade_date BETWEEN ? AND ? ORDER BY trade_date",
+        (start, end)
+    ).fetchall()]
+    conn.close()
+    if not trade_dates:
+        logger.warning("No trade dates found for %s ~ %s", start, end)
+        return {"dates": 0, "written": 0, "errors": 0}
+
+    logger.info("backfill_full_market_pe: %d trade dates (%s ~ %s)", len(trade_dates), start, end)
+
+    total_written = 0
+    errors = 0
+    conn = sqlite3.connect(_db)
+    for i, td in enumerate(trade_dates):
+        try:
+            # 清除该日期的 total_mv 标记, 强制重新拉取
+            conn.execute("UPDATE stock_daily SET total_mv=NULL WHERE trade_date=?", (td,))
+            conn.commit()
+            w = fetch_daily_basic_to_stock_daily(td, db_path=_db)
+            total_written += w
+        except Exception as e:
+            errors += 1
+            if errors <= 10:
+                logger.error("backfill %s: %s", td, str(e)[:80])
+            time.sleep(1)
+
+        if (i + 1) % 100 == 0:
+            logger.info("backfill progress: %d/%d (written: %d, errors: %d)",
+                        i + 1, len(trade_dates), total_written, errors)
+    conn.close()
+
+    logger.info("backfill_full_market_pe DONE: %d dates, %d written, %d errors",
+                len(trade_dates), total_written, errors)
+    return {"dates": len(trade_dates), "written": total_written, "errors": errors}
 
 
 def fetch_all_history(start: str = "2015-01-01", end: str = None):

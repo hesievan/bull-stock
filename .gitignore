@@ -10,3 +10,5 @@ data/*.sqlite
 Thumbs.db
 __pycache__/
 web/data/*.json
+*.db-shm
+*.db-wal

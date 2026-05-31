@@ -42,8 +42,9 @@ CREATE TABLE IF NOT EXISTS stock_daily (
     pct_change REAL,
     peTTM REAL,             -- PE-TTM (baostock 字段名)
     pbMRQ REAL,             -- PB-MRQ 最新季报 (baostock 字段名)
-    total_mv REAL,          -- 总市值(元)
-    circ_mv REAL,           -- 流通市值(元)
+    total_mv REAL,          -- 总市值(万元, tushare)
+    circ_mv REAL,           -- 流通市值(万元, tushare)
+    turnover_rate REAL,     -- 换手率(%, tushare daily_basic)
     PRIMARY KEY (trade_date, stock_code)
 );
 
