@@ -59,29 +59,44 @@ CREATE TABLE IF NOT EXISTS stock_balance (
     PRIMARY KEY (stock_code, report_date)
 );
 
--- 融资融券
-CREATE TABLE IF NOT EXISTS margin_daily (
-    trade_date TEXT NOT NULL,
-    stock_code TEXT,
-    margin_balance REAL,     -- 融资余额(元)
-    margin_buy REAL,         -- 融资买入额(元)
-    PRIMARY KEY (trade_date, stock_code)
+-- 融资融券 (tushare: margin 接口, 沪深合并汇总)
+CREATE TABLE IF NOT EXISTS margin_history (
+    trade_date TEXT NOT NULL PRIMARY KEY,
+    rzye REAL,       -- 融资余额(元)
+    rzmre REAL,      -- 融资买入额(元)
+    rzche REAL,      -- 融资偿还额(元)
+    rqye REAL,       -- 融券余额(元)
+    rqmcl REAL,      -- 融券卖出量
+    rzrqye REAL      -- 融资融券余额(元)
 );
 
--- 北向资金
-CREATE TABLE IF NOT EXISTS northbound_daily (
-    trade_date TEXT NOT NULL,
-   净流入 REAL,             -- 亿元
-    southbound REAL,        -- 南下(亿元)
-    PRIMARY KEY (trade_date)
+-- 北向资金 (tushare: moneyflow_hsgt 接口)
+CREATE TABLE IF NOT EXISTS northbound_history (
+    trade_date TEXT NOT NULL PRIMARY KEY,
+    hgt REAL,          -- 沪股通当日成交额(亿元)
+    sgt REAL,          -- 深股通当日成交额(亿元)
+    north_net REAL,    -- 北向净流入(亿元, hgt+sgt)
+    south_money REAL   -- 南向资金(亿元)
 );
 
--- 债券收益率
+-- 债券收益率 (tushare: yc_cb 中债国债收益率)
 CREATE TABLE IF NOT EXISTS bond_yield (
     trade_date TEXT NOT NULL,
-    yield_1y REAL,
-    yield_10y REAL,
-    PRIMARY KEY (trade_date)
+    curve_term REAL NOT NULL,    -- 期限(年)
+    yield_rate REAL,             -- 收益率(%)
+    PRIMARY KEY (trade_date, curve_term)
+);
+
+-- 指数PE/PB历史 (tushare: index_dailybasic 接口)
+CREATE TABLE IF NOT EXISTS index_pe_history (
+    trade_date TEXT NOT NULL,
+    index_code TEXT NOT NULL,
+    pe REAL,
+    pe_ttm REAL,
+    pb REAL,
+    total_mv REAL,           -- 总市值(元)
+    turnover_rate REAL,      -- 换手率(%)
+    PRIMARY KEY (trade_date, index_code)
 );
 
 -- 涨停数据
@@ -162,12 +177,16 @@ def init_database(db_path: str = None):
 
 
 def save_dataframe(df: pd.DataFrame, table: str, if_exists: str = "append", db_path: str = None):
-    """保存 DataFrame 到数据库"""
+    """保存 DataFrame 到数据库（INSERT OR REPLACE）"""
     if df.empty:
         return
     with get_conn(db_path) as conn:
-        df.to_sql(table, conn, if_exists=if_exists, index=False)
-    logger.info("Saved %d rows to %s", len(df), table)
+        # 使用临时表 + INSERT OR REPLACE 实现 upsert
+        df.to_sql('_tmp_upsert', conn, if_exists='replace', index=False)
+        cols = ', '.join(df.columns)
+        conn.execute(f'INSERT OR REPLACE INTO {table} ({cols}) SELECT {cols} FROM _tmp_upsert')
+        conn.execute('DROP TABLE _tmp_upsert')
+    logger.info('Saved %d rows to %s', len(df), table)
 
 
 def read_dataframe(query: str, params=None, db_path: str = None) -> pd.DataFrame:

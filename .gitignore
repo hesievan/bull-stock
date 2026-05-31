@@ -8,3 +8,5 @@ data/*.sqlite
 *.log
 .DS_Store
 Thumbs.db
+__pycache__/
+web/data/*.json

@@ -1,0 +1,30 @@
+[
+  {
+    "trade_date": "2026-05-29",
+    "composite_score": 57.5,
+    "level": "yellow",
+    "dimensions": {
+      "valuation": {
+        "score": null,
+        "label": "估值"
+      },
+      "fund": {
+        "score": null,
+        "label": "资金"
+      },
+      "sentiment": {
+        "score": 52.5,
+        "label": "情绪"
+      },
+      "technical": {
+        "score": 62.5,
+        "label": "技术"
+      },
+      "structure": {
+        "score": null,
+        "label": "结构"
+      }
+    },
+    "updated_at": "2026-05-31 00:00:00"
+  }
+]

@@ -1,0 +1,57 @@
+{
+  "trade_date": "2026-05-29",
+  "composite_score": 57.5,
+  "level": "yellow",
+  "dimensions": {
+    "valuation": {
+      "score": null,
+      "label": "估值"
+    },
+    "fund": {
+      "score": null,
+      "label": "资金"
+    },
+    "sentiment": {
+      "score": 52.5,
+      "label": "情绪"
+    },
+    "technical": {
+      "score": 62.5,
+      "label": "技术"
+    },
+    "structure": {
+      "score": null,
+      "label": "结构"
+    }
+  },
+  "updated_at": "2026-05-31 00:00:00",
+  "indicators": {
+    "valuation": {
+      "PE_percentile": null,
+      "PB_percentile": null,
+      "below_net_rate": null,
+      "ERP": null
+    },
+    "fund": {
+      "margin_ratio": null,
+      "northbound": null
+    },
+    "sentiment": {
+      "turnover": 52.5,
+      "limit_up_ratio": null,
+      "new_high_ratio": null,
+      "above_ma250_ratio": null,
+      "up_down_ratio": null
+    },
+    "technical": {
+      "deviation_ma250": null,
+      "volatility_change": 92.5,
+      "RSI": 32.6,
+      "high_low_diff": null
+    },
+    "structure": {
+      "ah_premium": null,
+      "equal_weighted_diff": null
+    }
+  }
+}
