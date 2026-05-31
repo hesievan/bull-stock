@@ -341,7 +341,8 @@ class HeatIndexCalculator:
             if total_circ_mv <= 0:
                 return None
 
-            turnover = total_amount / total_circ_mv * 100  # 百分比
+            # circ_mv 单位是万元(tushare), amount 单位是元(baostock), 统一为元
+            turnover = total_amount / (total_circ_mv * 10000) * 100  # 百分比
 
             # 历史换手率分位
             hist = self._get_stock_daily_history()
@@ -350,7 +351,7 @@ class HeatIndexCalculator:
 
             hist_turnover = hist.groupby("trade_date").apply(
                 lambda g: pd.to_numeric(g["amount"], errors="coerce").sum() /
-                          max(pd.to_numeric(g["circ_mv"], errors="coerce").sum(), 1) * 100
+                          max(pd.to_numeric(g["circ_mv"], errors="coerce").sum() * 10000, 1) * 100
             ).dropna()
 
             if len(hist_turnover) < 60:
@@ -699,7 +700,9 @@ class HeatIndexCalculator:
             total_mv = row_mc[0]
             if total_mv <= 0:
                 return None
-            ratio = m2 / total_mv
+            # tushare total_mv 单位是万元, M2 单位是亿元, 统一为亿元
+            total_mv_yi = total_mv / 10000.0
+            ratio = m2 / total_mv_yi
 
             # Historical reverse percentile
             hist_mc = conn.execute(
@@ -717,7 +720,7 @@ class HeatIndexCalculator:
                     if mm <= ym:
                         v2 = m2_map[mm]
                 if v2 and mv > 0:
-                    hist_ratios.append((dt, v2 / mv))
+                    hist_ratios.append((dt, v2 / (mv / 10000.0)))
             if len(hist_ratios) < 20:
                 return None
             s = pd.Series({r[0]: r[1] for r in hist_ratios})
