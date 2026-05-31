@@ -2,8 +2,8 @@
 热度指数计算引擎 — 三源合一版
 数据源: baostock(stock_daily含peTTM/pbMRQ) + tushare(margin/northbound/bond) + akshare(AH溢价)
 
-5维度 18子指标:
-  估值(4): PE分位, PB分位, 股债性价比ERP, 破净率
+5维度 20子指标:
+  估值(6): PE分位, PB分位, 股债性价比ERP, 破净率, 巴菲特指标, 沪深300股债比
   资金(2): 融资买入占比, 北向资金方向
   情绪(6): 换手率, 上涨/下跌家数比, 涨停占比, 跌停占比, 波动率, 新增投资者
   技术(5): 站上年线比, 创新高比, 均线偏离度, 量价背离, 技术综合
@@ -868,6 +868,7 @@ class HeatIndexCalculator:
                 "valuation": {
                     "PE_percentile": v1, "PB_percentile": v2,
                     "below_net_rate": v4, "ERP": v3,
+                    "buffett_ratio": v5, "equity_bond_ratio": v6,
                 },
                 "fund": {"margin_ratio": f1, "northbound": f2},
                 "sentiment": {
