@@ -1,0 +1,54 @@
+name: Daily Heat Index Update
+
+on:
+  schedule:
+    # 每天 16:30 (北京时间) = 08:30 UTC
+    - cron: '30 8 * * 1-5'
+  workflow_dispatch:  # 允许手动触发
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          pip install akshare pandas numpy
+
+      - name: Run daily update
+        run: |
+          cd ${{ github.workspace }}
+          python scripts/run_daily.py
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add web/data/
+          git diff --staged --quiet || git commit -m "Update heat index: $(date +%Y-%m-%d)"
+          git push
+
+      - name: Send Feishu notification if red
+        if: success()
+        run: |
+          if [ -f web/data/notification.txt ]; then
+            MSG=$(cat web/data/notification.txt)
+            # 如果有飞书 Webhook secret
+            if [ -n "${{ secrets.FEISHU_WEBHOOK }}" ]; then
+              curl -s -X POST "${{ secrets.FEISHU_WEBHOOK }}" \
+                -H "Content-Type: application/json" \
+                -d "{\"msg_type\":\"text\",\"content\":{\"text\":\"$MSG\"}}"
+            fi
+          fi
