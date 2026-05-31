@@ -201,6 +201,7 @@ async function loadData() {
     } catch (e) {
         console.error('Failed to load data:', e);
         document.getElementById('score-label').textContent = '数据加载失败';
+        hideLoading();
     }
 }
 

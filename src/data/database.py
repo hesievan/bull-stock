@@ -1,7 +1,8 @@
 """
-本地 SQLite 数据库管理
+本地 SQLite 数据库管理 (三源合一版)
+数据源: baostock(指数/个股K线) + tushare(融资融券/北向/国债) + akshare(AH溢价)
 - 初始化表结构
-- 增量数据写入
+- 增量数据写入 (INSERT OR REPLACE)
 - 查询接口
 """
 import sqlite3
@@ -15,125 +16,127 @@ import pandas as pd
 
 logger = logging.getLogger(__name__)
 
-DB_PATH = os.environ.get("HEAT_INDEX_DB", os.path.join(os.path.dirname(__file__), "..", "..", "data", "heat_index.db"))
+DB_PATH = os.environ.get(
+    "HEAT_INDEX_DB",
+    os.path.join(os.path.dirname(__file__), "..", "..", "data", "heat_index.db")
+)
 
-# 建表 SQL
+# ── 建表 SQL ──────────────────────────────────────────────────────────────────
 SCHEMA = """
--- 指数日行情
+-- 指数日行情 (baostock: query_history_k_data_plus)
 CREATE TABLE IF NOT EXISTS index_daily (
     trade_date TEXT NOT NULL,
     index_code TEXT NOT NULL,
-    open REAL,
-    high REAL,
-    low REAL,
-    close REAL,
-    volume REAL,
-    amount REAL,
-    pct_change REAL,
+    open REAL, high REAL, low REAL, close REAL,
+    volume REAL, amount REAL, pct_change REAL,
     PRIMARY KEY (trade_date, index_code)
 );
 
--- 个股日行情（精简字段）
+-- 个股日行情 (baostock: query_history_k_data_plus)
+-- 列名对齐 baostock 返回字段: peTTM, pbMRQ, pctChg
 CREATE TABLE IF NOT EXISTS stock_daily (
     trade_date TEXT NOT NULL,
     stock_code TEXT NOT NULL,
-    open REAL,
-    high REAL,
-    low REAL,
-    close REAL,
-    volume REAL,
-    amount REAL,
+    open REAL, high REAL, low REAL, close REAL,
+    volume REAL, amount REAL,
     pct_change REAL,
-    pe REAL,
-    pb REAL,
-    total_mv REAL,       -- 总市值(万)
-    circ_mv REAL,        -- 流通市值(万)
+    peTTM REAL,             -- PE-TTM (baostock 字段名)
+    pbMRQ REAL,             -- PB-MRQ 最新季报 (baostock 字段名)
+    total_mv REAL,          -- 总市值(元)
+    circ_mv REAL,           -- 流通市值(元)
     PRIMARY KEY (trade_date, stock_code)
 );
 
--- 个股资产负债表（用于破净率计算）
+-- 个股行业分类 (baostock: query_stock_industry)
+CREATE TABLE IF NOT EXISTS stock_industry (
+    code TEXT NOT NULL,           -- akshare格式 sh.600000
+    code_name TEXT,               -- 股票名称
+    industry TEXT,                -- 行业名称
+    industry_classification TEXT, -- 证监会行业分类
+    update_date TEXT,             -- 更新日期
+    PRIMARY KEY (code)
+);
+
+-- 个股资产负债表 (baostock: query_balance_data)
 CREATE TABLE IF NOT EXISTS stock_balance (
     stock_code TEXT NOT NULL,
-    report_date TEXT NOT NULL,
-    bps REAL,            -- 每股净资产
+    report_date TEXT NOT NULL,    -- 报告期 YYYY-MM-DD
+    bps REAL,                     -- 每股净资产
     PRIMARY KEY (stock_code, report_date)
 );
 
--- 融资融券 (tushare: margin 接口, 沪深合并汇总)
+-- 融资融券 (tushare: margin 接口, 沪深北三市合并日汇总)
 CREATE TABLE IF NOT EXISTS margin_history (
     trade_date TEXT NOT NULL PRIMARY KEY,
     rzye REAL,       -- 融资余额(元)
     rzmre REAL,      -- 融资买入额(元)
     rzche REAL,      -- 融资偿还额(元)
     rqye REAL,       -- 融券余额(元)
-    rqmcl REAL,      -- 融券卖出量
+    rqmcl REAL,      -- 融券卖出量(股)
     rzrqye REAL      -- 融资融券余额(元)
 );
 
 -- 北向资金 (tushare: moneyflow_hsgt 接口)
 CREATE TABLE IF NOT EXISTS northbound_history (
     trade_date TEXT NOT NULL PRIMARY KEY,
-    hgt REAL,          -- 沪股通当日成交额(亿元)
-    sgt REAL,          -- 深股通当日成交额(亿元)
-    north_net REAL,    -- 北向净流入(亿元, hgt+sgt)
-    south_money REAL   -- 南向资金(亿元)
+    hgt REAL,           -- 沪股通当日成交额(百万元)
+    sgt REAL,           -- 深股通当日成交额(百万元)
+    north_net REAL,     -- 北向净流入(百万元)
+    south_money REAL    -- 南向资金(百万元)
 );
 
--- 债券收益率 (tushare: yc_cb 中债国债收益率)
+-- 国债收益率 (tushare: yc_cb 中债国债收益率曲线)
 CREATE TABLE IF NOT EXISTS bond_yield (
     trade_date TEXT NOT NULL,
-    curve_term REAL NOT NULL,    -- 期限(年)
-    yield_rate REAL,             -- 收益率(%)
+    curve_term REAL NOT NULL,     -- 期限(年): 0.08,0.25,...,10,30,50
+    yield_rate REAL,              -- 收益率(%)
     PRIMARY KEY (trade_date, curve_term)
 );
 
--- 指数PE/PB历史 (tushare: index_dailybasic 接口)
+-- 指数PE/PB历史 (tushare: index_dailybasic 接口, 含换手率)
 CREATE TABLE IF NOT EXISTS index_pe_history (
     trade_date TEXT NOT NULL,
     index_code TEXT NOT NULL,
-    pe REAL,
-    pe_ttm REAL,
-    pb REAL,
-    total_mv REAL,           -- 总市值(元)
-    turnover_rate REAL,      -- 换手率(%)
+    pe_ttm REAL,                 -- PE-TTM
+    pb REAL,                     -- PB
+    total_mv REAL,               -- 总市值(亿元)
+    turnover_rate REAL,          -- 换手率(%)
     PRIMARY KEY (trade_date, index_code)
 );
 
--- 涨停数据
+-- 涨停明细 (由 stock_daily.pct_change >= 9.9 筛选写入)
 CREATE TABLE IF NOT EXISTS limit_up_daily (
     trade_date TEXT NOT NULL,
     stock_code TEXT NOT NULL,
     PRIMARY KEY (trade_date, stock_code)
 );
 
--- AH 溢价指数
+-- AH 溢价指数 (akshare: stock_zh_ah_spot_em)
 CREATE TABLE IF NOT EXISTS ah_premium (
-    trade_date TEXT NOT NULL,
-    premium REAL,           -- 溢价率百分比
-    PRIMARY KEY (trade_date)
+    trade_date TEXT NOT NULL PRIMARY KEY,
+    premium REAL                 -- 溢价率(%)
 );
 
--- 新增投资者数据
+-- 新增投资者 (中国结算, 手动录入)
 CREATE TABLE IF NOT EXISTS new_investors (
-    week_end_date TEXT NOT NULL,
-    new_accounts REAL,      -- 万户
-    PRIMARY KEY (week_end_date)
+    week_end_date TEXT NOT NULL PRIMARY KEY,
+    new_accounts REAL            -- 新增户数(万户)
 );
 
--- 计算结果
+-- 热度指数计算结果
 CREATE TABLE IF NOT EXISTS heat_index (
     trade_date TEXT NOT NULL PRIMARY KEY,
-    composite_score REAL NOT NULL,
-    dimension_valuation REAL,
-    dimension_fund REAL,
-    dimension_sentiment REAL,
-    dimension_technical REAL,
-    dimension_structure REAL,
-    detail_json TEXT,       -- JSON: 所有子指标数值
+    composite_score REAL NOT NULL,  -- 综合热度 0-100
+    dim_valuation REAL,             -- 估值维度
+    dim_fund REAL,                  -- 资金维度
+    dim_sentiment REAL,             -- 情绪维度
+    dim_technical REAL,             -- 技术维度
+    dim_structure REAL,             -- 结构维度
+    detail_json TEXT,               -- 所有子指标详情
     created_at TEXT DEFAULT (datetime('now'))
 );
 
--- 板块热度
+-- 板块热度 (Phase 2: 行业指数)
 CREATE TABLE IF NOT EXISTS sector_heat (
     trade_date TEXT NOT NULL,
     sector_code TEXT NOT NULL,
@@ -142,7 +145,7 @@ CREATE TABLE IF NOT EXISTS sector_heat (
     PRIMARY KEY (trade_date, sector_code)
 );
 
--- 元数据记录
+-- 元数据
 CREATE TABLE IF NOT EXISTS metadata (
     key TEXT PRIMARY KEY,
     value TEXT,
@@ -176,12 +179,11 @@ def init_database(db_path: str = None):
     logger.info("Database initialized at %s", db_path or DB_PATH)
 
 
-def save_dataframe(df: pd.DataFrame, table: str, if_exists: str = "append", db_path: str = None):
-    """保存 DataFrame 到数据库（INSERT OR REPLACE）"""
+def save_dataframe(df: pd.DataFrame, table: str, db_path: str = None):
+    """保存 DataFrame 到数据库（INSERT OR REPLACE upsert）"""
     if df.empty:
         return
     with get_conn(db_path) as conn:
-        # 使用临时表 + INSERT OR REPLACE 实现 upsert
         df.to_sql('_tmp_upsert', conn, if_exists='replace', index=False)
         cols = ', '.join(df.columns)
         conn.execute(f'INSERT OR REPLACE INTO {table} ({cols}) SELECT {cols} FROM _tmp_upsert')
