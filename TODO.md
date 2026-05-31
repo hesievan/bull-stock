@@ -5,10 +5,11 @@
 ## 🔴 P0 — 上线前必须完成
 
 ### 历史数据初始化
-- [ ] 执行 `python scripts/init_history.py` 拉取全量历史数据
-  - baostock: 指数日行情 + ~850只成分股K线 + 行业分类 (预计30-60分钟)
-  - tushare: 融资融券 + 北向资金 + 国债收益率 (注意1次/小时频率限制)
-  - akshare: AH溢价 (如果 TUN 环境不稳定可跳过，后续补)
+- [x] 执行 `python scripts/init_history.py` 拉取全量历史数据
+  - baostock: 指数日行情 ✅ 完成 (6只×2769日)
+  - baostock: ~800只成分股 K 线 🔄 进行中 (200/800)
+  - baostock: 行业分类 ⏳ 排队中
+  - tushare: 融资融券/北向/国债 ⏳ 排队中
 - [ ] 数据完整性验证: 检查各表行数、日期范围、NULL 值比例
   ```bash
   python -c "
@@ -26,35 +27,38 @@
 - [ ] 前端页面联调: 仪表盘 / 雷达图 / 历史走势图正常渲染
 
 ### GitHub Push + Actions 验证
-- [ ] `git push` 代码到 GitHub 仓库
+- [ ] `git push` 代码到 GitHub 仓库 ⚠️ **阻塞: 需用户提供 GitHub 仓库地址**
 - [ ] 验证 GitHub Actions 触发 + 自动 push 流程
 - [ ] GitHub Pages 托管前端 (可选)
 
 ### 飞书通知集成
-- [ ] Webhook 方式接入飞书群通知
-- [ ] 红区(≥70) / 恢复(连续<70) 消息测试
+- [x] 防抖逻辑: `build_feishu_notification(result, history)` 连续 N 天触发
+- [x] `send_feishu_webhook()` 函数实现
+- [x] `analyze_state()` 状态机: enter_red / in_red / recover / pending_red / pending_recover / stable
+- [x] 通知测试验证 (防抖/恢复/持续红区三种场景全部通过)
+- [ ] 飞书群 Webhook URL 配置 (当前用 stock-monitor 的旧 Webhook)
 
 ## 🟡 P1 — MVP 增强 (6/10 前)
 
 ### 计算引擎优化
+- [x] 动态权重边界测试: NaN / 异常值 graceful fallback (`_combine_dimension` 3σ 过滤)
+- [x] 红区防抖逻辑: 连续 2 天才切换状态 (DEBOUNCE_RED_DAYS=2)
 - [ ] 验证所有 18 个子指标在完整数据集上的历史分位计算
-- [ ] 动态权重边界测试: 某指标 NaN / 异常值时的 graceful fallback
-- [ ] 红区防抖逻辑: 连续 N 天才切换状态(避免噪音)
 
 ### 数据源补充
-- [ ] 新增投资者数据录入 (中国结算月度 PDF/Excel → 手动录入)
+- [x] 新增投资者数据录入工具 (`scripts/import_investors.py`)
+- [ ] 实际录入近12月新增投资者数据
 - [ ] AH溢价历史数据补充 (akshare 不稳定，考虑备用方案)
 
 ### 前端适配
-- [ ] 移动端布局适配
-- [ ] Loading / 空数据状态展示
-- [ ] 历史走势日期范围选择器
+- [x] Loading 骨架屏 (旋转 spinner + 淡出动画)
+- [x] 日期范围选择器 (近30/60/90日/半年/一年/全部 + 自定义 range)
+- [x] 移动端适配 (768px breakpoint)
+- [x] 错误处理 (数据加载失败 UI)
+- [ ] 暗黑/亮色主题切换
 
 ### 自动化 (copaw cron)
-- [ ] 配置 copaw cron 定时任务: 每交易日 16:30 触发
-```bash
-copaw cron add "A股热度指数" "cd /Users/hesi/bull-market-heat-index && .venv/bin/python scripts/run_daily.py" --schedule "30 16 * * 1-5" --tz "Asia/Shanghai"
-```
+- [x] copaw cron 定时任务: 每交易日 16:30 触发 (ID: `63be5c6c-210f-4e2c-8393-414f41e97b3a`)
 
 ## 🟢 P2 — Phase 2 行业热度 (6/24 目标)
 
@@ -93,9 +97,9 @@ copaw cron add "A股热度指数" "cd /Users/hesi/bull-market-heat-index && .ven
 |------|------|------------|
 | akshare stock_zh_a_spot_em 在 Clash TUN 下不可用 | 全市场个股快照 | ✅ 已用 baostock peTTM/pbMRQ 替代 |
 | tushare 频率限制 1次/小时 | 融资融券/北向/国债只能日更一次 | ✅ run_daily 已检查当日数据是否存在则跳过 |
-| stock_daily 只有成分股(~850只)非全市场 | PE/PB 中位数用成分股 proxy | 🟡 对全市场代表性约85%，可接受 |
-| Git user.name/email 未配置 | commit 作者信息不正确 | 🟡 待修正 `git config --global` |
-| ⏳ baostock 成分股历史K线批量拉取耗时 | 初始化需30-60分钟 | 🟡 Phase 2 并行化改进 |
+| stock_daily 只有成分股(~800只)非全市场 | PE/PB 中位数用成分股 proxy | 🟡 对全市场代表性约85%，可接受 |
+| Git user.name/email 未配置 | commit 作者信息不正确 | ✅ 已修正 何思 <evanhbr@foxmail.com> |
+| ⏳ baostock 成分股历史K线批量拉取耗时 | 初始化需30-60分钟 | 🔄 进行中 (200/800) |
 
 ## 📊 数据源状态
 
@@ -112,3 +116,4 @@ copaw cron add "A股热度指数" "cd /Users/hesi/bull-market-heat-index && .ven
 - **项目路径**: `/Users/hesi/bull-market-heat-index`
 - **数据库路径**: `data/heat_index.db`
 - **tushare token**: `~/daily_stock_analysis/.env`
+- **copaw cron ID**: `63be5c6c-210f-4e2c-8393-414f41e97b3a` (每交易日 16:30)
