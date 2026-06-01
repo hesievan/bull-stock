@@ -30,6 +30,8 @@ logger = logging.getLogger(__name__)
 # ── 常量 ──────────────────────────────────────────────────────────────────────
 
 TUSHARE_TOKEN = os.environ.get("TUSHARE_TOKEN", "")
+TUSHARE_TIMEOUT = 30  # tushare HTTP 请求超时(秒)
+TUSHARE_RETRIES = 2   # tushare 接口重试次数
 
 # 指数代码映射: akshare格式 → (baostock格式, tushare格式)
 INDEX_CODE_MAP = {
@@ -314,68 +316,76 @@ def fetch_trade_dates(start: str, end: str) -> pd.DataFrame:
 # ── tushare: 融资融券 ────────────────────────────────────────────────────────
 
 def fetch_margin_history(start: str, end: str) -> pd.DataFrame:
-    """融资融券日汇总 (tushare margin 接口)"""
-    try:
-        import tushare as ts
-        _ts_sleep()
-        pro = ts.pro_api(TUSHARE_TOKEN)
-        df = pro.margin(start_date=start.replace("-", ""), end_date=end.replace("-", ""))
-        if df is not None and not df.empty:
-            df["trade_date"] = pd.to_datetime(df["trade_date"]).dt.strftime("%Y-%m-%d")
-            df = df.groupby("trade_date", as_index=False).agg({
-                "rzye": "sum", "rzmre": "sum", "rzche": "sum",
-                "rqye": "sum", "rqmcl": "sum", "rzrqye": "sum",
-            })
-        return df if df is not None else pd.DataFrame()
-    except Exception as e:
-        logger.error("fetch_margin_history: %s", e)
-        return pd.DataFrame()
+    """融资融券日汇总 (tushare margin 接口, 超时30s, 重试2次)"""
+    import tushare as ts
+    _ts_sleep()
+    for attempt in range(1, TUSHARE_RETRIES + 1):
+        try:
+            pro = ts.pro_api(TUSHARE_TOKEN, timeout=TUSHARE_TIMEOUT)
+            df = pro.margin(start_date=start.replace("-", ""), end_date=end.replace("-", ""))
+            if df is not None and not df.empty:
+                df["trade_date"] = pd.to_datetime(df["trade_date"]).dt.strftime("%Y-%m-%d")
+                df = df.groupby("trade_date", as_index=False).agg({
+                    "rzye": "sum", "rzmre": "sum", "rzche": "sum",
+                    "rqye": "sum", "rqmcl": "sum", "rzrqye": "sum",
+                })
+            return df if df is not None else pd.DataFrame()
+        except Exception as e:
+            logger.warning("fetch_margin_history attempt %d/%d: %s", attempt, TUSHARE_RETRIES, str(e)[:80])
+            if attempt < TUSHARE_RETRIES:
+                time.sleep(5)
+    return pd.DataFrame()
 
 
 # ── tushare: 北向资金 ─────────────────────────────────────────────────────────
 
 def fetch_northbound_history(start: str, end: str) -> pd.DataFrame:
-    """北向资金日度净流入 (tushare moneyflow_hsgt 接口)"""
-    try:
-        import tushare as ts
-        _ts_sleep()
-        pro = ts.pro_api(TUSHARE_TOKEN)
-        df = pro.moneyflow_hsgt(start_date=start.replace("-", ""), end_date=end.replace("-", ""))
-        if df is not None and not df.empty:
-            df["trade_date"] = pd.to_datetime(df["trade_date"]).dt.strftime("%Y-%m-%d")
-            df["north_net"] = pd.to_numeric(df.get("hgt", 0), errors="coerce").fillna(0) + \
-                              pd.to_numeric(df.get("sgt", 0), errors="coerce").fillna(0)
-            # 只保留数据库表中的列
-            _keep = ["trade_date", "hgt", "sgt", "north_net", "south_money"]
-            df = df[[c for c in _keep if c in df.columns]]
-        return df if df is not None else pd.DataFrame()
-    except Exception as e:
-        logger.error("fetch_northbound_history: %s", e)
-        return pd.DataFrame()
+    """北向资金日度净流入 (tushare moneyflow_hsgt 接口, 超时30s, 重试2次)"""
+    import tushare as ts
+    _ts_sleep()
+    for attempt in range(1, TUSHARE_RETRIES + 1):
+        try:
+            pro = ts.pro_api(TUSHARE_TOKEN, timeout=TUSHARE_TIMEOUT)
+            df = pro.moneyflow_hsgt(start_date=start.replace("-", ""), end_date=end.replace("-", ""))
+            if df is not None and not df.empty:
+                df["trade_date"] = pd.to_datetime(df["trade_date"]).dt.strftime("%Y-%m-%d")
+                df["north_net"] = pd.to_numeric(df.get("hgt", 0), errors="coerce").fillna(0) + \
+                                  pd.to_numeric(df.get("sgt", 0), errors="coerce").fillna(0)
+                _keep = ["trade_date", "hgt", "sgt", "north_net", "south_money"]
+                df = df[[c for c in _keep if c in df.columns]]
+            return df if df is not None else pd.DataFrame()
+        except Exception as e:
+            logger.warning("fetch_northbound_history attempt %d/%d: %s", attempt, TUSHARE_RETRIES, str(e)[:80])
+            if attempt < TUSHARE_RETRIES:
+                time.sleep(5)
+    return pd.DataFrame()
 
 
 # ── tushare: 国债收益率 ──────────────────────────────────────────────────────
 
 def fetch_bond_yield_history(start: str, end: str) -> pd.DataFrame:
-    """中债国债收益率 (tushare yc_cb 接口)"""
-    try:
-        import tushare as ts
-        _ts_sleep()
-        pro = ts.pro_api(TUSHARE_TOKEN)
-        df = pro.yc_cb(
-            start_date=start.replace("-", ""),
-            end_date=end.replace("-", ""),
-            curve_type="1"  # 国债
-        )
-        if df is not None and not df.empty:
-            df["trade_date"] = pd.to_datetime(df["trade_date"]).dt.strftime("%Y-%m-%d")
-            return df[["trade_date", "curve_term", "yield"]].rename(
-                columns={"yield": "yield_rate"}
-            ).copy()
-        return pd.DataFrame()
-    except Exception as e:
-        logger.error("fetch_bond_yield_history: %s", e)
-        return pd.DataFrame()
+    """中债国债收益率 (tushare yc_cb 接口, 超时30s, 重试2次)"""
+    import tushare as ts
+    _ts_sleep()
+    for attempt in range(1, TUSHARE_RETRIES + 1):
+        try:
+            pro = ts.pro_api(TUSHARE_TOKEN, timeout=TUSHARE_TIMEOUT)
+            df = pro.yc_cb(
+                start_date=start.replace("-", ""),
+                end_date=end.replace("-", ""),
+                curve_type="1"
+            )
+            if df is not None and not df.empty:
+                df["trade_date"] = pd.to_datetime(df["trade_date"]).dt.strftime("%Y-%m-%d")
+                return df[["trade_date", "curve_term", "yield"]].rename(
+                    columns={"yield": "yield_rate"}
+                ).copy()
+            return pd.DataFrame()
+        except Exception as e:
+            logger.warning("fetch_bond_yield_history attempt %d/%d: %s", attempt, TUSHARE_RETRIES, str(e)[:80])
+            if attempt < TUSHARE_RETRIES:
+                time.sleep(5)
+    return pd.DataFrame()
 
 
 # ── tushare: 指数PE/PB (备用/baostock 无此字段时用) ────────────────────────────

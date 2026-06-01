@@ -128,28 +128,63 @@ def run_daily(trade_date: str = None):
 
 
 def _fetch_tushare_if_needed(trade_date: str):
-    """当日数据已存在则跳过 tushare"""
+    """当日数据已存在则跳过 tushare（带超时保护）"""
     from src.data.database import read_dataframe
+    from concurrent.futures import ThreadPoolExecutor, TimeoutError as FuturesTimeout
+
+    def _call_with_timeout(fn, args, label, timeout=60):
+        """在线程中执行 fn(*args)，超时返回 None"""
+        try:
+            with ThreadPoolExecutor(max_workers=1) as ex:
+                future = ex.submit(fn, *args)
+                result = future.result(timeout=timeout)
+            if result is None or (hasattr(result, 'empty') and result.empty):
+                logger.warning("tushare %s: returned empty", label)
+            else:
+                logger.info("tushare %s: got %d rows", label,
+                            len(result) if hasattr(result, '__len__') else 1)
+            return result
+        except FuturesTimeout:
+            logger.warning("tushare %s: TIMEOUT after %ds, skipping", label, timeout)
+            return None
+        except Exception as e:
+            logger.error("tushare %s: %s", label, str(e)[:100])
+            return None
+
+    from src.data.fetcher import fetch_margin_history, fetch_northbound_history, fetch_bond_yield_history, _save
 
     # 融资融券
     existing = read_dataframe(
         "SELECT 1 FROM margin_history WHERE trade_date=? LIMIT 1",
         params=(trade_date,))
     if existing.empty:
-        df = fetch_margin_history(trade_date, trade_date)
-        _save(df, "margin_history")
+        df = _call_with_timeout(fetch_margin_history, (trade_date, trade_date), "margin", 60)
+        if df is not None and not df.empty:
+            _save(df, "margin_history")
+        else:
+            logger.warning("No margin data for %s", trade_date)
 
     # 北向资金
     existing = read_dataframe(
         "SELECT 1 FROM northbound_history WHERE trade_date=? LIMIT 1",
         params=(trade_date,))
     if existing.empty:
-        df = fetch_northbound_history(trade_date, trade_date)
-        _save(df, "northbound_history")
+        df = _call_with_timeout(fetch_northbound_history, (trade_date, trade_date), "northbound", 60)
+        if df is not None and not df.empty:
+            _save(df, "northbound_history")
+        else:
+            logger.warning("No northbound data for %s", trade_date)
 
     # 国债收益率
-    df = fetch_bond_yield_history(trade_date, trade_date)
-    _save(df, "bond_yield")
+    existing = read_dataframe(
+        "SELECT 1 FROM bond_yield WHERE trade_date=? LIMIT 1",
+        params=(trade_date,))
+    if existing.empty:
+        df = _call_with_timeout(fetch_bond_yield_history, (trade_date, trade_date), "bond_yield", 60)
+        if df is not None and not df.empty:
+            _save(df, "bond_yield")
+        else:
+            logger.warning("No bond_yield data for %s", trade_date)
 
 
 def run_backfill(start_date: str = "2015-01-01", end_date: str = None):
