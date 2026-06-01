@@ -131,14 +131,11 @@ class HeatIndexCalculator:
     # ── 估值维度 ───────────────────────────────────────────────────────────────
 
     def _calc_pe_percentile(self) -> Optional[float]:
-        """全市场PE历史分位 (市值加权PE中位数, 避免小盘股噪音稀释)
+        """全市场PE中位数历史分位.
 
-        使用 total_mv 作为权重计算加权PE中位数:
-          1. 过滤掉 PE<=0 和 PE>500 的极端值
-          2. 按 total_mv 排序, 找到累计市值占比达 50% 的股票, 取其 PE
-          3. 和该历史序列对比算分位
-        
-        回测验证 (2021-02-18 牛市顶): PE分位 29 -> 预期 80+ ✅
+        注意: 不用市值加权, 因为A股牛市中小盘股估值才是热度核心信号。
+              市值加权会被银行/两桶油等大票PE(5-10)拉低, 失真。
+              例: 2015-06-12 加权中位PE=29.6(失真), 简单中位PE=97.5(正确反映热度)
         """
         try:
             stocks_today = self._get_stock_daily(self.trade_date)
@@ -148,46 +145,34 @@ class HeatIndexCalculator:
 
             df = stocks_today.copy()
             df["peTTM"] = pd.to_numeric(df["peTTM"], errors="coerce")
-            df["total_mv"] = pd.to_numeric(df["total_mv"], errors="coerce")
-            # 过滤极端PE: <=0 或 >500 的数据无意义
-            df = df[(df["peTTM"] > 0) & (df["peTTM"] <= 500)].dropna(subset=["peTTM", "total_mv"])
+            df = df[(df["peTTM"] > 0) & (df["peTTM"] <= 500)].dropna(subset=["peTTM"])
             if df.empty:
                 return None
 
-            # 市值加权PE中位数: 按市值排序, 累计市值达50%处的PE
-            df = df.sort_values("total_mv")
-            df["cum_mv_pct"] = df["total_mv"].cumsum() / df["total_mv"].sum()
-            current_pe_med = df.loc[df["cum_mv_pct"] >= 0.5, "peTTM"].iloc[0]
+            current_pe_med = df["peTTM"].median()
 
-            # 历史市值加权PE中位数序列
             hist = self._get_stock_daily_history()
             if hist.empty:
                 return None
 
-            def _weighted_pe_median(g):
-                g = g.copy()
-                g["peTTM"] = pd.to_numeric(g["peTTM"], errors="coerce")
-                g["total_mv"] = pd.to_numeric(g["total_mv"], errors="coerce")
-                g = g[(g["peTTM"] > 0) & (g["peTTM"] <= 500)].dropna(subset=["peTTM", "total_mv"])
-                if g.empty:
-                    return None
-                g = g.sort_values("total_mv")
-                g["cum_mv_pct"] = g["total_mv"].cumsum() / g["total_mv"].sum()
-                return g.loc[g["cum_mv_pct"] >= 0.5, "peTTM"].iloc[0]
+            def _pe_median(g):
+                g = pd.to_numeric(g["peTTM"], errors="coerce")
+                g = g[(g > 0) & (g <= 500)].dropna()
+                return g.median() if len(g) > 0 else None
 
-            hist_pe_by_date = hist.groupby("trade_date").apply(_weighted_pe_median).dropna()
+            hist_pe_by_date = hist.groupby("trade_date").apply(_pe_median).dropna()
             if len(hist_pe_by_date) < 60:
                 return None
 
             score = _pct_rank(hist_pe_by_date, current_pe_med) * 100
-            logger.info("PE percentile (mv-weighted): current_med=%.2f, score=%.1f", current_pe_med, score)
+            logger.info("PE percentile: current_med=%.2f, score=%.1f", current_pe_med, score)
             return _score_with_fallback(score)
         except Exception as e:
             logger.error("PE percentile calc failed: %s", e)
             return None
 
     def _calc_pb_percentile(self) -> Optional[float]:
-        """全市场PB历史分位 (市值加权PB中位数, 避免小盘股噪音稀释)"""
+        """全市场PB中位数历史分位 (简单中位数, 同PE逻辑)"""
         try:
             stocks_today = self._get_stock_daily(self.trade_date)
             if stocks_today.empty or "pbMRQ" not in stocks_today.columns:
@@ -195,36 +180,27 @@ class HeatIndexCalculator:
 
             df = stocks_today.copy()
             df["pbMRQ"] = pd.to_numeric(df["pbMRQ"], errors="coerce")
-            df["total_mv"] = pd.to_numeric(df["total_mv"], errors="coerce")
-            df = df[(df["pbMRQ"] > 0) & (df["pbMRQ"] <= 10)].dropna(subset=["pbMRQ", "total_mv"])
+            df = df[(df["pbMRQ"] > 0) & (df["pbMRQ"] <= 10)].dropna(subset=["pbMRQ"])
             if df.empty:
                 return None
 
-            df = df.sort_values("total_mv")
-            df["cum_mv_pct"] = df["total_mv"].cumsum() / df["total_mv"].sum()
-            current_pb_med = df.loc[df["cum_mv_pct"] >= 0.5, "pbMRQ"].iloc[0]
+            current_pb_med = df["pbMRQ"].median()
 
             hist = self._get_stock_daily_history()
             if hist.empty:
                 return None
 
-            def _weighted_pb_median(g):
-                g = g.copy()
-                g["pbMRQ"] = pd.to_numeric(g["pbMRQ"], errors="coerce")
-                g["total_mv"] = pd.to_numeric(g["total_mv"], errors="coerce")
-                g = g[(g["pbMRQ"] > 0) & (g["pbMRQ"] <= 10)].dropna(subset=["pbMRQ", "total_mv"])
-                if g.empty:
-                    return None
-                g = g.sort_values("total_mv")
-                g["cum_mv_pct"] = g["total_mv"].cumsum() / g["total_mv"].sum()
-                return g.loc[g["cum_mv_pct"] >= 0.5, "pbMRQ"].iloc[0]
+            def _pb_median(g):
+                g = pd.to_numeric(g["pbMRQ"], errors="coerce")
+                g = g[(g > 0) & (g <= 10)].dropna()
+                return g.median() if len(g) > 0 else None
 
-            hist_pb_by_date = hist.groupby("trade_date").apply(_weighted_pb_median).dropna()
+            hist_pb_by_date = hist.groupby("trade_date").apply(_pb_median).dropna()
             if len(hist_pb_by_date) < 60:
                 return None
 
             score = _pct_rank(hist_pb_by_date, current_pb_med) * 100
-            logger.info("PB percentile (mv-weighted): current_med=%.2f, score=%.1f", current_pb_med, score)
+            logger.info("PB percentile: current_med=%.2f, score=%.1f", current_pb_med, score)
             return _score_with_fallback(score)
         except Exception as e:
             logger.error("PB percentile calc failed: %s", e)
@@ -581,55 +557,37 @@ class HeatIndexCalculator:
             return None
 
     def _calc_new_high_ratio(self) -> Optional[float]:
-        """创新高占比（250日 close 新高）— 全市场数据用 close 代替 high
+        """创新高占比（250日最高close）— 全市场/成分股通用
 
-        注意: 全市场 stock_daily 中 high/low/open 全为 NULL (仅成分股有 OHLCV),
-              因此改用 close 与 250 日 close 最大值对比。
-              当 close >= 250日最高close 的 98% 时视为"准创新高"。
+        注意: 全市场 stock_daily 中 high/low/open 全为 NULL,
+              统一用 close 的 250 日最大值作为基准。
+              close >= 250日最高close * 0.98 视为准创新高。
         """
         try:
             hist = self._get_stock_daily_history()
             if hist.empty:
                 return None
 
-            latest = hist[hist["trade_date"] == self.trade_date]
+            latest = hist[hist["trade_date"] == self.trade_date][["stock_code", "close"]].copy()
+            latest["close"] = pd.to_numeric(latest["close"], errors="coerce")
+            latest = latest.dropna()
             if latest.empty:
                 return None
 
-            # 判断 high 列是否有数据（成分股 vs 全市场）
-            has_high = latest["high"].notna().sum() > len(latest) * 0.1
-
-            if has_high:
-                # 成分股模式: 用真实 high 字段
-                high_250d = hist.groupby("stock_code")["high"].max().rename("high_250d")
-                merged = latest.merge(high_250d.reset_index(), on="stock_code", how="inner")
-                merged["close"] = pd.to_numeric(merged["close"], errors="coerce")
-                threshold = merged["high_250d"] * 0.98
-                new_high = (merged["close"] >= threshold).sum()
-            else:
-                # 全市场模式: 用 close 的 250 日最高值
-                latest_close = latest[["stock_code", "close"]].copy()
-                latest_close["close"] = pd.to_numeric(latest_close["close"], errors="coerce")
-                close_max_250d = (
-                    hist.groupby("stock_code")["close"]
-                    .apply(lambda s: pd.to_numeric(s, errors="coerce").rolling(250, min_periods=60).max().iloc[-1])
-                    .rename("close_max_250d")
-                )
-                merged = latest_close.merge(close_max_250d.reset_index(), on="stock_code", how="inner")
-                merged = merged.dropna(subset=["close", "close_max_250d"])
-                if merged.empty:
-                    return None
-                new_high = (merged["close"] >= merged["close_max_250d"] * 0.98).sum()
-
-            total = len(merged)
-            if total < 100:
+            close_max_250d = (
+                hist.groupby("stock_code")["close"]
+                .apply(lambda s: pd.to_numeric(s, errors="coerce").rolling(250, min_periods=60).max().iloc[-1])
+                .rename("close_max_250d")
+            )
+            merged = latest.merge(close_max_250d.reset_index(), on="stock_code", how="inner")
+            merged = merged.dropna(subset=["close", "close_max_250d"])
+            if len(merged) < 100:
                 return None
 
-            ratio = new_high / total
+            new_high = (merged["close"] >= merged["close_max_250d"] * 0.98).sum()
+            ratio = new_high / len(merged)
             score = ratio * 100
-            logger.info("New high ratio: %.4f (%d/%d), score=%.1f (%s mode)",
-                        ratio, new_high, total, score,
-                        "OHLCV" if has_high else "close-only")
+            logger.info("New high ratio: %.4f (%d/%d), score=%.1f", ratio, new_high, len(merged), score)
             return _score_with_fallback(score)
         except Exception as e:
             logger.error("New high ratio calc failed: %s", e)
