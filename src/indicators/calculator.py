@@ -130,119 +130,176 @@ class HeatIndexCalculator:
 
     # ── 估值维度 ───────────────────────────────────────────────────────────────
 
-    def _calc_pe_percentile(self) -> Optional[float]:
-        """全市场PE中位数历史分位.
+    def _load_hist_constituents(self):
+        """预加载所有历史成分股到内存 {trade_date: set(codes)}"""
+        if hasattr(self, "_hc_by_date"):
+            return
+        conn = self._conn()
+        df = pd.read_sql('''
+            SELECT trade_date, con_code
+            FROM index_constituents_hist
+            WHERE index_code IN ('hs300','zz500')
+            ORDER BY trade_date
+        ''', conn)
+        if df.empty:
+            df = pd.read_sql(
+                "SELECT DISTINCT stock_code as con_code FROM index_constituents WHERE index_code IN ('hs300','zz500')",
+                conn
+            )
+            self._hc_by_date = {self.trade_date: set(df['con_code'])}
+            return
 
-        注意: 不用市值加权, 因为A股牛市中小盘股估值才是热度核心信号。
-              市值加权会被银行/两桶油等大票PE(5-10)拉低, 失真。
-              例: 2015-06-12 加权中位PE=29.6(失真), 简单中位PE=97.5(正确反映热度)
+        # 构建 {month_end_date: set(codes)}
+        month_ends = {}
+        for _, row in df.iterrows():
+            td = row['trade_date']
+            month_ends.setdefault(td, set()).add(row['con_code'])
+
+        sorted_me = sorted(month_ends.keys())
+        self._hc_by_date = {}
+        # 对 stock_daily 中每个交易日, 找最近月末的成分股
+        all_trade_dates = pd.read_sql(
+            "SELECT DISTINCT trade_date FROM stock_daily ORDER BY trade_date", conn
+        )['trade_date'].tolist()
+
+        for td in all_trade_dates:
+            td_cmp = td.replace('-', '')
+            # 找 <= td 的最近月末
+            valid = [d for d in sorted_me if d <= td_cmp]
+            if valid:
+                self._hc_by_date[td] = month_ends[max(valid)]
+
+        logger.info("Hist constituents loaded: %d month-ends, %d trade dates mapped",
+                     len(sorted_me), len(self._hc_by_date))
+
+    def _get_hist_constituents(self, trade_date: str) -> set:
+        """获取指定日期的沪深300+中证500成分股"""
+        self._load_hist_constituents()
+        td_key = trade_date.replace('-', '')
+        if td_key in self._hc_by_date:
+            return self._hc_by_date[td_key]
+        # fallback: 最近月末
+        valid = [d for d in self._hc_by_date if d <= td_key]
+        if valid:
+            return self._hc_by_date[max(valid)]
+        return set()
+
+    def _calc_pe_percentile(self) -> Optional[float]:
+        """PE中位数历史分位 (沪深300+中证500成分股口径)
+
+        方案B v2: 查预计算汇总表 index_daily_pe
+        - 历史成分股 PE 中位数已预计算, O(1) 查询
+        - 当日值实时计算 (成分股截面)
         """
         try:
+            conn = self._conn()
             stocks_today = self._get_stock_daily(self.trade_date)
             if stocks_today.empty or "peTTM" not in stocks_today.columns:
-                logger.warning("PE data not available in stock_daily")
                 return None
 
-            df = stocks_today.copy()
+            constituents = self._get_hist_constituents(self.trade_date)
+            df = stocks_today[stocks_today["stock_code"].isin(constituents)].copy()
             df["peTTM"] = pd.to_numeric(df["peTTM"], errors="coerce")
             df = df[(df["peTTM"] > 0) & (df["peTTM"] <= 500)].dropna(subset=["peTTM"])
-            if df.empty:
+            if len(df) < 50:
                 return None
 
             current_pe_med = df["peTTM"].median()
 
-            hist = self._get_stock_daily_history()
-            if hist.empty:
+            # 查预计算汇总表
+            hist_pe = pd.read_sql('''
+                SELECT trade_date, pe_med FROM index_daily_pe
+                WHERE pe_med IS NOT NULL
+                  AND trade_date <= ?
+                ORDER BY trade_date
+            ''', conn, params=[self.trade_date])
+
+            if hist_pe.empty or len(hist_pe) < 60:
                 return None
 
-            def _pe_median(g):
-                g = pd.to_numeric(g["peTTM"], errors="coerce")
-                g = g[(g > 0) & (g <= 500)].dropna()
-                return g.median() if len(g) > 0 else None
-
-            hist_pe_by_date = hist.groupby("trade_date").apply(_pe_median).dropna()
-            if len(hist_pe_by_date) < 60:
-                return None
-
-            score = _pct_rank(hist_pe_by_date, current_pe_med) * 100
-            logger.info("PE percentile: current_med=%.2f, score=%.1f", current_pe_med, score)
+            score = _pct_rank(hist_pe["pe_med"], current_pe_med) * 100
+            logger.info("PE percentile (precomputed): med=%.2f, score=%.1f, n=%d, hist=%d",
+                        current_pe_med, score, len(df), len(hist_pe))
             return _score_with_fallback(score)
         except Exception as e:
             logger.error("PE percentile calc failed: %s", e)
             return None
 
     def _calc_pb_percentile(self) -> Optional[float]:
-        """全市场PB中位数历史分位 (简单中位数, 同PE逻辑)"""
+        """PB中位数历史分位 (沪深300+中证500成分股口径)
+
+        方案B v2: 查预计算汇总表 index_daily_pe
+        """
         try:
+            conn = self._conn()
             stocks_today = self._get_stock_daily(self.trade_date)
             if stocks_today.empty or "pbMRQ" not in stocks_today.columns:
                 return None
 
-            df = stocks_today.copy()
+            constituents = self._get_hist_constituents(self.trade_date)
+            df = stocks_today[stocks_today["stock_code"].isin(constituents)].copy()
             df["pbMRQ"] = pd.to_numeric(df["pbMRQ"], errors="coerce")
             df = df[(df["pbMRQ"] > 0) & (df["pbMRQ"] <= 10)].dropna(subset=["pbMRQ"])
-            if df.empty:
+            if len(df) < 50:
                 return None
 
             current_pb_med = df["pbMRQ"].median()
 
-            hist = self._get_stock_daily_history()
-            if hist.empty:
+            hist_pb = pd.read_sql('''
+                SELECT trade_date, pb_med FROM index_daily_pe
+                WHERE pb_med IS NOT NULL
+                  AND trade_date <= ?
+                ORDER BY trade_date
+            ''', conn, params=[self.trade_date])
+
+            if hist_pb.empty or len(hist_pb) < 60:
                 return None
 
-            def _pb_median(g):
-                g = pd.to_numeric(g["pbMRQ"], errors="coerce")
-                g = g[(g > 0) & (g <= 10)].dropna()
-                return g.median() if len(g) > 0 else None
-
-            hist_pb_by_date = hist.groupby("trade_date").apply(_pb_median).dropna()
-            if len(hist_pb_by_date) < 60:
-                return None
-
-            score = _pct_rank(hist_pb_by_date, current_pb_med) * 100
-            logger.info("PB percentile: current_med=%.2f, score=%.1f", current_pb_med, score)
+            score = _pct_rank(hist_pb["pb_med"], current_pb_med) * 100
+            logger.info("PB percentile (precomputed): med=%.2f, score=%.1f, n=%d, hist=%d",
+                        current_pb_med, score, len(df), len(hist_pb))
             return _score_with_fallback(score)
         except Exception as e:
             logger.error("PB percentile calc failed: %s", e)
             return None
 
     def _calc_erp(self) -> Optional[float]:
-        """股债性价比 ERP = 1/PE_中位数 - 10Y国债收益率"""
+        """股债性价比 ERP = 1/PE_中位数 - 10Y国债收益率 (成分股口径)"""
         try:
+            conn = self._conn()
             stocks_today = self._get_stock_daily(self.trade_date)
             if stocks_today.empty or "peTTM" not in stocks_today.columns:
                 return None
 
-            pe_med = pd.to_numeric(stocks_today["peTTM"], errors="coerce").dropna().median()
+            constituents = self._get_hist_constituents(self.trade_date)
+            df = stocks_today[stocks_today["stock_code"].isin(constituents)]
+            pe_med = pd.to_numeric(df["peTTM"], errors="coerce").dropna().median()
             if pd.isna(pe_med) or pe_med <= 0:
                 return None
 
-            earnings_yield = 1.0 / pe_med * 100  # 百分比
+            earnings_yield = 1.0 / pe_med * 100
 
-            # 10Y国债收益率
             bond_df = self._get_bond()
             if bond_df.empty or "yield_rate" not in bond_df.columns:
-                logger.warning("Bond yield not available, using default 2.5%")
                 bond_yield = 2.5
             else:
                 bond_yield = pd.to_numeric(bond_df["yield_rate"], errors="coerce").iloc[0]
 
             erp = earnings_yield - bond_yield
 
-            # 历史ERP分位
-            hist = self._get_stock_daily_history()
-            if hist.empty:
-                return None
-            hist_pe_by_date = hist.groupby("trade_date").apply(
-                lambda g: pd.to_numeric(g["peTTM"], errors="coerce").median()
-            ).dropna()
-            if len(hist_pe_by_date) < 60:
+            hist_pe = pd.read_sql('''
+                SELECT trade_date, pe_med FROM index_daily_pe
+                WHERE pe_med IS NOT NULL
+                  AND trade_date <= ?
+                ORDER BY trade_date
+            ''', conn, params=[self.trade_date])
+
+            if hist_pe.empty or len(hist_pe) < 60:
                 return None
 
-            hist_erp = 1.0 / hist_pe_by_date * 100 - bond_yield
-            # ERP越高(股票越便宜) → 分数越低（估值低热度低）→ 反向
+            hist_erp = 1.0 / hist_pe["pe_med"] * 100 - bond_yield
             score = _pct_rank_inv(hist_erp, erp) * 100
-            logger.info("ERP: %.2f%% (E/P=%.2f%% Bond=%.2f%%), score=%.1f",
+            logger.info("ERP (precomputed): %.2f%% (E/P=%.2f%% Bond=%.2f%%), score=%.1f",
                         erp, earnings_yield, bond_yield, score)
             return _score_with_fallback(score)
         except Exception as e:
@@ -250,35 +307,54 @@ class HeatIndexCalculator:
             return None
 
     def _calc_below_net_rate(self) -> Optional[float]:
-        """破净率 = PB<1个股占比"""
+        """破净率 = PB<1个股占比 (成分股口径)
+
+        注意: 破净率需要每日截面数据, 无法用预计算表
+        改用全市场口径 (不用成分股过滤), 因为破净股本身就是全市场概念
+        """
         try:
             stocks_today = self._get_stock_daily(self.trade_date)
             if stocks_today.empty or "pbMRQ" not in stocks_today.columns:
                 return None
 
-            pb = pd.to_numeric(stocks_today["pbMRQ"], errors="coerce").dropna()
-            if len(pb) < 100:
+            # 全市场口径 (破净是市场整体现象)
+            df = stocks_today.copy()
+            df["pbMRQ"] = pd.to_numeric(df["pbMRQ"], errors="coerce")
+            df = df[(df["pbMRQ"] > 0) & (df["pbMRQ"] <= 10)].dropna(subset=["pbMRQ"])
+            if len(df) < 100:
                 return None
 
-            below_net = (pb < 1.0).sum() / len(pb)
+            below_net = (df["pbMRQ"] < 1.0).sum() / len(df)
 
-            # 历史分位
             hist = self._get_stock_daily_history()
             if hist.empty or len(hist["trade_date"].unique()) < 60:
-                # 没历史就用静态阈值: 破净率>20%得高分(估值便宜)
                 if below_net > 0.15: return 70
                 if below_net > 0.10: return 50
                 if below_net > 0.05: return 30
                 return 10
 
-            hist_bnet = hist.groupby("trade_date").apply(
-                lambda g: (pd.to_numeric(g["pbMRQ"], errors="coerce").dropna() < 1.0).mean()
+            # 用全市场口径计算历史序列 (不用成分股过滤)
+            hist_pb = pd.read_sql('''
+                SELECT trade_date, pbMRQ FROM stock_daily
+                WHERE pbMRQ > 0 AND pbMRQ <= 10
+                  AND trade_date <= ?
+                ORDER BY trade_date
+            ''', self._conn(), params=[self.trade_date])
+
+            if hist_pb.empty:
+                return None
+
+            hist_bnet = hist_pb.groupby("trade_date")["pbMRQ"].apply(
+                lambda x: (x < 1.0).mean()
             ).dropna()
+
             if len(hist_bnet) < 60:
                 return None
 
-            score = _pct_rank(hist_bnet, below_net) * 100
-            logger.info("Below net rate: %.4f, score=%.1f", below_net, score)
+            # 反向: 破净率高=便宜=低分, 破净率低=贵=高分
+            score = _pct_rank_inv(hist_bnet, below_net) * 100
+            logger.info("Below net rate (all-market, inverted): %.4f, score=%.1f, n=%d",
+                        below_net, score, len(df))
             return _score_with_fallback(score)
         except Exception as e:
             logger.error("Below net rate calc failed: %s", e)
@@ -680,11 +756,11 @@ class HeatIndexCalculator:
                 return None
 
             divergence = sector_ret.std()
-            # 静态散度阈值: std>3%为高分化(热门赛道集中)
-            if divergence > 3.0: score = 80
-            elif divergence > 2.0: score = 60
-            elif divergence > 1.0: score = 40
-            else: score = 20
+            # 反向: 低分化(普涨)=高分(牛市全面), 高分化(结构性)=低分
+            if divergence > 3.0: score = 20
+            elif divergence > 2.0: score = 40
+            elif divergence > 1.0: score = 60
+            else: score = 80
 
             logger.info("Sector divergence: %.4f%%, score=%.1f", divergence, score)
             return _score_with_fallback(score)
