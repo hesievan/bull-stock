@@ -983,7 +983,7 @@ def _sp_combine(scores):
     return round(float(np.mean(v)), 1) if v else None
 
 
-def _sect_valuation(scode, today_df, hist_pe_med, hist_pb_med):
+def _sect_valuation(scode, today_df, _hist_pm, _hist_bm):
     """估值: 行业中位数PE/PB历史分位(查预计算表)"""
     mem = today_df[today_df["industry"] == scode]
     if len(mem) < 5:
@@ -991,18 +991,18 @@ def _sect_valuation(scode, today_df, hist_pe_med, hist_pb_med):
     out = []
     pe = pd.to_numeric(mem["peTTM"], errors="coerce").dropna().median()
     if pd.notna(pe) and pe > 0:
-        h = hist_pe_med[hist_pe_med["industry"] == scode]["peTTM"].dropna()
+        h = _hist_pm[_hist_pm["industry"] == scode]["peTTM"].dropna()
         if len(h) > 20:
             out.append(_sp_rank(h, float(pe)) * 100)
     pb = pd.to_numeric(mem["pbMRQ"], errors="coerce").dropna().median()
     if pd.notna(pb) and pb > 0:
-        h = hist_pb_med[hist_pb_med["industry"] == scode]["pbMRQ"].dropna()
+        h = _hist_bm[_hist_bm["industry"] == scode]["pbMRQ"].dropna()
         if len(h) > 20:
             out.append(_sp_rank(h, float(pb)) * 100)
     return _sp_combine(out)
 
 
-def _sect_sentiment(scode, today_df, hist_to_mean, hist_up_ratio):
+def _sect_sentiment(scode, today_df, _hist_tm, _hist_up_ratio):
     """情绪: 行业换手率 + 涨跌家数比(查预计算表)"""
     mem = today_df[today_df["industry"] == scode]
     if len(mem) < 5:
@@ -1010,13 +1010,13 @@ def _sect_sentiment(scode, today_df, hist_to_mean, hist_up_ratio):
     out = []
     tr = pd.to_numeric(mem["turnover_rate"], errors="coerce").dropna()
     if len(tr) > 0:
-        ht = hist_to_mean[hist_to_mean["industry"] == scode]["turnover_rate"].dropna()
+        ht = _hist_tm[_hist_tm["industry"] == scode]["turnover_rate"].dropna()
         if len(ht) > 20:
             out.append(_sp_rank(ht, float(tr.mean())) * 100)
     pc = pd.to_numeric(mem["pct_change"], errors="coerce").dropna()
     if len(pc) > 0:
         ur = float((pc > 0).sum()) / max(len(pc), 1)
-        hu = hist_up_ratio[hist_up_ratio["industry"] == scode]["up_ratio"].dropna()
+        hu = _hist_up_ratio[_hist_up_ratio["industry"] == scode]["up_ratio"].dropna()
         if len(hu) > 20:
             out.append(_sp_rank(hu, ur) * 100)
     return _sp_combine(out)
@@ -1110,20 +1110,17 @@ def calculate_sector_heat(trade_date: str, db_path: str) -> list:
     conn.close()
 
     # 预计算历史分位数基准(避免每个行业重复计算)
-    # 行业PE中位数时间序列
-    hist_pe_med = hist.groupby(["trade_date", "industry"])["peTTM"].median().reset_index()
-    hist_pb_med = hist.groupby(["trade_date", "industry"])["pbMRQ"].median().reset_index()
-    hist_to_mean = hist.groupby(["trade_date", "industry"])["turnover_rate"].mean().reset_index()
-    hist_up_ratio = hist.groupby(["trade_date", "industry"]).apply(
-        lambda _x: float((pd.to_numeric(_x["pct_change"], errors="coerce").dropna() > 0).sum())
-                   / max(len(pd.to_numeric(_x["pct_change"], errors="coerce").dropna()), 1)
-    ).reset_index()
-    hist_up_ratio.columns = ["trade_date", "industry", "up_ratio"]
-
-    # 预计算历史基准表
     _hist_pm = hist.groupby(["trade_date", "industry"])["peTTM"].median().reset_index()
     _hist_bm = hist.groupby(["trade_date", "industry"])["pbMRQ"].median().reset_index()
     _hist_tm = hist.groupby(["trade_date", "industry"])["turnover_rate"].mean().reset_index()
+    # 行业涨跌家数比时间序列 (向量化替代逐行 lambda)
+    _hist_up_ratio = (
+        hist.assign(up=lambda _df: (_df["pct_change"] > 0).astype(float))
+        .groupby(["trade_date", "industry"])
+        .agg(up_sum=("up", "sum"), total=("up", "count"))
+        .reset_index()
+    )
+    _hist_up_ratio["up_ratio"] = _hist_up_ratio["up_sum"] / _hist_up_ratio["total"].clip(lower=1)
 
     results = []
     for scode, members in today.groupby("industry"):
@@ -1131,7 +1128,7 @@ def calculate_sector_heat(trade_date: str, db_path: str) -> list:
         if n < 5:
             continue
         val = _sect_valuation(scode, today, _hist_pm, _hist_bm)
-        sent = _sect_sentiment(scode, today, _hist_tm, hist_up_ratio)
+        sent = _sect_sentiment(scode, today, _hist_tm, _hist_up_ratio)
         tech = _sect_technical(scode, today, hist)
 
         ws, vs = [], []
