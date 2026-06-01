@@ -242,15 +242,32 @@ def fetch_stocks_kline_batch(codes: List[str], start: str, end: str,
     """
     批量获取多只股票K线，每50只分批存入 stock_daily
     避免全部拉完再一次性写入导致中途失败数据丢失
+    单只超时: 10s (避免单只网络异常阻塞整个 batch)
     """
+    import concurrent.futures
     BATCH_SIZE = 50
     total = len(codes)
     grand_total = 0
+
+    def _fetch_one(code):
+        """带单只超时的单股获取"""
+        try:
+            with concurrent.futures.ThreadPoolExecutor(max_workers=1) as ex:
+                future = ex.submit(fetch_stock_kline, code, start, end)
+                df = future.result(timeout=10)
+            return df if df is not None and not df.empty else pd.DataFrame()
+        except concurrent.futures.TimeoutError:
+            logger.warning("  stock %s: TIMEOUT after 10s, skip", code)
+            return pd.DataFrame()
+        except Exception as exc:
+            logger.warning("  stock %s: %s, skip", code, str(exc)[:60])
+            return pd.DataFrame()
+
     for batch_start in range(0, total, BATCH_SIZE):
         batch_codes = codes[batch_start:batch_start + BATCH_SIZE]
         batch_dfs = []
         for code in batch_codes:
-            df = fetch_stock_kline(code, start, end)
+            df = _fetch_one(code)
             if not df.empty:
                 batch_dfs.append(df)
         if batch_dfs:
