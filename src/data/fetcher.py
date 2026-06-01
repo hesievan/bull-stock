@@ -1,12 +1,13 @@
 """
-数据获取模块 — 三源合一 (baostock + tushare + akshare)
+数据获取模块 — 三源合一 (baostock + tushare + 东方财富curl)
 
 数据源分工:
-  baostock : 指数日行情、个股K线(PE/PB/价格/成交量)、成分股列表、行业分类、交易日历
-             → 不限频，只需控制间隔 ~0.3s
-  tushare  : 融资融券、北向资金、国债收益率、指数PE/PB(备用)
-             → 频率限制 1次/小时，需缓存规避
-  akshare  : AH溢价 (东方财富接口，TUN 环境下可能不稳定，仅做补充)
+  baostock      : 指数日行情、个股K线(PE/PB/价格/成交量)、成分股列表、行业分类、交易日历
+                  → 不限频，只需控制间隔 ~0.3s
+  tushare       : 融资融券、北向资金、国债收益率、指数PE/PB(备用)
+                  → 频率限制 1次/小时，需缓存规避
+  东方财富curl  : 恒生AH股溢价指数 HSAHP (secid=100.HSAHP)
+                  → 间歇性封锁IP，失败时等待重试(最多5次)
 
 代码约定:
   - 内部统一用 akshare 格式: sh000001, sz399006, sh.600000, sz.000001
@@ -413,30 +414,67 @@ def fetch_index_pe_history(start: str, end: str) -> pd.DataFrame:
         return pd.DataFrame()
 
 
-# ── akshare: AH溢价 ──────────────────────────────────────────────────────────
+# ── 恒生AH股溢价指数 (HSAHP) ────────────────────────────────────────────────
 
-def fetch_ah_premium(start: str, end: str) -> pd.DataFrame:
-    """AH溢价指数 (akshare stock_zh_ah_spot_em)"""
-    try:
-        import akshare as ak
-        # 东方财富 AH 溢价实时行情
-        df = ak.stock_zh_ah_spot_em()
-        if df is not None and not df.empty:
-            # 找日期和溢价率列
-            date_col = next((c for c in df.columns if "日期" in c or "date" in c.lower()), None)
-            premium_col = next((c for c in df.columns if "溢价" in c or "premium" in c.lower()), None)
-            if date_col and premium_col:
-                df2 = df[[date_col, premium_col]].copy()
-                df2.columns = ["trade_date", "premium"]
-                df2["trade_date"] = pd.to_datetime(df2["trade_date"]).dt.strftime("%Y-%m-%d")
-                df2["premium"] = pd.to_numeric(df2["premium"], errors="coerce")
-                df2 = df2.dropna().groupby("trade_date")["premium"].mean().reset_index()
-                df2 = df2[(df2["trade_date"] >= start) & (df2["trade_date"] <= end)]
-                return df2
-        return pd.DataFrame()
-    except Exception as e:
-        logger.error("fetch_ah_premium: %s", e)
-        return pd.DataFrame()
+def fetch_ah_premium(start: str = None, end: str = None) -> pd.DataFrame:
+    """恒生AH股溢价指数 HSAHP 日线 (东方财富 push2his, 通过 curl 拉取)
+
+    返回: trade_date, open, close, high, low
+    注意: 东方财富可能间歇性封锁, 失败时等待后重试
+    """
+    import subprocess, json as _json
+
+    url = (
+        "https://push2his.eastmoney.com/api/qt/stock/kline/get"
+        "?secid=100.HSAHP"
+        "&fields1=f1,f2,f3,f4,f5,f6"
+        "&fields2=f51,f52,f53,f54,f55,f56,f57,f58,f59,f60,f61"
+        "&klt=101&fqt=1&end=20500101&lmt=8000"
+    )
+
+    klines = []
+    for attempt in range(5):
+        try:
+            result = subprocess.run(
+                ["curl", "-s", "--max-time", "30",
+                 "-H", "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36",
+                 "-H", "Referer: https://quote.eastmoney.com/",
+                 url],
+                capture_output=True, text=True,
+            )
+            if result.returncode != 0 or not result.stdout.strip():
+                raise ConnectionError(f"curl rc={result.returncode}")
+            data = _json.loads(result.stdout)
+            klines = (data.get("data") or {}).get("klines") or []
+            if klines:
+                break
+            raise ValueError("空数据")
+        except Exception as e:
+            if attempt < 4:
+                wait = 20 if attempt < 2 else 40
+                logger.warning("fetch_ah_premium attempt %d/%d: %s", attempt + 1, 5, str(e)[:80])
+                time.sleep(wait)
+            else:
+                logger.error("fetch_ah_premium 失败: %s", str(e)[:80])
+                return pd.DataFrame()
+
+    rows = []
+    for line in klines:
+        parts = line.split(",")
+        rows.append({
+            "trade_date": parts[0],
+            "open": float(parts[1]),
+            "close": float(parts[2]),
+            "high": float(parts[3]),
+            "low": float(parts[4]),
+        })
+
+    df = pd.DataFrame(rows)
+    if start:
+        df = df[df["trade_date"] >= start]
+    if end:
+        df = df[df["trade_date"] <= end]
+    return df
 
 
 # ── 统一初始化入口 ────────────────────────────────────────────────────────────

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 每日热度指数计算入口 (三源合一版)
-数据源: baostock(指数/个股K线) + tushare(融资融券/北向/国债) + akshare(AH溢价)
+数据源: baostock(指数/个股K线) + tushare(融资融券/北向/国债) + 东方财富curl(AH溢价HSAHP)
 
 用法:
   python scripts/run_daily.py                  # 计算今日
@@ -89,6 +89,25 @@ def run_daily(trade_date: str = None):
 
     finally:
         bs_logout()
+
+    # Step 4.5: AH溢价指数 (东方财富 curl)
+    logger.info("Step 4.5: AH premium index (HSAHP)...")
+    try:
+        from src.data.fetcher import fetch_ah_premium, _save
+        ah_df = fetch_ah_premium()
+        if ah_df is not None and not ah_df.empty:
+            # 全量替换（数据量小，每日全量更新）
+            import sqlite3
+            conn2 = sqlite3.connect(DB_PATH)
+            conn2.execute("DELETE FROM ah_premium")
+            ah_df.to_sql("ah_premium", conn2, if_exists="append", index=False)
+            conn2.commit()
+            conn2.close()
+            logger.info("AH premium: %d 行已更新", len(ah_df))
+        else:
+            logger.warning("AH premium: 拉取为空, 使用已有数据")
+    except Exception as e:
+        logger.warning("AH premium 拉取失败: %s, 使用已有数据", str(e)[:80])
 
     # Step 5: 计算热度指数
     logger.info("Step 5: Calculating heat index...")

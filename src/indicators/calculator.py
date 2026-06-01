@@ -1,13 +1,13 @@
 """
 热度指数计算引擎 — 三源合一版
-数据源: baostock(stock_daily含peTTM/pbMRQ) + tushare(margin/northbound/bond) + akshare(AH溢价)
+数据源: baostock(stock_daily含peTTM/pbMRQ) + tushare(margin/northbound/bond) + 东方财富curl(HSAHP)
 
-5维度 20子指标:
-  估值(6): PE分位, PB分位, 股债性价比ERP, 破净率, 巴菲特指标, 沪深300股债比
+5维度 18子指标:
+  估值(4): PE分位, PB分位, 破净率, 巴菲特指标
   资金(2): 融资买入占比, 北向资金方向
-  情绪(6): 换手率, 上涨/下跌家数比, 涨停占比, 跌停占比, 波动率, 新增投资者
-  技术(5): 站上年线比, 创新高比, 均线偏离度, 量价背离, 技术综合
-  结构(1): AH溢价 + 行业分化度
+  情绪(5): 换手率, 上涨/下跌家数比, 涨停占比, 跌停占比, 波动率
+  技术(4): 站上年线比, 创新高比, 均线偏离度, 量价背离
+  结构(2): 行业分化度, AH股溢价指数(HSAHP)
 
 权重规则: 等权 + 异常/0则舍弃, 其余重新等权归一
 """
@@ -725,6 +725,42 @@ class HeatIndexCalculator:
             logger.error("Sector divergence calc failed: %s", e)
             return None
 
+    def _calc_ah_premium_index(self) -> Optional[float]:
+        """恒生AH股溢价指数 HSAHP 历史分位
+
+        HSAHP 由东方财富编制，反映同股同权的A股相对港股的溢价程度。
+        高溢价 = A股贵 = 高热度，低溢价 = A股便宜 = 低热度。
+
+        分级参考: >150 极贵(历史牛市顶), 130-150 偏贵, 115-130 中性偏高,
+                 100-115 中性, 85-100 偏便宜, <85 极便宜(历史底部附近)
+        """
+        try:
+            conn = self._conn()
+            ah = pd.read_sql(
+                "SELECT trade_date, close FROM ah_premium ORDER BY trade_date",
+                conn,
+            )
+            if ah.empty or len(ah) < 60:
+                logger.warning("AH premium: 数据不足 (%d 行)", len(ah))
+                return None
+
+            ah["close"] = pd.to_numeric(ah["close"], errors="coerce")
+            ah = ah.dropna()
+
+            today = conn.execute(
+                "SELECT close FROM ah_premium WHERE trade_date <= ? ORDER BY trade_date DESC LIMIT 1",
+                (self.trade_date,),
+            ).fetchone()
+            if not today or not today[0]:
+                return None
+
+            score = _pct_rank(ah["close"], float(today[0])) * 100
+            logger.info("AH premium index: %.2f, score=%.1f", today[0], score)
+            return _score_with_fallback(score)
+        except Exception as e:
+            logger.error("AH premium index calc failed: %s", e)
+            return None
+
     # ── 维度合成 ───────────────────────────────────────────────────────────────
 
     def _series_pct_rank(self, series: pd.Series, value: float) -> float:
@@ -851,9 +887,10 @@ class HeatIndexCalculator:
         t4 = self._calc_price_volume_divergence()
         dim_tech = self._combine_dimension([t1, t2, t3, t4], "Technical")
 
-        # 结构
+        # 结构 (2项)
         st1 = self._calc_sector_divergence()
-        dim_struct = self._combine_dimension([st1], "Structure")
+        st2 = self._calc_ah_premium_index()
+        dim_struct = self._combine_dimension([st1, st2], "Structure")
 
         # 综合热度（动态权重）
         composite = self._combine_dimension(
@@ -886,7 +923,7 @@ class HeatIndexCalculator:
                     "above_ma250_ratio": t1, "new_high_ratio": t2,
                     "deviation_ma250": t3, "price_volume_divergence": t4,
                 },
-                "structure": {"sector_divergence": st1},
+                "structure": {"sector_divergence": st1, "ah_premium_index": st2},
             },
         }
 
