@@ -19,6 +19,9 @@
         .header { text-align: center; padding: 30px 0 20px; }
         .header h1 { font-size: 28px; color: #f0f6fc; font-weight: 700; }
         .header .subtitle { font-size: 14px; color: #8b949e; margin-top: 8px; }
+        .header-nav { margin-top: 12px; }
+        .header-nav a { color: #58a6ff; text-decoration: none; font-size: 14px; margin: 0 10px; }
+        .header-nav a:hover { text-decoration: underline; }
 
         /* Main Score */
         .score-section {
@@ -107,6 +110,7 @@
         <div class="tab active" onclick="switchTab('overview', this)">📊 概览</div>
         <div class="tab" onclick="switchTab('detail', this)">🔍 拆解</div>
         <div class="tab" onclick="switchTab('history', this)">📈 历史</div>
+        <div class="tab" onclick="window.location.href='sectors.html'">🌶️ 板块热度</div>
     </div>
 
     <!-- Overview Tab -->
