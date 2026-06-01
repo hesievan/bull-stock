@@ -1,0 +1,230 @@
+[
+  {
+    "date": "2015-06-12",
+    "desc": "15牛市顶",
+    "composite": 60.1,
+    "valuation": 86.1,
+    "valuation_detail": {
+      "PE_percentile": 99.1,
+      "PB_percentile": 99.1,
+      "below_net_rate": 32.4,
+      "ERP": 100,
+      "buffett_ratio": 100.0,
+      "equity_bond_ratio": null
+    },
+    "fund": 65.0,
+    "fund_detail": {
+      "margin_ratio": null,
+      "northbound": 65.0
+    },
+    "sentiment": 61.9,
+    "sentiment_detail": {
+      "turnover": 77.8,
+      "up_down_ratio": 51.9,
+      "limit_up_ratio": 85.2,
+      "limit_down_ratio": 23.1,
+      "volatility": 71.7
+    },
+    "technical": 47.5,
+    "technical_detail": {
+      "above_ma250_ratio": 92.6,
+      "new_high_ratio": 0,
+      "deviation_ma250": null,
+      "price_volume_divergence": 50.0
+    },
+    "structure": 40.0,
+    "structure_detail": {
+      "sector_divergence": 40.0
+    }
+  },
+  {
+    "date": "2020-07-10",
+    "desc": "20牛市启",
+    "composite": 61.5,
+    "valuation": 65.3,
+    "valuation_detail": {
+      "PE_percentile": 48.5,
+      "PB_percentile": 39.4,
+      "below_net_rate": 73.4,
+      "ERP": 48.6,
+      "buffett_ratio": 82.9,
+      "equity_bond_ratio": 98.9
+    },
+    "fund": 84.2,
+    "fund_detail": {
+      "margin_ratio": 98.3,
+      "northbound": 70.0
+    },
+    "sentiment": 73.8,
+    "sentiment_detail": {
+      "turnover": 94.0,
+      "up_down_ratio": 26.0,
+      "limit_up_ratio": 87.4,
+      "limit_down_ratio": 86.6,
+      "volatility": 75.1
+    },
+    "technical": 44.4,
+    "technical_detail": {
+      "above_ma250_ratio": 28.1,
+      "new_high_ratio": 0,
+      "deviation_ma250": 99.5,
+      "price_volume_divergence": 50.0
+    },
+    "structure": 40.0,
+    "structure_detail": {
+      "sector_divergence": 40.0
+    }
+  },
+  {
+    "date": "2021-02-18",
+    "desc": "21牛市顶",
+    "composite": 59.0,
+    "valuation": 61.8,
+    "valuation_detail": {
+      "PE_percentile": 29.3,
+      "PB_percentile": 26.0,
+      "below_net_rate": 89.3,
+      "ERP": 29.4,
+      "buffett_ratio": 97.0,
+      "equity_bond_ratio": 99.6
+    },
+    "fund": 81.9,
+    "fund_detail": {
+      "margin_ratio": 88.9,
+      "northbound": 75.0
+    },
+    "sentiment": 69.0,
+    "sentiment_detail": {
+      "turnover": 91.6,
+      "up_down_ratio": 88.1,
+      "limit_up_ratio": 85.2,
+      "limit_down_ratio": 33.5,
+      "volatility": 46.8
+    },
+    "technical": 42.1,
+    "technical_detail": {
+      "above_ma250_ratio": 19.3,
+      "new_high_ratio": 0,
+      "deviation_ma250": 99.2,
+      "price_volume_divergence": 50.0
+    },
+    "structure": 40.0,
+    "structure_detail": {
+      "sector_divergence": 40.0
+    }
+  },
+  {
+    "date": "2024-10-08",
+    "desc": "24脉冲顶",
+    "composite": 73.5,
+    "valuation": 45.7,
+    "valuation_detail": {
+      "PE_percentile": 50.9,
+      "PB_percentile": 24.3,
+      "below_net_rate": 56.3,
+      "ERP": 50.9,
+      "buffett_ratio": 45.6,
+      "equity_bond_ratio": 46.3
+    },
+    "fund": 100.0,
+    "fund_detail": {
+      "margin_ratio": 99.9,
+      "northbound": 100
+    },
+    "sentiment": 98.0,
+    "sentiment_detail": {
+      "turnover": 99.9,
+      "up_down_ratio": 95.7,
+      "limit_up_ratio": 99.7,
+      "limit_down_ratio": 100,
+      "volatility": 94.8
+    },
+    "technical": 43.6,
+    "technical_detail": {
+      "above_ma250_ratio": 24.3,
+      "new_high_ratio": 0,
+      "deviation_ma250": 99.9,
+      "price_volume_divergence": 50.0
+    },
+    "structure": 80.0,
+    "structure_detail": {
+      "sector_divergence": 80.0
+    }
+  },
+  {
+    "date": "2018-12-28",
+    "desc": "18熊底",
+    "composite": 29.3,
+    "valuation": 20.9,
+    "valuation_detail": {
+      "PE_percentile": 1.5,
+      "PB_percentile": 1.6,
+      "below_net_rate": 98.7,
+      "ERP": 1.6,
+      "buffett_ratio": 0.9,
+      "equity_bond_ratio": null
+    },
+    "fund": 55.0,
+    "fund_detail": {
+      "margin_ratio": null,
+      "northbound": 55.0
+    },
+    "sentiment": 29.8,
+    "sentiment_detail": {
+      "turnover": 2.5,
+      "up_down_ratio": 54.7,
+      "limit_up_ratio": 4.6,
+      "limit_down_ratio": 43.4,
+      "volatility": 44.1
+    },
+    "technical": 20.8,
+    "technical_detail": {
+      "above_ma250_ratio": 3.2,
+      "new_high_ratio": 0,
+      "deviation_ma250": 15.1,
+      "price_volume_divergence": 65.0
+    },
+    "structure": 20.0,
+    "structure_detail": {
+      "sector_divergence": 20.0
+    }
+  },
+  {
+    "date": "2025-05-29",
+    "desc": "当前",
+    "composite": 54.7,
+    "valuation": 41.6,
+    "valuation_detail": {
+      "PE_percentile": 63.6,
+      "PB_percentile": 36.7,
+      "below_net_rate": 62.0,
+      "ERP": 63.6,
+      "buffett_ratio": 20.6,
+      "equity_bond_ratio": 3.1
+    },
+    "fund": 91.3,
+    "fund_detail": {
+      "margin_ratio": 82.6,
+      "northbound": 100
+    },
+    "sentiment": 57.7,
+    "sentiment_detail": {
+      "turnover": 31.7,
+      "up_down_ratio": 88.6,
+      "limit_up_ratio": 88.2,
+      "limit_down_ratio": 71.4,
+      "volatility": 8.4
+    },
+    "technical": 42.9,
+    "technical_detail": {
+      "above_ma250_ratio": 28.4,
+      "new_high_ratio": 0,
+      "deviation_ma250": 78.1,
+      "price_volume_divergence": 65.0
+    },
+    "structure": 40.0,
+    "structure_detail": {
+      "sector_divergence": 40.0
+    }
+  }
+]
