@@ -263,49 +263,6 @@ class HeatIndexCalculator:
             logger.error("PB percentile calc failed: %s", e)
             return None
 
-    def _calc_erp(self) -> Optional[float]:
-        """股债性价比 ERP = 1/PE_中位数 - 10Y国债收益率 (成分股口径)"""
-        try:
-            conn = self._conn()
-            stocks_today = self._get_stock_daily(self.trade_date)
-            if stocks_today.empty or "peTTM" not in stocks_today.columns:
-                return None
-
-            constituents = self._get_hist_constituents(self.trade_date)
-            df = stocks_today[stocks_today["stock_code"].isin(constituents)]
-            pe_med = pd.to_numeric(df["peTTM"], errors="coerce").dropna().median()
-            if pd.isna(pe_med) or pe_med <= 0:
-                return None
-
-            earnings_yield = 1.0 / pe_med * 100
-
-            bond_df = self._get_bond()
-            if bond_df.empty or "yield_rate" not in bond_df.columns:
-                bond_yield = 2.5
-            else:
-                bond_yield = pd.to_numeric(bond_df["yield_rate"], errors="coerce").iloc[0]
-
-            erp = earnings_yield - bond_yield
-
-            hist_pe = pd.read_sql('''
-                SELECT trade_date, pe_med FROM index_daily_pe
-                WHERE pe_med IS NOT NULL
-                  AND trade_date <= ?
-                ORDER BY trade_date
-            ''', conn, params=[self.trade_date])
-
-            if hist_pe.empty or len(hist_pe) < 60:
-                return None
-
-            hist_erp = 1.0 / hist_pe["pe_med"] * 100 - bond_yield
-            score = _pct_rank_inv(hist_erp, erp) * 100
-            logger.info("ERP (precomputed): %.2f%% (E/P=%.2f%% Bond=%.2f%%), score=%.1f",
-                        erp, earnings_yield, bond_yield, score)
-            return _score_with_fallback(score)
-        except Exception as e:
-            logger.error("ERP calc failed: %s", e)
-            return None
-
     def _calc_below_net_rate(self) -> Optional[float]:
         """破净率 = PB<1个股占比 (成分股口径)
 
@@ -831,59 +788,6 @@ class HeatIndexCalculator:
             logger.error("Buffett ratio: %s", e)
             return None
 
-    def _calc_equity_bond_ratio(self) -> Optional[float]:
-        """
-        CSI300 E/P / 10Y government bond yield (equity-bond yield ratio)
-        Score: reverse percentile -> low ratio (expensive equity) -> high heat
-        Classic: >2.0 bottom, 1.5~2.0 cheap, <1.0 expensive
-        """
-        try:
-            conn = self._conn()
-            pe_row = conn.execute(
-                "SELECT pe_ttm FROM index_pe_history WHERE index_code='sh000300' AND trade_date <= ? ORDER BY trade_date DESC LIMIT 1",
-                (self.trade_date,)
-            ).fetchone()
-            if not pe_row or len(pe_row) == 0 or not pe_row[0] or pe_row[0] <= 0:
-                return None
-            ep = 1.0 / pe_row[0] * 100  # earnings yield %
-            bond_row = conn.execute(
-                "SELECT yield_rate FROM bond_yield WHERE trade_date <= ? AND curve_term=10 ORDER BY trade_date DESC LIMIT 1",
-                (self.trade_date,)
-            ).fetchone()
-            bond_yield = bond_row[0] if bond_row and bond_row[0] and bond_row[0] > 0 else 2.5
-            ratio = ep / bond_yield
-
-            # Historical reverse percentile
-            hist_pe = conn.execute(
-                "SELECT trade_date, pe_ttm FROM index_pe_history WHERE index_code='sh000300' AND trade_date <= ? ORDER BY trade_date",
-                (self.trade_date,)
-            ).fetchall()
-            hist_bond = conn.execute(
-                "SELECT trade_date, yield_rate FROM bond_yield WHERE curve_term=10 AND trade_date <= ? ORDER BY trade_date",
-                (self.trade_date,)
-            ).fetchall()
-            bond_map = {b[0]: b[1] for b in hist_bond}
-            hist_ratios = []
-            for dt, pe in hist_pe:
-                if pe <= 0:
-                    continue
-                by = None
-                for bd in sorted(bond_map):
-                    if bd <= dt:
-                        by = bond_map[bd]
-                if by and by > 0:
-                    hist_ratios.append((dt, (1.0 / pe * 100) / by))
-            if len(hist_ratios) < 20:
-                return None
-            s = pd.Series({r[0]: r[1] for r in hist_ratios})
-            score = (1.0 - self._series_pct_rank(s, ratio)) * 100
-            logger.info("Equity/Bond ratio: %.4f (E/P=%.2f%% / Bond=%.2f%%), score=%.1f",
-                        ratio, ep, bond_yield, score)
-            return max(0, min(100, score))
-        except Exception as e:
-            logger.error("Equity/Bond ratio: %s", e)
-            return None
-
     def _combine_dimension(self, scores: list, label: str) -> Optional[float]:
         """
         子指标合成（动态权重）
@@ -920,14 +824,12 @@ class HeatIndexCalculator:
         logger.info("Calculating heat index for %s", self.trade_date)
         logger.info("=" * 50)
 
-        # 估值
+        # 估值 (4项)
         v1 = self._calc_pe_percentile()
         v2 = self._calc_pb_percentile()
-        v3 = self._calc_erp()
         v4 = self._calc_below_net_rate()
-        v5 = self._calc_buffett_ratio()          # Buffett: M2/market_cap
-        v6 = self._calc_equity_bond_ratio()       # HS300 E/P / bond_yield
-        dim_val = self._combine_dimension([v1, v2, v3, v4, v5, v6], "Valuation")
+        v5 = self._calc_buffett_ratio()
+        dim_val = self._combine_dimension([v1, v2, v4, v5], "Valuation")
 
         # 资金
         f1 = self._calc_margin_ratio()
@@ -969,9 +871,10 @@ class HeatIndexCalculator:
             "dim_structure": dim_struct,
             "indicators": {
                 "valuation": {
-                    "PE_percentile": v1, "PB_percentile": v2,
-                    "below_net_rate": v4, "ERP": v3,
-                    "buffett_ratio": v5, "equity_bond_ratio": v6,
+                    "PE_percentile": v1,
+                    "PB_percentile": v2,
+                    "below_net_rate": v4,
+                    "buffett_ratio": v5,
                 },
                 "fund": {"margin_ratio": f1, "northbound": f2},
                 "sentiment": {
