@@ -1,57 +1,58 @@
 {
   "trade_date": "2026-05-29",
-  "composite_score": 57.5,
+  "composite_score": 58.39564822336263,
   "level": "yellow",
   "dimensions": {
     "valuation": {
-      "score": null,
+      "score": 48.96006702454284,
       "label": "估值"
     },
     "fund": {
-      "score": null,
+      "score": 93.64690147124386,
       "label": "资金"
     },
     "sentiment": {
-      "score": 52.5,
+      "score": 44.64059039124346,
       "label": "情绪"
     },
     "technical": {
-      "score": 62.5,
+      "score": 44.73068222978297,
       "label": "技术"
     },
     "structure": {
-      "score": null,
+      "score": 60.0,
       "label": "结构"
     }
   },
-  "updated_at": "2026-05-31 00:00:00",
+  "updated_at": "2026-06-01 00:00:00",
   "indicators": {
     "valuation": {
-      "PE_percentile": null,
-      "PB_percentile": null,
-      "below_net_rate": null,
-      "ERP": null
+      "PE_percentile": 59.67272727272728,
+      "PB_percentile": 59.81818181818181,
+      "below_net_rate": 34.9223546406645,
+      "ERP": 44.29090909090909,
+      "buffett_ratio": 81.51107882310207,
+      "equity_bond_ratio": 13.545150501672243
     },
     "fund": {
-      "margin_ratio": null,
-      "northbound": null
+      "margin_ratio": 87.29380294248774,
+      "northbound": 100
     },
     "sentiment": {
-      "turnover": 52.5,
-      "limit_up_ratio": null,
-      "new_high_ratio": null,
-      "above_ma250_ratio": null,
-      "up_down_ratio": null
+      "turnover": 99.95877988458368,
+      "up_down_ratio": 21.72300082440231,
+      "limit_up_ratio": 36.521022258862324,
+      "limit_down_ratio": 2.3495465787304215,
+      "volatility": 62.65060240963856
     },
     "technical": {
-      "deviation_ma250": null,
-      "volatility_change": 92.5,
-      "RSI": 32.6,
-      "high_low_diff": null
+      "above_ma250_ratio": 43.8150289017341,
+      "new_high_ratio": 2.3998451712792725,
+      "deviation_ma250": 67.70785484611851,
+      "price_volume_divergence": 65.0
     },
     "structure": {
-      "ah_premium": null,
-      "equal_weighted_diff": null
+      "sector_divergence": 60.0
     }
   }
 }
