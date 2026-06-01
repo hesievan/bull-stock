@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>板块热度 — A股牛市热度指数</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #0d1117; color: #c9d1d9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+
+  .header { padding: 20px 30px; border-bottom: 1px solid #21262d; display: flex; align-items: center; justify-content: space-between; }
+  .header h1 { font-size: 20px; font-weight: 600; color: #f0f6fc; }
+  .header .date { font-size: 13px; color: #8b949e; }
+  .header a { font-size: 13px; color: #58a6ff; text-decoration: none; }
+  .header a:hover { text-decoration: underline; }
+
+  .dashboard { padding: 20px 30px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .card { background: #161b22; border: 1px solid #21262d; border-radius: 8px; padding: 16px; }
+  .card h2 { font-size: 14px; font-weight: 600; color: #8b949e; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+  #heatmap { height: 500px; }
+  #barChart { height: 500px; }
+
+  .table-container { padding: 0 30px 30px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { text-align: left; padding: 8px 12px; background: #161b22; color: #8b949e; font-weight: 600; border-bottom: 1px solid #21262d; position: sticky; top: 0; }
+  td { padding: 8px 12px; border-bottom: 1px solid #21262d; }
+  tr:hover td { background: #161b22; }
+  .rank { color: #8b949e; font-weight: 600; width: 40px; }
+  .score-hot { color: #f85149; font-weight: 600; }
+  .score-warm { color: #d29922; font-weight: 600; }
+  .score-cold { color: #3fb950; font-weight: 600; }
+  .name { color: #f0f6fc; font-weight: 500; }
+  .dim-bar { display: inline-block; height: 6px; border-radius: 3px; margin-right: 2px; }
+  .dim-val { background: #58a6ff; }
+  .dim-sent { background: #d29922; }
+  .dim-tech { background: #a371f7; }
+  .pct-pos { color: #f85149; }
+  .pct-neg { color: #3fb950; }
+  .leader-code { color: #58a6ff; font-size: 11px; }
+  .leader-pct { font-size: 12px; }
+
+  .loading { text-align: center; padding: 60px; color: #8b949e; font-size: 16px; }
+  .summary { padding: 16px 30px; display: flex; gap: 24px; }
+  .summary-item { background: #161b22; border: 1px solid #21262d; border-radius: 8px; padding: 12px 16px; flex: 1; text-align: center; }
+  .summary-item .val { font-size: 24px; font-weight: 700; }
+  .summary-item .lbl { font-size: 12px; color: #8b949e; margin-top: 4px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>🌡️ 板块热度分析</h1>
+    <span class="date" id="dateStr">加载中...</span>
+  </div>
+  <a href="index.html">← 总指数</a>
+</div>
+
+<div class="summary" id="summary">
+  <div class="summary-item"><div class="val" id="hotCount">—</div><div class="lbl">🔴 热门板块</div></div>
+  <div class="summary-item"><div class="val" id="warmCount">—</div><div class="lbl">🟡 中性板块</div></div>
+  <div class="summary-item"><div class="val" id="coldCount">—</div><div class="lbl">🟢 冷门板块</div></div>
+  <div class="summary-item"><div class="val" id="totalSectors">—</div><div class="lbl">行业总数</div></div>
+</div>
+
+<div class="dashboard">
+  <div class="card">
+    <h2>热力图 (按热度排序)</h2>
+    <div id="heatmap"></div>
+  </div>
+  <div class="card">
+    <h2>行业排名</h2>
+    <div id="barChart"></div>
+  </div>
+</div>
+
+<div class="table-container">
+  <div class="card">
+    <h2>行业明细</h2>
+    <div id="tableLoading" class="loading">数据加载中...</div>
+    <table>
+      <thead>
+        <tr>
+          <th>#</th><th>行业</th><th>热度</th><th>综合</th>
+          <th>估值</th><th>情绪</th><th>技术</th>
+          <th>平均涨跌</th><th>上涨比</th><th>领涨股</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+const DATA_URL = 'data/sectors.json';
+
+async function loadData() {
+  try {
+    const resp = await fetch(DATA_URL);
+    const data = await resp.json();
+    return data;
+  } catch(e) {
+    console.error('Failed to load sectors.json:', e);
+    return null;
+  }
+}
+
+function scoreClass(label) {
+  if (label === 'hot') return 'score-hot';
+  if (label === 'warm') return 'score-warm';
+  return 'score-cold';
+}
+
+function renderSummary(data) {
+  const hot = data.filter(s => s.heat_label === 'hot').length;
+  const warm = data.filter(s => s.heat_label === 'warm').length;
+  const cold = data.filter(s => s.heat_label === 'cold').length;
+  document.getElementById('hotCount').textContent = hot;
+  document.getElementById('warmCount').textContent = warm;
+  document.getElementById('coldCount').textContent = cold;
+  document.getElementById('totalSectors').textContent = data.length;
+}
+
+function renderHeatmap(data) {
+  const chart = echarts.init(document.getElementById('heatmap'));
+  const names = data.map(s => s.sector_name);
+  const scores = data.map(s => s.composite_score);
+  const maxScore = Math.max(...scores);
+  const minScore = Math.min(...scores);
+
+  // value: [x, y, score]
+  const values = names.map((name, i) => [i, 0, scores[i]]);
+
+  const option = {
+    tooltip: {
+      position: 'top',
+      formatter: p => `${names[p.value[0]]}<br/>热度: <b>${p.value[2].toFixed(1)}</b>`
+    },
+    grid: { top: 10, bottom: 100, left: 120, right: 60 },
+    xAxis: { type: 'category', data: names, splitArea: { show: false }, axisLabel: { show: false } },
+    yAxis: { type: 'category', data: [''], splitArea: { show: false }, axisLabel: { show: false } },
+    visualMap: {
+      min: minScore, max: maxScore,
+      calculable: true, orient: 'vertical', right: 5, top: 'center',
+      inRange: { color: ['#1a472a', '#2d6a4f', '#d29922', '#f85149'] },
+      text: ['热', '冷'], textStyle: { color: '#8b949e' }
+    },
+    series: [{
+      type: 'heatmap',
+      data: values,
+      label: { show: true, color: '#fff', fontSize: 11,
+               formatter: p => { const s = p.data[2]; return s >= 70 ? s.toFixed(0) : ''; } },
+      emphasis: { itemStyle: { shadowBlur: 10, shadowColor: 'rgba(0,0,0,0.5)' } }
+    }]
+  };
+
+  // 改条形图,更直观
+  const barOption = {
+    tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' },
+      formatter: p => `${p[0].name}<br/>热度: <b>${p[0].value.toFixed(1)}</b>` },
+    grid: { top: 10, bottom: 80, left: 110, right: 20 },
+    xAxis: { type: 'value', max: 100, axisLabel: { color: '#8b949e' }, splitLine: { lineStyle: { color: '#21262d' } } },
+    yAxis: { type: 'category', data: names.reverse(), axisLabel: { color: '#c9d1d9', fontSize: 11 }, inverse: false },
+    series: [{
+      type: 'bar',
+      data: scores.reverse().map((s, i) => ({
+        value: s,
+        itemStyle: { color: s >= 70 ? '#f85149' : (s >= 40 ? '#d29922' : '#3fb950'), borderRadius: [0, 4, 4, 0] }
+      })),
+      barWidth: 14,
+      label: { show: true, position: 'right', color: '#c9d1d9', fontSize: 11,
+               formatter: p => p.value >= 70 ? p.value.toFixed(1) : '' }
+    }]
+  };
+
+  chart.setOption(barOption);
+  window.addEventListener('resize', () => chart.resize());
+}
+
+function renderBar(data) {
+  const chart = echarts.init(document.getElementById('barChart'));
+  const top15 = data.slice(0, 15);
+  const names = top15.map(s => s.sector_name).reverse();
+  const scores = top15.map(s => s.composite_score).reverse();
+  const valScores = top15.map(s => s.dim_valuation || 0).reverse();
+  const sentScores = top15.map(s => s.dim_sentiment || 0).reverse();
+
+  const option = {
+    tooltip: {
+      trigger: 'axis',
+      formatter: p => {
+        const r = data[p[0].dataIndex];
+        return `<b>${r.sector_name}</b><br/>
+          综合: ${r.composite_score.toFixed(1)}<br/>
+          估值: ${r.dim_valuation ? r.dim_valuation.toFixed(1) : 'N/A'}<br/>
+          情绪: ${r.dim_sentiment ? r.dim_sentiment.toFixed(1) : 'N/A'}<br/>
+          技术: ${r.dim_technical ? r.dim_technical.toFixed(1) : 'N/A'}`;
+      }
+    },
+    legend: { data: ['综合', '估值', '情绪'], textStyle: { color: '#8b949e' }, top: 0 },
+    grid: { top: 30, bottom: 5, left: 110, right: 20 },
+    xAxis: { type: 'value', max: 100, axisLabel: { color: '#8b949e' }, splitLine: { lineStyle: { color: '#21262d' } } },
+    yAxis: { type: 'category', data: names, axisLabel: { color: '#c9d1d9', fontSize: 11 } },
+    series: [
+      {
+        name: '综合', type: 'bar', stack: 'd', data: scores,
+        itemStyle: { color: '#58a6ff', borderRadius: [0, 4, 4, 0] }, barWidth: 12
+      }
+    ]
+  };
+  chart.setOption(option);
+  window.addEventListener('resize', () => chart.resize());
+  return chart;
+}
+
+function renderTable(data) {
+  document.getElementById('tableLoading').style.display = 'none';
+  const tbody = document.getElementById('tableBody');
+  tbody.innerHTML = '';
+
+  data.forEach(s => {
+    const tr = document.createElement('tr');
+
+    // 维度小条
+    const dims = [];
+    if (s.dim_valuation != null) dims.push(`<span class="dim-bar dim-val" style="width:${s.dim_valuation}px" title="估值 ${s.dim_valuation.toFixed(1)}"></span>`);
+    if (s.dim_sentiment != null) dims.push(`<span class="dim-bar dim-sent" style="width:${s.dim_sentiment}px" title="情绪 ${s.dim_sentiment.toFixed(1)}"></span>`);
+    if (s.dim_technical != null) dims.push(`<span class="dim-bar dim-tech" style="width:${s.dim_technical}px" title="技术 ${s.dim_technical.toFixed(1)}"></span>`);
+
+    const pctClass = (s.avg_pct_change != null && s.avg_pct_change >= 0) ? 'pct-pos' : 'pct-neg';
+    const pctStr = s.avg_pct_change != null ? (s.avg_pct_change >= 0 ? `+${s.avg_pct_change}%` : `${s.avg_pct_change}%`) : '—';
+
+    let leaderStr = '—';
+    if (s.leader) {
+      const lp = s.leader.pct >= 0 ? `+${s.leader.pct}%` : `${s.leader.pct}%`;
+      const lc = s.leader.pct >= 0 ? 'pct-pos' : 'pct-neg';
+      leaderStr = `<span class="leader-code">${s.leader.code}</span> <span class="${lc}">${lp}</span>`;
+    }
+
+    tr.innerHTML = `
+      <td class="rank">${s.rank}</td>
+      <td class="name">${s.sector_name}</td>
+      <td class="${scoreClass(s.heat_label)}">${s.heat_label === 'hot' ? '🔴' : (s.heat_label === 'warm' ? '🟡' : '🟢')}</td>
+      <td class="${scoreClass(s.heat_label)}">${s.composite_score.toFixed(1)}</td>
+      <td>${s.dim_valuation != null ? s.dim_valuation.toFixed(1) : '—'} ${dimRender(s.dim_valuation, 'val')}</td>
+      <td>${s.dim_sentiment != null ? s.dim_sentiment.toFixed(1) : '—'} ${dimRender(s.dim_sentiment, 'sent')}</td>
+      <td>${s.dim_technical != null ? s.dim_technical.toFixed(1) : '—'} ${dimRender(s.dim_technical, 'tech')}</td>
+      <td class="${pctClass}">${pctStr}</td>
+      <td>${s.up_ratio != null ? s.up_ratio + '%' : '—'}</td>
+      <td>${leaderStr}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function dimRender(val, type) {
+  if (val == null) return '';
+  const w = Math.min(val, 60);
+  const cls = type === 'val' ? 'dim-val' : (type === 'sent' ? 'dim-sent' : 'dim-tech');
+  return `<span class="dim-bar ${cls}" style="width:${w}px"></span>`;
+}
+
+async function init() {
+  const data = await loadData();
+  if (!data || data.length === 0) {
+    document.body.innerHTML = '<div class="loading">暂无数据，请先运行 <code>python scripts/run_daily.py</code></div>';
+    return;
+  }
+
+  document.getElementById('dateStr').textContent = data[0]._trade_date || data[0].trade_date || '';
+  renderSummary(data);
+  renderBar(data);
+  renderTable(data);
+}
+
+init();
+</script>
+</body>
+</html>

@@ -143,6 +143,26 @@ def run_daily(trade_date: str = None):
     elapsed = time.time() - start_time
     logger.info("Completed in %.1f seconds", elapsed)
     logger.info("Composite Score: %.1f", result["composite_score"])
+
+    # ── Step 6: 板块热度 ──────────────────────────────────────────────
+    logger.info("── Step 6: Sector Heat ──")
+    try:
+        from src.indicators.calculator import calculate_sector_heat
+        sector_results = calculate_sector_heat(trade_date, os.path.join(os.path.dirname(__file__), "..", "data", "heat_index.db"))
+        if sector_results:
+            for r in sector_results:
+                r["_trade_date"] = trade_date
+            out_dir = os.path.join(os.path.dirname(__file__), "..", "web", "data")
+            os.makedirs(out_dir, exist_ok=True)
+            out_path = os.path.join(out_dir, "sectors.json")
+            with open(out_path, "w", encoding="utf-8") as _f:
+                json.dump(sector_results, _f, ensure_ascii=False, indent=2)
+            logger.info("Step 6: Wrote %d sectors to %s", len(sector_results), out_path)
+        else:
+            logger.warning("Step 6: No sector results")
+    except Exception as exc:
+        logger.error("Step 6 failed: %s", exc, exc_info=True)
+
     return result
 
 
