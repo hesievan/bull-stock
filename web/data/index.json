@@ -1,22 +1,22 @@
 {
   "trade_date": "2026-05-29",
-  "composite_score": 58.39564822336263,
+  "composite_score": 61.5,
   "level": "yellow",
   "dimensions": {
     "valuation": {
-      "score": 48.96006702454284,
+      "score": 59.0,
       "label": "估值"
     },
     "fund": {
-      "score": 93.64690147124386,
+      "score": 99.3,
       "label": "资金"
     },
     "sentiment": {
-      "score": 44.64059039124346,
+      "score": 44.6,
       "label": "情绪"
     },
     "technical": {
-      "score": 44.73068222978297,
+      "score": 44.7,
       "label": "技术"
     },
     "structure": {
@@ -24,5 +24,5 @@
       "label": "结构"
     }
   },
-  "updated_at": "2026-06-01 00:00:00"
+  "updated_at": "2026-06-02 00:00:00"
 }

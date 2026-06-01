@@ -453,14 +453,14 @@ def fetch_ah_premium(start: str = None, end: str = None) -> pd.DataFrame:
     for attempt in range(5):
         try:
             result = subprocess.run(
-                ["curl", "-s", "--max-time", "30",
+                ["curl", "-s", "--max-time", "15",
                  "-H", "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36",
                  "-H", "Referer: https://quote.eastmoney.com/",
                  url],
-                capture_output=True, text=True,
+                capture_output=True, text=True, timeout=20,
             )
             if result.returncode != 0 or not result.stdout.strip():
-                raise ConnectionError(f"curl rc={result.returncode}")
+                raise ConnectionError("curl rc=%d" % result.returncode)
             data = _json.loads(result.stdout)
             klines = (data.get("data") or {}).get("klines") or []
             if klines:
@@ -468,11 +468,15 @@ def fetch_ah_premium(start: str = None, end: str = None) -> pd.DataFrame:
             raise ValueError("空数据")
         except Exception as e:
             if attempt < 4:
-                wait = 20 if attempt < 2 else 40
-                logger.warning("fetch_ah_premium attempt %d/%d: %s", attempt + 1, 5, str(e)[:80])
+                # rc=52/7: 服务器空应答/拒绝, 快速重试 3-12s; 其他: 长等
+                err_str = str(e)
+                is_fast = ("rc=52" in err_str) or ("rc=7" in err_str)
+                wait = (3 + attempt * 3) if is_fast else (20 + attempt * 10)
+                wait = min(wait, 15)
+                logger.warning("fetch_ah_premium attempt %d/%d: %s (wait %ds)", attempt + 1, 5, err_str[:60], wait)
                 time.sleep(wait)
             else:
-                logger.error("fetch_ah_premium 失败: %s", str(e)[:80])
+                logger.error("fetch_ah_premium failed after 5 attempts: %s", str(e)[:80])
                 return pd.DataFrame()
 
     rows = []
@@ -480,10 +484,7 @@ def fetch_ah_premium(start: str = None, end: str = None) -> pd.DataFrame:
         parts = line.split(",")
         rows.append({
             "trade_date": parts[0],
-            "open": float(parts[1]),
-            "close": float(parts[2]),
-            "high": float(parts[3]),
-            "low": float(parts[4]),
+            "premium": float(parts[2]),  # 用 close 作为溢价指数值
         })
 
     df = pd.DataFrame(rows)

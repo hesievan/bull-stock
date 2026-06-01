@@ -48,16 +48,20 @@ def save_results(result: Dict, output_dir: str = None):
 
     trade_date = result["trade_date"]
 
+    def _round_score(v):
+        """统一保留1位小数, None则保留None"""
+        return round(float(v), 1) if v is not None else None
+
     index_data = {
         "trade_date": trade_date,
-        "composite_score": result["composite_score"],
+        "composite_score": _round_score(result["composite_score"]),
         "level": get_heat_level(result["composite_score"]),
         "dimensions": {
-            "valuation": {"score": result["dim_valuation"], "label": "估值"},
-            "fund": {"score": result["dim_fund"], "label": "资金"},
-            "sentiment": {"score": result["dim_sentiment"], "label": "情绪"},
-            "technical": {"score": result["dim_technical"], "label": "技术"},
-            "structure": {"score": result["dim_structure"], "label": "结构"},
+            "valuation": {"score": _round_score(result["dim_valuation"]), "label": "估值"},
+            "fund": {"score": _round_score(result["dim_fund"]), "label": "资金"},
+            "sentiment": {"score": _round_score(result["dim_sentiment"]), "label": "情绪"},
+            "technical": {"score": _round_score(result["dim_technical"]), "label": "技术"},
+            "structure": {"score": _round_score(result["dim_structure"]), "label": "结构"},
         },
         "updated_at": date.today().strftime("%Y-%m-%d %H:%M:%S"),
     }

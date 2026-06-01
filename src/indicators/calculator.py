@@ -738,7 +738,7 @@ class HeatIndexCalculator:
         try:
             conn = self._conn()
             ah = pd.read_sql(
-                "SELECT trade_date, close FROM ah_premium ORDER BY trade_date",
+                "SELECT trade_date, premium as close FROM ah_premium ORDER BY trade_date",
                 conn,
             )
             if ah.empty or len(ah) < 60:
@@ -749,7 +749,7 @@ class HeatIndexCalculator:
             ah = ah.dropna()
 
             today = conn.execute(
-                "SELECT close FROM ah_premium WHERE trade_date <= ? ORDER BY trade_date DESC LIMIT 1",
+                "SELECT premium as close FROM ah_premium WHERE trade_date <= ? ORDER BY trade_date DESC LIMIT 1",
                 (self.trade_date,),
             ).fetchone()
             if not today or not today[0]:

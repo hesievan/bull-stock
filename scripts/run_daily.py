@@ -107,9 +107,18 @@ def run_daily(trade_date=None):
     _run_step(step_status, "S1_index", _step1)
 
     # ── Step 2: 成分股最新K线 (baostock) ────────────────────────────────────
-    logger.info("Step 2: Stock daily K-lines (baostock)...")
+    # 仅在 stock_daily 当天数据不足时拉取(避免每次 280只×0.3s ≈ 90s)
+    logger.info("Step 2: Stock daily K-lines (baostock, if needed)...")
 
     def _step2():
+        existing = read_dataframe(
+            "SELECT COUNT(*) as cnt FROM stock_daily WHERE trade_date=?",
+            params=(trade_date,))
+        if not existing.empty and int(existing.iloc[0]["cnt"]) > 100:
+            logger.info("  stock_daily already has %d rows for %s, skip baostock stock fetch",
+                        int(existing.iloc[0]["cnt"]), trade_date)
+            return False
+        # 只有数据不足时才拉成分股K线
         all_codes = set()
         for idx_name in ["hs300", "sz50", "zz500"]:
             df = fetch_index_constituents(idx_name)
