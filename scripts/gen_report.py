@@ -479,3 +479,283 @@ window.addEventListener('resize', () => chart.resize());
 with open(html_path, 'w', encoding='utf-8') as f:
     f.write(html_content)
 print(f'HTML saved: {html_path}')
+
+# ══════════════════════════════════════════════════════════════
+# PNG 版 (Pillow 直接渲染)
+# ══════════════════════════════════════════════════════════════
+try:
+    from PIL import Image, ImageDraw, ImageFont
+    _has_pillow = True
+except ImportError:
+    _has_pillow = False
+
+if _has_pillow:
+    png_path = os.path.join(OUTPUT_DIR, f'daily_{trade_date.replace("-", "")}.png')
+
+    # ── 字体 ──
+    _font_candidates = [
+        '/System/Library/Fonts/PingFang.ttc',
+        '/System/Library/Fonts/Hiragino Sans GB.ttc',
+        '/System/Library/Fonts/STHeiti Medium.ttc',
+    ]
+    _font_path = next((p for p in _font_candidates if os.path.exists(p)), None)
+
+    def _font(size):
+        try:
+            return ImageFont.truetype(_font_path, size)
+        except Exception:
+            return ImageFont.load_default()
+
+    # ── 颜色 ──
+    _C = {
+        'bg': (255, 255, 255), 'dark': (30, 30, 30), 'gray': (120, 120, 120),
+        'light': (180, 180, 180), 'line': (232, 232, 232),
+        'red': (255, 77, 79), 'yellow': (250, 173, 20), 'green': (82, 196, 26),
+        'blue': (24, 144, 255), 'card': (248, 249, 250),
+        'header_bg': (15, 20, 35),
+    }
+    _lc = {'red': _C['red'], 'yellow': _C['yellow'], 'green': _C['green']}.get(level, _C['gray'])
+
+    W, PAD = 800, 36
+    LH, SH = 26, 22
+    TOTAL_H = 2200
+
+    img = Image.new('RGB', (W, TOTAL_H), _C['bg'])
+    draw = ImageDraw.Draw(img)
+    y = PAD
+    x = PAD
+
+    def _text(s, x, y, color=_C['dark'], size=14):
+        f = _font(size)
+        draw.text((x, y), s, fill=color, font=f)
+        return y + size + 4
+
+    def _hline(y, pad=10):
+        draw.line([(x, y + pad), (W - x, y + pad)], fill=_C['line'], width=1)
+        return y + pad * 2
+
+    def _bar(cx, cy, w, sc, color, h=6):
+        draw.rectangle([(cx, cy), (cx + w, cy + h)], fill=(230, 230, 230))
+        draw.rectangle([(cx, cy), (cx + int(w * min(sc, 100) / 100), cy + h)], fill=color)
+
+    # ── HEADER ──
+    y = _text("A股牛市热度指数日报", x, y, _C['dark'], 20)
+    y = _text(f"交易日: {trade_date}    生成: {now_str}", x, y, _C['gray'], 12)
+    y = _hline(y)
+
+    # ── HERO SCORE ──
+    y += 8
+    score_str = f"{score:.1f}"
+    bbox = _font(64).getbbox(score_str)
+    sw = bbox[2] - bbox[0]
+    draw.text(((W - sw) // 2, y), score_str, fill=_lc, font=_font(64))
+    y += 72
+    bbox = _font(16).getbbox(level_cn)
+    lw = bbox[2] - bbox[0]
+    draw.text(((W - lw) // 2, y), level_cn, fill=_lc, font=_font(16))
+    y += 28
+    # 进度条
+    bar_w = W - 2 * x - 80
+    _bar(x + 40, y, bar_w, score, _lc, 10)
+    y += 24
+    if len(hist) >= 2:
+        delta = score - hist[-2]['composite_score']
+        arrow = '↑' if delta > 0 else ('↓' if delta < 0 else '→')
+        dc = _C['red'] if delta > 0 else _C['green']
+        label = f"较上一交易日: {arrow} {abs(delta):.1f}"
+        bbox = _font(13).getbbox(label)
+        draw.text(((W - (bbox[2] - bbox[0])) // 2, y), label, fill=dc, font=_font(13))
+        y += 20
+    y = _hline(y)
+
+    # ── DIMENSIONS ──
+    y += 6
+    y = _text("五维度拆解", x, y, _C['dark'], 16)
+    y += 10
+
+    dims_data = [(k, v['score']) for k, v in idx['dimensions'].items()]
+    card_gap = 10
+    card_w = (W - 2 * x - card_gap * 4) // 5
+    card_h = 82
+    card_y = y
+    dim_colors = {}
+    for i, (dk, ds) in enumerate(dims_data):
+        cx = x + i * (card_w + card_gap)
+        sc = ds if ds is not None else 0
+        scolor = _C['red'] if sc >= 70 else (_C['yellow'] if sc >= 40 else _C['green'])
+        dim_colors[dk] = scolor
+        draw.rectangle([(cx, card_y), (cx + card_w, card_y + card_h)], fill=_C['card'], outline=_C['line'])
+        # label
+        lbl = DIM_LABELS.get(dk, dk)
+        f = _font(13)
+        bbox = f.getbbox(lbl)
+        draw.text((cx + (card_w - (bbox[2] - bbox[0])) // 2, card_y + 8), lbl, fill=_C['gray'], font=f)
+        # score
+        sc_str = f"{sc:.0f}" if sc > 0 else "—"
+        f = _font(32)
+        bbox = f.getbbox(sc_str)
+        draw.text((cx + (card_w - (bbox[2] - bbox[0])) // 2, card_y + 26), sc_str, fill=scolor, font=f)
+        _bar(cx + 10, card_y + 68, card_w - 20, sc, scolor)
+
+    y = card_y + card_h + 14
+
+    # 详细进度条
+    for dk, ds in dims_data:
+        lbl = DIM_LABELS.get(dk, dk)
+        sc = ds if ds is not None else 0
+        scolor = _C['red'] if sc >= 70 else (_C['yellow'] if sc >= 40 else _C['green'])
+        bw = 160
+        bx = x + 220
+        draw.text((x, y), lbl, fill=_C['dark'], font=_font(13))
+        draw.text((x + 55, y), f"{sc:.1f}", fill=scolor, font=_font(13))
+        _bar(bx, y + 3, bw, sc, scolor)
+        y += SH + 2
+    y = _hline(y)
+
+    # ── KEY METRICS ──
+    y += 6
+    y = _text("关键指标", x, y, _C['dark'], 16)
+    y += 8
+    # 取前8个 highlights
+    for h in _hl[:8]:
+        # 简单解析: 给数字加颜色
+        parts = h.rsplit(' ', 1)
+        if len(parts) == 2:
+            label_part, val_part = parts
+        else:
+            label_part, val_part = h, ''
+        draw.text((x + 12, y), "•", fill=_C['yellow'], font=_font(13))
+        draw.text((x + 28, y), label_part, fill=_C['dark'], font=_font(13))
+        if val_part:
+            # 去掉可能的括号备注
+            vp = val_part.split('(')[0].strip()
+            vcolor = _C['dark']
+            try:
+                # 提取数字
+                import re as _re
+                nums = _re.findall(r'[\d.]+', vp)
+                if nums:
+                    nv = float(nums[0])
+                    if any(k in label_part for k in ['北向', '涨停', '涨跌', '偏离']):
+                        vcolor = _C['red'] if nv > 80 else (_C['yellow'] if nv > 50 else _C['green'])
+                    elif 'PE' in label_part or 'PB' in label_part:
+                        vcolor = _C['red'] if nv > 80 else (_C['yellow'] if nv > 50 else _C['green'])
+                    elif '新高' in label_part:
+                        vcolor = _C['red'] if nv > 15 else (_C['yellow'] if nv > 5 else _C['green'])
+            except Exception:
+                pass
+            draw.text((x + 210, y), vp, fill=vcolor, font=_font(13))
+        y += SH
+    y = _hline(y)
+
+    # ── SECTORS ──
+    y += 6
+    y = _text("板块热度 TOP10", x, y, _C['dark'], 16)
+    y += 10
+
+    # 表头
+    draw.text((x, y), "排名", fill=_C['gray'], font=_font(11))
+    draw.text((x + 50, y), "行业", fill=_C['gray'], font=_font(11))
+    draw.text((x + 320, y), "得分", fill=_C['gray'], font=_font(11))
+    draw.text((x + 390, y), "龙头股", fill=_C['gray'], font=_font(11))
+    draw.text((x + 530, y), "涨跌幅", fill=_C['gray'], font=_font(11))
+    y += 18
+    draw.line([(x, y), (W - x, y)], fill=_C['line'], width=1)
+    y += 5
+
+    for i, s in enumerate(top10, 1):
+        sc = s.get('composite_score', 0)
+        scolor = _C['red'] if sc >= 70 else (_C['yellow'] if sc >= 40 else _C['green'])
+        sname = s.get('sector_name', '')[:16]
+        ldr = s.get('leader', {})
+        ldr_code = ldr.get('code', '') if ldr else ''
+        ldr_pct = ldr.get('pct', 0) if ldr else 0
+        ldr_str = f"{ldr_pct:+.1f}%" if ldr_code else ''
+        lcolor = _C['red'] if ldr_pct > 0 else _C['green']
+
+        bold = sc >= 70
+        draw.text((x, y), str(i), fill=scolor if bold else _C['gray'], font=_font(13))
+        draw.text((x + 50, y), sname, fill=_C['dark'], font=_font(13))
+        draw.text((x + 320, y), f"{sc:.0f}", fill=scolor, font=_font(13))
+        draw.text((x + 390, y), ldr_code, fill=_C['gray'], font=_font(12))
+        draw.text((x + 530, y), ldr_str, fill=lcolor, font=_font(13))
+        y += SH
+    y = _hline(y)
+
+    # ── HISTORY SPARKLINE ──
+    y += 6
+    y = _text("历史走势 (近30日)", x, y, _C['dark'], 16)
+    y += 10
+
+    hist30 = hist[-30:]
+    hscores = [h['composite_score'] for h in hist30]
+    hdates = [h['trade_date'][5:] for h in hist30]
+
+    cx0 = x + 30
+    cy0 = y + 10
+    cw = W - 2 * cx0
+    ch = 100
+    draw.rectangle([(cx0 - 2, cy0 - 2), (cx0 + cw + 2, cy0 + ch + 2)], fill=(250, 250, 252), outline=_C['line'])
+
+    if hscores:
+        mn_v, mx_v = min(hscores), max(hscores)
+        if mx_v == mn_v: mx_v = mn_v + 10
+        step = cw / max(len(hscores) - 1, 1)
+        pts = []
+        for i, v in enumerate(hscores):
+            px = cx0 + int(i * step)
+            py = cy0 + ch - int((v - mn_v) / (mx_v - mn_v) * (ch - 10)) - 5
+            pts.append((px, py))
+        # 参考线
+        for ref_val, ref_color in [(70, _C['red'] + (40,)), (40, _C['yellow'] + (40,))]:
+            ry = cy0 + ch - int((ref_val - mn_v) / (mx_v - mn_v) * (ch - 10)) - 5
+            if cy0 <= ry <= cy0 + ch:
+                draw.line([(cx0, ry), (cx0 + cw, ry)], fill=ref_color, width=1)
+        # 折线
+        for i in range(len(pts) - 1):
+            draw.line([pts[i], pts[i + 1]], fill=_lc, width=2)
+        for px, py in pts:
+            draw.ellipse([(px - 3, py - 3), (px + 3, py + 3)], fill=_lc)
+        # X轴标签 (采样)
+        for i in range(0, len(hdates), max(len(hdates) // 6, 1)):
+            px = cx0 + int(i * step)
+            draw.text((px - 12, cy0 + ch + 6), hdates[i], fill=_C['light'], font=_font(10))
+        # Y轴
+        draw.text((cx0 - 28, cy0 - 3), f"{mx_v:.0f}", fill=_C['light'], font=_font(10))
+        draw.text((cx0 - 28, cy0 + ch - 8), f"{mn_v:.0f}", fill=_C['light'], font=_font(10))
+
+    y = cy0 + ch + 30
+
+    # ── 历史参考 ──
+    y = _text("历史参考", x, y, _C['dark'], 14)
+    y += 8
+    refs = [
+        ("2015-06-12", "牛市顶 (上证5178)", "73.8", _C['red']),
+        ("2021-02-18", "牛市顶 (上证3731)", "66.2", _C['gray']),
+        ("2024-10-08", "脉冲顶 (上证3489)", "65.1", _C['gray']),
+        ("2018-12-28", "熊底 (上证2493)", "28.5", _C['green']),
+        (trade_date, "★ 当前", f"{score:.1f}", _lc),
+    ]
+    for dt2, st2, sc2, sc2color in refs:
+        draw.text((x + 12, y), dt2, fill=sc2color, font=_font(13))
+        draw.text((x + 120, y), st2, fill=_C['dark'], font=_font(13))
+        draw.text((x + 390, y), sc2, fill=sc2color, font=_font(13))
+        y += SH
+    y = _hline(y)
+
+    # ── FOOTER ──
+    y += 10
+    n_ok = sum(1 for v in status['steps'].values() if v['status'] == 'OK')
+    n_fail = sum(1 for v in status['steps'].values() if v['status'] == 'FAILED')
+    n_skip = sum(1 for v in status['steps'].values() if v['status'] == 'SKIPPED')
+    y = _text(f"数据更新: {n_ok} OK / {n_fail} FAILED / {n_skip} SKIPPED    板块: {len(sectors)}个行业",
+              x, y, _C['gray'], 12)
+    y = _text("⚠️ 不构成投资建议，仅供参考    bull-market-heat-index v2.0",
+              x, y, _C['light'], 11)
+
+    # 裁剪
+    final_h = min(y + 30, TOTAL_H)
+    img.crop((0, 0, W, final_h)).save(png_path, 'PNG')
+    print(f'PNG saved: {png_path}')
+else:
+    print('Pillow not installed, skipping PNG generation')
