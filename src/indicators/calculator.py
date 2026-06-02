@@ -321,58 +321,86 @@ class HeatIndexCalculator:
     # ── 资金维度 ───────────────────────────────────────────────────────────────
 
     def _calc_margin_ratio(self) -> Optional[float]:
-        """融资买入占总成交比例（杠杆热度）"""
+        """融资买入占总成交比例（杠杆热度）
+
+        修复: 不再对 rzmre 绝对金额做分位(受市场扩容影响失真),
+              改为 ratio = rzmre / total_amount（融资买入额/全市场成交额）
+              对 ratio 自身做历史分位
+        """
         try:
             margin_df = self._get_margin()
-            stocks_today = self._get_stock_daily(self.trade_date)
-            if margin_df.empty or stocks_today.empty:
+            if margin_df.empty or len(margin_df) < 60:
                 return None
 
-            rzmre = pd.to_numeric(margin_df["rzmre"], errors="coerce").iloc[-1]
-            total_amount = pd.to_numeric(stocks_today["amount"], errors="coerce").sum()
-            if pd.isna(rzmre) or total_amount <= 0:
-                return None
+            hist_margin = margin_df.copy()
+            hist_margin["rzmre"] = pd.to_numeric(hist_margin["rzmre"], errors="coerce")
 
-            ratio = rzmre / total_amount * 100
-
-            # 历史分位
-            hist_margin = self._get_margin()
-            if hist_margin.empty or len(hist_margin) < 60:
-                return None
-
+            # 历史全市场成交额（用 stock_daily 的 amount 列）
             hist_amount = self._get_stock_daily_history()
             if hist_amount.empty:
                 return None
 
-            # 历史融资买入占比（简化: 用融资买入额自身分位）
-            hist_rzmre = pd.to_numeric(hist_margin["rzmre"], errors="coerce").dropna()
-            if len(hist_rzmre) < 60:
+            # 计算历史每日 ratio = rzmre / total_amount
+            daily_amount = hist_amount.groupby("trade_date")["amount"].sum().reset_index()
+            daily_amount.columns = ["trade_date", "total_amount"]
+            merged = hist_margin[["trade_date", "rzmre"]].merge(daily_amount, on="trade_date", how="inner")
+            merged = merged[(merged["rzmre"] > 0) & (merged["total_amount"] > 0)]
+            if len(merged) < 60:
                 return None
 
-            score = _pct_rank(hist_rzmre, rzmre) * 100
-            logger.info("Margin ratio: %.4f%%, score=%.1f", ratio, score)
+            merged["ratio"] = merged["rzmre"] / merged["total_amount"]
+            hist_ratios = merged["ratio"].tail(504).dropna()
+
+            # 当前值
+            cur_rzmre = hist_ratios.iloc[-1]  # ratio of last date in hist
+            # 但我们要的是 trade_date 当天的 ratio
+            stocks_today = self._get_stock_daily(self.trade_date)
+            if stocks_today.empty:
+                return None
+            cur_amount = pd.to_numeric(stocks_today["amount"], errors="coerce").sum()
+            cur_rzmre_val = pd.to_numeric(margin_df["rzmre"], errors="coerce").iloc[-1]
+            if pd.isna(cur_rzmre_val) or cur_amount <= 0:
+                return None
+            cur_ratio = cur_rzmre_val / cur_amount
+
+            score = _pct_rank(hist_ratios, cur_ratio) * 100
+            logger.info("Margin ratio: %.4f%% (hist median=%.4f%%), score=%.1f",
+                        cur_ratio * 100, hist_ratios.median() * 100, score)
             return _score_with_fallback(score)
         except Exception as e:
             logger.error("Margin ratio calc failed: %s", e)
             return None
 
     def _calc_northbound(self) -> Optional[float]:
-        """北向资金方向（净买入持续天数映射分数）"""
+        """北向资金方向（净流入金额的历史分位）
+
+        修复: 不再用近20日净买入天数占比(窗口短、天然趋近100),
+              改为 north_net（净流入金额）的250日历史分位
+              金额可正可负, 方向+幅度都有体现
+        """
         try:
             nb = self._get_northbound()
-            if nb.empty or "north_net" not in nb.columns:
+            if nb.empty or "north_net" not in nb.columns or len(nb) < 60:
                 return None
 
             nb2 = nb.copy()
-            nb2["north_net"] = pd.to_numeric(nb2["north_net"], errors="coerce")
-            nb2["sign"] = (nb2["north_net"] > 0).astype(int)
+            nb2["north_net"] = pd.to_numeric(nb2["north_net"], errors="coerce").dropna()
+            if len(nb2) < 60:
+                return None
 
-            # 近20日净买入天数占比
-            recent = nb2.tail(20)
-            buy_ratio = recent["sign"].mean()
-            score = buy_ratio * 100
+            # 当前值（最新一天）
+            cur = nb2["north_net"].iloc[-1]
+            if pd.isna(cur):
+                return None
 
-            logger.info("Northbound: buy_ratio=%.2f, score=%.1f", buy_ratio, score)
+            # 历史分位（250日窗口）
+            hist = nb2["north_net"].tail(250).dropna()
+            if len(hist) < 60:
+                return None
+
+            score = _pct_rank(hist, cur) * 100
+            logger.info("Northbound: cur=%.0f, hist median=%.0f, score=%.1f",
+                        cur, hist.median(), score)
             return _score_with_fallback(score)
         except Exception as e:
             logger.error("Northbound calc failed: %s", e)

@@ -65,6 +65,33 @@ def save_results(result: Dict, output_dir: str = None):
         },
         "updated_at": date.today().strftime("%Y-%m-%d %H:%M:%S"),
     }
+
+    # 附加板块热度数据
+    sectors_file = os.path.join(output_dir, "sectors.json")
+    sectors_top5 = []
+    if os.path.exists(sectors_file):
+        try:
+            with open(sectors_file, "r", encoding="utf-8") as sf:
+                sectors_all = json.load(sf)
+            # 按 composite_score 降序取 TOP5
+            sorted_sectors = sorted(
+                [s for s in sectors_all if s.get("composite_score") is not None],
+                key=lambda x: x["composite_score"],
+                reverse=True,
+            )
+            for s in sorted_sectors[:5]:
+                sectors_top5.append({
+                    "industry": s.get("industry", ""),
+                    "score": s.get("composite_score"),
+                    "avg_pct": s.get("avg_pct"),
+                    "up_ratio": s.get("up_ratio"),
+                    "leader": s.get("leader"),
+                })
+        except Exception as e:
+            logger.warning("Failed to load sectors.json: %s", e)
+
+    if sectors_top5:
+        index_data["sectors_top5"] = sectors_top5
     with open(os.path.join(output_dir, "index.json"), "w", encoding="utf-8") as f:
         json.dump(index_data, f, ensure_ascii=False, indent=2)
 
@@ -188,7 +215,19 @@ def build_feishu_notification(result: Dict, history: list = None) -> Optional[st
         *dim_lines,
     ])
 
-    # 关键子指标亮点
+    # 板块热度 TOP5
+    sectors_top5 = result.get("sectors_top5", [])
+    if sectors_top5:
+        sec_lines = []
+        for i, s in enumerate(sectors_top5, 1):
+            name = s.get("industry", "")
+            sc = s.get("score", 0)
+            leader = s.get("leader", {})
+            ldr_str = ""
+            if leader:
+                ldr_str = f"  龙头:{leader.get('code','')} +{leader.get('pct',0):.1f}%"
+            sec_lines.append(f"  {i}. {name}  {sc:.0f}分{ldr_str}")
+        lines.extend([f"", f"🔥 板块热度 TOP5：", *sec_lines])
     highlights = []
     vi = sub_indicators.get("valuation", {})
     si = sub_indicators.get("sentiment", {})

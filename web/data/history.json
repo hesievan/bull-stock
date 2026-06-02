@@ -1,7 +1,7 @@
 [
   {
     "trade_date": "2026-05-29",
-    "composite_score": 61.5,
+    "composite_score": 51.6,
     "level": "yellow",
     "dimensions": {
       "valuation": {
@@ -9,7 +9,7 @@
         "label": "估值"
       },
       "fund": {
-        "score": 99.3,
+        "score": 49.8,
         "label": "资金"
       },
       "sentiment": {
@@ -25,6 +25,58 @@
         "label": "结构"
       }
     },
-    "updated_at": "2026-06-02 00:00:00"
+    "updated_at": "2026-06-02 00:00:00",
+    "sectors_top5": [
+      {
+        "industry": "",
+        "score": 84.4,
+        "avg_pct": null,
+        "up_ratio": 82.8,
+        "leader": {
+          "code": "sz000767",
+          "pct": 10.06
+        }
+      },
+      {
+        "industry": "",
+        "score": 76.7,
+        "avg_pct": null,
+        "up_ratio": 100.0,
+        "leader": {
+          "code": "sh601918",
+          "pct": 7.33
+        }
+      },
+      {
+        "industry": "",
+        "score": 62.3,
+        "avg_pct": null,
+        "up_ratio": 10.5,
+        "leader": {
+          "code": "sh603890",
+          "pct": 10.02
+        }
+      },
+      {
+        "industry": "",
+        "score": 59.5,
+        "avg_pct": null,
+        "up_ratio": 0.0,
+        "leader": {
+          "code": "sh603929",
+          "pct": -5.56
+        }
+      },
+      {
+        "industry": "",
+        "score": 59.3,
+        "avg_pct": null,
+        "up_ratio": 20.2,
+        "leader": {
+          "code": "sz301439",
+          "pct": 19.99
+        }
+      }
+    ]
   }
 ]

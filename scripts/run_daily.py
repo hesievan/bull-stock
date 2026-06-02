@@ -219,28 +219,7 @@ def run_daily(trade_date=None):
             "indicators": {},
         }
 
-    # ── Step 6: 保存结果 ────────────────────────────────────────────────────
-    logger.info("Step 6: Saving results...")
-
-    def _step6():
-        save_results(result)
-        # 写出 run_status.json 供前端/debug
-        out_dir = os.path.join(os.path.dirname(__file__), "..", "web", "data")
-        os.makedirs(out_dir, exist_ok=True)
-        n_ok = sum(1 for v in step_status.values() if v["status"] == "OK")
-        n_fail = sum(1 for v in step_status.values() if v["status"] == "FAILED")
-        n_skip = sum(1 for v in step_status.values() if v["status"] == "SKIPPED")
-        status_out = {
-            "trade_date": trade_date,
-            "generated_at": date.today().strftime("%Y-%m-%d %H:%M:%S"),
-            "steps": dict(step_status),
-            "n_ok": n_ok, "n_failed": n_fail, "n_skipped": n_skip,
-        }
-        with open(os.path.join(out_dir, "run_status.json"), "w", encoding="utf-8") as sf:
-            json.dump(status_out, sf, ensure_ascii=False, indent=2)
-        return True
-
-    _run_step(step_status, "S6_save", _step6)
+    # ── (Step 6a/6b 和 Step 8 在下方执行) ─────────────────────────────────
 
     # ── Step 7: 飞书通知 (仅红区) ──────────────────────────────────────────
     composite_score = result.get("composite_score")
@@ -299,6 +278,27 @@ def run_daily(trade_date=None):
     except Exception as exc:
         step_status["S8_sectors"] = {"status": "FAILED", "detail": str(exc)[:120], "elapsed": 0}
         logger.error("S8 FAILED: %s", str(exc)[:80])
+
+    # ── Step 9: 最终保存 (含板块热度) ────────────────────────────────────────
+    logger.info("Step 9: Saving final results (with sectors)...")
+    def _step9():
+        result["sectors_top5"] = sector_results[:5] if sector_results else []
+        save_results(result)
+        out_dir = os.path.join(os.path.dirname(__file__), "..", "web", "data")
+        os.makedirs(out_dir, exist_ok=True)
+        n_ok = sum(1 for v in step_status.values() if v["status"] == "OK")
+        n_fail = sum(1 for v in step_status.values() if v["status"] == "FAILED")
+        n_skip = sum(1 for v in step_status.values() if v["status"] == "SKIPPED")
+        status_out = {
+            "trade_date": trade_date,
+            "generated_at": date.today().strftime("%Y-%m-%d %H:%M:%S"),
+            "steps": dict(step_status),
+            "n_ok": n_ok, "n_failed": n_fail, "n_skipped": n_skip,
+        }
+        with open(os.path.join(out_dir, "run_status.json"), "w", encoding="utf-8") as sf:
+            json.dump(status_out, sf, ensure_ascii=False, indent=2)
+        return True
+    _run_step(step_status, "S9_save", _step9)
 
     # ── 最终汇总 ────────────────────────────────────────────────────────────
     elapsed = time.time() - t_start
