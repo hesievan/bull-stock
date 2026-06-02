@@ -319,7 +319,7 @@ html_content = f'''<!DOCTYPE html>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>A股牛市热度指数日报 · {trade_date}</title>
-<script src="../web/echarts.min.js"></script>
+<script src="echarts.min.js"></script>
 <style>
 * {{ margin:0; padding:0; box-sizing:border-box; }}
 body {{ background:#0a0e17; color:#e0e6ed; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif; }}
