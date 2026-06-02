@@ -1,6 +1,6 @@
 {
   "trade_date": "2026-05-29",
-  "composite_score": 51.6,
+  "composite_score": 49.9,
   "level": "yellow",
   "dimensions": {
     "valuation": {
@@ -20,7 +20,7 @@
       "label": "技术"
     },
     "structure": {
-      "score": 60.0,
+      "score": 51.2,
       "label": "结构"
     }
   },

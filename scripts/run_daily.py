@@ -178,21 +178,17 @@ def run_daily(trade_date=None):
     except Exception:
         step_status["bs_logout"] = {"status": "SKIPPED", "detail": "login may have failed", "elapsed": 0}
 
-    # ── Step 4.5: AH溢价 ────────────────────────────────────────────────────
-    logger.info("Step 4.5: AH premium index (HSAHP)...")
+    # ── Step 4.5: AH溢价 (方案B: akshare H股 + baostock A股) ──────────────
+    logger.info("Step 4.5: AH premium index (akshare+baostock)...")
 
     def _step45():
-        ah_df = fetch_ah_premium()
-        if ah_df is None or ah_df.empty:
-            logger.warning("AH premium: empty, use existing data")
+        from scripts.ah_premium import fetch_ah_premium_index
+        td, premium = fetch_ah_premium_index(trade_date)
+        if premium is None:
+            logger.warning("AH premium: 计算失败, 使用已有数据")
             return False
-        import sqlite3 as _sq3
-        conn2 = _sq3.connect(DB_PATH)
-        conn2.execute("DELETE FROM ah_premium")
-        ah_df.to_sql("ah_premium", conn2, if_exists="append", index=False)
-        conn2.commit()
-        conn2.close()
-        logger.info("AH premium: %d rows updated", len(ah_df))
+        # ah_premium 表已在 fetch_ah_premium_index 内写入
+        logger.info("AH premium: %s -> %.4f", td, premium)
         return True
 
     _run_step(step_status, "S45_ah_premium", _step45)
