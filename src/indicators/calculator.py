@@ -321,50 +321,52 @@ class HeatIndexCalculator:
     # ── 资金维度 ───────────────────────────────────────────────────────────────
 
     def _calc_margin_ratio(self) -> Optional[float]:
-        """融资买入占总成交比例（杠杆热度）
+        """两融余额占流通市值比（杠杆热度）
 
-        修复: 不再对 rzmre 绝对金额做分位(受市场扩容影响失真),
-              改为 ratio = rzmre / total_amount（融资买入额/全市场成交额）
-              对 ratio 自身做历史分位
+        ratio = (rzye + rqye) / total_circ_mv
+        比 rzmre/total_amount 更稳定, 衡量市场整体杠杆水平
         """
         try:
             margin_df = self._get_margin()
             if margin_df.empty or len(margin_df) < 60:
                 return None
 
-            hist_margin = margin_df.copy()
-            hist_margin["rzmre"] = pd.to_numeric(hist_margin["rzmre"], errors="coerce")
+            margin_df = margin_df.copy()
+            margin_df["rzye"] = pd.to_numeric(margin_df["rzye"], errors="coerce")
+            margin_df["rqye"] = pd.to_numeric(margin_df["rqye"], errors="coerce").fillna(0)
 
-            # 历史全市场成交额（用 stock_daily 的 amount 列）
-            hist_amount = self._get_stock_daily_history()
-            if hist_amount.empty:
+            hist = self._get_stock_daily_history()
+            if hist.empty:
                 return None
 
-            # 计算历史每日 ratio = rzmre / total_amount
-            daily_amount = hist_amount.groupby("trade_date")["amount"].sum().reset_index()
-            daily_amount.columns = ["trade_date", "total_amount"]
-            merged = hist_margin[["trade_date", "rzmre"]].merge(daily_amount, on="trade_date", how="inner")
-            merged = merged[(merged["rzmre"] > 0) & (merged["total_amount"] > 0)]
+            daily_circ = hist.groupby("trade_date")["circ_mv"].sum().reset_index()
+            daily_circ.columns = ["trade_date", "total_circ_mv"]
+            daily_circ = daily_circ[daily_circ["total_circ_mv"] > 0]
+
+            merged = margin_df[["trade_date", "rzye", "rqye"]].merge(
+                daily_circ, on="trade_date", how="inner"
+            )
             if len(merged) < 60:
                 return None
 
-            merged["ratio"] = merged["rzmre"] / merged["total_amount"]
-            hist_ratios = merged["ratio"].tail(504).dropna()
+            merged["ratio"] = (merged["rzye"] + merged["rqye"]) / (merged["total_circ_mv"] * 10000)
 
-            # 当前值
-            cur_rzmre = hist_ratios.iloc[-1]  # ratio of last date in hist
-            # 但我们要的是 trade_date 当天的 ratio
+            hist_ratios = merged["ratio"].tail(504).dropna()
+            if len(hist_ratios) < 60:
+                hist_ratios = merged["ratio"].dropna()
+
+            cur_rzye = margin_df["rzye"].iloc[-1]
+            cur_rqye = margin_df["rqye"].iloc[-1]
             stocks_today = self._get_stock_daily(self.trade_date)
             if stocks_today.empty:
                 return None
-            cur_amount = pd.to_numeric(stocks_today["amount"], errors="coerce").sum()
-            cur_rzmre_val = pd.to_numeric(margin_df["rzmre"], errors="coerce").iloc[-1]
-            if pd.isna(cur_rzmre_val) or cur_amount <= 0:
+            cur_circ = pd.to_numeric(stocks_today["circ_mv"], errors="coerce").sum()
+            if pd.isna(cur_rzye) or cur_circ <= 0:
                 return None
-            cur_ratio = cur_rzmre_val / cur_amount
+            cur_ratio = (cur_rzye + cur_rqye) / (cur_circ * 10000)
 
             score = _pct_rank(hist_ratios, cur_ratio) * 100
-            logger.info("Margin ratio: %.4f%% (hist median=%.4f%%), score=%.1f",
+            logger.info("Margin ratio (balance/circ_mv): %.2f%% (hist median=%.2f%%), score=%.1f",
                         cur_ratio * 100, hist_ratios.median() * 100, score)
             return _score_with_fallback(score)
         except Exception as e:
@@ -409,30 +411,34 @@ class HeatIndexCalculator:
     # ── 情绪维度 ───────────────────────────────────────────────────────────────
 
     def _calc_turnover(self) -> Optional[float]:
-        """换手率（全市场成交额/流通市值）"""
+        """换手率（全市场成交额/流通市值）
+
+        注意: amount 和 circ_mv 在 stock_daily 中互斥
+        (baostock 只提供 amount, tushare 只提供 circ_mv)
+        分别求和再除
+        """
         try:
             stocks = self._get_stock_daily(self.trade_date)
-            if stocks.empty or "amount" not in stocks.columns:
+            if stocks.empty:
                 return None
 
-            total_amount = pd.to_numeric(stocks["amount"], errors="coerce").sum()
-            total_circ_mv = pd.to_numeric(stocks["circ_mv"], errors="coerce").sum()
+            total_amount = pd.to_numeric(stocks["amount"], errors="coerce").clip(lower=0).sum()
+            total_circ_mv = pd.to_numeric(stocks["circ_mv"], errors="coerce").clip(lower=0).sum()
             if total_circ_mv <= 0:
                 return None
 
-            # circ_mv 单位是万元(tushare), amount 单位是元(baostock), 统一为元
-            turnover = total_amount / (total_circ_mv * 10000) * 100  # 百分比
+            turnover = total_amount / (total_circ_mv * 10000) * 100
 
             # 历史换手率分位
             hist = self._get_stock_daily_history()
             if hist.empty or len(hist["trade_date"].unique()) < 60:
                 return None
 
-            hist_turnover = hist.groupby("trade_date").apply(
-                lambda g: pd.to_numeric(g["amount"], errors="coerce").sum() /
-                          max(pd.to_numeric(g["circ_mv"], errors="coerce").sum() * 10000, 1) * 100
-            ).dropna()
+            # 分别按日求和
+            daily_amount = hist.groupby("trade_date")["amount"].apply(lambda x: pd.to_numeric(x, errors="coerce").clip(lower=0).sum())
+            daily_circ = hist.groupby("trade_date")["circ_mv"].apply(lambda x: pd.to_numeric(x, errors="coerce").clip(lower=0).sum())
 
+            hist_turnover = (daily_amount / (daily_circ * 10000) * 100).dropna()
             if len(hist_turnover) < 60:
                 return None
 
@@ -714,14 +720,17 @@ class HeatIndexCalculator:
     # ── 结构维度 ───────────────────────────────────────────────────────────────
 
     def _calc_sector_divergence(self) -> Optional[float]:
-        """申万一级行业分化度（各行业涨幅的标准差）"""
+        """行业分化度（各行业涨幅的标准差）— 连续分位版
+
+        替代原4档离散打分(20/40/60/80), 提升区分度
+        反向: 低分化(普涨)=高分, 高分化(结构性)=低分
+        """
         try:
             stocks = self._get_stock_daily(self.trade_date)
             hist = self._get_stock_daily_history()
             if stocks.empty or hist.empty:
                 return None
 
-            # 获取行业分类
             industry_key = f"ind_{self.trade_date}"
             if industry_key not in self._cache:
                 self._cache[industry_key] = read_dataframe(
@@ -742,11 +751,25 @@ class HeatIndexCalculator:
                 return None
 
             divergence = sector_ret.std()
-            # 反向: 低分化(普涨)=高分(牛市全面), 高分化(结构性)=低分
-            if divergence > 3.0: score = 20
-            elif divergence > 2.0: score = 40
-            elif divergence > 1.0: score = 60
-            else: score = 80
+
+            # 历史分位 (计算历史各日的行业std)
+            hist_merged = hist.merge(ind_df, left_on="stock_code", right_on="code", how="inner")
+            if hist_merged.empty:
+                return None
+
+            hist_std = hist_merged.groupby("trade_date").apply(
+                lambda g: g.groupby("industry")["pct_change"].mean().std()
+            ).dropna()
+
+            if len(hist_std) < 60:
+                # fallback 到旧版离散打分
+                if divergence > 3.0: score = 20
+                elif divergence > 2.0: score = 40
+                elif divergence > 1.0: score = 60
+                else: score = 80
+            else:
+                # 反向分位: std 越低(普涨) 分越高
+                score = (1 - _pct_rank(hist_std, divergence)) * 100
 
             logger.info("Sector divergence: %.4f%%, score=%.1f", divergence, score)
             return _score_with_fallback(score)
