@@ -32,7 +32,7 @@
 ├── src/
 │   ├── data/
 │   │   ├── database.py      # SQLite 数据库管理 (18张表)
-│   │   └── fetcher.py       # 三源合一数据获取 (baostock+tushare+东方财富curl)
+│   │   └── fetcher.py       # 双源合一数据获取 (tushare+akshare)
 │   ├── indicators/
 │   │   └── calculator.py    # 16个子指标 + 加权合成(25/25/20/10/20) + 综合热度
 │   └── output/
@@ -65,7 +65,7 @@
 └── TODO.md
 ```
 
-## 数据源方案（三源合一）
+## 数据源方案（双源合一）
 
 | 数据源 | 负责数据 | 频率限制 | 代码格式 |
 |--------|---------|---------|---------|
@@ -75,14 +75,16 @@
 
 内部统一使用 baostock 格式（`sh600000`），函数 `ak_to_bs()`/`ak_to_ts()`/`bs_to_ak()` 自动转换。
 
-### baostock 覆盖的数据
-- ✅ 指数日行情 (open/high/low/close/volume/amount/pctChg)
-- ✅ 个股K线 (peTTM/pbMRQ/pctChg/volume/amount)
-- ✅ 成分股列表 (hs300/sz50/zz500)
-- ✅ 行业分类 (证监会行业分类)
-- ✅ 交易日历
-- ✅ 资产负债表 (bps/净资产)
-- ❌ 融资融券、北向资金、总市值
+### tushare 覆盖的数据 (全市场)
+- ✅ 全市场日K线 (close/open/high/low/pct_chg/vol/amount) — 5500+只/天
+- ✅ 全市场PE/PB/市值/换手率 (daily_basic)
+- ✅ 指数日K线 (index_daily)
+- ✅ 成分股列表 (index_weight)
+- ✅ 行业分类 (stock_basic.industry)
+- ✅ 融资融券 (margin)
+- ✅ 北向资金 (moneyflow_hsgt)
+- ✅ 国债收益率 (yc_cb)
+- ✅ 交易日历 (trade_cal)
 
 ### tushare 覆盖的数据
 - ✅ 融资融券日汇总 (`margin`: rzye/rzmre/rqye/rzrqye) — 2019年至今
@@ -92,8 +94,9 @@
 - ✅ 全市场个股PE/PB/市值 (`daily_basic`) — 2015年至今
 - ✅ 历史成分股截面 (`index_weight`: 沪深300+中证500 每月末) — 2015~2026
 
-### 东方财富curl 覆盖的数据
-- ✅ 恒生AH股溢价指数 HSAHP 日线 (2006年至今, ~5,200条)
+### ~~baostock~~ (已移除)
+- 原覆盖: 指数日行情、个股K线、成分股列表、行业分类、交易日历
+- 移除原因: 仅覆盖800只成分股(15%), tushare可全量替代(5500+只)
 
 ## 指标体系 (5维度 16子指标, 加权合成)
 
@@ -226,8 +229,8 @@ index_daily_pe          — 每日成分股PE/PB中位数预计算 (trade_date, 
 交易日 16:30 触发 (copaw cron / GitHub Actions)
   │
   ├─ Step 1: baostock 拉取指数日行情 (增量)
-  ├─ Step 2: baostock 拉取~800只成分股当日K线
-  ├─ Step 3: tushare daily_basic 全市场PE/PB/市值
+  ├─ Step 2: tushare daily + daily_basic 全市场K线/PE/PB/市值
+  ├─ Step 3: tushare 融资融券/北向/国债
   ├─ Step 4: tushare 融资融券/北向/国债 (当日已存在则跳过)
   ├─ Step 4.5: scripts/ah_premium.py — akshare stock_hk_daily(H股) + baostock(A股) → 15只AH股溢价中位数
   │
@@ -322,7 +325,7 @@ numpy>=1.24.0
 
 ## 路线图
 
-- [x] Phase 0: 项目骨架 + 三源合一数据层 + 计算引擎 + 前端
+- [x] Phase 0: 项目骨架 + 双源合一数据层 + 计算引擎 + 前端
 - [x] Phase 1 (6/10): MVP — 全市场数据 + 历史成分股口径 + 指标方向修复 + AH溢价 + Step 4超时修复
 - [x] Phase 2 (6/24): 行业热度指数 + 板块热力图（71个证监会一级行业）
 - [x] 全量历史回测: 2015-01-05 ~ 2026-06-02（2771个交易日，0失败）

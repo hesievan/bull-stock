@@ -1,6 +1,6 @@
 """
 热度指数计算引擎 — 三源合一版
-数据源: baostock(stock_daily含peTTM/pbMRQ) + tushare(margin/northbound/bond) + 东方财富curl(HSAHP)
+数据源: tushare(全市场K线/PE/PB/市值) + tushare(margin/northbound) + akshare(AH溢价)
 
 5维度 18子指标:
   估值(4): PE分位, PB分位, 破净率, 巴菲特指标
@@ -443,9 +443,7 @@ class HeatIndexCalculator:
     def _calc_turnover(self) -> Optional[float]:
         """换手率（全市场成交额/流通市值）
 
-        注意: amount 和 circ_mv 在 stock_daily 中互斥
-        (baostock 只提供 amount, tushare 只提供 circ_mv)
-        分别求和再除
+        注意: amount(千元)和 circ_mv(万元)单位不同, 需转换
         """
         try:
             stocks = self._get_stock_daily(self.trade_date)

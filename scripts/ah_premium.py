@@ -1,14 +1,10 @@
 #!/usr/bin/env python3
 """
-AH股溢价指数计算器 (方案B: akshare H股 + baostock A股)
+AH股溢价指数计算器 (方案B: akshare H股 + tushare A股)
 
-替代东方财富 push2his HSAHP 指数（已不可用）。
 用 akshare stock_hk_daily 拿 H 股历史（HKD），
-用 baostock 拿 A 股历史（CNY），
-溢价 = A_close / H_close（CNY/HKD 比值，隐含汇率因子）。
-
-绝对值与恒指 HSAHP 有系统偏差（汇率+等权vs市值加权），
-但历史分位排名趋势完全一致，用于热度指数足够。
+用 tushare daily 拿 A 股历史（CNY），
+溢价 = A股价格 / H股价格 的中位数。
 
 用法:
   python scripts/ah_premium.py                    # 计算最新
@@ -22,170 +18,101 @@ import numpy as np
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger(__name__)
 
-# 市值最大的15只AH股（覆盖金融+能源+材料主力）
-AH_PAIRS = [
-    ('01398', 'sh.601398', '工商银行'),
-    ('01288', 'sh.601288', '农业银行'),
-    ('00939', 'sh.601939', '建设银行'),
-    ('03988', 'sh.601988', '中国银行'),
-    ('03328', 'sh.601328', '交通银行'),
-    ('02318', 'sh.601318', '中国平安'),
-    ('02628', 'sh.601628', '中国人寿'),
-    ('00386', 'sh.600028', '中国石化'),
-    ('01088', 'sh.601088', '中国神华'),
-    ('00857', 'sh.601857', '中国石油'),
-    ('03968', 'sh.600036', '招商银行'),
-    ('02899', 'sh.601899', '紫金矿业'),
-    ('01618', 'sh.601618', '中国中冶'),
-    ('00358', 'sh.600358', '江西铜业'),
-    ('00941', 'sh.600941', '中国移动'),
-]
-
 DB_PATH = os.path.join(os.path.dirname(__file__), '..', 'data', 'heat_index.db')
+
+# 15只核心AH股: H股代码 → tushare A股代码
+AH_PAIRS = [
+    ('01398', '601398.SH'), ('01288', '601288.SH'), ('00939', '601939.SH'),
+    ('03988', '601988.SH'), ('03328', '601328.SH'), ('02318', '601318.SH'),
+    ('02628', '601628.SH'), ('00386', '600028.SH'), ('01088', '601088.SH'),
+    ('00857', '601857.SH'), ('03968', '600036.SH'), ('02899', '601899.SH'),
+    ('01618', '601618.SH'), ('00358', '600358.SH'), ('00941', '600941.SH'),
+]
 
 
 def fetch_ah_premium_index(trade_date=None):
-    """
-    计算AH股溢价指数。
-    返回: (trade_date_str, premium_float) 或 (None, None)
-    premium = 所有 AH 股 (A_close/H_close) 的中位数
-    """
+    """计算AH股溢价指数"""
     import akshare as ak
-    import baostock as bs
-    import pandas as pd
+    import tushare as ts
 
     if trade_date is None:
-        # 最近交易日
-        today = time.strftime('%Y-%m-%d')
-        trade_date = today
+        trade_date = time.strftime('%Y-%m-%d')
 
-    date_fmt = '%Y-%m-%d'
-    td = trade_date.replace('-', '')  # YYYYMMDD for some calcs
+    token = os.environ.get('TUSHARE_TOKEN', '')
+    if not token:
+        _env = os.path.expanduser('~/daily_stock_analysis/.env')
+        if os.path.exists(_env):
+            for line in open(_env):
+                if line.strip().startswith('TUSHARE_TOKEN='):
+                    token = line.strip().split('=', 1)[1]
+                    break
+    pro = ts.pro_api(token)
 
-    # 拉 H 股历史
-    h_data = {}
-    for h_code, a_code, name in AH_PAIRS:
+    t0 = time.time()
+    premiums = []
+    failed = 0
+
+    for h_code, a_ts_code in AH_PAIRS:
         try:
-            df = ak.stock_hk_daily(symbol=h_code, adjust='')
-            df['date'] = pd.to_datetime(df['date']).dt.strftime(date_fmt)
-            df['close'] = df['close'].astype(float)
-            h_data[h_code] = df[['date', 'close']].rename(columns={'close': 'h_close'})
+            # H股历史 (akshare)
+            df_h = ak.stock_hk_daily(symbol=h_code, adjust="")
+            df_h['date'] = pd.to_datetime(df_h['date']).dt.strftime('%Y-%m-%d')
+            df_h['h_close'] = df_h['close'].astype(float)
+            df_h = df_h[['date', 'h_close']]
+
+            # A股历史 (tushare)
+            ds = trade_date.replace('-', '')
+            df_a = pro.daily(ts_code=a_ts_code, start_date='20150101', end_date=ds)
             time.sleep(0.15)
-        except Exception as e:
-            logger.warning("H股 %s(%s) 拉取失败: %s", name, h_code, e)
+            if df_a is None or df_a.empty:
+                failed += 1
+                continue
+            df_a['date'] = pd.to_datetime(df_a['trade_date'], format='%Y%m%d').dt.strftime('%Y-%m-%d')
+            df_a['a_close'] = df_a['close'].astype(float)
+            df_a = df_a[['date', 'a_close']]
 
-    # 拉 A 股历史
-    bs.login()
-    a_data = {}
-    for h_code, a_code, name in AH_PAIRS:
-        try:
-            rs = bs.query_history_k_data_plus(
-                a_code, 'date,close',
-                start_date='2015-01-01', end_date=trade_date,
-            )
-            rows = []
-            while rs.error_code == '0' and rs.next():
-                rows.append(rs.get_row_data())
-            if rows:
-                df = pd.DataFrame(rows, columns=['date', 'close'])
-                df['close'] = df['close'].astype(float)
-                a_data[a_code] = df.rename(columns={'close': 'a_close'})
-        except Exception as e:
-            logger.warning("A股 %s(%s) 拉取失败: %s", name, a_code, e)
-    bs.logout()
+            # 合并
+            merged = df_h.merge(df_a, on='date', how='inner')
+            if merged.empty:
+                failed += 1
+                continue
 
-    # 合并算每日溢价
-    all_ratios = {}
-    for h_code, a_code, name in AH_PAIRS:
-        if h_code not in h_data or a_code not in a_data:
+            merged['premium'] = merged['a_close'] / merged['h_close']
+            latest = merged.iloc[-1]
+            if -0.5 < latest['premium'] < 3.0:
+                premiums.append(float(latest['premium']))
+        except Exception:
+            failed += 1
             continue
-        merged = h_data[h_code].merge(a_data[a_code], on='date', how='inner')
-        if merged.empty:
-            continue
-        merged['ratio'] = merged['a_close'] / merged['h_close']
-        for _, row in merged.iterrows():
-            d = str(row['date'])
-            all_ratios.setdefault(d, []).append(float(row['ratio']))
 
-    if not all_ratios:
-        logger.warning("AH溢价: 无有效数据")
+    if len(premiums) < 5:
+        logger.warning("AH premium: 有效数据不足 (%d/15), failed=%d", len(premiums), failed)
         return None, None
 
-    AH_PREMIUM_TABLE = 'ah_premium'
+    premium_val = float(np.median(premiums))
+    logger.info("AH premium index: %.4f (n=%d, failed=%d, %.1fs)", premium_val, len(premiums), failed, time.time() - t0)
+
+    # 写入数据库
     conn = sqlite3.connect(DB_PATH)
-    conn.execute(f'''CREATE TABLE IF NOT EXISTS {AH_PREMIUM_TABLE} (
-        trade_date TEXT PRIMARY KEY,
-        premium REAL,
-        n_stocks INTEGER,
+    conn.execute('''CREATE TABLE IF NOT EXISTS ah_premium (
+        trade_date TEXT PRIMARY KEY, premium REAL, n_stocks INTEGER,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )''')
-
-    inserted = 0
-    for d in sorted(all_ratios.keys()):
-        vals = [v for v in all_ratios[d] if 0.3 < v < 3.0]
-        if len(vals) < 5:
-            continue
-        med = float(np.median(vals))
-        conn.execute(
-            f'INSERT OR REPLACE INTO {AH_PREMIUM_TABLE} (trade_date, premium, n_stocks) VALUES (?,?,?)',
-            (d, round(med, 4), len(vals))
-        )
-        inserted += 1
-
-    # 返回 trade_date 对应值
-    row = conn.execute(
-        f'SELECT premium FROM {AH_PREMIUM_TABLE} WHERE trade_date=?', (trade_date,)
-    ).fetchone()
+    conn.execute(
+        'INSERT OR REPLACE INTO ah_premium (trade_date, premium, n_stocks) VALUES (?,?,?)',
+        (trade_date, round(premium_val, 4), len(premiums))
+    )
     conn.commit()
     conn.close()
 
-    premium_val = row[0] if row else None
-    logger.info("AH溢价指数: %s -> %.4f (%d dates written)", trade_date, premium_val, inserted)
     return trade_date, premium_val
 
 
-def backfill_history():
-    """回填近1年所有交易日"""
-    import sqlite3
-    conn = sqlite3.connect(DB_PATH)
-    # 获取已有数据
-    existing = set()
-    try:
-        rows = conn.execute('SELECT trade_date FROM ah_premium').fetchall()
-        existing = {r[0] for r in rows}
-    except Exception:
-        pass
-    conn.close()
-
-    # 用 baostock 的交易日历
-    import baostock as bs
-    import pandas as pd
-    bs.login()
-    rs = bs.query_trade_dates(start_date='2025-01-01', end_date='2026-06-01')
-    dates = []
-    while rs.error_code == '0' and rs.next():
-        d = rs.get_row_data()[0]
-        if d not in existing:
-            dates.append(d)
-    bs.logout()
-
-    logger.info("需回填 %d 个交易日", len(dates))
-
-    for d in dates:
-        td, premium = fetch_ah_premium_index(d)
-        if premium:
-            logger.info("  %s: %.4f", td, premium)
-        time.sleep(2)  # 限速
-
-
 if __name__ == '__main__':
-    if '--backfill' in sys.argv:
-        backfill_history()
+    import pandas as pd
+    date_arg = sys.argv[1] if len(sys.argv) > 1 else None
+    td, premium = fetch_ah_premium_index(date_arg)
+    if premium:
+        print(f"AH Premium Index: {premium:.4f} [{td}]")
     else:
-        date_arg = sys.argv[1] if len(sys.argv) > 1 else None
-        td, premium = fetch_ah_premium_index(date_arg)
-        if premium:
-            pct = (premium - 1) * 100
-            print(f"AH Premium Index: {premium:.4f} ({pct:+.1f}%)  [{td}]")
-        else:
-            print("FAILED")
+        print("FAILED")

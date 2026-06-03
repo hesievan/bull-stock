@@ -1,6 +1,6 @@
 """
 本地 SQLite 数据库管理 (三源合一版)
-数据源: baostock(指数/个股K线) + tushare(融资融券/北向/国债) + akshare(AH溢价)
+数据源: tushare(全市场/融资融券/北向) + akshare(M2/AH溢价)
 - 初始化表结构
 - 增量数据写入 (INSERT OR REPLACE)
 - 查询接口
@@ -23,7 +23,7 @@ DB_PATH = os.environ.get(
 
 # ── 建表 SQL ──────────────────────────────────────────────────────────────────
 SCHEMA = """
--- 指数日行情 (baostock: query_history_k_data_plus)
+-- 指数日行情 (tushare index_daily)
 CREATE TABLE IF NOT EXISTS index_daily (
     trade_date TEXT NOT NULL,
     index_code TEXT NOT NULL,
@@ -32,23 +32,23 @@ CREATE TABLE IF NOT EXISTS index_daily (
     PRIMARY KEY (trade_date, index_code)
 );
 
--- 个股日行情 (baostock: query_history_k_data_plus)
--- 列名对齐 baostock 返回字段: peTTM, pbMRQ, pctChg
+-- 个股日行情 (tushare daily + daily_basic)
+-- 列名: peTTM, pbMRQ, pctChg
 CREATE TABLE IF NOT EXISTS stock_daily (
     trade_date TEXT NOT NULL,
     stock_code TEXT NOT NULL,
     open REAL, high REAL, low REAL, close REAL,
     volume REAL, amount REAL,
     pct_change REAL,
-    peTTM REAL,             -- PE-TTM (baostock 字段名)
-    pbMRQ REAL,             -- PB-MRQ 最新季报 (baostock 字段名)
+    peTTM REAL,             -- PE-TTM
+    pbMRQ REAL,             -- PB-MRQ 最新季报
     total_mv REAL,          -- 总市值(万元, tushare)
     circ_mv REAL,           -- 流通市值(万元, tushare)
     turnover_rate REAL,     -- 换手率(%, tushare daily_basic)
     PRIMARY KEY (trade_date, stock_code)
 );
 
--- 个股行业分类 (baostock: query_stock_industry)
+-- 个股行业分类 (tushare stock_basic)
 CREATE TABLE IF NOT EXISTS stock_industry (
     code TEXT NOT NULL,           -- akshare格式 sh.600000
     code_name TEXT,               -- 股票名称
@@ -72,7 +72,7 @@ CREATE TABLE IF NOT EXISTS stock_market_cap (
     stock_count INTEGER
 );
 
--- 个股资产负债表 (baostock: query_balance_data)
+-- 个股资产负债表
 CREATE TABLE IF NOT EXISTS stock_balance (
     stock_code TEXT NOT NULL,
     report_date TEXT NOT NULL,    -- 报告期 YYYY-MM-DD
