@@ -457,18 +457,26 @@ class HeatIndexCalculator:
             if total_circ_mv <= 0:
                 return None
 
-            turnover = total_amount / (total_circ_mv * 10000) * 100
+            # amount单位千元, circ_mv单位万元, 需转换: amount*1000/(circ_mv*10000)*100 = amount/circ_mv*10
+            turnover = total_amount / total_circ_mv * 10
 
             # 历史换手率分位
             hist = self._get_stock_daily_history()
             if hist.empty or len(hist["trade_date"].unique()) < 60:
                 return None
 
-            # 分别按日求和
+            # 分别按日求和, 只用有全市场amount的日期(amount>4000行 = tushare来源)
             daily_amount = hist.groupby("trade_date")["amount"].apply(lambda x: pd.to_numeric(x, errors="coerce").clip(lower=0).sum())
             daily_circ = hist.groupby("trade_date")["circ_mv"].apply(lambda x: pd.to_numeric(x, errors="coerce").clip(lower=0).sum())
+            daily_n_amt = hist.groupby("trade_date")["amount"].apply(lambda x: (pd.to_numeric(x, errors="coerce") > 0).sum())
 
-            hist_turnover = (daily_amount / (daily_circ * 10000) * 100).dropna()
+            # 只用 tushare amount 的日期(>4000行), 排除 baostock 的 800 只
+            valid = daily_n_amt[daily_n_amt > 4000].index
+            daily_amount = daily_amount[daily_amount.index.isin(valid)]
+            daily_circ = daily_circ[daily_circ.index.isin(valid)]
+
+            # amount单位千元, circ_mv单位万元
+            hist_turnover = (daily_amount / daily_circ * 10).dropna()
             if len(hist_turnover) < 60:
                 return None
 
