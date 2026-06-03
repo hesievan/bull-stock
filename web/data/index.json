@@ -1,10 +1,10 @@
 {
-  "trade_date": "2026-06-02",
+  "trade_date": "2026-06-03",
   "composite_score": 58.4,
   "level": "yellow",
   "dimensions": {
     "valuation": {
-      "score": 60.1,
+      "score": 58.5,
       "label": "估值"
     },
     "fund": {
@@ -12,68 +12,68 @@
       "label": "资金"
     },
     "sentiment": {
-      "score": 37.3,
+      "score": 41.7,
       "label": "情绪"
     },
     "technical": {
-      "score": 44.3,
+      "score": 44.8,
       "label": "技术"
     },
     "structure": {
-      "score": 54.2,
+      "score": 50.8,
       "label": "结构"
     }
   },
-  "updated_at": "2026-06-02 00:00:00",
+  "updated_at": "2026-06-03 00:00:00",
   "sectors_top5": [
     {
       "industry": "",
-      "score": 76.8,
+      "score": 86.6,
       "avg_pct": null,
-      "up_ratio": 32.0,
+      "up_ratio": 92.0,
       "leader": {
-        "code": "sh600403",
-        "pct": 10.07
+        "code": "sh600121",
+        "pct": 10.06
       }
     },
     {
       "industry": "",
-      "score": 70.4,
+      "score": 76.4,
       "avg_pct": null,
-      "up_ratio": 22.6,
+      "up_ratio": 55.9,
       "leader": {
-        "code": "sz000601",
-        "pct": 10.04
+        "code": "sh600310",
+        "pct": 10.05
       }
     },
     {
       "industry": "",
-      "score": 66.0,
+      "score": 70.8,
       "avg_pct": null,
       "up_ratio": 60.0,
       "leader": {
-        "code": "sh601133",
-        "pct": 4.1
+        "code": "sz301235",
+        "pct": 6.52
       }
     },
     {
       "industry": "",
-      "score": 65.6,
+      "score": 69.2,
       "avg_pct": null,
-      "up_ratio": 47.5,
+      "up_ratio": 52.1,
       "leader": {
-        "code": "sz301566",
+        "code": "sz301366",
         "pct": 20.01
       }
     },
     {
       "industry": "",
-      "score": 60.3,
+      "score": 65.2,
       "avg_pct": null,
-      "up_ratio": 20.0,
+      "up_ratio": 80.0,
       "leader": {
-        "code": "sz002713",
-        "pct": 5.03
+        "code": "sz300191",
+        "pct": 6.53
       }
     }
   ]

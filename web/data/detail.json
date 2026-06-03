@@ -1,10 +1,10 @@
 {
-  "trade_date": "2026-06-02",
+  "trade_date": "2026-06-03",
   "composite_score": 58.4,
   "level": "yellow",
   "dimensions": {
     "valuation": {
-      "score": 60.1,
+      "score": 58.5,
       "label": "估值"
     },
     "fund": {
@@ -12,76 +12,76 @@
       "label": "资金"
     },
     "sentiment": {
-      "score": 37.3,
+      "score": 41.7,
       "label": "情绪"
     },
     "technical": {
-      "score": 44.3,
+      "score": 44.8,
       "label": "技术"
     },
     "structure": {
-      "score": 54.2,
+      "score": 50.8,
       "label": "结构"
     }
   },
-  "updated_at": "2026-06-02 00:00:00",
+  "updated_at": "2026-06-03 00:00:00",
   "sectors_top5": [
     {
       "industry": "",
-      "score": 76.8,
+      "score": 86.6,
       "avg_pct": null,
-      "up_ratio": 32.0,
+      "up_ratio": 92.0,
       "leader": {
-        "code": "sh600403",
-        "pct": 10.07
+        "code": "sh600121",
+        "pct": 10.06
       }
     },
     {
       "industry": "",
-      "score": 70.4,
+      "score": 76.4,
       "avg_pct": null,
-      "up_ratio": 22.6,
+      "up_ratio": 55.9,
       "leader": {
-        "code": "sz000601",
-        "pct": 10.04
+        "code": "sh600310",
+        "pct": 10.05
       }
     },
     {
       "industry": "",
-      "score": 66.0,
+      "score": 70.8,
       "avg_pct": null,
       "up_ratio": 60.0,
       "leader": {
-        "code": "sh601133",
-        "pct": 4.1
+        "code": "sz301235",
+        "pct": 6.52
       }
     },
     {
       "industry": "",
-      "score": 65.6,
+      "score": 69.2,
       "avg_pct": null,
-      "up_ratio": 47.5,
+      "up_ratio": 52.1,
       "leader": {
-        "code": "sz301566",
+        "code": "sz301366",
         "pct": 20.01
       }
     },
     {
       "industry": "",
-      "score": 60.3,
+      "score": 65.2,
       "avg_pct": null,
-      "up_ratio": 20.0,
+      "up_ratio": 80.0,
       "leader": {
-        "code": "sz002713",
-        "pct": 5.03
+        "code": "sz300191",
+        "pct": 6.53
       }
     }
   ],
   "indicators": {
     "valuation": {
-      "PE_percentile": 58.436363636363645,
-      "PB_percentile": 61.12727272727273,
-      "below_net_rate": 39.44424395525081,
+      "PE_percentile": 56.72727272727273,
+      "PB_percentile": 59.49090909090909,
+      "below_net_rate": 36.21933621933622,
       "buffett_ratio": 81.51107882310207
     },
     "fund": {
@@ -90,20 +90,20 @@
     },
     "sentiment": {
       "turnover": 0,
-      "up_down_ratio": 19.595709570957094,
-      "limit_up_ratio": 79.20792079207921,
-      "limit_down_ratio": 26.237623762376238,
-      "volatility": 61.52246256239601
+      "up_down_ratio": 27.340206185567013,
+      "limit_up_ratio": 79.1340206185567,
+      "limit_down_ratio": 40.0,
+      "volatility": 62.07900207900208
     },
     "technical": {
-      "above_ma250_ratio": 43.633211327297246,
-      "new_high_ratio": 2.844427244582043,
-      "deviation_ma250": 65.82336706531738,
+      "above_ma250_ratio": 43.060635226179016,
+      "new_high_ratio": 3.1703073651652813,
+      "deviation_ma250": 67.81609195402298,
       "price_volume_divergence": 65.0
     },
     "structure": {
       "sector_divergence": 60.0,
-      "ah_premium_index": 48.49274283587644
+      "ah_premium_index": 41.629464285714285
     }
   }
 }
