@@ -72,7 +72,11 @@ dim_hist = {k: [] for k in DIM_LABELS}
 for h in hist:
     if 'dimensions' in h:
         for k in DIM_LABELS:
-            dim_hist[k].append(h['dimensions'].get(k, {}).get('score'))
+            v = h.get('dimensions', {}).get(k)
+            if isinstance(v, dict):
+                dim_hist[k].append(v.get('score'))
+            else:
+                dim_hist[k].append(v)
 
 # ── 工具函数 ─────────────────────────────────────────────────────────────────
 def bar_md(v, w=12):
