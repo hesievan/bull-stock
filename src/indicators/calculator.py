@@ -410,6 +410,36 @@ class HeatIndexCalculator:
 
     # ── 情绪维度 ───────────────────────────────────────────────────────────────
 
+    def _calc_northbound_cumflow(self) -> Optional[float]:
+        """北向资金累计流入分位（近1年累计净流入的10年分位）
+
+        比单日方向更稳定, 反映外资中期配置趋势
+        """
+        try:
+            nb = self._get_northbound()
+            if nb.empty or "north_net" not in nb.columns or len(nb) < 260:
+                return None
+
+            nb2 = nb.copy()
+            nb2["north_net"] = pd.to_numeric(nb2["north_net"], errors="coerce").dropna()
+
+            # 近250日累计流入
+            cur_cumflow = nb2["north_net"].tail(250).sum()
+            if pd.isna(cur_cumflow):
+                return None
+
+            # 历史各250日窗口的累计流入
+            window_sums = nb2["north_net"].rolling(250).sum().dropna()
+            if len(window_sums) < 60:
+                return None
+
+            score = _pct_rank(window_sums, cur_cumflow) * 100
+            logger.info("Northbound cumflow: %.0f, score=%.1f", cur_cumflow, score)
+            return _score_with_fallback(score)
+        except Exception as e:
+            logger.error("Northbound cumflow calc failed: %s", e)
+            return None
+
     def _calc_turnover(self) -> Optional[float]:
         """换手率（全市场成交额/流通市值）
 
@@ -554,13 +584,51 @@ class HeatIndexCalculator:
             if len(hist_ld) < 60:
                 return None
 
-            # 跌停越多 → 热度越低 → 反向
             score = (1 - _pct_rank(hist_ld, ratio)) * 100
-            logger.info("Limit-down ratio: %.4f (%d/%d), score=%.1f",
-                        ratio, limit_down, total, score)
+            logger.info("Limit-down ratio: %.4f (%d/%d), score=%.1f", ratio, limit_down, total, score)
             return _score_with_fallback(score)
         except Exception as e:
             logger.error("Limit-down ratio calc failed: %s", e)
+            return None
+
+    def _calc_limit_ratio(self) -> Optional[float]:
+        """涨跌停比 = 涨停数 / 跌停数"""
+        try:
+            stocks = self._get_stock_daily(self.trade_date)
+            if stocks.empty or "pct_change" not in stocks.columns:
+                return None
+
+            pct = pd.to_numeric(stocks["pct_change"], errors="coerce").dropna()
+            total = len(pct)
+            if total < 100:
+                return None
+
+            limit_up = (pct >= 9.9).sum()
+            limit_down = (pct <= -9.9).sum()
+            cur_ratio = min(limit_up / max(limit_down, 1), 10.0)
+
+            hist = self._get_stock_daily_history()
+            if hist.empty:
+                return None
+
+            def _calc_lr(g):
+                p = pd.to_numeric(g["pct_change"], errors="coerce").dropna()
+                t = len(p)
+                if t < 100:
+                    return np.nan
+                lu = (p >= 9.9).sum()
+                ld = (p <= -9.9).sum()
+                return min(lu / max(ld, 1), 10.0)
+
+            hist_lr = hist.groupby("trade_date").apply(_calc_lr).dropna()
+            if len(hist_lr) < 60:
+                return None
+
+            score = _pct_rank(hist_lr, cur_ratio) * 100
+            logger.info("Limit ratio: %.2f (up=%d, down=%d), score=%.1f", cur_ratio, limit_up, limit_down, score)
+            return _score_with_fallback(score)
+        except Exception as e:
+            logger.error("Limit ratio calc failed: %s", e)
             return None
 
     def _calc_volatility(self) -> Optional[float]:
@@ -912,43 +980,44 @@ class HeatIndexCalculator:
         logger.info("Calculating heat index for %s", self.trade_date)
         logger.info("=" * 50)
 
-        # 估值 (4项)
+        # 估值 (4项, 权重25%)
         v1 = self._calc_pe_percentile()
         v2 = self._calc_pb_percentile()
         v4 = self._calc_below_net_rate()
         v5 = self._calc_buffett_ratio()
         dim_val = self._combine_dimension([v1, v2, v4, v5], "Valuation")
 
-        # 资金
+        # 资金 (4项, 权重25%)
         f1 = self._calc_margin_ratio()
         f2 = self._calc_northbound()
-        dim_fund = self._combine_dimension([f1, f2], "Fund")
+        f3 = self._calc_northbound_cumflow()
+        dim_fund = self._combine_dimension([f1, f2, f3], "Fund")
 
-        # 情绪
+        # 情绪 (4项, 权重20%)
         s1 = self._calc_turnover()
         s2 = self._calc_up_down_ratio()
         s3 = self._calc_limit_up_ratio()
-        s4 = self._calc_limit_down_ratio()
-        s5 = self._calc_volatility()
-        dim_sent = self._combine_dimension([s1, s2, s3, s4, s5], "Sentiment")
+        s5 = self._calc_limit_ratio()
+        dim_sent = self._combine_dimension([s1, s2, s3, s5], "Sentiment")
 
-        # 技术
+        # 技术 (2项, 权重10%)
         t1 = self._calc_above_ma250_ratio()
-        t2 = self._calc_new_high_ratio()
         t3 = self._calc_deviation_ma250()
-        t4 = self._calc_price_volume_divergence()
-        dim_tech = self._combine_dimension([t1, t2, t3, t4], "Technical")
+        dim_tech = self._combine_dimension([t1, t3], "Technical")
 
-        # 结构 (2项)
+        # 结构 (2项, 权重20%)
         st1 = self._calc_sector_divergence()
         st2 = self._calc_ah_premium_index()
         dim_struct = self._combine_dimension([st1, st2], "Structure")
 
-        # 综合热度（动态权重）
-        composite = self._combine_dimension(
-            [dim_val, dim_fund, dim_sent, dim_tech, dim_struct],
-            "COMPOSITE"
-        )
+        # 综合热度 — 加权合成
+        weights = [0.25, 0.25, 0.20, 0.10, 0.20]  # 估值/资金/情绪/技术/结构
+        dims = [dim_val, dim_fund, dim_sent, dim_tech, dim_struct]
+        valid = [(d, w) for d, w in zip(dims, weights) if d is not None]
+        if valid:
+            composite = sum(d * w for d, w in valid) / sum(w for _, w in valid)
+        else:
+            composite = None
 
         result = {
             "trade_date": self.trade_date,
@@ -965,15 +1034,14 @@ class HeatIndexCalculator:
                     "below_net_rate": v4,
                     "buffett_ratio": v5,
                 },
-                "fund": {"margin_ratio": f1, "northbound": f2},
+                "fund": {"margin_ratio": f1, "northbound": f2, "northbound_cumflow": f3},
                 "sentiment": {
                     "turnover": s1, "up_down_ratio": s2,
-                    "limit_up_ratio": s3, "limit_down_ratio": s4,
-                    "volatility": s5,
+                    "limit_up_ratio": s3, "limit_ratio": s5,
                 },
                 "technical": {
-                    "above_ma250_ratio": t1, "new_high_ratio": t2,
-                    "deviation_ma250": t3, "price_volume_divergence": t4,
+                    "above_ma250_ratio": t1,
+                    "deviation_ma250": t3,
                 },
                 "structure": {"sector_divergence": st1, "ah_premium_index": st2},
             },
