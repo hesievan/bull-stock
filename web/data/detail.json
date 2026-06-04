@@ -1,26 +1,26 @@
 {
-  "trade_date": "2026-06-03",
-  "composite_score": 66.0,
-  "level": "yellow",
+  "trade_date": "2026-06-04",
+  "composite_score": 73.0,
+  "level": "red",
   "dimensions": {
     "valuation": {
-      "score": 58.5,
+      "score": 59.4,
       "label": "估值"
     },
     "fund": {
-      "score": 98.3,
+      "score": 98.0,
       "label": "资金"
     },
     "sentiment": {
-      "score": 64.0,
+      "score": 94.6,
       "label": "情绪"
     },
     "technical": {
-      "score": 56.0,
+      "score": 64.5,
       "label": "技术"
     },
     "structure": {
-      "score": 42.2,
+      "score": 41.6,
       "label": "结构"
     }
   },
@@ -28,79 +28,79 @@
   "sectors_top5": [
     {
       "industry": "",
-      "score": 86.7,
+      "score": 83.9,
       "avg_pct": null,
-      "up_ratio": 92.0,
+      "up_ratio": 68.0,
       "leader": {
-        "code": "sh600121",
-        "pct": 10.06
+        "code": "sh601666",
+        "pct": 10.02
       }
     },
     {
       "industry": "",
-      "score": 76.6,
+      "score": 79.9,
       "avg_pct": null,
-      "up_ratio": 55.9,
-      "leader": {
-        "code": "sh600310",
-        "pct": 10.05
-      }
-    },
-    {
-      "industry": "",
-      "score": 71.0,
-      "avg_pct": null,
-      "up_ratio": 60.0,
+      "up_ratio": 100.0,
       "leader": {
         "code": "sz301235",
-        "pct": 6.52
+        "pct": 7.48
       }
     },
     {
       "industry": "",
-      "score": 69.3,
+      "score": 71.1,
       "avg_pct": null,
-      "up_ratio": 52.1,
+      "up_ratio": 23.7,
       "leader": {
-        "code": "sz301366",
-        "pct": 20.01
+        "code": "sh605162",
+        "pct": 10.04
       }
     },
     {
       "industry": "",
-      "score": 65.5,
+      "score": 66.0,
       "avg_pct": null,
-      "up_ratio": 80.0,
+      "up_ratio": 43.5,
       "leader": {
-        "code": "sz300191",
-        "pct": 6.53
+        "code": "sz301123",
+        "pct": 20.0
+      }
+    },
+    {
+      "industry": "",
+      "score": 58.9,
+      "avg_pct": null,
+      "up_ratio": 42.2,
+      "leader": {
+        "code": "sz300897",
+        "pct": 20.0
       }
     }
   ],
   "indicators": {
     "valuation": {
-      "PE_percentile": 56.66545586632764,
-      "PB_percentile": 59.42608063930258,
-      "below_net_rate": 36.21933621933622,
+      "PE_percentile": 53.541590991645485,
+      "PB_percentile": 57.936796222302945,
+      "below_net_rate": 44.62481962481962,
       "buffett_ratio": 81.51107882310207
     },
     "fund": {
-      "margin_ratio": 99.0079365079365,
+      "margin_ratio": null,
       "northbound": 96.0,
       "northbound_cumflow": 99.95229007633588
     },
     "sentiment": {
-      "turnover": 97.37991266375546,
-      "up_down_ratio": 27.340206185567013,
-      "limit_up_ratio": 79.1340206185567,
-      "limit_ratio": 52.20618556701031
+      "turnover": 94.61426491994177,
+      "up_down_ratio": null,
+      "limit_up_ratio": null,
+      "limit_ratio": null
     },
     "technical": {
-      "above_ma250_ratio": 43.060635226179016,
-      "deviation_ma250": 68.84191176470588
+      "above_ma250_ratio": null,
+      "deviation_ma250": 64.49242076251723
     },
     "structure": {
-      "sector_divergence": 42.72164948453609,
+      "sector_divergence": null,
       "ah_premium_index": 41.629464285714285
     }
   }
