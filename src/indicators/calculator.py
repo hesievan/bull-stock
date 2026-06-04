@@ -309,10 +309,10 @@ class HeatIndexCalculator:
 
 
     def _calc_margin_ratio(self) -> Optional[float]:
-        """两融余额占流通市值比（杠杆热度）
+        """两融余额占流通市值比（杠杆热度）— 预计算表优化版
 
         ratio = (rzye + rqye) / total_circ_mv
-        比 rzmre/total_amount 更稳定, 衡量市场整体杠杆水平
+        使用 daily_circ_mv 预计算表，避免每次全表扫描 stock_daily
         """
         try:
             margin_df = self._get_margin()
@@ -323,13 +323,13 @@ class HeatIndexCalculator:
             margin_df["rzye"] = pd.to_numeric(margin_df["rzye"], errors="coerce")
             margin_df["rqye"] = pd.to_numeric(margin_df["rqye"], errors="coerce").fillna(0)
 
-            hist = self._get_stock_daily_history()
-            if hist.empty:
-                return None
+            conn = self._conn()
 
-            daily_circ = hist.groupby("trade_date")["circ_mv"].sum().reset_index()
-            daily_circ.columns = ["trade_date", "total_circ_mv"]
-            daily_circ = daily_circ[daily_circ["total_circ_mv"] > 0]
+            # 查预计算表
+            daily_circ = pd.read_sql(
+                "SELECT trade_date, total_circ_mv FROM daily_circ_mv WHERE total_circ_mv > 0",
+                conn
+            )
 
             merged = margin_df[["trade_date", "rzye", "rqye"]].merge(
                 daily_circ, on="trade_date", how="inner"
@@ -343,18 +343,22 @@ class HeatIndexCalculator:
             if len(hist_ratios) < 60:
                 hist_ratios = merged["ratio"].dropna()
 
+            # 当前值
             cur_rzye = margin_df["rzye"].iloc[-1]
             cur_rqye = margin_df["rqye"].iloc[-1]
-            stocks_today = self._get_stock_daily(self.trade_date)
-            if stocks_today.empty:
+            cur_circ_row = conn.execute(
+                "SELECT total_circ_mv FROM daily_circ_mv WHERE trade_date=?",
+                (self.trade_date,)
+            ).fetchone()
+            if not cur_circ_row or cur_circ_row[0] <= 0:
                 return None
-            cur_circ = pd.to_numeric(stocks_today["circ_mv"], errors="coerce").sum()
-            if pd.isna(cur_rzye) or cur_circ <= 0:
+            cur_circ = cur_circ_row[0]
+            if pd.isna(cur_rzye):
                 return None
             cur_ratio = (cur_rzye + cur_rqye) / (cur_circ * 10000)
 
             score = _pct_rank(hist_ratios, cur_ratio) * 100
-            logger.info("Margin ratio (balance/circ_mv): %.2f%% (hist median=%.2f%%), score=%.1f",
+            logger.info("Margin ratio (precomputed): %.2f%% (hist median=%.2f%%), score=%.1f",
                         cur_ratio * 100, hist_ratios.median() * 100, score)
             return _score_with_fallback(score)
         except Exception as e:
@@ -429,122 +433,96 @@ class HeatIndexCalculator:
             return None
 
     def _calc_turnover(self) -> Optional[float]:
-        """换手率（全市场成交额/流通市值）
+        """换手率（全市场成交额/流通市值）— 预计算表优化版
 
-        注意: amount(千元)和 circ_mv(万元)单位不同, 需转换
+        使用 daily_turnover 预计算表，避免每次全表扫描 stock_daily
+        只用 tushare amount 的日期(>4000行)
         """
         try:
-            stocks = self._get_stock_daily(self.trade_date)
-            if stocks.empty:
+            conn = self._conn()
+            hist = pd.read_sql(
+                "SELECT trade_date, turnover_rate FROM daily_turnover ORDER BY trade_date",
+                conn
+            )
+            if hist.empty or len(hist) < 60:
                 return None
 
-            total_amount = pd.to_numeric(stocks["amount"], errors="coerce").clip(lower=0).sum()
-            total_circ_mv = pd.to_numeric(stocks["circ_mv"], errors="coerce").clip(lower=0).sum()
-            if total_circ_mv <= 0:
-                return None
+            hist_t = pd.to_numeric(hist["turnover_rate"], errors="coerce").dropna()
 
-            # amount单位千元, circ_mv单位万元, 需转换: amount*1000/(circ_mv*10000)*100 = amount/circ_mv*10
-            turnover = total_amount / total_circ_mv * 10
+            # 当前值
+            today_t = conn.execute(
+                "SELECT turnover_rate FROM daily_turnover WHERE trade_date=?",
+                (self.trade_date,)
+            ).fetchone()
+            if not today_t or today_t[0] is None:
+                # fallback: 实时计算
+                stocks = self._get_stock_daily(self.trade_date)
+                if stocks.empty:
+                    return None
+                total_amount = pd.to_numeric(stocks["amount"], errors="coerce").clip(lower=0).sum()
+                total_circ = pd.to_numeric(stocks["circ_mv"], errors="coerce").clip(lower=0).sum()
+                if total_circ <= 0:
+                    return None
+                cur = total_amount / total_circ * 10
+            else:
+                cur = today_t[0]
 
-            # 历史换手率分位
-            hist = self._get_stock_daily_history()
-            if hist.empty or len(hist["trade_date"].unique()) < 60:
-                return None
-
-            # 分别按日求和, 只用有全市场amount的日期(amount>4000行 = tushare来源)
-            daily_amount = hist.groupby("trade_date")["amount"].apply(lambda x: pd.to_numeric(x, errors="coerce").clip(lower=0).sum())
-            daily_circ = hist.groupby("trade_date")["circ_mv"].apply(lambda x: pd.to_numeric(x, errors="coerce").clip(lower=0).sum())
-            daily_n_amt = hist.groupby("trade_date")["amount"].apply(lambda x: (pd.to_numeric(x, errors="coerce") > 0).sum())
-
-            # 只用 tushare amount 的日期(>4000行), 排除 baostock 的 800 只
-            valid = daily_n_amt[daily_n_amt > 4000].index
-            daily_amount = daily_amount[daily_amount.index.isin(valid)]
-            daily_circ = daily_circ[daily_circ.index.isin(valid)]
-
-            # amount单位千元, circ_mv单位万元
-            hist_turnover = (daily_amount / daily_circ * 10).dropna()
-            if len(hist_turnover) < 60:
-                return None
-
-            score = _pct_rank(hist_turnover, turnover) * 100
-            logger.info("Turnover: %.4f%%, score=%.1f", turnover, score)
+            score = _pct_rank(hist_t, cur) * 100
+            logger.info("Turnover (precomputed): %.4f%%, score=%.1f", cur, score)
             return _score_with_fallback(score)
         except Exception as e:
             logger.error("Turnover calc failed: %s", e)
             return None
-
     def _calc_up_down_ratio(self) -> Optional[float]:
-        """上涨/下跌家数比（情绪）"""
+        """上涨/下跌家数比（情绪）— 预计算表优化版"""
         try:
-            stocks = self._get_stock_daily(self.trade_date)
-            if stocks.empty or "pct_change" not in stocks.columns:
+            conn = self._conn()
+            hist = pd.read_sql(
+                "SELECT trade_date, up_down_ratio FROM daily_updown ORDER BY trade_date",
+                conn
+            )
+            if hist.empty or len(hist) < 60:
                 return None
+            hist_ratio = pd.to_numeric(hist["up_down_ratio"], errors="coerce").dropna()
 
-            pct = pd.to_numeric(stocks["pct_change"], errors="coerce").dropna()
-            if len(pct) < 100:
+            # 当前值
+            today = conn.execute(
+                "SELECT up_down_ratio FROM daily_updown WHERE trade_date=?",
+                (self.trade_date,)
+            ).fetchone()
+            if not today or today[0] is None:
                 return None
+            cur = today[0]
 
-            up = (pct > 0).sum()
-            down = (pct < 0).sum()
-            if down == 0:
-                return 100.0
-
-            ratio = up / down
-
-            # 历史分位
-            hist = self._get_stock_daily_history()
-            if hist.empty:
-                return None
-
-            def _calc_ratio(g):
-                p = pd.to_numeric(g["pct_change"], errors="coerce").dropna()
-                u = (p > 0).sum()
-                d = (p < 0).sum()
-                return u / d if d > 0 else 3.0
-
-            hist_ratio = hist.groupby("trade_date").apply(_calc_ratio).dropna()
-            if len(hist_ratio) < 60:
-                return None
-
-            score = _pct_rank(hist_ratio, ratio) * 100
-            score = min(score, 100)  # 封顶
-            logger.info("Up/Down ratio: %.2f, score=%.1f", ratio, score)
+            score = _pct_rank(hist_ratio, cur) * 100
+            score = min(score, 100)
+            logger.info("Up/Down ratio (precomputed): %.2f, score=%.1f", cur, score)
             return _score_with_fallback(score)
         except Exception as e:
             logger.error("Up/Down ratio calc failed: %s", e)
             return None
 
     def _calc_limit_up_ratio(self) -> Optional[float]:
-        """涨停占比（涨停数/全市场）"""
+        """涨停占比 — 预计算表优化版"""
         try:
-            stocks = self._get_stock_daily(self.trade_date)
-            if stocks.empty or "pct_change" not in stocks.columns:
+            conn = self._conn()
+            hist = pd.read_sql(
+                "SELECT trade_date, limit_up_ratio FROM daily_limit ORDER BY trade_date",
+                conn
+            )
+            if hist.empty or len(hist) < 60:
+                return None
+            hist_lr = pd.to_numeric(hist["limit_up_ratio"], errors="coerce").dropna()
+
+            today = conn.execute(
+                "SELECT limit_up_ratio FROM daily_limit WHERE trade_date=?",
+                (self.trade_date,)
+            ).fetchone()
+            if not today or today[0] is None:
                 return None
 
-            pct = pd.to_numeric(stocks["pct_change"], errors="coerce")
-            total = len(pct.dropna())
-            if total < 100:
-                return None
-
-            limit_up = (pct >= 9.9).sum()
-            ratio = limit_up / total
-
-            # 历史分位
-            hist = self._get_stock_daily_history()
-            if hist.empty:
-                return None
-
-            def _calc_lu(g):
-                p = pd.to_numeric(g["pct_change"], errors="coerce")
-                t = len(p.dropna())
-                return (p >= 9.9).sum() / t if t > 0 else 0
-
-            hist_lu = hist.groupby("trade_date").apply(_calc_lu).dropna()
-            if len(hist_lu) < 60:
-                return None
-
-            score = _pct_rank(hist_lu, ratio) * 100
-            logger.info("Limit-up ratio: %.4f (%d/%d), score=%.1f", ratio, limit_up, total, score)
+            score = _pct_rank(hist_lr, today[0]) * 100
+            logger.info("Limit-up ratio (precomputed): %.4f, score=%.1f", today[0], score)
             return _score_with_fallback(score)
         except Exception as e:
             logger.error("Limit-up ratio calc failed: %s", e)
@@ -586,40 +564,26 @@ class HeatIndexCalculator:
             return None
 
     def _calc_limit_ratio(self) -> Optional[float]:
-        """涨跌停比 = 涨停数 / 跌停数"""
+        """涨跌停比 — 预计算表优化版"""
         try:
-            stocks = self._get_stock_daily(self.trade_date)
-            if stocks.empty or "pct_change" not in stocks.columns:
+            conn = self._conn()
+            hist = pd.read_sql(
+                "SELECT trade_date, limit_ratio FROM daily_limit ORDER BY trade_date",
+                conn
+            )
+            if hist.empty or len(hist) < 60:
+                return None
+            hist_lr = pd.to_numeric(hist["limit_ratio"], errors="coerce").dropna()
+
+            today = conn.execute(
+                "SELECT limit_ratio FROM daily_limit WHERE trade_date=?",
+                (self.trade_date,)
+            ).fetchone()
+            if not today or today[0] is None:
                 return None
 
-            pct = pd.to_numeric(stocks["pct_change"], errors="coerce").dropna()
-            total = len(pct)
-            if total < 100:
-                return None
-
-            limit_up = (pct >= 9.9).sum()
-            limit_down = (pct <= -9.9).sum()
-            cur_ratio = min(limit_up / max(limit_down, 1), 10.0)
-
-            hist = self._get_stock_daily_history()
-            if hist.empty:
-                return None
-
-            def _calc_lr(g):
-                p = pd.to_numeric(g["pct_change"], errors="coerce").dropna()
-                t = len(p)
-                if t < 100:
-                    return np.nan
-                lu = (p >= 9.9).sum()
-                ld = (p <= -9.9).sum()
-                return min(lu / max(ld, 1), 10.0)
-
-            hist_lr = hist.groupby("trade_date").apply(_calc_lr).dropna()
-            if len(hist_lr) < 60:
-                return None
-
-            score = _pct_rank(hist_lr, cur_ratio) * 100
-            logger.info("Limit ratio: %.2f (up=%d, down=%d), score=%.1f", cur_ratio, limit_up, limit_down, score)
+            score = _pct_rank(hist_lr, today[0]) * 100
+            logger.info("Limit ratio (precomputed): %.2f, score=%.1f", today[0], score)
             return _score_with_fallback(score)
         except Exception as e:
             logger.error("Limit ratio calc failed: %s", e)
@@ -652,35 +616,26 @@ class HeatIndexCalculator:
     # ── 技术维度 ───────────────────────────────────────────────────────────────
 
     def _calc_above_ma250_ratio(self) -> Optional[float]:
-        """站上年线(250日)个股占比"""
+        """站上年线(250日)个股占比 — 预计算表优化版"""
         try:
-            stocks = self._get_stock_daily(self.trade_date)
-            if stocks.empty or "stock_code" not in stocks.columns:
+            conn = self._conn()
+            hist = pd.read_sql(
+                "SELECT trade_date, above_ma250_ratio FROM daily_ma250 ORDER BY trade_date",
+                conn
+            )
+            if hist.empty or len(hist) < 60:
+                return None
+            hist_r = pd.to_numeric(hist["above_ma250_ratio"], errors="coerce").dropna()
+
+            today = conn.execute(
+                "SELECT above_ma250_ratio FROM daily_ma250 WHERE trade_date=?",
+                (self.trade_date,)
+            ).fetchone()
+            if not today or today[0] is None:
                 return None
 
-            # 需要个股250日历史（这里用当前close和历史均值近似）
-            hist = self._get_stock_daily_history()
-            if hist.empty:
-                return None
-
-            latest = hist[hist["trade_date"] == self.trade_date]
-            if latest.empty:
-                return None
-
-            # 计算每只股票的250日均线
-            stock_mean = hist.groupby("stock_code")["close"].mean().reset_index()
-            stock_mean.columns = ["stock_code", "ma250_approx"]
-            merged = latest.merge(stock_mean, on="stock_code", how="inner")
-
-            above = (merged["close"] > merged["ma250_approx"]).sum()
-            total = len(merged)
-            if total < 100:
-                return None
-
-            ratio = above / total
-            # 静态分位: 50%以上为高热度
-            score = ratio * 100
-            logger.info("Above MA250 ratio: %.4f (%d/%d), score=%.1f", ratio, above, total, score)
+            score = today[0] * 100
+            logger.info("Above MA250 ratio (precomputed): %.4f, score=%.1f", today[0], score)
             return _score_with_fallback(score)
         except Exception as e:
             logger.error("Above MA250 ratio calc failed: %s", e)
@@ -782,58 +737,31 @@ class HeatIndexCalculator:
     # ── 结构维度 ───────────────────────────────────────────────────────────────
 
     def _calc_sector_divergence(self) -> Optional[float]:
-        """行业分化度（各行业涨幅的标准差）— 连续分位版
+        """行业分化度（各行业涨幅的标准差）— 预计算表优化版
 
-        替代原4档离散打分(20/40/60/80), 提升区分度
         反向: 低分化(普涨)=高分, 高分化(结构性)=低分
+        使用 daily_sector_div 预计算表
         """
         try:
-            stocks = self._get_stock_daily(self.trade_date)
-            hist = self._get_stock_daily_history()
-            if stocks.empty or hist.empty:
+            conn = self._conn()
+            hist = pd.read_sql(
+                "SELECT trade_date, sector_std FROM daily_sector_div ORDER BY trade_date",
+                conn
+            )
+            if hist.empty or len(hist) < 60:
+                return None
+            hist_std = pd.to_numeric(hist["sector_std"], errors="coerce").dropna()
+
+            today = conn.execute(
+                "SELECT sector_std FROM daily_sector_div WHERE trade_date=?",
+                (self.trade_date,)
+            ).fetchone()
+            if not today or today[0] is None:
                 return None
 
-            industry_key = f"ind_{self.trade_date}"
-            if industry_key not in self._cache:
-                self._cache[industry_key] = read_dataframe(
-                    "SELECT code, industry FROM stock_industry WHERE industry IS NOT NULL",
-                    db_path=self.db_path
-                )
-            ind_df = self._cache[industry_key]
-            if ind_df.empty:
-                logger.warning("No industry data available")
-                return None
-
-            merged = stocks.merge(ind_df, left_on="stock_code", right_on="code", how="inner")
-            if merged.empty:
-                return None
-
-            sector_ret = merged.groupby("industry")["pct_change"].mean()
-            if len(sector_ret) < 5:
-                return None
-
-            divergence = sector_ret.std()
-
-            # 历史分位 (计算历史各日的行业std)
-            hist_merged = hist.merge(ind_df, left_on="stock_code", right_on="code", how="inner")
-            if hist_merged.empty:
-                return None
-
-            hist_std = hist_merged.groupby("trade_date").apply(
-                lambda g: g.groupby("industry")["pct_change"].mean().std()
-            ).dropna()
-
-            if len(hist_std) < 60:
-                # fallback 到旧版离散打分
-                if divergence > 3.0: score = 20
-                elif divergence > 2.0: score = 40
-                elif divergence > 1.0: score = 60
-                else: score = 80
-            else:
-                # 反向分位: std 越低(普涨) 分越高
-                score = (1 - _pct_rank(hist_std, divergence)) * 100
-
-            logger.info("Sector divergence: %.4f%%, score=%.1f", divergence, score)
+            # 反向分位: std 越低(普涨) 分越高
+            score = (1 - _pct_rank(hist_std, today[0])) * 100
+            logger.info("Sector divergence (precomputed): %.4f, score=%.1f", today[0], score)
             return _score_with_fallback(score)
         except Exception as e:
             logger.error("Sector divergence calc failed: %s", e)
