@@ -265,60 +265,48 @@ class HeatIndexCalculator:
             return None
 
     def _calc_below_net_rate(self) -> Optional[float]:
-        """破净率 = PB<1个股占比 (成分股口径)
+        """破净率历史分位（预计算表优化版）
 
-        注意: 破净率需要每日截面数据, 无法用预计算表
-        改用全市场口径 (不用成分股过滤), 因为破净股本身就是全市场概念
+        反向: 破净率高=市场便宜=低分；破净率低=市场贵=高分
+        使用 daily_below_net 预计算表，避免每次全表扫描 stock_daily
         """
         try:
-            stocks_today = self._get_stock_daily(self.trade_date)
-            if stocks_today.empty or "pbMRQ" not in stocks_today.columns:
+            conn = self._conn()
+            hist = pd.read_sql(
+                "SELECT trade_date, below_net_rate FROM daily_below_net ORDER BY trade_date",
+                conn
+            )
+            if hist.empty or len(hist) < 60:
                 return None
+            hist_rate = pd.to_numeric(hist["below_net_rate"], errors="coerce").dropna()
 
-            # 全市场口径 (破净是市场整体现象)
-            df = stocks_today.copy()
-            df["pbMRQ"] = pd.to_numeric(df["pbMRQ"], errors="coerce")
-            df = df[(df["pbMRQ"] > 0) & (df["pbMRQ"] <= 10)].dropna(subset=["pbMRQ"])
-            if len(df) < 100:
-                return None
+            # 当前值
+            today_rate = conn.execute(
+                "SELECT below_net_rate FROM daily_below_net WHERE trade_date=?",
+                (self.trade_date,)
+            ).fetchone()
+            if not today_rate or today_rate[0] is None:
+                # fallback: 实时计算
+                stocks = self._get_stock_daily(self.trade_date)
+                if stocks.empty:
+                    return None
+                pb = pd.to_numeric(stocks["pbMRQ"], errors="coerce")
+                total = ((pb > 0) & pb.notna()).sum()
+                below = ((pb > 0) & (pb < 1)).sum()
+                if total < 100:
+                    return None
+                cur = below / total
+            else:
+                cur = today_rate[0]
 
-            below_net = (df["pbMRQ"] < 1.0).sum() / len(df)
-
-            hist = self._get_stock_daily_history()
-            if hist.empty or len(hist["trade_date"].unique()) < 60:
-                if below_net > 0.15: return 70
-                if below_net > 0.10: return 50
-                if below_net > 0.05: return 30
-                return 10
-
-            # 用全市场口径计算历史序列 (不用成分股过滤)
-            hist_pb = pd.read_sql('''
-                SELECT trade_date, pbMRQ FROM stock_daily
-                WHERE pbMRQ > 0 AND pbMRQ <= 10
-                  AND trade_date <= ?
-                ORDER BY trade_date
-            ''', self._conn(), params=[self.trade_date])
-
-            if hist_pb.empty:
-                return None
-
-            hist_bnet = hist_pb.groupby("trade_date")["pbMRQ"].apply(
-                lambda x: (x < 1.0).mean()
-            ).dropna()
-
-            if len(hist_bnet) < 60:
-                return None
-
-            # 反向: 破净率高=便宜=低分, 破净率低=贵=高分
-            score = _pct_rank_inv(hist_bnet, below_net) * 100
-            logger.info("Below net rate (all-market, inverted): %.4f, score=%.1f, n=%d",
-                        below_net, score, len(df))
+            # 反向: 破净率高=便宜=低分
+            score = (1 - _pct_rank(hist_rate, cur)) * 100
+            logger.info("Below net rate (precomputed): %.4f, score=%.1f", cur, score)
             return _score_with_fallback(score)
         except Exception as e:
             logger.error("Below net rate calc failed: %s", e)
             return None
 
-    # ── 资金维度 ───────────────────────────────────────────────────────────────
 
     def _calc_margin_ratio(self) -> Optional[float]:
         """两融余额占流通市值比（杠杆热度）

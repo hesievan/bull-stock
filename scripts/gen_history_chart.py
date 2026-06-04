@@ -12,9 +12,9 @@ DATA_DIR = os.path.join(os.path.dirname(__file__), '..', 'web', 'data')
 OUTPUT_DIR = os.path.join(os.path.dirname(__file__), '..', 'reports')
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-history_file = os.path.join(DATA_DIR, 'history_full.json')
+history_file = os.path.join(DATA_DIR, 'history.json')
 if not os.path.exists(history_file):
-    print("ERROR: history_full.json not found."); exit(1)
+    print("ERROR: history.json not found."); exit(1)
 
 with open(history_file) as f:
     hist = json.load(f)

@@ -56,7 +56,7 @@ if len(hist) >= 2:
 prev_dims = {}
 if len(hist) >= 2 and 'dimensions' in hist[-2]:
     for k, v in hist[-2]['dimensions'].items():
-        prev_dims[k] = v.get('score')
+        prev_dims[k] = v.get("score") if isinstance(v, dict) else v
 
 # 板块排序
 sectors_sorted = sorted(
