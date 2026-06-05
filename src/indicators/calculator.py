@@ -768,38 +768,39 @@ class HeatIndexCalculator:
             return None
 
     def _calc_ah_premium_index(self) -> Optional[float]:
-        """恒生AH股溢价指数 HSAHP 历史分位
+        """恒生AH股溢价指数 (月频数据, 区间赋分)
 
-        HSAHP 由东方财富编制，反映同股同权的A股相对港股的溢价程度。
-        高溢价 = A股贵 = 高热度，低溢价 = A股便宜 = 低热度。
-
-        分级参考: >150 极贵(历史牛市顶), 130-150 偏贵, 115-130 中性偏高,
-                 100-115 中性, 85-100 偏便宜, <85 极便宜(历史底部附近)
+        用月频数据减少日频噪声，按以下区间赋分:
+          <98:   极致低估(A股便宜) → 90分 (牛市特征)
+          98-115: 偏低配置 → 70分
+          115-135: 中性震荡 → 50分
+          135-145: 偏高警惕 → 30分
+          >145:  极致泡沫 → 10分
         """
         try:
             conn = self._conn()
-            ah = pd.read_sql(
-                "SELECT trade_date, premium as close FROM ah_premium ORDER BY trade_date",
-                conn,
-            )
-            if ah.empty or len(ah) < 60:
-                logger.warning("AH premium: 数据不足 (%d 行)", len(ah))
-                return None
-
-            ah["close"] = pd.to_numeric(ah["close"], errors="coerce")
-            ah = ah.dropna()
-
-            today = conn.execute(
-                "SELECT premium as close FROM ah_premium WHERE trade_date <= ? ORDER BY trade_date DESC LIMIT 1",
-                (self.trade_date,),
+            # 查询当前月份的AH溢价
+            cur_month = self.trade_date[:7]  # YYYY-MM
+            row = conn.execute(
+                "SELECT premium, score FROM ah_premium_monthly WHERE month=?",
+                (cur_month,)
             ).fetchone()
-            if not today or not today[0]:
-                return None
+            if row and row[1] is not None:
+                score = float(row[1])
+                logger.info("AH premium (monthly): %.2f, score=%.1f", row[0], score)
+                return _score_with_fallback(score)
 
-            # AH溢价反向: 低溢价=A股便宜=牛市特征=高分
-            score = (1 - _pct_rank(ah["close"], float(today[0]))) * 100
-            logger.info("AH premium index: %.2f (low=bullish), score=%.1f", today[0], score)
-            return _score_with_fallback(score)
+            # fallback: 用最近月份
+            row = conn.execute(
+                "SELECT premium, score FROM ah_premium_monthly WHERE month <= ? ORDER BY month DESC LIMIT 1",
+                (cur_month,)
+            ).fetchone()
+            if row and row[1] is not None:
+                score = float(row[1])
+                logger.info("AH premium (monthly fallback): %.2f, score=%.1f", row[0], score)
+                return _score_with_fallback(score)
+
+            return None
         except Exception as e:
             logger.error("AH premium index calc failed: %s", e)
             return None
