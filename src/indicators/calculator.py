@@ -339,7 +339,7 @@ class HeatIndexCalculator:
 
             merged["ratio"] = (merged["rzye"] + merged["rqye"]) / (merged["total_circ_mv"] * 10000)
 
-            hist_ratios = merged["ratio"].tail(504).dropna()
+            hist_ratios = merged["ratio"].tail(250).dropna()
             if len(hist_ratios) < 60:
                 hist_ratios = merged["ratio"].dropna()
 
@@ -415,13 +415,13 @@ class HeatIndexCalculator:
             nb2 = nb.copy()
             nb2["north_net"] = pd.to_numeric(nb2["north_net"], errors="coerce").dropna()
 
-            # 近250日累计流入
-            cur_cumflow = nb2["north_net"].tail(250).sum()
+            # 近60日累计流入 (避免2024政策刺激后的量级差异)
+            cur_cumflow = nb2["north_net"].tail(60).sum()
             if pd.isna(cur_cumflow):
                 return None
 
-            # 历史各250日窗口的累计流入
-            window_sums = nb2["north_net"].rolling(250).sum().dropna()
+            # 历史各60日窗口的累计流入
+            window_sums = nb2["north_net"].rolling(60).sum().dropna()
             if len(window_sums) < 60:
                 return None
 
@@ -1059,8 +1059,8 @@ class HeatIndexCalculator:
         st2 = self._calc_ah_premium_index()
         dim_struct = self._combine_dimension([st1, st2], "Structure")
 
-        # v3.1 综合热度 — 加权合成: 估值20%/宏观15%/资金20%/情绪20%/技术10%/结构15%
-        weights = [0.20, 0.15, 0.20, 0.20, 0.10, 0.15]
+        # v3.1 综合热度 — 加权合成: 估值20%/宏观20%/资金15%/情绪20%/技术10%/结构15%
+        weights = [0.20, 0.20, 0.15, 0.20, 0.10, 0.15]
         dims = [dim_val, dim_macro, dim_fund, dim_sent, dim_tech, dim_struct]
         valid = [(d, w) for d, w in zip(dims, weights) if d is not None]
         if valid:
