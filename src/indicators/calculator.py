@@ -811,6 +811,127 @@ class HeatIndexCalculator:
             return 0.5
         return (series <= value).sum() / len(series)
 
+    def _calc_m1m2_scissors(self) -> Optional[float]:
+        """M1-M2增速剪刀差（宏观流动性指标）
+
+        剪刀差 = M1同比 - M2同比
+        正值扩大=资金活期化=牛市信号；负值=资金定期化=熊市信号
+        """
+        try:
+            conn = self._conn()
+            hist = pd.read_sql(
+                "SELECT month, scissors FROM macro_money ORDER BY month",
+                conn
+            )
+            if hist.empty or len(hist) < 24:
+                return None
+
+            hist_s = pd.to_numeric(hist['scissors'], errors='coerce').dropna()
+            if len(hist_s) < 24:
+                return None
+
+            # 当前值
+            today = conn.execute("SELECT scissors FROM macro_money ORDER BY month DESC LIMIT 1").fetchone()
+            if not today or today[0] is None:
+                return None
+
+            score = _pct_rank(hist_s, today[0]) * 100
+            logger.info("M1-M2 scissors: %.2f%%, score=%.1f", today[0], score)
+            return _score_with_fallback(score)
+        except Exception as e:
+            logger.error("M1-M2 scissors calc failed: %s", e)
+            return None
+
+    def _calc_m2_yoy(self) -> Optional[float]:
+        """M2同比增速（宏观流动性总量）
+
+        M2同比回升=流动性宽松=牛市条件
+        """
+        try:
+            conn = self._conn()
+            hist = pd.read_sql(
+                "SELECT month, m2_yoy FROM macro_money ORDER BY month",
+                conn
+            )
+            if hist.empty or len(hist) < 24:
+                return None
+
+            hist_m2 = pd.to_numeric(hist['m2_yoy'], errors='coerce').dropna()
+            if len(hist_m2) < 24:
+                return None
+
+            today = conn.execute("SELECT m2_yoy FROM macro_money ORDER BY month DESC LIMIT 1").fetchone()
+            if not today or today[0] is None:
+                return None
+
+            score = _pct_rank(hist_m2, today[0]) * 100
+            logger.info("M2 YoY: %.2f%%, score=%.1f", today[0], score)
+            return _score_with_fallback(score)
+        except Exception as e:
+            logger.error("M2 YoY calc failed: %s", e)
+            return None
+
+    def _calc_erp(self) -> Optional[float]:
+        """股权风险溢价 ERP (替换巴菲特指标)
+
+        ERP = 股票收益率 - 国债收益率 = 1/PE - 10Y国债
+        高ERP=股票便宜=低分；低ERP=股票贵=高分（反向）
+        """
+        try:
+            conn = self._conn()
+            hist = pd.read_sql(
+                "SELECT trade_date, erp FROM daily_erp ORDER BY trade_date",
+                conn
+            )
+            if hist.empty or len(hist) < 60:
+                return None
+            hist_erp = pd.to_numeric(hist['erp'], errors='coerce').dropna()
+
+            today = conn.execute(
+                "SELECT erp FROM daily_erp WHERE trade_date=?",
+                (self.trade_date,)
+            ).fetchone()
+            if not today or today[0] is None:
+                # fallback
+                return None
+
+            # ERP越高=股票越便宜=低分（反向）
+            score = (1 - _pct_rank(hist_erp, today[0])) * 100
+            logger.info("ERP: %.4f%%, score=%.1f", today[0], score)
+            return _score_with_fallback(score)
+        except Exception as e:
+            logger.error("ERP calc failed: %s", e)
+            return None
+
+    def _calc_ma_alignment(self) -> Optional[float]:
+        """MA排列比 (MA20>MA60>MA120 的股票占比)
+
+        替代MA250站上比，更灵敏
+        """
+        try:
+            conn = self._conn()
+            hist = pd.read_sql(
+                "SELECT trade_date, ma_alignment_ratio FROM daily_ma_alignment ORDER BY trade_date",
+                conn
+            )
+            if hist.empty or len(hist) < 60:
+                return None
+            hist_r = pd.to_numeric(hist['ma_alignment_ratio'], errors='coerce').dropna()
+
+            today = conn.execute(
+                "SELECT ma_alignment_ratio FROM daily_ma_alignment WHERE trade_date=?",
+                (self.trade_date,)
+            ).fetchone()
+            if not today or today[0] is None:
+                return None
+
+            score = today[0] * 100
+            logger.info("MA alignment ratio: %.4f, score=%.1f", today[0], score)
+            return _score_with_fallback(score)
+        except Exception as e:
+            logger.error("MA alignment calc failed: %s", e)
+            return None
+
     def _calc_buffett_ratio(self) -> Optional[float]:
         """
         Buffett Indicator = M2 / A-share total market cap
@@ -902,18 +1023,24 @@ class HeatIndexCalculator:
         logger.info("Calculating heat index for %s", self.trade_date)
         logger.info("=" * 50)
 
-        # 估值 (4项, 权重25%)
+        # v3.1 维度权重: 估值20%/宏观15%/资金20%/情绪20%/技术10%/结构15%
+
+        # 估值 (4项, 权重20%) — 巴菲特→ERP
         v1 = self._calc_pe_percentile()
         v2 = self._calc_pb_percentile()
         v4 = self._calc_below_net_rate()
-        v5 = self._calc_buffett_ratio()
+        v5 = self._calc_erp()
         dim_val = self._combine_dimension([v1, v2, v4, v5], "Valuation")
 
-        # 资金 (4项, 权重25%)
-        f1 = self._calc_margin_ratio()
-        f2 = self._calc_northbound()
+        # 宏观 (2项, 权重15%) — 新增
+        m1 = self._calc_m1m2_scissors()
+        m2 = self._calc_m2_yoy()
+        dim_macro = self._combine_dimension([m1, m2], "Macro")
+
+        # 资金 (2项, 权重20%) — 北向降权(保留累计流入)
         f3 = self._calc_northbound_cumflow()
-        dim_fund = self._combine_dimension([f1, f2, f3], "Fund")
+        f1 = self._calc_margin_ratio()
+        dim_fund = self._combine_dimension([f3, f1], "Fund")
 
         # 情绪 (4项, 权重20%)
         s1 = self._calc_turnover()
@@ -922,19 +1049,19 @@ class HeatIndexCalculator:
         s5 = self._calc_limit_ratio()
         dim_sent = self._combine_dimension([s1, s2, s3, s5], "Sentiment")
 
-        # 技术 (2项, 权重10%)
-        t1 = self._calc_above_ma250_ratio()
+        # 技术 (2项, 权重10%) — MA排列比替代MA250
+        t1 = self._calc_ma_alignment()
         t3 = self._calc_deviation_ma250()
         dim_tech = self._combine_dimension([t1, t3], "Technical")
 
-        # 结构 (2项, 权重20%)
+        # 结构 (2项, 权重15%)
         st1 = self._calc_sector_divergence()
         st2 = self._calc_ah_premium_index()
         dim_struct = self._combine_dimension([st1, st2], "Structure")
 
-        # 综合热度 — 加权合成
-        weights = [0.25, 0.25, 0.20, 0.10, 0.20]  # 估值/资金/情绪/技术/结构
-        dims = [dim_val, dim_fund, dim_sent, dim_tech, dim_struct]
+        # v3.1 综合热度 — 加权合成: 估值20%/宏观15%/资金20%/情绪20%/技术10%/结构15%
+        weights = [0.20, 0.15, 0.20, 0.20, 0.10, 0.15]
+        dims = [dim_val, dim_macro, dim_fund, dim_sent, dim_tech, dim_struct]
         valid = [(d, w) for d, w in zip(dims, weights) if d is not None]
         if valid:
             composite = sum(d * w for d, w in valid) / sum(w for _, w in valid)
@@ -945,6 +1072,7 @@ class HeatIndexCalculator:
             "trade_date": self.trade_date,
             "composite_score": composite,
             "dim_valuation": dim_val,
+            "dim_macro": dim_macro,
             "dim_fund": dim_fund,
             "dim_sentiment": dim_sent,
             "dim_technical": dim_tech,
@@ -954,9 +1082,13 @@ class HeatIndexCalculator:
                     "PE_percentile": v1,
                     "PB_percentile": v2,
                     "below_net_rate": v4,
-                    "buffett_ratio": v5,
+                    "erp": v5,
                 },
-                "fund": {"margin_ratio": f1, "northbound": f2, "northbound_cumflow": f3},
+                "macro": {
+                    "m1m2_scissors": m1,
+                    "m2_yoy": m2,
+                },
+                "fund": {"northbound_cumflow": f3, "margin_ratio": f1},
                 "sentiment": {
                     "turnover": s1, "up_down_ratio": s2,
                     "limit_up_ratio": s3, "limit_ratio": s5,

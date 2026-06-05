@@ -22,9 +22,9 @@ print(f"Loaded {len(hist)} points: {hist[0]['trade_date']} ~ {hist[-1]['trade_da
 
 dates = [h['trade_date'] for h in hist]
 scores = [h['composite_score'] for h in hist]
-dim_keys = ['valuation','fund','sentiment','technical','structure']
-dim_labels = {'valuation':'估值','fund':'资金','sentiment':'情绪','technical':'技术','structure':'结构'}
-dim_colors = {'valuation':'#1890ff','fund':'#52c41a','sentiment':'#faad14','technical':'#722ed1','structure':'#eb2f96'}
+dim_keys = ['valuation','macro','fund','sentiment','technical','structure']
+dim_labels = {'valuation':'估值','macro':'宏观','fund':'资金','sentiment':'情绪','technical':'技术','structure':'结构'}
+dim_colors = {'valuation':'#1890ff','macro':'#ff6b6b','fund':'#52c41a','sentiment':'#faad14','technical':'#722ed1','structure':'#eb2f96'}
 dim_data = {k: [h.get('dimensions',{}).get(k) for h in hist] for k in dim_keys}
 
 # 统计

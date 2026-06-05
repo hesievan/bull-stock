@@ -58,6 +58,7 @@ def save_results(result: Dict, output_dir: str = None):
         "level": get_heat_level(result["composite_score"]),
         "dimensions": {
             "valuation": {"score": _round_score(result["dim_valuation"]), "label": "估值"},
+            "macro": {"score": _round_score(result.get("dim_macro")), "label": "宏观"},
             "fund": {"score": _round_score(result["dim_fund"]), "label": "资金"},
             "sentiment": {"score": _round_score(result["dim_sentiment"]), "label": "情绪"},
             "technical": {"score": _round_score(result["dim_technical"]), "label": "技术"},
