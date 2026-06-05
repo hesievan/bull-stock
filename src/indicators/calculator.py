@@ -339,7 +339,7 @@ class HeatIndexCalculator:
 
             merged["ratio"] = (merged["rzye"] + merged["rqye"]) / (merged["total_circ_mv"] * 10000)
 
-            hist_ratios = merged["ratio"].tail(250).dropna()
+            hist_ratios = merged["ratio"].tail(60).dropna()
             if len(hist_ratios) < 60:
                 hist_ratios = merged["ratio"].dropna()
 
@@ -796,8 +796,9 @@ class HeatIndexCalculator:
             if not today or not today[0]:
                 return None
 
-            score = _pct_rank(ah["close"], float(today[0])) * 100
-            logger.info("AH premium index: %.2f, score=%.1f", today[0], score)
+            # AH溢价反向: 低溢价=A股便宜=牛市特征=高分
+            score = (1 - _pct_rank(ah["close"], float(today[0]))) * 100
+            logger.info("AH premium index: %.2f (low=bullish), score=%.1f", today[0], score)
             return _score_with_fallback(score)
         except Exception as e:
             logger.error("AH premium index calc failed: %s", e)
@@ -1059,8 +1060,8 @@ class HeatIndexCalculator:
         st2 = self._calc_ah_premium_index()
         dim_struct = self._combine_dimension([st1, st2], "Structure")
 
-        # v3.1 综合热度 — 加权合成: 估值20%/宏观20%/资金15%/情绪20%/技术10%/结构15%
-        weights = [0.20, 0.20, 0.15, 0.20, 0.10, 0.15]
+        # v3.2 综合热度 — 加权合成: 估值25%/宏观15%/资金15%/情绪20%/技术10%/结构15%
+        weights = [0.25, 0.15, 0.15, 0.20, 0.10, 0.15]
         dims = [dim_val, dim_macro, dim_fund, dim_sent, dim_tech, dim_struct]
         valid = [(d, w) for d, w in zip(dims, weights) if d is not None]
         if valid:
