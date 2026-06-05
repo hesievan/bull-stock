@@ -1,354 +1,156 @@
 # A股牛市热度指数
 
-🌡️ 每日更新的量化指标，从估值、资金、情绪、技术、结构五个维度综合评估A股市场整体热度。
+🌡️ 每日更新的量化指标，从估值、宏观、资金、情绪、技术、结构六个维度综合评估A股市场整体热度。
 
 > **定位：仅提示离场/减仓，不发出进场或加仓信号。**
 
 ## 快速一览
 
-| 维度 | 当前(2026-06-02) | 较昨日 |
-|------|-----------------|--------|
-| 🟡 综合热度 | **58.4** | — |
-| 估值 | 60.1 | — |
-| 资金 | 96.0 | — |
-| 情绪 | 37.3 | — |
-| 技术 | 44.3 | — |
-| 结构 | 54.2 | — |
+| 维度 | 得分 | 权重 | 说明 |
+|------|------|------|------|
+| 估值 | 52.0 | 20% | PE/PB分位+破净率+ERP |
+| **宏观** | **40.7** | **20%** | M1-M2剪刀差+M2同比 |
+| 资金 | 100.0 | 15% | 北向累计流入+两融余额比 |
+| 情绪 | 94.6 | 20% | 换手率+涨跌家数比+涨停+涨跌停比 |
+| 技术 | 46.2 | 10% | MA排列比+均线偏离度 |
+| 结构 | 41.6 | 15% | 行业分化度+AH溢价指数 |
+| **综合** | **63.3🟡** | 100% | 加权合成 |
 
-**历史回测 (2015-01-05 ~ 2026-06-02, 共 2771 个交易日)**
-
-| 日期 | 市场状态 | 上证 | 综合 |
-|------|---------|------|------|
-| 2015-06-12 | 牛市顶 | 5178 | 🔴 73.8 |
-| 2026-01-12 | 近期高点 | — | 🔴 73.4 |
-| 2024-10-08 | 脉冲顶 | 3489 | ⚪ 70.6 |
-| 2021-02-18 | 牛市顶 | 3731 | ⚪ 66.2 |
-| 2018-07-04 | 熊底 | — | 🟢 17.7 |
-| 2018-12-28 | 熊底 | 2493 | 🟢 28.5 |
+---
 
 ## 项目结构
 
 ```
+bull-market-heat-index/
 ├── src/
 │   ├── data/
-│   │   ├── database.py      # SQLite 数据库管理 (18张表)
-│   │   └── fetcher.py       # 双源合一数据获取 (tushare+akshare)
+│   │   ├── database.py      # 16张表
+│   │   └── fetcher.py       # tushare+akshare 数据获取
 │   ├── indicators/
-│   │   └── calculator.py    # 16个子指标 + 加权合成(25/25/20/10/20) + 综合热度
+│   │   └── calculator.py    # 16子指标+加权合成
 │   └── output/
-│       └── json_writer.py   # JSON 输出 + 飞书通知生成
+│       └── json_writer.py   # JSON+飞书通知
 ├── scripts/
-│   ├── run_daily.py         # 每日计算入口 (6步)
-│   ├── init_history.py      # 历史数据一次性初始化 (baostock)
-│   ├── import_investors.py  # 新增投资者数据录入
-│   ├── fetch_hist_constituents.py  # 拉取历史成分股截面 (tushare index_weight)
-│   ├── precompute_const_pe.py      # 预计算每日成分股PE/PB中位数
-│   ├── fetch_ah_premium.py  # 拉取恒生AH溢价指数 HSAHP (东方财富curl)
-│   ├── verify_all_fixes.py# 回测验证脚本
-│   ├── step1_bond_yield.py  # tushare 国债收益率拉取
-│   ├── step2_index_pe.py    # tushare 指数PE/PB历史
-│   ├── step3_northbound.py  # tushare 北向资金全量
-│   ├── step4_daily_basic.py # tushare 全市场PE/PB/市值
-│   └── step5b_circ_mv_by_stock.py  # tushare 流通市值补全
+│   ├── run_daily.py         # 每日入口(9步)
+│   ├── ah_premium.py        # AH溢价指数(akshare+tushare)
+│   ├── backfill_history.py  # 全量历史回测
+│   ├── backfill_weekly.py   # 周频采样回测
+│   ├── gen_history_chart.py # 历史走势图
+│   ├── gen_report.py        # 日报生成(MD+HTML+PNG)
+│   └── update_sectors.py    # 板块热度更新
 ├── web/
-│   ├── index.html           # 前端页面（深色主题 + ECharts）
-│   └── data/                # 每日生成的 JSON 数据 (gitignore)
-├── docs/
-│   └── pe_pb_solution.md    # PE/PB分位数方案决策记录
-├── config/                  # 配置文件
-├── .github/workflows/
-│   └── daily.yml            # GitHub Actions 自动更新 (交易日 16:30)
-├── data/
-│   └── heat_index.db        # SQLite 数据库 (gitignore)
-├── requirements.txt
-├── README.md
-└── TODO.md
+│   ├── app.html             # 前端SPA
+│   └── data/                # JSON输出
+├── reports/
+│   ├── indicator_spec.md    # 指标详细说明
+│   ├── suggestions.md       # 项目评估
+│   └── v3.1_adjustment.md   # v3.1调整方案
+└── data/
+    └── heat_index.db        # SQLite(~2GB)
 ```
+
+---
 
 ## 数据源方案（双源合一）
 
-| 数据源 | 负责数据 | 频率限制 | 代码格式 |
-|--------|---------|---------|---------|
-| **baostock** | 指数日行情、个股K线(PE/PB/价格/成交量)、成分股列表、行业分类、交易日历 | 不限频，控制间隔 0.3s | `sh600000` |
-| **tushare** | 融资融券、北向资金、国债收益率、指数PE/PB、全市场daily_basic、历史成分股 | 200次/分钟(daily_basic)，hk_daily 1次/分钟 | `600000.SH` |
-| **akshare+baostock** | AH股溢价指数（15只核心AH股 A股价格/H股价格中位数） | akshare stock_hk_daily 不限频 | — |
+| 数据源 | 负责数据 | 频率限制 |
+|--------|---------|---------|
+| **tushare** | 全市场K线/PE/PB/市值/融资融券/北向/成分股/行业 | 2000积分版 |
+| **akshare** | M2月度数据、AH股溢价 | 免费 |
 
-内部统一使用 baostock 格式（`sh600000`），函数 `ak_to_bs()`/`ak_to_ts()`/`bs_to_ak()` 自动转换。
+---
 
-### tushare 覆盖的数据 (全市场)
-- ✅ 全市场日K线 (close/open/high/low/pct_chg/vol/amount) — 5500+只/天
-- ✅ 全市场PE/PB/市值/换手率 (daily_basic)
-- ✅ 指数日K线 (index_daily)
-- ✅ 成分股列表 (index_weight)
-- ✅ 行业分类 (stock_basic.industry)
-- ✅ 融资融券 (margin)
-- ✅ 北向资金 (moneyflow_hsgt)
-- ✅ 国债收益率 (yc_cb)
-- ✅ 交易日历 (trade_cal)
+## 指标体系 (v3.1: 6维度 16子指标)
 
-### tushare 覆盖的数据
-- ✅ 融资融券日汇总 (`margin`: rzye/rzmre/rqye/rzrqye) — 2019年至今
-- ✅ 北向资金净流入 (`moneyflow_hsgt`: hgt/sgt) — 2015年至今全量
-- ✅ 中债国债收益率 (`yc_cb`: 10年期) — 2018年至今 *(已不使用)*
-- ✅ 指数PE/PB/总市值 (`index_dailybasic`) — 2015年至今
-- ✅ 全市场个股PE/PB/市值 (`daily_basic`) — 2015年至今
-- ✅ 历史成分股截面 (`index_weight`: 沪深300+中证500 每月末) — 2015~2026
+### 估值维度 (25%→20%)
 
-### ~~baostock~~ (已移除)
-- 原覆盖: 指数日行情、个股K线、成分股列表、行业分类、交易日历
-- 移除原因: 仅覆盖800只成分股(15%), tushare可全量替代(5500+只)
+| # | 指标 | 数据源 | 口径 |
+|---|------|--------|------|
+| 1 | PE历史分位 | tushare stock_daily.peTTM | 成分股口径 |
+| 2 | PB历史分位 | tushare stock_daily.pbMRQ | 成分股口径 |
+| 3 | 破净率(反向) | tushare stock_daily.pbMRQ | 全市场口径 |
+| 4 | ERP股权风险溢价 | index_daily_pe + bond_yield | 1/PE - 10年国债 |
 
-## 指标体系 (5维度 16子指标, 加权合成)
+### 宏观维度 (0%→20%) 🆕
 
-> **设计原则**: 每个子指标都经过"牛市顶应高分、熊底应低分"的回测验证。
-> 指标方向: 数值越高 = 市场越热 = 越应警惕。
+| # | 指标 | 数据源 | 口径 |
+|---|------|--------|------|
+| 5 | M1-M2增速剪刀差 | akshare macro_china_money_supply | 月频 |
+| 6 | M2同比增速 | akshare macro_china_money_supply | 月频 |
 
-### 估值维度 (4项)
+### 资金维度 (25%→15%)
 
-| # | 指标 | 数据源 | 口径 | 标准化 | 选取意义 |
-|---|------|--------|------|--------|---------|
-| 1 | **PE历史分位** | stock_daily.peTTM | 沪深300+中证500成分股口径，用历史成分股截面(月末)避免 survivorship bias | 10年分位 | 全市场口径被小盘股低PE稀释（银行PE=5-10拉低中位数），成分股口径更准确反映核心资产估值贵贱 |
-| 2 | **PB历史分位** | stock_daily.pbMRQ | 同上 | 10年分位 | 与PE互补，PE受短期盈利波动影响大，PB更稳定；2021年牛市PE分位高但PB分位低（结构性分化），两者结合更全面 |
-| 3 | **破净率** | stock_daily.pbMRQ | 全市场口径，PB<1占比 | 10年分位(反向) | 破净率高=市场便宜=低分；牛市顶峰几乎无破净股→得高分 |
-| 4 | **巴菲特指标** | M2 / A股总市值 | akshare M2 + tushare总市值 | 10年分位 | 总市值/GDP的变体，用M2替代GDP更及时；衡量市场整体杠杆和泡沫程度 |
+| # | 指标 | 数据源 | 口径 |
+|---|------|--------|------|
+| 7 | 北向资金累计流入分位 | tushare northbound_history | 60日窗口 |
+| 8 | 两融余额/流通市值比 | tushare margin_history + daily_circ_mv | 250日窗口 |
 
-> ~~ERP (股债性价比)~~ 和 ~~沪深300股债比~~ 已删除 — bond_yield 2018年前缺失，用默认值2.5%导致失真。
->
-> **PE/PB口径演进**: 全市场简单中位数(被小盘股稀释) → 市值加权(被大票低PE拉低失真) → 截尾中位数(与简单中位数几乎一样) → **历史成分股口径(最终方案)**。详见 [docs/pe_pb_solution.md](docs/pe_pb_solution.md)
+### 情绪维度 (20%)
 
-### 资金维度 (3项, 权重25%)
+| # | 指标 | 数据源 | 口径 |
+|---|------|--------|------|
+| 9 | 换手率 | tushare stock_daily | 全市场 |
+| 10 | 涨跌家数比 | tushare stock_daily | 全市场 |
+| 11 | 涨停占比 | tushare stock_daily | 全市场 |
+| 12 | 涨跌停比 | tushare stock_daily | 全市场 |
 
-| # | 指标 | 数据源 | 标准化 | 选取意义 |
-|---|------|--------|--------|---------|
-| 5 | **两融余额/流通市值比** | tushare margin(rzye+rqye) / stock_daily.circ_mv | 504天分位 | 市场整体杠杆水平；比融资买入额更稳定 |
-| 6 | **北向资金方向** | tushare moneyflow_hsgt.north_net | 250天分位 | 外资中期配置趋势 |
-| 7 | **北向资金累计流入分位** | tushare 近1年累计净流入 | 10年分位 | 反映外资中期配置力度 |
+### 技术维度 (10%)
 
-### 情绪维度 (4项, 权重20%)
+| # | 指标 | 数据源 | 口径 |
+|---|------|--------|------|
+| 13 | MA排列比(MA20>MA60>MA120) | tushare stock_daily | 全市场 |
+| 14 | 均线偏离度 | tushare index_daily | 上证综指 |
 
-| # | 指标 | 数据源 | 标准化 | 选取意义 |
-|---|------|--------|--------|---------|
-| 8 | **换手率** | amount / circ_mv | 10年分位 | 市场活跃度 |
-| 9 | **上涨/下跌家数比** | pctChg>0 / pctChg<0 | 10年分位 | 市场广度 |
-| 10 | **涨停占比** | pctChg >= 9.9% | 10年分位 | 极端乐观情绪 |
-| 11 | **涨跌停比** | limit_up / limit_down | 10年分位 | 比单独涨/跌停占比更直观 |
+### 结构维度 (15%)
 
-### 技术维度 (2项, 权重10%)
+| # | 指标 | 数据源 | 口径 |
+|---|------|--------|------|
+| 15 | 行业分化度(连续版) | tushare stock_daily+stock_industry | 84行业 |
+| 16 | AH溢价指数 | akshare stock_hk_daily+tushare daily | 15只核心AH股 |
 
-| # | 指标 | 数据源 | 标准化 | 选取意义 |
-|---|------|--------|--------|---------|
-| 12 | **站上年线比例** | close > MA250 占比 | 10年分位 | 市场整体趋势强度 |
-| 13 | **均线偏离度** | close / MA250 - 1 | 10年分位 | 价格偏离长期均值的程度 |
+---
 
-### 结构维度 (2项, 权重20%)
+## 维度权重
 
-| # | 指标 | 数据源 | 标准化 | 选取意义 |
-|---|------|--------|--------|---------|
-| 16 | **行业分化度(连续版)** | 各行业pctChg 标准差 | 10年分位(反向) | 低分化(普涨)=高分；已从4档离散改为连续分位 |
-| 17 | **AH股溢价指数** | 15只核心AH股 A/H价格比中位数 | 历史分位 | A股相对H股贵=高分。数据源: akshare+baostock |
+| 维度 | v3.0 | v3.1 | 理由 |
+|------|------|------|------|
+| 估值 | 25% | **20%** | 新增宏观维度 |
+| 宏观 | 0% | **20%** | 牛市先导信号 |
+| 资金 | 25% | **15%** | 北向数据量级差异 |
+| 情绪 | 20% | 20% | 保持不变 |
+| 技术 | 10% | 10% | 保持不变 |
+| 结构 | 20% | **15%** | 文档不重视结构 |
 
-### ~~已删除指标~~
+---
 
-| 指标 | 删除原因 |
-|------|---------|
-| ~~ERP (股债性价比)~~ | bond_yield 2018年前缺失，2015-2018年用默认值2.5%导致失真 |
-| ~~沪深300股债比~~ | 同上，依赖国债收益率 |
-
-### 热度区间
+## 热度区间
 
 | 颜色 | 分数 | 含义 |
 |------|------|------|
-| 🟢 绿色安全 | 0–40 | 估值合理/偏低，情绪冷淡，减仓信号远 |
+| 🟢 绿色安全 | 0–40 | 估值合理/偏低，情绪冷淡 |
 | 🟡 黄色警惕 | 40–70 | 部分指标偏高，需关注 |
 | 🔴 红色预警 | 70–100 | 多项指标历史高位，考虑减仓/离场 |
 
-### 权重规则
+---
 
-- **维度内**: 等权合成，若某子指标异常(>3σ)或为0/None则舍弃，其余重新等权归一
-- **维度间**: 加权合成 — 估值25% / 资金25% / 情绪20% / 技术10% / 结构20%
-- **权重依据**: 基于TOP10/BOT10区分度分析（资金86.1 > 情绪60.8 > 估值53.2 > 结构36.1 > 技术27.7）
-- **防抖**: 红区连续2天才发"进入红区"通知，恢复1天后发"脱离红区"通知
+## 自动化
 
-## 数据库表结构 (18张表)
+- `copaw cron` 每交易日16:30触发 `run_daily.py`
+- 输出: JSON + 飞书通知(红区连续2天触发)
+- 日报: MD + HTML(ECharts交互图) + PNG
 
-```
-index_daily             — 指数日行情 (trade_date, index_code, open/high/low/close/volume/amount/pct_change)
-stock_daily             — 个股日行情 (trade_date, stock_code, open/high/low/close, peTTM, pbMRQ, pct_change, volume, amount, total_mv, circ_mv)
-stock_industry          — 个股行业分类 (code, code_name, industry, industry_classification, update_date)
-stock_balance           — 个股资产负债表 (stock_code, report_date, bps)
-margin_history          — 融资融券汇总 (trade_date, rzye, rzmre, rzche, rqye, rqmcl, rzrqye)
-northbound_history      — 北向资金 (trade_date, hgt, sgt, north_net, south_money)
-bond_yield              — 国债收益率 (trade_date, curve_term, yield_rate)
-index_pe_history        — 指数PE/PB/总市值/换手率 (trade_date, index_code, pe_ttm, pb, total_mv, turnover_rate)
-m2_monthly              — M2月度货币供应量 (month, m2_billion, m2_yoy)
-stock_market_cap        — 全市场每日总市值 (trade_date, total_mv, stock_count)
-ah_premium              — AH溢价指数 (trade_date, premium, n_stocks) — 方案B: 15只AH股溢价中位数
-~~limit_up_daily~~        — 已废弃 (原计划涨停明细，实际未使用)
-new_investors           — 新增投资者 (week_end_date, new_accounts)
-heat_index              — 热度指数结果 (trade_date, composite_score, dim_*, detail_json)
-sector_heat             — 板块热度 Phase 2 (trade_date, sector_code, composite_score, detail_json)
-metadata                — 元数据 (key, value, updated_at)
-index_constituents      — 当前成分股列表 (index_code, stock_code, stock_name, update_date)
-index_constituents_hist — 历史成分股截面 (index_code, con_code, trade_date, weight)
-index_daily_pe          — 每日成分股PE/PB中位数预计算 (trade_date, pe_med, pb_med, n_stocks, const_date)
-```
-
-### 新增表说明 (2026-06-01)
-
-**index_constituents_hist** — 历史成分股截面
-- 来源: tushare `index_weight` 接口，每月末截面
-- 数据: 138个月末 × 2指数(hs300+zz500) = 106,000行
-- 用途: 避免 survivorship bias（用当前成分股回看历史数据不准确）
-
-**index_daily_pe** — 每日成分股PE/PB中位数预计算
-- 计算: 对每个交易日，用最近月末成分股截面计算PE/PB中位数
-- 数据: 2,750行（2015-01-30 ~ 2026-05-29）
-- 用途: 将PE/PB分位数计算从实时groupby(>60s)优化到查表(<2s)
-
-## 数据完整性 (2026-06-03 快照)
-
-| 表 | 行数 | 日期范围 | 备注 |
-|----|------|---------|------|
-| index_daily | 16,638 | 2014-12-29 ~ 2026-06-01 | 6指数 × 2,773日 |
-| stock_daily | 11,010,185 | 2015-01-05 ~ 2026-06-01 | 全市场~5,500只/日 |
-| stock_industry | 5,528 | — | 84个行业 |
-| margin_history | 2,586 | 2015-01-05 ~ 2026-05-29 | akshare补充2015-2019(975行) |
-| northbound_history | 2,682 | 2015-01-05 ~ 2026-05-29 | 全量 |
-| bond_yield | 2,290 | 2018-12-30 ~ 2026-05-29 | 不再用于指标计算 |
-| index_pe_history | ~13,845 | 2015-01-05 ~ 2026-05-29 | 6指数 |
-| m2_monthly | 220 | 2008-01 ~ 2026-04 | |
-| stock_market_cap | 2,753 | 2015-01-05 ~ 2026-05-29 | |
-| ah_premium | ~5,200 | 2006-08 ~ 至今 | 东方财富 HSAHP, schema=OHLC |
-| index_constituents_hist | 106,000 | 2015-03 ~ 2026-06 | 138月末截面 × 2指数 |
-| index_daily_pe | 2,750 | 2015-01-30 ~ 2026-05-29 | 成分股PE/PB中位数预计算 |
-| new_investors | 133 | 2015-04 ~ 2026-04 | 未纳入日频指数 |
-
-## 计算流程
-
-```
-交易日 16:30 触发 (copaw cron / GitHub Actions)
-  │
-  ├─ Step 1: baostock 拉取指数日行情 (增量)
-  ├─ Step 2: tushare daily + daily_basic 全市场K线/PE/PB/市值
-  ├─ Step 3: tushare 融资融券/北向/国债
-  ├─ Step 4: tushare 融资融券/北向/国债 (当日已存在则跳过)
-  ├─ Step 4.5: scripts/ah_premium.py — akshare stock_hk_daily(H股) + baostock(A股) → 15只AH股溢价中位数
-  │
-  ├─ Step 5: calculate_heat_index()
-  │     ├─ 计算 18 个子指标当前值
-  │     ├─ PE/PB 查预计算表 index_daily_pe (O(1))
-  │     ├─ AH溢价 查 ah_premium 表
-  │     ├─ 与 10 年历史对比 → 分位数 (0-100)
-  │     ├─ Z-score 异常过滤 (3σ)
-  │     ├─ 维度内等权合成 → 5维度分数
-  │     └─ 维度间等权合成 → 综合热度 (0-100)
-  │
-  ├─ Step 6: save_results() → web/data/index.json + detail.json + history.json
-  └─ Step 7: 红区(≥70) → 飞书通知 (含防抖: 连续2天才发)
-```
-
-## 回测验证 (最终方案, 4项估值+2项结构)
-
-| 日期 | 市场状态 | 上证 | 综合 | 估值 | 资金 | 情绪 | 技术 | 结构 |
-|------|---------|------|------|------|------|------|------|------|
-| 2015-06-12 | 牛市顶(5178) | 5178 | **73.8🔴** | 83.5 | 73.7 | 61.9 | 63.3 | 60.0 |
-| 2020-07-10 | 牛市启动(3450) | 3450 | **68.5🟡** | 60.3 | 89.0 | 63.8 | 62.3 | 59.5 |
-| 2021-02-18 | 牛市顶(3731) | 3731 | **66.2⚪** | 56.5 | 74.0 | 68.5 | 57.6 | 64.7 |
-| 2024-10-08 | 脉冲顶(3489) | 3489 | **65.1⚪** | 58.9 | 99.4 | 85.2 | 56.7 | 20.0 |
-| 2018-12-28 | 熊底(2493) | 2493 | **28.5🟢** | 9.5 | 25.0 | 33.0 | 33.0 | 54.8 |
-| 2026-06-02 | 当前 | — | **58.4🟡** | 60.1 | 96.0 | 37.3 | 44.3 | 54.2 |
-
-> **里程碑验证**: 2015牛市顶🔴 + 2018熊底🟢 均正确触发。去掉ERP/股债比后信号更锐利（73.8 vs 原71.8, 28.5 vs 原32.0）。
-
-## 使用指南
-
-### 环境配置
-
-```bash
-cd bull-market-heat-index
-uv venv && uv pip install -r requirements.txt
-export TUSHARE_TOKEN="your_token_here"  # 或写入 ~/daily_stock_analysis/.env
-```
-
-### 每日运行
-
-```bash
-python scripts/run_daily.py                 # 计算今日
-python scripts/run_daily.py 2026-05-29      # 计算指定日期
-python scripts/run_daily.py --backfill      # 历史回测(2015-01-01起)
-```
-
-### 回测验证
-
-```bash
-python scripts/verify_all_fixes.py          # 快速回测关键日期
-```
-
-### 前端预览
-
-```bash
-cd web && python -m http.server 8080
-```
-
-### 自动化 (copaw cron)
-
-```bash
-copaw cron list                    # 查看任务
-copaw cron run 63be5c6c            # 手动触发 (任务ID: 63be5c6c)
-```
+---
 
 ## 依赖
 
 ```
-akshare>=1.15.0      # M2月度数据、融资融券补充
-baostock>=0.8.8      # 个股/指数行情数据（主力，不限频）
-tushare>=1.4.0       # 融资融券/北向/国债/daily_basic/成分股
+tushare>=1.4.0       # 全市场K线/PE/PB/市值/融资融券/北向 (2000积分)
+akshare>=1.15.0      # M2月度数据、AH股溢价
 pandas>=2.0.0
 numpy>=1.24.0
 ```
 
-## Git 提交历史
-
-| Commit | 内容 |
-|--------|------|
-| `bc01537` | feat: 新增AH股溢价指数(HSAHP)指标 |
-| `ccf04b4` | feat: 删除ERP和沪深300股债比指标 |
-| `02a564b` | fix: Step 4 超时问题修复 (tushare timeout + 线程保护) |
-| `6bbcd2c` | docs: README + TODO 全面更新 |
-| `f9b8255` | fix: PE/PB分位数改用历史成分股口径 + 指标方向修复 |
-| `ac5a5f0` | fix: akshare补充2015-2019融资融券(984行) |
-| `7b9ee8b` | fix: new_high_ratio 改用close代替high |
-| `bf03c58` | data: 全市场PE/PB回填 (2769天, ~1100万行) |
-| `83dc995` | fix: 单位修正 + circ_mv 补全 + 全指标验证通过 |
-| `7fe654a` | feat: tushare全量数据 + 巴菲特指标/股债比输出修复 |
-| `7499fae` | feat: 新增巴菲特指标 + 沪深300股债比 + 批量拉取优化 |
-
-## 路线图
-
-- [x] Phase 0: 项目骨架 + 双源合一数据层 + 计算引擎 + 前端
-- [x] Phase 1 (6/10): MVP — 全市场数据 + 历史成分股口径 + 指标方向修复 + AH溢价 + Step 4超时修复
-- [x] Phase 2 (6/24): 行业热度指数 + 板块热力图（71个证监会一级行业）
-- [x] 全量历史回测: 2015-01-05 ~ 2026-06-02（2771个交易日，0失败）
-- [x] 历史走势图: ECharts 交互图（综合得分+五维度+关键事件标注+极值标记）
-- [x] 日报生成: MD + HTML(带ECharts) + PNG(精简信息图)，含维度对比
-- [ ] GitHub Push: 创建仓库 + 推送代码 + 配置 GitHub Actions
-- [ ] Phase 3: 单元测试 + 文档完善
-
-## 已知问题与限制
-
-| 问题 | 影响 | 状态 |
-|------|------|------|
-| 创新高用 close 代替 high | 全市场 stock_daily.high 全为NULL，用close的250日最大值近似 | ⚠️ 被低估但方向正确 |
-| 涨停/跌停用 pct_change ±9.9% 近似 | 非真实涨停数据（盘中可能打开） | ⚠️ 近似可用 |
-| M2 月度数据最新只到上月 | 日频计算用上月M2近似 | ⚠️ 月度变化小，误差可控 |
-| bond_yield 2018前缺失 | ERP和股债比已删除，不再影响指标 | ✅ 已解决 |
-| 东方财富API间歇性封锁 | AH溢价拉取可能失败 | ⚠️ 脚本含5次重试+等待，待观察 |
-
-## 关键文档
-
-- 需求 V1.2: https://my.feishu.cn/docx/Rm5Gd4J63oBvoAxSLKpcKNzqn0c
-- 评估报告: https://my.feishu.cn/docx/Hs8udA63FoBewIxp9ENcfqk7nBE
-- PE/PB方案决策: [docs/pe_pb_solution.md](docs/pe_pb_solution.md)
+---
 
 ## 许可证
 
