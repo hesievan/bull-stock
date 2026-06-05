@@ -339,7 +339,7 @@ class HeatIndexCalculator:
 
             merged["ratio"] = (merged["rzye"] + merged["rqye"]) / (merged["total_circ_mv"] * 10000)
 
-            hist_ratios = merged["ratio"].tail(60).dropna()
+            hist_ratios = merged["ratio"].tail(30).dropna()
             if len(hist_ratios) < 60:
                 hist_ratios = merged["ratio"].dropna()
 
@@ -416,12 +416,12 @@ class HeatIndexCalculator:
             nb2["north_net"] = pd.to_numeric(nb2["north_net"], errors="coerce").dropna()
 
             # 近60日累计流入 (避免2024政策刺激后的量级差异)
-            cur_cumflow = nb2["north_net"].tail(60).sum()
+            cur_cumflow = nb2["north_net"].tail(30).sum()
             if pd.isna(cur_cumflow):
                 return None
 
             # 历史各60日窗口的累计流入
-            window_sums = nb2["north_net"].rolling(60).sum().dropna()
+            window_sums = nb2["north_net"].rolling(30).sum().dropna()
             if len(window_sums) < 60:
                 return None
 
@@ -737,31 +737,39 @@ class HeatIndexCalculator:
     # ── 结构维度 ───────────────────────────────────────────────────────────────
 
     def _calc_sector_divergence(self) -> Optional[float]:
-        """行业分化度（各行业涨幅的标准差）— 预计算表优化版
+        """行业分化度（月频，减少日频噪声）
 
         反向: 低分化(普涨)=高分, 高分化(结构性)=低分
-        使用 daily_sector_div 预计算表
+        用月度最后一个交易日的行业std
         """
         try:
             conn = self._conn()
-            hist = pd.read_sql(
-                "SELECT trade_date, sector_std FROM daily_sector_div ORDER BY trade_date",
+            # 取月度最后一个交易日的行业std
+            monthly_std = pd.read_sql(
+                """SELECT trade_date, sector_std FROM daily_sector_div
+                WHERE trade_date IN (
+                    SELECT MAX(trade_date) FROM daily_sector_div
+                    GROUP BY substr(trade_date, 1, 7)
+                ) ORDER BY trade_date""",
                 conn
             )
-            if hist.empty or len(hist) < 60:
+            if monthly_std.empty or len(monthly_std) < 12:
                 return None
-            hist_std = pd.to_numeric(hist["sector_std"], errors="coerce").dropna()
 
+            hist_std = pd.to_numeric(monthly_std['sector_std'], errors='coerce').dropna()
+
+            # 当前月的行业std
+            cur_month = self.trade_date[:7]
             today = conn.execute(
-                "SELECT sector_std FROM daily_sector_div WHERE trade_date=?",
-                (self.trade_date,)
+                "SELECT sector_std FROM daily_sector_div WHERE trade_date LIKE ? ORDER BY trade_date DESC LIMIT 1",
+                (cur_month + '%',)
             ).fetchone()
             if not today or today[0] is None:
                 return None
 
             # 反向分位: std 越低(普涨) 分越高
             score = (1 - _pct_rank(hist_std, today[0])) * 100
-            logger.info("Sector divergence (precomputed): %.4f, score=%.1f", today[0], score)
+            logger.info("Sector divergence (monthly): %.4f, score=%.1f", today[0], score)
             return _score_with_fallback(score)
         except Exception as e:
             logger.error("Sector divergence calc failed: %s", e)
@@ -814,7 +822,7 @@ class HeatIndexCalculator:
         return (series <= value).sum() / len(series)
 
     def _calc_m1m2_scissors(self) -> Optional[float]:
-        """M1-M2增速剪刀差（宏观流动性指标）
+        """M1-M2增速剪刀差（宏观流动性指标，日频数据）
 
         剪刀差 = M1同比 - M2同比
         正值扩大=资金活期化=牛市信号；负值=资金定期化=熊市信号
@@ -822,52 +830,57 @@ class HeatIndexCalculator:
         try:
             conn = self._conn()
             hist = pd.read_sql(
-                "SELECT month, scissors FROM macro_money ORDER BY month",
+                "SELECT trade_date, scissors FROM daily_macro ORDER BY trade_date",
                 conn
             )
-            if hist.empty or len(hist) < 24:
+            if hist.empty or len(hist) < 60:
                 return None
 
             hist_s = pd.to_numeric(hist['scissors'], errors='coerce').dropna()
-            if len(hist_s) < 24:
+            if len(hist_s) < 60:
                 return None
 
-            # 当前值
-            today = conn.execute("SELECT scissors FROM macro_money ORDER BY month DESC LIMIT 1").fetchone()
+            today = conn.execute(
+                "SELECT scissors FROM daily_macro WHERE trade_date=?",
+                (self.trade_date,)
+            ).fetchone()
             if not today or today[0] is None:
                 return None
 
             score = _pct_rank(hist_s, today[0]) * 100
-            logger.info("M1-M2 scissors: %.2f%%, score=%.1f", today[0], score)
+            logger.info("M1-M2 scissors (daily): %.2f, score=%.1f", today[0], score)
             return _score_with_fallback(score)
         except Exception as e:
             logger.error("M1-M2 scissors calc failed: %s", e)
             return None
 
     def _calc_m2_yoy(self) -> Optional[float]:
-        """M2同比增速（宏观流动性总量）
+        """M2同比增速（宏观流动性总量，日频数据）
 
         M2同比回升=流动性宽松=牛市条件
         """
         try:
             conn = self._conn()
             hist = pd.read_sql(
-                "SELECT month, m2_yoy FROM macro_money ORDER BY month",
+                "SELECT trade_date, m2_yoy FROM daily_macro ORDER BY trade_date",
                 conn
             )
-            if hist.empty or len(hist) < 24:
+            if hist.empty or len(hist) < 60:
                 return None
 
             hist_m2 = pd.to_numeric(hist['m2_yoy'], errors='coerce').dropna()
-            if len(hist_m2) < 24:
+            if len(hist_m2) < 60:
                 return None
 
-            today = conn.execute("SELECT m2_yoy FROM macro_money ORDER BY month DESC LIMIT 1").fetchone()
+            today = conn.execute(
+                "SELECT m2_yoy FROM daily_macro WHERE trade_date=?",
+                (self.trade_date,)
+            ).fetchone()
             if not today or today[0] is None:
                 return None
 
             score = _pct_rank(hist_m2, today[0]) * 100
-            logger.info("M2 YoY: %.2f%%, score=%.1f", today[0], score)
+            logger.info("M2 YoY (daily): %.2f, score=%.1f", today[0], score)
             return _score_with_fallback(score)
         except Exception as e:
             logger.error("M2 YoY calc failed: %s", e)
