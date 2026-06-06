@@ -309,10 +309,11 @@ class HeatIndexCalculator:
 
 
     def _calc_margin_ratio(self) -> Optional[float]:
-        """两融余额占流通市值比（杠杆热度）— 预计算表优化版
+        """融资余额占流通市值比（杠杆热度）
 
-        ratio = (rzye + rqye) / total_circ_mv
-        使用 daily_circ_mv 预计算表，避免每次全表扫描 stock_daily
+        专注于融资余额(rzye)，融券余额相对极小
+        历史窗口: 3年(约750个交易日)
+        阈值: <2.5%温和, >4.0%过热
         """
         try:
             margin_df = self._get_margin()
@@ -325,7 +326,7 @@ class HeatIndexCalculator:
 
             conn = self._conn()
 
-            # 查预计算表
+            # 查流通市值 (从 daily_circ_mv)
             daily_circ = pd.read_sql(
                 "SELECT trade_date, total_circ_mv FROM daily_circ_mv WHERE total_circ_mv > 0",
                 conn
@@ -337,9 +338,12 @@ class HeatIndexCalculator:
             if len(merged) < 60:
                 return None
 
+            # 计算比值: (rzye + rqye) / total_circ_mv
+            # rzye/rqye 单位是元, circ_mv 单位是万元
             merged["ratio"] = (merged["rzye"] + merged["rqye"]) / (merged["total_circ_mv"] * 10000)
 
-            hist_ratios = merged["ratio"].tail(30).dropna()
+            # 历史分位 (3年窗口, 约750个交易日)
+            hist_ratios = merged["ratio"].tail(750).dropna()
             if len(hist_ratios) < 60:
                 hist_ratios = merged["ratio"].dropna()
 
@@ -347,7 +351,7 @@ class HeatIndexCalculator:
             cur_rzye = margin_df["rzye"].iloc[-1]
             cur_rqye = margin_df["rqye"].iloc[-1]
             cur_circ_row = conn.execute(
-                "SELECT total_circ_mv FROM daily_circ_mv WHERE trade_date=?",
+                "SELECT total_circ_mv FROM daily_circ_mv WHERE trade_date <= ? ORDER BY trade_date DESC LIMIT 1",
                 (self.trade_date,)
             ).fetchone()
             if not cur_circ_row or cur_circ_row[0] <= 0:
@@ -358,7 +362,7 @@ class HeatIndexCalculator:
             cur_ratio = (cur_rzye + cur_rqye) / (cur_circ * 10000)
 
             score = _pct_rank(hist_ratios, cur_ratio) * 100
-            logger.info("Margin ratio (precomputed): %.2f%% (hist median=%.2f%%), score=%.1f",
+            logger.info("Margin ratio (3Y window): %.2f%% (hist median=%.2f%%), score=%.1f",
                         cur_ratio * 100, hist_ratios.median() * 100, score)
             return _score_with_fallback(score)
         except Exception as e:
@@ -403,9 +407,10 @@ class HeatIndexCalculator:
     # ── 情绪维度 ───────────────────────────────────────────────────────────────
 
     def _calc_northbound_cumflow(self) -> Optional[float]:
-        """北向资金累计流入分位（近1年累计净流入的10年分位）
+        """北向资金20日累计流入分位
 
-        比单日方向更稳定, 反映外资中期配置趋势
+        使用20日滚动累计净流入，历史窗口250个交易日
+        避免早期体量过小导致失真
         """
         try:
             nb = self._get_northbound()
@@ -415,18 +420,21 @@ class HeatIndexCalculator:
             nb2 = nb.copy()
             nb2["north_net"] = pd.to_numeric(nb2["north_net"], errors="coerce").dropna()
 
-            # 近60日累计流入 (避免2024政策刺激后的量级差异)
-            cur_cumflow = nb2["north_net"].tail(30).sum()
-            if pd.isna(cur_cumflow):
+            # 20日滚动累计
+            nb2["cum_20d"] = nb2["north_net"].rolling(20).sum()
+
+            # 当前值
+            cur = nb2["cum_20d"].iloc[-1]
+            if pd.isna(cur):
                 return None
 
-            # 历史各60日窗口的累计流入
-            window_sums = nb2["north_net"].rolling(30).sum().dropna()
-            if len(window_sums) < 60:
+            # 历史分位 (250日窗口)
+            hist = nb2["cum_20d"].tail(250).dropna()
+            if len(hist) < 60:
                 return None
 
-            score = _pct_rank(window_sums, cur_cumflow) * 100
-            logger.info("Northbound cumflow: %.0f, score=%.1f", cur_cumflow, score)
+            score = _pct_rank(hist, cur) * 100
+            logger.info("Northbound cumflow (20d): %.0f, score=%.1f", cur, score)
             return _score_with_fallback(score)
         except Exception as e:
             logger.error("Northbound cumflow calc failed: %s", e)
