@@ -7150,5 +7150,89 @@
         }
       }
     ]
+  },
+  {
+    "trade_date": "2026-06-06",
+    "composite_score": 57.3,
+    "level": "yellow",
+    "dimensions": {
+      "valuation": {
+        "score": null,
+        "label": "估值"
+      },
+      "macro": {
+        "score": null,
+        "label": "宏观"
+      },
+      "fund": {
+        "score": 63.7,
+        "label": "资金"
+      },
+      "sentiment": {
+        "score": null,
+        "label": "情绪"
+      },
+      "technical": {
+        "score": 59.8,
+        "label": "技术"
+      },
+      "structure": {
+        "score": 49.3,
+        "label": "结构"
+      }
+    },
+    "updated_at": "2026-06-06 00:00:00",
+    "sectors_top5": [
+      {
+        "industry": "",
+        "score": 83.9,
+        "avg_pct": null,
+        "up_ratio": 68.0,
+        "leader": {
+          "code": "sh601666",
+          "pct": 10.02
+        }
+      },
+      {
+        "industry": "",
+        "score": 79.9,
+        "avg_pct": null,
+        "up_ratio": 100.0,
+        "leader": {
+          "code": "sz301235",
+          "pct": 7.48
+        }
+      },
+      {
+        "industry": "",
+        "score": 71.1,
+        "avg_pct": null,
+        "up_ratio": 23.7,
+        "leader": {
+          "code": "sh605162",
+          "pct": 10.04
+        }
+      },
+      {
+        "industry": "",
+        "score": 66.0,
+        "avg_pct": null,
+        "up_ratio": 43.5,
+        "leader": {
+          "code": "sz301123",
+          "pct": 20.0
+        }
+      },
+      {
+        "industry": "",
+        "score": 58.9,
+        "avg_pct": null,
+        "up_ratio": 42.2,
+        "leader": {
+          "code": "sz300897",
+          "pct": 20.0
+        }
+      }
+    ]
   }
 ]

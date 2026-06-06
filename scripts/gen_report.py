@@ -92,7 +92,7 @@ def delta_str(cur, prev, suffix=''):
     return f'<span style="color:{color};font-size:0.85em">{arrow}{abs(d):.1f}{suffix}</span>'
 
 def delta_md(cur, prev):
-    if prev is None: return ''
+    if prev is None or cur is None: return ''
     d = cur - prev
     arrow = '↑' if d > 0 else ('↓' if d < 0 else '→')
     return f' {arrow}{abs(d):.1f}'
