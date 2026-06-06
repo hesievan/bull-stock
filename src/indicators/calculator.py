@@ -309,11 +309,10 @@ class HeatIndexCalculator:
 
 
     def _calc_margin_ratio(self) -> Optional[float]:
-        """融资余额占流通市值比（杠杆热度）
+        """融资余额占流通市值比变化率
 
-        专注于融资余额(rzye)，融券余额相对极小
-        历史窗口: 3年(约750个交易日)
-        阈值: <2.5%温和, >4.0%过热
+        变化率 = (当前比值 - 前一期比值) / 前一期比值 × 100
+        反映杠杆水平的变化趋势，不被绝对水平锁定
         """
         try:
             margin_df = self._get_margin()
@@ -326,7 +325,6 @@ class HeatIndexCalculator:
 
             conn = self._conn()
 
-            # 查流通市值 (从 daily_circ_mv)
             daily_circ = pd.read_sql(
                 "SELECT trade_date, total_circ_mv FROM daily_circ_mv WHERE total_circ_mv > 0",
                 conn
@@ -338,32 +336,22 @@ class HeatIndexCalculator:
             if len(merged) < 60:
                 return None
 
-            # 计算比值: (rzye + rqye) / total_circ_mv
-            # rzye/rqye 单位是元, circ_mv 单位是万元
             merged["ratio"] = (merged["rzye"] + merged["rqye"]) / (merged["total_circ_mv"] * 10000)
 
-            # 历史分位 (3年窗口, 约750个交易日)
-            hist_ratios = merged["ratio"].tail(750).dropna()
-            if len(hist_ratios) < 60:
-                hist_ratios = merged["ratio"].dropna()
+            # 变化率: (当前比值 - 前一期比值) / 前一期比值
+            merged["change_rate"] = merged["ratio"].pct_change() * 100
 
-            # 当前值
-            cur_rzye = margin_df["rzye"].iloc[-1]
-            cur_rqye = margin_df["rqye"].iloc[-1]
-            cur_circ_row = conn.execute(
-                "SELECT total_circ_mv FROM daily_circ_mv WHERE trade_date <= ? ORDER BY trade_date DESC LIMIT 1",
-                (self.trade_date,)
-            ).fetchone()
-            if not cur_circ_row or cur_circ_row[0] <= 0:
+            # 历史分位 (3年窗口)
+            hist_cr = merged["change_rate"].tail(750).dropna()
+            if len(hist_cr) < 60:
                 return None
-            cur_circ = cur_circ_row[0]
-            if pd.isna(cur_rzye):
-                return None
-            cur_ratio = (cur_rzye + cur_rqye) / (cur_circ * 10000)
 
-            score = _pct_rank(hist_ratios, cur_ratio) * 100
-            logger.info("Margin ratio (3Y window): %.2f%% (hist median=%.2f%%), score=%.1f",
-                        cur_ratio * 100, hist_ratios.median() * 100, score)
+            cur_cr = merged["change_rate"].iloc[-1]
+            if pd.isna(cur_cr):
+                return None
+
+            score = _pct_rank(hist_cr, cur_cr) * 100
+            logger.info("Margin ratio change rate: %.2f%%, score=%.1f", cur_cr, score)
             return _score_with_fallback(score)
         except Exception as e:
             logger.error("Margin ratio calc failed: %s", e)
@@ -407,14 +395,14 @@ class HeatIndexCalculator:
     # ── 情绪维度 ───────────────────────────────────────────────────────────────
 
     def _calc_northbound_cumflow(self) -> Optional[float]:
-        """北向资金20日累计流入分位
+        """北向资金20日累计流入变化率
 
-        使用20日滚动累计净流入，历史窗口250个交易日
-        避免早期体量过小导致失真
+        变化率 = (当前20日累计 - 前20日累计) / 前20日累计 × 100
+        反映流入趋势变化，不被绝对水平锁定
         """
         try:
             nb = self._get_northbound()
-            if nb.empty or "north_net" not in nb.columns or len(nb) < 260:
+            if nb.empty or "north_net" not in nb.columns or len(nb) < 60:
                 return None
 
             nb2 = nb.copy()
@@ -423,21 +411,24 @@ class HeatIndexCalculator:
             # 20日滚动累计
             nb2["cum_20d"] = nb2["north_net"].rolling(20).sum()
 
+            # 变化率: (当前累计 - 前一期累计) / 前一期累计
+            nb2["change_rate"] = nb2["cum_20d"].pct_change() * 100
+
             # 当前值
-            cur = nb2["cum_20d"].iloc[-1]
+            cur = nb2["change_rate"].iloc[-1]
             if pd.isna(cur):
                 return None
 
             # 历史分位 (250日窗口)
-            hist = nb2["cum_20d"].tail(250).dropna()
+            hist = nb2["change_rate"].tail(250).dropna()
             if len(hist) < 60:
                 return None
 
             score = _pct_rank(hist, cur) * 100
-            logger.info("Northbound cumflow (20d): %.0f, score=%.1f", cur, score)
+            logger.info("Northbound change rate: %.2f%%, score=%.1f", cur, score)
             return _score_with_fallback(score)
         except Exception as e:
-            logger.error("Northbound cumflow calc failed: %s", e)
+            logger.error("Northbound change rate calc failed: %s", e)
             return None
 
     def _calc_turnover(self) -> Optional[float]:
