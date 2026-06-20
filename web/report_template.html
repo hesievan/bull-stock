@@ -6,71 +6,73 @@
 <title>A股牛市热度指数日报 · __TRADE_DATE__</title>
 <script src="echarts.min.js"></script>
 <style>
-:root{--bg:#0a0e17;--bg-card:#111827;--bg-hero:__LEVEL_BG__;--border:#1e293b;--border-light:#1a2035;--text:#c9d1d9;--text-bright:#e0e6ed;--text-dim:#6b7280;--text-muted:#374151;--accent:__LEVEL_COLOR__;--radius:10px;--radius-sm:6px}
+:root{--bg:#080b12;--bg-card:#0d1117;--bg-hero:__LEVEL_BG__;--border:#1b2230;--border-light:#2d3a4f;--text:#c9d1d9;--text-bright:#e6edf3;--text-dim:#8b949e;--text-muted:#484f58;--accent:__LEVEL_COLOR__;--radius:12px;--radius-sm:8px;--shadow:0 2px 8px rgba(0,0,0,.3)}
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:var(--bg);color:var(--text);font-family:-apple-system,"PingFang SC","Microsoft YaHei","Helvetica Neue",sans-serif;font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased}
+body{background:var(--bg);color:var(--text);font-family:'Inter',-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased}
 .container{max-width:980px;margin:0 auto;padding:24px 20px 48px}
 .header{text-align:center;padding:28px 0 20px;border-bottom:1px solid var(--border);margin-bottom:24px}
 .header h1{font-size:1.4em;font-weight:700;color:var(--text-bright);letter-spacing:.5px}
 .header .meta{color:var(--text-dim);font-size:.82em;margin-top:8px}
 .header .meta span{margin:0 10px}
-.hero{text-align:center;padding:36px 0 32px;background:var(--bg-hero);border-radius:var(--radius);margin-bottom:28px;border:1px solid var(--border)}
-.score-ring{width:160px;height:160px;margin:0 auto 16px;position:relative}
+.hero{text-align:center;padding:40px 0 36px;background:var(--bg-hero);border-radius:var(--radius);margin-bottom:28px;border:1px solid var(--border);box-shadow:var(--shadow)}
+.score-ring{width:180px;height:180px;margin:0 auto 20px;position:relative}
 .score-ring svg{transform:rotate(-90deg)}
-.score-ring .score-value{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:3.2em;font-weight:800;color:var(--accent);line-height:1}
-.score-level{font-size:1.15em;font-weight:600;color:var(--accent);margin-bottom:4px}
-.score-label{color:var(--text-dim);font-size:.85em;margin-bottom:16px}
-.score-bar-wrap{width:60%;max-width:380px;margin:0 auto;height:6px;background:var(--border);border-radius:3px;overflow:hidden}
-.score-bar-fill{height:100%;background:var(--accent);border-radius:3px;transition:width .6s ease}
-.delta{margin-top:12px;font-size:.9em;color:var(--text-dim)}
+.score-ring .score-value{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:3.6em;font-weight:900;color:var(--accent);line-height:1;letter-spacing:-2px}
+.score-level{font-size:1.2em;font-weight:600;color:var(--accent);margin-bottom:6px}
+.score-label{color:var(--text-dim);font-size:.85em;margin-bottom:20px}
+.score-bar-wrap{width:60%;max-width:380px;margin:0 auto;height:8px;background:var(--border);border-radius:4px;overflow:hidden}
+.score-bar-fill{height:100%;background:var(--accent);border-radius:4px;transition:width .8s ease-out}
+.delta{margin-top:14px;font-size:.9em;color:var(--text-dim)}
 h2{color:var(--text-bright);font-size:1.05em;font-weight:600;margin:32px 0 16px;padding-bottom:10px;border-bottom:1px solid var(--border)}
-.dims{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin:16px 0}
-.dim-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 10px;text-align:center;transition:border-color .2s}
-.dim-card:hover{border-color:var(--text-muted)}
+.dims{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin:16px 0}
+.dim-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px 12px;text-align:center;transition:all .2s ease}
+.dim-card:hover{border-color:var(--border-light);transform:translateY(-2px);box-shadow:var(--shadow)}
 .dim-card.na{opacity:.4}
-.dim-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
-.dim-name{color:var(--text-dim);font-size:.72em;font-weight:500}
-.dim-weight{color:var(--text-muted);font-size:.65em;background:var(--border);padding:1px 5px;border-radius:3px}
-.dim-score{font-size:1.7em;font-weight:700;line-height:1.1;margin-bottom:4px}
-.dim-delta{font-size:.55em;font-weight:600;margin-left:3px;vertical-align:middle}
-.dim-eval{font-size:.7em;margin-bottom:8px;font-weight:500}
-.dim-bar{height:3px;background:var(--border);border-radius:2px}
-.dim-bar-fill{height:100%;border-radius:2px;transition:width .4s ease}
-.chart-box{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin:16px 0}
-.chart-title{color:var(--text-dim);font-size:.78em;font-weight:500;margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px}
-.chart{width:100%;height:240px}
-.chart-half{height:200px}
+.dim-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.dim-name{color:var(--text-dim);font-size:.75em;font-weight:500}
+.dim-weight{color:var(--text-muted);font-size:.65em;background:var(--border);padding:2px 6px;border-radius:4px}
+.dim-score{font-size:1.8em;font-weight:800;line-height:1.1;margin-bottom:6px}
+.dim-delta{font-size:.5em;font-weight:600;margin-left:4px;vertical-align:middle}
+.dim-eval{font-size:.72em;margin-bottom:10px;font-weight:500}
+.dim-bar{height:4px;background:var(--border);border-radius:2px}
+.dim-bar-fill{height:100%;border-radius:2px;transition:width .6s ease-out}
+.chart-box{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin:16px 0;box-shadow:var(--shadow)}
+.chart-title{color:var(--text-dim);font-size:.8em;font-weight:500;margin-bottom:12px;text-transform:uppercase;letter-spacing:.5px}
+.chart{width:100%;height:260px}
+.chart-half{height:220px}
 .charts-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.highlights{list-style:none;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.highlights li{padding:10px 14px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);font-size:.85em;display:flex;align-items:center;gap:8px}
+.highlights{list-style:none;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.highlights li{padding:12px 16px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);font-size:.85em;display:flex;align-items:center;gap:10px;transition:all .2s ease}
+.highlights li:hover{border-color:var(--border-light);transform:translateY(-1px)}
 .hl-name{color:var(--text-dim);flex:0 0 auto}
 .hl-val{color:var(--text-bright);font-weight:600;flex:0 0 auto}
 .hl-note{color:var(--text-muted);font-size:.8em;margin-left:auto}
 table{width:100%;border-collapse:collapse;font-size:.84em}
-th{padding:10px 12px;text-align:left;color:var(--text-dim);border-bottom:2px solid var(--border);font-weight:500;font-size:.9em}
-td{padding:10px 12px;border-bottom:1px solid var(--border-light)}
+th{padding:12px 14px;text-align:left;color:var(--text-dim);border-bottom:2px solid var(--border);font-weight:500;font-size:.9em}
+td{padding:12px 14px;border-bottom:1px solid var(--border)}
 tr:hover{background:var(--bg-card)}
 .rank{font-size:1.1em;width:40px;text-align:center}
-code{background:var(--border);padding:2px 6px;border-radius:3px;font-size:.85em;color:var(--text-dim)}
-.status-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:6px}
-.status-item{padding:6px 12px;background:var(--bg-card);border-radius:var(--radius-sm);font-size:.78em;display:flex;align-items:center;gap:6px}
+code{background:var(--border);padding:2px 8px;border-radius:4px;font-size:.85em;color:var(--text-dim)}
+.status-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px}
+.status-item{padding:8px 14px;background:var(--bg-card);border-radius:var(--radius-sm);font-size:.78em;display:flex;align-items:center;gap:8px}
 .status-item .ok{color:#52c41a}.status-item .failed{color:#ff4d4f}.status-item .skipped{color:#faad14}
 .status-item .elapsed{color:var(--text-muted);margin-left:auto}
 .ref-table td:first-child{color:var(--text-dim)}
 .ref-table tr:last-child td{color:var(--accent);font-weight:bold;background:var(--bg-hero)}
-.footer{text-align:center;padding:40px 0 20px;color:var(--text-muted);font-size:.72em;border-top:1px solid var(--border);margin-top:40px}
-.footer p{margin:4px 0}
-@media(max-width:768px){.dims{grid-template-columns:repeat(3,1fr)}.highlights{grid-template-columns:1fr}.charts-row{grid-template-columns:1fr}.container{padding:16px 12px}.score-value{font-size:2.6em}}
+.footer{text-align:center;padding:40px 0 20px;color:var(--text-muted);font-size:.75em;border-top:1px solid var(--border);margin-top:40px}
+.footer p{margin:6px 0}
+@media(max-width:768px){.dims{grid-template-columns:repeat(3,1fr)}.highlights{grid-template-columns:1fr}.charts-row{grid-template-columns:1fr}.container{padding:16px 12px}.score-value{font-size:2.8em}.dim-score{font-size:1.5em}}
+@media(max-width:480px){.dims{grid-template-columns:repeat(2,1fr)}.score-ring{width:140px;height:140px}.score-value{font-size:2.4em}}
 </style>
 </head>
 <body>
 <div class="container">
-<div class="header"><h1>📊 A股牛市热度指数日报</h1><div class="meta"><span>📅 __TRADE_DATE__</span><span>🕐 __NOW_STR__</span><span>📈 日频</span></div></div>
+<div class="header"><h1>📊 A股牛市热度指数日报</h1><div class="meta"><span>📅 __TRADE_DATE__</span><span>🕐 __NOW_STR__</span><span>📈 日频</span><span>v3.5</span></div></div>
 <div class="hero">
   <div class="score-ring">
-    <svg width="160" height="160" viewBox="0 0 160 160">
-      <circle cx="80" cy="80" r="70" fill="none" stroke="#1e293b" stroke-width="8"/>
-      <circle cx="80" cy="80" r="70" fill="none" stroke="__LEVEL_COLOR__" stroke-width="8" stroke-dasharray="__SCORE_DASH__" stroke-linecap="round" style="transition:stroke-dasharray .8s ease"/>
+    <svg width="180" height="180" viewBox="0 0 180 180">
+      <circle cx="90" cy="90" r="78" fill="none" stroke="#1b2230" stroke-width="10"/>
+      <circle cx="90" cy="90" r="78" fill="none" stroke="__LEVEL_COLOR__" stroke-width="10" stroke-dasharray="__SCORE_DASH__" stroke-linecap="round" style="transition:stroke-dasharray 1s ease-out"/>
     </svg>
     <div class="score-value">__SCORE__</div>
   </div>
@@ -79,11 +81,11 @@ code{background:var(--border);padding:2px 6px;border-radius:3px;font-size:.85em;
   <div class="score-bar-wrap"><div class="score-bar-fill" style="width:__SCORE_PCT__%"></div></div>
   __DELTA_HTML__
 </div>
-<h2>🎯 五维度拆解</h2>
+<h2>📊 六维度拆解</h2>
 <div class="dims">__DIM_CARDS__</div>
 <div class="charts-row">
   <div class="chart-box"><div class="chart-title">综合得分历史走势</div><div id="chart-score" class="chart-half"></div></div>
-  <div class="chart-box"><div class="chart-title">五维度历史走势</div><div id="chart-dims" class="chart-half"></div></div>
+  <div class="chart-box"><div class="chart-title">六维度历史走势</div><div id="chart-dims" class="chart-half"></div></div>
 </div>
 <h2>📌 关键指标</h2>
 <ul class="highlights">__HL_HTML__</ul>
@@ -98,15 +100,15 @@ code{background:var(--border);padding:2px 6px;border-radius:3px;font-size:.85em;
 <tr><td><b>__TRADE_DATE__</b></td><td><b>★ 当前</b></td><td style="text-align:right"><b>__LEVEL_EMOJI__ __SCORE__</b></td></tr></table>
 <h2>⚙️ 运行状态 (__N_OK__✅ __N_FAIL__❌ __N_SKIP__⏭️)</h2>
 <div class="status-grid">__STATUS_ITEMS__</div>
-<div class="footer"><p>⚠️ 不构成投资建议，仅供参考</p><p>bull-market-heat-index v3.4 · tushare + akshare + 东方财富 · __NOW_STR__</p></div>
+<div class="footer"><p>⚠️ 不构成投资建议，仅供参考</p><p>bull-market-heat-index v3.5 · tushare + akshare + 恒生HSAHP · __NOW_STR__</p></div>
 </div>
 <script>
 var scoreDates=__HIST_DATES__,scoreData=__HIST_SCORES__,levelColor="__LEVEL_COLOR__";
 var scoreChart=echarts.init(document.getElementById("chart-score"));
-scoreChart.setOption({backgroundColor:"transparent",tooltip:{trigger:"axis",backgroundColor:"#1e293b",borderColor:"#334155",textStyle:{color:"#c9d1d9"},formatter:function(p){var d=p[0];return'<div style="font-weight:600">'+d.axisValue+'</div><div>综合得分: <span style="color:'+levelColor+';font-weight:700">'+d.data+'</span></div>'}},grid:{top:10,bottom:20,left:40,right:10},xAxis:{type:"category",data:scoreDates,axisLine:{lineStyle:{color:"#334155"}},axisLabel:{color:"#6b7280",fontSize:10,interval:Math.max(Math.floor(scoreDates.length/6),1)}},yAxis:{type:"value",min:0,max:100,splitLine:{lineStyle:{color:"#1e293b"}},axisLabel:{color:"#6b7280",fontSize:10}},series:[{type:"line",data:scoreData,smooth:true,symbol:"none",lineStyle:{color:levelColor,width:2.5},areaStyle:{color:{type:"linear",x:0,y:0,x2:0,y2:1,colorStops:[{offset:0,color:levelColor+"44"},{offset:1,color:"transparent"}]}},markLine:{silent:true,lineStyle:{type:"dashed",width:1},data:[{yAxis:65,label:{formatter:"红区 65",color:"#ff4d4f",fontSize:9},lineStyle:{color:"#ff4d4f33"}},{yAxis:40,label:{formatter:"黄区 40",color:"#faad14",fontSize:9},lineStyle:{color:"#faad1433"}}]}}]});
+scoreChart.setOption({backgroundColor:"transparent",tooltip:{trigger:"axis",backgroundColor:"#0d1117",borderColor:"#1b2230",textStyle:{color:"#c9d1d9"},formatter:function(p){var d=p[0];return'<div style="font-weight:600">'+d.axisValue+'</div><div>综合得分: <span style="color:'+levelColor+';font-weight:700">'+d.data+'</span></div>'}},grid:{top:10,bottom:20,left:40,right:10},xAxis:{type:"category",data:scoreDates,axisLine:{lineStyle:{color:"#2d3a4f"}},axisLabel:{color:"#8b949e",fontSize:10,interval:Math.max(Math.floor(scoreDates.length/6),1)}},yAxis:{type:"value",min:0,max:100,splitLine:{lineStyle:{color:"#1b2230"}},axisLabel:{color:"#8b949e",fontSize:10}},series:[{type:"line",data:scoreData,smooth:true,symbol:"none",lineStyle:{color:levelColor,width:2.5},areaStyle:{color:{type:"linear",x:0,y:0,x2:0,y2:1,colorStops:[{offset:0,color:levelColor+"33"},{offset:1,color:"transparent"}]}},markLine:{silent:true,lineStyle:{type:"dashed",width:1},data:[{yAxis:65,label:{formatter:"红区 65",color:"#ff4d4f",fontSize:9},lineStyle:{color:"#ff4d4f22"}},{yAxis:40,label:{formatter:"黄区 40",color:"#faad14",fontSize:9},lineStyle:{color:"#faad1422"}}]}}]});
 var dimColors=__DIM_COLORS__,dimNames=__DIM_NAMES__,dimData=__DIM_DATA__;
 var dimChart=echarts.init(document.getElementById("chart-dims"));
-dimChart.setOption({backgroundColor:"transparent",tooltip:{trigger:"axis",backgroundColor:"#1e293b",borderColor:"#334155",textStyle:{color:"#c9d1d9"}},legend:{top:0,textStyle:{color:"#6b7280",fontSize:10},itemWidth:10,itemHeight:6,itemGap:12},grid:{top:28,bottom:20,left:40,right:10},xAxis:{type:"category",data:scoreDates,axisLine:{lineStyle:{color:"#334155"}},axisLabel:{color:"#6b7280",fontSize:10,interval:Math.max(Math.floor(scoreDates.length/6),1)}},yAxis:{type:"value",min:0,max:100,splitLine:{lineStyle:{color:"#1e293b"}},axisLabel:{color:"#6b7280",fontSize:10}},series:dimNames.map(function(n,i){return{name:n,type:"line",data:dimData[i],smooth:true,symbol:"none",lineStyle:{color:dimColors[i],width:1.5}}})});
+dimChart.setOption({backgroundColor:"transparent",tooltip:{trigger:"axis",backgroundColor:"#0d1117",borderColor:"#1b2230",textStyle:{color:"#c9d1d9"}},legend:{top:0,textStyle:{color:"#8b949e",fontSize:10},itemWidth:10,itemHeight:6,itemGap:12},grid:{top:28,bottom:20,left:40,right:10},xAxis:{type:"category",data:scoreDates,axisLine:{lineStyle:{color:"#2d3a4f"}},axisLabel:{color:"#8b949e",fontSize:10,interval:Math.max(Math.floor(scoreDates.length/6),1)}},yAxis:{type:"value",min:0,max:100,splitLine:{lineStyle:{color:"#1b2230"}},axisLabel:{color:"#8b949e",fontSize:10}},series:dimNames.map(function(n,i){return{name:n,type:"line",data:dimData[i],smooth:true,symbol:"none",lineStyle:{color:dimColors[i],width:1.5}}})});
 window.addEventListener("resize",function(){scoreChart.resize();dimChart.resize()});
 </script>
 </body>

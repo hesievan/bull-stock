@@ -6,6 +6,9 @@ on:
     - cron: '30 8 * * 1-5'
   workflow_dispatch:  # 允许手动触发
 
+permissions:
+  contents: write  # 需要写权限来 push 和操作 Release
+
 jobs:
   update:
     runs-on: ubuntu-latest
@@ -25,13 +28,96 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install akshare pandas numpy
+          pip install -r requirements.txt
+          pip install ruff pytest
 
+      - name: Lint
+        run: |
+          ruff check src/ scripts/ --select E,F,W --ignore E501
+          ruff format --check src/ scripts/ || true
+
+      - name: Unit tests
+        run: |
+          cd ${{ github.workspace }}
+          python -m pytest tests/ -v --tb=short
+
+      # ── 数据库恢复 ──────────────────────────────────────────────────────────
+      - name: Restore database from cache
+        id: cache-db
+        uses: actions/cache@v4
+        with:
+          path: data/heat_index.db
+          key: heat-db-${{ hashFiles('src/data/database.py') }}-${{ github.run_id }}
+          restore-keys: |
+            heat-db-${{ hashFiles('src/data/database.py') }}-
+            heat-db-
+
+      - name: Download seed database from Release
+        if: steps.cache-db.outputs.cache-hit != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p data
+          # 尝试从 seed-db Release 下载压缩数据库
+          if gh release view seed-db --json assets -q '.assets[].name' 2>/dev/null | grep -q 'heat_index.db.gz'; then
+            echo "Downloading seed database from Release..."
+            gh release download seed-db --pattern 'heat_index.db.gz' -D data/ --clobber
+            python scripts/db_compress.py decompress
+          else
+            echo "No seed database found in Release. Will run full backfill."
+            echo "SEED_MISSING=true" >> $GITHUB_ENV
+          fi
+
+      - name: Full backfill (first run only)
+        if: env.SEED_MISSING == 'true'
+        env:
+          TUSHARE_TOKEN: ${{ secrets.TUSHARE_TOKEN }}
+        run: |
+          echo "Running full historical backfill (this may take 30-60 minutes)..."
+          python scripts/fetch_tushare_history.py
+
+      # ── 日常计算 ────────────────────────────────────────────────────────────
       - name: Run daily update
+        env:
+          TUSHARE_TOKEN: ${{ secrets.TUSHARE_TOKEN }}
         run: |
           cd ${{ github.workspace }}
           python scripts/run_daily.py
 
+      - name: Validate backtest
+        if: success()
+        run: |
+          cd ${{ github.workspace }}
+          python scripts/validate_backtest.py --days 5 || echo "Warning: validation failed"
+
+      # ── 保存数据库到 Cache ─────────────────────────────────────────────────
+      - name: Save database to cache
+        if: success()
+        uses: actions/cache/save@v4
+        with:
+          path: data/heat_index.db
+          key: heat-db-${{ hashFiles('src/data/database.py') }}-${{ github.run_id }}
+
+      # ── 保存种子库到 Release (每周一次) ────────────────────────────────────
+      - name: Update seed database in Release
+        if: success() && (github.event_name == 'schedule' && contains(github.run_id, '0') || github.event_name == 'workflow_dispatch')
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Uploading seed database to Release..."
+          python scripts/db_compress.py compress
+          # 创建或更新 seed-db Release
+          if gh release view seed-db 2>/dev/null; then
+            gh release upload seed-db data/heat_index.db.gz --clobber
+          else
+            gh release create seed-db data/heat_index.db.gz \
+              --title "Seed Database" \
+              --notes "Auto-updated seed database for GitHub Actions CI" \
+              --latest=false
+          fi
+          echo "Seed database uploaded successfully"
+
+      # ── 提交结果 ───────────────────────────────────────────────────────────
       - name: Commit and push
         run: |
           git config user.name "github-actions"
@@ -40,12 +126,12 @@ jobs:
           git diff --staged --quiet || git commit -m "Update heat index: $(date +%Y-%m-%d)"
           git push
 
+      # ── 飞书通知 ───────────────────────────────────────────────────────────
       - name: Send Feishu notification if red
         if: success()
         run: |
           if [ -f web/data/notification.txt ]; then
             MSG=$(cat web/data/notification.txt)
-            # 如果有飞书 Webhook secret
             if [ -n "${{ secrets.FEISHU_WEBHOOK }}" ]; then
               curl -s -X POST "${{ secrets.FEISHU_WEBHOOK }}" \
                 -H "Content-Type: application/json" \

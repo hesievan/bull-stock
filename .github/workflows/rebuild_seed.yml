@@ -1,0 +1,84 @@
+name: Rebuild Seed Database
+
+on:
+  workflow_dispatch:  # 手动触发
+  schedule:
+    # 每月 1 号凌晨 2:00 UTC 重建种子库
+    - cron: '0 2 1 * *'
+
+permissions:
+  contents: write
+
+jobs:
+  rebuild:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Restore existing database
+        uses: actions/cache@v4
+        with:
+          path: data/heat_index.db
+          key: heat-db-${{ hashFiles('src/data/database.py') }}-
+          restore-keys: |
+            heat-db-
+
+      - name: Fetch historical data
+        env:
+          TUSHARE_TOKEN: ${{ secrets.TUSHARE_TOKEN }}
+        run: |
+          echo "Fetching historical data from tushare..."
+          python scripts/fetch_tushare_history.py
+          echo "Database size:"
+          ls -lh data/heat_index.db
+
+      - name: Update additional data
+        env:
+          TUSHARE_TOKEN: ${{ secrets.TUSHARE_TOKEN }}
+        run: |
+          # 补充换手率
+          python scripts/fix_turnover.py || echo "Turnover fix skipped"
+          # 补充QVIX
+          python scripts/fetch_qvix.py || echo "QVIX fetch skipped"
+          # 补充国债收益率
+          python scripts/backfill_bond_yield.py || echo "Bond yield backfill skipped"
+
+      - name: Compress and upload to Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Compressing database..."
+          python scripts/db_compress.py compress
+          python scripts/db_compress.py size
+          
+          echo "Uploading to Release..."
+          if gh release view seed-db 2>/dev/null; then
+            gh release upload seed-db data/heat_index.db.gz --clobber
+          else
+            gh release create seed-db data/heat_index.db.gz \
+              --title "Seed Database" \
+              --notes "Rebuilt on $(date -u +%Y-%m-%d)" \
+              --latest=false
+          fi
+          echo "Seed database rebuilt and uploaded successfully"
+
+      - name: Save to cache
+        uses: actions/cache/save@v4
+        with:
+          path: data/heat_index.db
+          key: heat-db-${{ hashFiles('src/data/database.py') }}-${{ github.run_id }}

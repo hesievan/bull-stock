@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-牛市热度指数日报生成器 v3.0
+牛市热度指数日报生成器 v3.5
 输出: MD + HTML(带ECharts交互图) + PNG(精简信息图)
 """
-import json, os, re, sys
+import json, os, sys
 from datetime import datetime
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), '..', 'web', 'data')
@@ -73,7 +73,7 @@ def delta_md(cur, prev):
     a = '↑' if d > 0 else ('↓' if d < 0 else '→')
     return ' %s%.1f' % (a, abs(d))
 def dim_delta_str(cur, prev):
-    if prev is None: return ''
+    if prev is None or cur is None: return ''
     d = cur-prev
     a = '▲' if d > 0 else ('▼' if d < 0 else '─')
     c = '#ff4d4f' if d > 0 else ('#52c41a' if d < 0 else '#888')
@@ -98,6 +98,7 @@ if si.get('limit_ratio') is not None: _hl.append(('涨跌停比','%.1f'%si['limi
 ma_val = ti.get('above_ma250_ratio', ti.get('ma_alignment'))
 if ma_val is not None: _hl.append(('MA排列比','%.1f%%'%ma_val,'MA20>60>120'))
 if ti.get('deviation_ma250') is not None: _hl.append(('均线偏离','%.1f%%'%ti['deviation_ma250'],'vsMA250'))
+if ti.get('momentum_60d') is not None: _hl.append(('60日动量','%.1f%%'%ti['momentum_60d'],'涨幅分位'))
 if sti.get('sector_divergence') is not None: _hl.append(('行业分化','%.1f分'%sti['sector_divergence'],'月频'))
 ah = sti.get('ah_premium_index', sti.get('ah_premium'))
 if ah is not None: _hl.append(('AH溢价','%.0f'%ah,'恒生HSAHP'))
@@ -109,20 +110,29 @@ n_skip = sum(1 for v in status['steps'].values() if v['status']=='SKIPPED')
 # ── 1. MD ──
 md = []
 md.append('# %s A股牛市热度指数日报' % level_emoji)
-md.append('> 📅 **%s**  ·  🕐 %s  ·  📊 日频' % (trade_date, now_str))
+md.append('')
+md.append('> 📅 **%s**  ·  🕐 %s  ·  📊 日频  ·  v3.5' % (trade_date, now_str))
+md.append('')
 md.append('---')
+md.append('')
 md.append('## 综合热度: %s %.1f — %s' % (level_emoji, score, level_cn))
+md.append('')
 md.append('```')
 md.append('  %s  %.0f/100' % (bar_md(score), score))
 md.append('```')
+md.append('')
 if prev_score is not None:
     d = score-prev_score
     a = '↑' if d > 0 else ('↓' if d < 0 else '→')
-    md.append('**较上一交易日 (%s): %s %.1f 分**' % (prev_date, a, abs(d)))
+    trend = '📈 上升' if d > 0 else ('📉 下降' if d < 0 else '➡️ 持平')
+    md.append('**%s 较上一交易日 (%s): %s %.1f 分**' % (trend, prev_date, a, abs(d)))
+md.append('')
 md.append('---')
-md.append('## 五维度拆解')
-md.append('| 维度 | 权重 | 得分 | 较昨日 | 评估 |')
-md.append('|:-----|:----:|-----:|:------:|:----:|')
+md.append('')
+md.append('## 📊 六维度拆解')
+md.append('')
+md.append('| 维度 | 权重 | 得分 | 趋势 | 评估 |')
+md.append('|:-----|:----:|-----:|:----:|:----:|')
 for k in DIM_ORDER:
     s = dim_scores.get(k)
     ps = prev_dims.get(k)
@@ -130,31 +140,50 @@ for k in DIM_ORDER:
         md.append('| %s | %s | — | — | — |' % (DIM_LABELS[k], DIM_WEIGHTS[k]))
     else:
         ev = '🔴 偏高' if s>=70 else ('🟡 中性' if s>=40 else '🟢 偏低')
-        md.append('| **%s** | %s | **%.0f** | %s | %s |' % (DIM_LABELS[k], DIM_WEIGHTS[k], s, delta_md(s,ps), ev))
+        trend_cell = delta_md(s,ps).strip() if ps else ''
+        md.append('| **%s** | %s | **%.0f** | %s | %s |' % (DIM_LABELS[k], DIM_WEIGHTS[k], s, trend_cell, ev))
+md.append('')
 md.append('```')
+md.append('维度      进度条           得分   趋势')
+md.append('─' * 48)
 for k in DIM_ORDER:
     s = dim_scores.get(k)
     ps = prev_dims.get(k)
-    md.append('  %s  %s  %s  %s' % (DIM_LABELS[k], bar_md(s), '%5.1f'%s if s else '  — ', delta_md(s,ps)))
+    name = DIM_LABELS[k].ljust(6)
+    bar = bar_md(s)
+    score_str = '%5.1f' % s if s else '  — '
+    trend = delta_md(s,ps).strip() if ps else ''
+    md.append('%s  %s  %s  %s' % (name, bar, score_str, trend))
 md.append('```')
+md.append('')
 md.append('### 📌 关键指标')
+md.append('')
 for name, val, note in _hl:
     md.append('- **%s** `%s` (%s)' % (name, val, note))
+md.append('')
 md.append('---')
+md.append('')
 md.append('## 🔥 板块热度 TOP10')
+md.append('')
 md.append('| # | 行业 | 得分 | 龙头股 | 涨跌 |')
 md.append('|:--|:-----|-----:|:------:|-----:|')
 for i, s in enumerate(sectors_sorted[:10], 1):
     ldr = s.get('leader',{})
     md.append('| %d | %s | **%.0f** | %s | %s |' % (i, s.get('sector_name',''), s.get('composite_score',0), ldr.get('code','—') if ldr else '—', '%+.1f%%'%ldr.get('pct',0) if ldr else '—'))
+md.append('')
 md.append('---')
+md.append('')
 md.append('## 📈 历史走势 (共%d个交易日)' % len(hist))
+md.append('')
 md.append('| 日期 | 得分 | 状态 |')
 md.append('|:-----|-----:|:----:|')
 for h in hist[-10:]:
     md.append('| %s | %.1f | %s %s |' % (h['trade_date'], h['composite_score'], LEVEL_EMOJI.get(h['level'],'⚪'), h['level']))
+md.append('')
 md.append('---')
+md.append('')
 md.append('## 📊 历史参考')
+md.append('')
 md.append('| 日期 | 市场状态 | 综合得分 |')
 md.append('|:-----|:---------|--------:|')
 md.append('| 2015-06-12 | 牛市顶 (上证5178) | 🔴 73.8 |')
@@ -162,20 +191,27 @@ md.append('| 2021-02-18 | 牛市顶 (上证3731) | ⚪ 66.2 |')
 md.append('| 2024-10-08 | 脉冲顶 (上证3489) | ⚪ 65.1 |')
 md.append('| 2018-12-28 | 熊底 (上证2493) | 🟢 28.5 |')
 md.append('| **%s** | **★ 当前** | **%s %.1f** |' % (trade_date, level_emoji, score))
+md.append('')
 md.append('---')
-md.append('## ⚙️ 运行状态: %d✅ %d❌ %d⏭️' % (n_ok, n_fail, n_skip))
+md.append('')
+md.append('## ⚙️ 运行状态')
+md.append('')
+md.append('> %d✅ %d❌ %d⏭️' % (n_ok, n_fail, n_skip))
+md.append('')
 for sn, sv in status['steps'].items():
     ic = '✅' if sv['status']=='OK' else ('⏭️' if sv['status']=='SKIPPED' else '❌')
     md.append('- %s `%s` %s (%.1fs)' % (ic, sn, sv['status'], sv.get('elapsed',0)))
+md.append('')
 md.append('---')
+md.append('')
 md.append('> ⚠️ 不构成投资建议，仅供参考')
-md.append('> bull-market-heat-index v3.4 · tushare + akshare + 东方财富')
+md.append('> bull-market-heat-index v3.5 · tushare + akshare + 恒生HSAHP')
 with open(os.path.join(OUTPUT_DIR,'daily_%s.md'%td_clean),'w',encoding='utf-8') as f: f.write('\n'.join(md))
 print('MD saved: daily_%s.md' % td_clean)
 
 # ── 2. HTML ──
 if os.path.exists(TEMPLATE_PATH):
-    tpl = open(TEMPLATE_PATH).read()
+    tpl = open(TEMPLATE_PATH, encoding='utf-8').read()
 else:
     tpl = '<html><body><pre>{{CONTENT}}</pre></body></html>'
 
@@ -200,7 +236,8 @@ hl_html = ''.join(['<li><span class="hl-name">%s</span><span class="hl-val">%s</
 delta_html = ''
 if prev_score is not None:
     d=score-prev_score; arrow='▲' if d>0 else ('▼' if d<0 else '─'); dc='#ff4d4f' if d>0 else ('#52c41a' if d<0 else '#888')
-    delta_html = '<div class="delta">较上一交易日 <span style="color:%s">%s %.1f</span></div>' % (dc,arrow,abs(d))
+    trend_label = '上升' if d>0 else ('下降' if d<0 else '持平')
+    delta_html = '<div class="delta">较上一交易日 <span style="color:%s">%s %.1f (%s)</span></div>' % (dc,arrow,abs(d),trend_label)
 
 status_items = ''.join(['<div class="status-item">%s <code>%s</code> <span class="%s">%s</span> <span class="elapsed">%.1fs</span></div>' % ('✅' if v['status']=='OK' else ('⏭️' if v['status']=='SKIPPED' else '❌'),sn,v['status'].lower(),v['status'],v.get('elapsed',0)) for sn,v in status['steps'].items()])
 
@@ -244,83 +281,117 @@ try:
     def _f(sz):
         try: return IF.truetype(_font_path, sz)
         except: return IF.load_default()
-    C = {'bg':(10,14,23),'card':(17,24,39),'border':(30,41,59),'text':(201,209,217),'bright':(224,230,237),'dim':(107,114,128),'muted':(55,65,81),'red':(255,77,79),'yellow':(250,173,20),'green':(82,196,26)}
-    _lc = score_color(score); W,PAD = 880,36; TOTAL_H=2200
+    C = {'bg':(10,14,23),'card':(17,24,39),'card_hover':(25,32,48),'border':(30,41,59),'border_light':(45,55,72),'text':(201,209,217),'bright':(224,230,237),'dim':(107,114,128),'muted':(55,65,81),'red':(255,77,79),'yellow':(250,173,20),'green':(82,196,26),'accent':(88,166,255)}
+    _lc = score_color(score); W,PAD = 880,36; TOTAL_H=2400
     img=Image.new('RGB',(W,TOTAL_H),C['bg']); draw=ImageDraw.Draw(img); y=PAD
+
     def _txt(s,x,y,color=C['text'],size=14,bold=False):
         font=_f(size+(4 if bold else 0)); draw.text((x,y),s,fill=color,font=font); return y+size+6
+
+    def _txt_center(s,y,color=C['text'],size=14,bold=False):
+        font=_f(size+(4 if bold else 0)); bbox=font.getbbox(s); tw=bbox[2]-bbox[0]
+        draw.text(((W-tw)//2,y),s,fill=color,font=font); return y+size+6
+
     def _bar(cx,cy,w,sc,color,h=6):
         draw.rectangle([(cx,cy),(cx+w,cy+h)],fill=C['border'])
         fw=int(w*min(max(sc,0),100)/100)
         if fw>0: draw.rectangle([(cx,cy),(cx+fw,cy+h)],fill=color)
-    def _rr(xy,r=6,fill=None,outline=None): draw.rounded_rectangle(xy,radius=r,fill=fill,outline=outline,width=1)
+
+    def _rr(xy,r=6,fill=None,outline=None,width=1):
+        draw.rounded_rectangle(xy,radius=r,fill=fill,outline=outline,width=width)
+
+    def _gradient_rect(x1,y1,x2,y2,color_top,color_bottom):
+        for yi in range(y1,y2):
+            ratio=(yi-y1)/max(y2-y1,1)
+            r=int(color_top[0]*(1-ratio)+color_bottom[0]*ratio)
+            g=int(color_top[1]*(1-ratio)+color_bottom[1]*ratio)
+            b=int(color_top[2]*(1-ratio)+color_bottom[2]*ratio)
+            draw.line([(x1,yi),(x2,yi)],fill=(r,g,b))
+
+    # 标题
     _rr([(PAD,y),(W-PAD,y+72)],r=10,fill=C['card'],outline=C['border'])
-    t="A股牛市热度指数日报"; bbox=_f(20).getbbox(t); draw.text(((W-(bbox[2]-bbox[0]))//2,y+12),t,fill=C['bright'],font=_f(20))
-    m="📅 %s  ·  🕐 %s  ·  📈 日频"%(trade_date,now_str); bbox=_f(11).getbbox(m); draw.text(((W-(bbox[2]-bbox[0]))//2,y+42),m,fill=C['dim'],font=_f(11))
+    t="A股牛市热度指数日报"; _txt_center(t,y+12,C['bright'],20,True)
+    m="📅 %s  ·  🕐 %s  ·  📈 日频  ·  v3.5"%(trade_date,now_str); _txt_center(m,y+42,C['dim'],11)
     y+=88
-    _rr([(PAD,y),(W-PAD,y+180)],r=10,fill=C['card'],outline=C['border'])
-    ss="%.1f"%score; bbox=_f(64).getbbox(ss); draw.text(((W-(bbox[2]-bbox[0]))//2,y+16),ss,fill=_lc,font=_f(64))
-    bbox=_f(16).getbbox(level_cn); draw.text(((W-(bbox[2]-bbox[0]))//2,y+90),level_cn,fill=_lc,font=_f(16))
-    if level_label:
-        bbox=_f(11).getbbox(level_label); draw.text(((W-(bbox[2]-bbox[0]))//2,y+114),level_label,fill=C['dim'],font=_f(11))
-    bar_y=y+134; _bar(PAD+60,bar_y,W-2*PAD-120,score,_lc,8)
+
+    # 综合得分
+    _rr([(PAD,y),(W-PAD,y+200)],r=10,fill=C['card'],outline=C['border'])
+    ss="%.1f"%score; _txt_center(ss,y+16,_lc,64,True)
+    _txt_center(level_cn,y+90,_lc,16,True)
+    if level_label: _txt_center(level_label,y+114,C['dim'],11)
+    bar_y=y+134; _bar(PAD+80,bar_y,W-2*PAD-160,score,_lc,8)
     for tick,tx in [(0,'0'),(40,'40'),(65,'65'),(100,'100')]:
-        tx_x=PAD+60+int((W-2*PAD-120)*tick/100)-8; draw.text((tx_x,bar_y+12),tx,fill=C['muted'],font=_f(9))
+        tx_x=PAD+80+int((W-2*PAD-160)*tick/100)-8; draw.text((tx_x,bar_y+12),tx,fill=C['muted'],font=_f(9))
     if prev_score is not None:
         d=score-prev_score; arrow='▲' if d>0 else ('▼' if d<0 else '─'); dc=C['red'] if d>0 else C['green']
-        ds="较上一交易日: %s %.1f"%(arrow,abs(d)); bbox=_f(11).getbbox(ds); draw.text(((W-(bbox[2]-bbox[0]))//2,y+156),ds,fill=dc,font=_f(11))
-    y+=196
-    y=_txt("五维度拆解",PAD,y,C['bright'],16,True); y+=4
-    cw=(W-2*PAD-5*8)//6; ch=88; cy0=y
+        ds="较上一交易日: %s %.1f"%(arrow,abs(d)); _txt_center(ds,y+156,dc,11)
+    y+=216
+
+    # 六维度拆解
+    _txt("📊 六维度拆解",PAD,y,C['bright'],16,True); y+=8
+    cw=(W-2*PAD-5*8)//6; ch=96; cy0=y
     for i,dk in enumerate(DIM_ORDER):
         s=dim_scores.get(dk); sc=s if s else 0; scol=score_color(s)
         cx=PAD+i*(cw+8); _rr([(cx,cy0),(cx+cw,cy0+ch)],r=8,fill=C['card'],outline=C['border'])
         draw.text((cx+8,cy0+8),DIM_LABELS[dk],fill=C['dim'],font=_f(11))
         bbox=_f(9).getbbox(DIM_WEIGHTS[dk]); draw.text((cx+cw-(bbox[2]-bbox[0])-8,cy0+10),DIM_WEIGHTS[dk],fill=C['muted'],font=_f(9))
-        ss2="%.0f"%sc if s else "—"; bbox=_f(32).getbbox(ss2); draw.text((cx+(cw-(bbox[2]-bbox[0]))//2,cy0+26),ss2,fill=scol,font=_f(32))
-        sl=score_label(s); bbox=_f(10).getbbox(sl); draw.text((cx+(cw-(bbox[2]-bbox[0]))//2,cy0+62),sl,fill=scol,font=_f(10))
-        _bar(cx+8,cy0+76,cw-16,sc,scol,4)
-    y=cy0+ch+20
-    y=_txt("关键指标",PAD,y,C['bright'],16,True); y+=4
+        ss2="%.0f"%sc if s else "—"; bbox=_f(32).getbbox(ss2); draw.text((cx+(cw-(bbox[2]-bbox[0]))//2,cy0+28),ss2,fill=scol,font=_f(32))
+        sl=score_label(s); bbox=_f(10).getbbox(sl); draw.text((cx+(cw-(bbox[2]-bbox[0]))//2,cy0+66),sl,fill=scol,font=_f(10))
+        _bar(cx+8,cy0+82,cw-16,sc,scol,4)
+    y=cy0+ch+24
+
+    # 关键指标
+    _txt("📌 关键指标",PAD,y,C['bright'],16,True); y+=8
     col_w=(W-2*PAD-12)//2
     for idx2,(name,val,note) in enumerate(_hl[:10]):
-        col=idx2%2; row=idx2//2; mx=PAD+col*(col_w+12); my=y+row*32
-        _rr([(mx,my),(mx+col_w,my+28)],r=4,fill=C['card'],outline=C['border'])
-        draw.text((mx+10,my+6),name,fill=C['dim'],font=_f(11))
-        draw.text((mx+100,my+6),val,fill=C['bright'],font=_f(12))
-        draw.text((mx+col_w-60,my+6),note,fill=C['muted'],font=_f(10))
-    y+=((len(_hl[:10])+1)//2)*32+16
-    y=_txt("板块热度 TOP10",PAD,y,C['bright'],16,True); y+=4
-    _rr([(PAD,y),(W-PAD,y+24)],r=4,fill=C['border'])
-    draw.text((PAD+12,y+5),"#",fill=C['dim'],font=_f(10)); draw.text((PAD+50,y+5),"行业",fill=C['dim'],font=_f(10))
-    draw.text((PAD+310,y+5),"得分",fill=C['dim'],font=_f(10)); draw.text((PAD+380,y+5),"龙头股",fill=C['dim'],font=_f(10))
-    draw.text((PAD+520,y+5),"涨跌幅",fill=C['dim'],font=_f(10)); y+=28
+        col=idx2%2; row=idx2//2; mx=PAD+col*(col_w+12); my=y+row*36
+        _rr([(mx,my),(mx+col_w,my+32)],r=4,fill=C['card'],outline=C['border'])
+        draw.text((mx+12,my+8),name,fill=C['dim'],font=_f(11))
+        draw.text((mx+110,my+8),val,fill=C['bright'],font=_f(12))
+        draw.text((mx+col_w-70,my+8),note,fill=C['muted'],font=_f(10))
+    y+=((len(_hl[:10])+1)//2)*36+16
+
+    # 板块热度 TOP10
+    _txt("🔥 板块热度 TOP10",PAD,y,C['bright'],16,True); y+=8
+    _rr([(PAD,y),(W-PAD,y+28)],r=4,fill=C['border'])
+    draw.text((PAD+12,y+8),"#",fill=C['dim'],font=_f(10)); draw.text((PAD+50,y+8),"行业",fill=C['dim'],font=_f(10))
+    draw.text((PAD+310,y+8),"得分",fill=C['dim'],font=_f(10)); draw.text((PAD+380,y+8),"龙头股",fill=C['dim'],font=_f(10))
+    draw.text((PAD+520,y+8),"涨跌幅",fill=C['dim'],font=_f(10)); y+=32
     for i,s in enumerate(sectors_sorted[:10],1):
         sc=s.get('composite_score',0); scol=score_color(sc); ldr=s.get('leader',{})
         lcode=ldr.get('code','') if ldr else ''; lp=ldr.get('pct',0) if ldr else 0
         ls2=('%+.1f%%'%lp) if lcode else ''; lcol=C['red'] if lp>0 else C['green']
-        if i%2==0: _rr([(PAD,y),(W-PAD,y+22)],r=0,fill=C['card'])
-        draw.text((PAD+12,y+3),str(i),fill=scol if i<=3 else C['dim'],font=_f(12))
-        draw.text((PAD+50,y+3),s.get('sector_name','')[:16],fill=C['text'],font=_f(12))
-        draw.text((PAD+310,y+3),"%.0f"%sc,fill=scol,font=_f(12))
-        draw.text((PAD+380,y+3),lcode,fill=C['dim'],font=_f(11))
-        draw.text((PAD+520,y+3),ls2,fill=lcol,font=_f(12)); y+=24
-    y+=12
-    y=_txt("历史参考",PAD,y,C['bright'],14,True); y+=4
+        bg=C['card'] if i%2==0 else C['bg']
+        _rr([(PAD,y),(W-PAD,y+24)],r=0,fill=bg)
+        rank_color = C['accent'] if i<=3 else C['dim']
+        draw.text((PAD+12,y+4),str(i),fill=rank_color,font=_f(12))
+        draw.text((PAD+50,y+4),s.get('sector_name','')[:16],fill=C['text'],font=_f(12))
+        draw.text((PAD+310,y+4),"%.0f"%sc,fill=scol,font=_f(12))
+        draw.text((PAD+380,y+4),lcode,fill=C['dim'],font=_f(11))
+        draw.text((PAD+520,y+4),ls2,fill=lcol,font=_f(12)); y+=24
+    y+=16
+
+    # 历史参考
+    _txt("📊 历史参考",PAD,y,C['bright'],14,True); y+=8
     refs=[("2015-06-12","牛市顶 (上证5178)","73.8",C['red']),("2021-02-18","牛市顶 (上证3731)","66.2",C['dim']),
           ("2024-10-08","脉冲顶 (上证3489)","65.1",C['dim']),("2018-12-28","熊底 (上证2493)","28.5",C['green']),
           (trade_date,"★ 当前","%.1f"%score,_lc)]
     for dt2,st2,sc2,sc2c in refs:
-        _rr([(PAD,y),(W-PAD,y+24)],r=4,fill=C['card'] if dt2!=trade_date else C['border'])
-        draw.text((PAD+12,y+5),dt2,fill=sc2c,font=_f(12))
-        draw.text((PAD+120,y+5),st2,fill=C['text'],font=_f(12))
-        bbox=_f(12).getbbox(sc2); draw.text((W-PAD-12-(bbox[2]-bbox[0]),y+5),sc2,fill=sc2c,font=_f(12)); y+=28
+        bg = C['card'] if dt2!=trade_date else C['border']
+        border = C['border'] if dt2!=trade_date else C['accent']
+        _rr([(PAD,y),(W-PAD,y+28)],r=4,fill=bg,outline=border,width=1 if dt2==trade_date else 0)
+        draw.text((PAD+12,y+6),dt2,fill=sc2c,font=_f(12))
+        draw.text((PAD+120,y+6),st2,fill=C['text'],font=_f(12))
+        bbox=_f(12).getbbox(sc2); draw.text((W-PAD-12-(bbox[2]-bbox[0]),y+6),sc2,fill=sc2c,font=_f(12)); y+=32
     y+=16
+
+    # 运行状态
     draw.line([(PAD,y+10),(W-PAD,y+10)],fill=C['border'],width=1); y+=20
-    ft="运行状态: %d OK / %d FAILED / %d SKIPPED  ·  %d个板块"%(n_ok,n_fail,n_skip,len(sectors))
-    bbox=_f(10).getbbox(ft); draw.text(((W-(bbox[2]-bbox[0]))//2,y),ft,fill=C['muted'],font=_f(10)); y+=18
-    wt="⚠️ 不构成投资建议，仅供参考  ·  v3.4"
-    bbox=_f(10).getbbox(wt); draw.text(((W-(bbox[2]-bbox[0]))//2,y),wt,fill=C['muted'],font=_f(10)); y+=24
+    ft="⚙️ 运行状态: %d OK / %d FAILED / %d SKIPPED  ·  %d个板块"%(n_ok,n_fail,n_skip,len(sectors))
+    _txt_center(ft,y,C['muted'],10); y+=20
+    wt="⚠️ 不构成投资建议，仅供参考  ·  v3.5"
+    _txt_center(wt,y,C['muted'],10); y+=24
+
     img.crop((0,0,W,y+12)).save(os.path.join(OUTPUT_DIR,'daily_%s.png'%td_clean),'PNG',optimize=True)
     print('PNG saved: daily_%s.png' % td_clean)
 except ImportError:

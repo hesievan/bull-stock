@@ -4,6 +4,7 @@ __pycache__/
 .venv/
 venv/
 data/*.db
+data/*.db.gz
 data/*.sqlite
 *.log
 .DS_Store
@@ -12,3 +13,4 @@ __pycache__/
 web/data/*.json
 *.db-shm
 *.db-wal
+.env

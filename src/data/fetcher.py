@@ -15,7 +15,6 @@ import pandas as pd
 import numpy as np
 
 from src.data.database import get_conn, get_latest_date, save_dataframe, DB_PATH
-import sqlite3
 
 logger = logging.getLogger(__name__)
 
@@ -41,6 +40,21 @@ def _ts_sleep():
     if wait > 0:
         time.sleep(wait)
     _ts_sleep._last = time.time()
+
+
+def _retry(fn, max_retries=3, base_delay=1):
+    """指数退避重试装饰器。连续失败 max_retries 次后抛出异常。"""
+    last_exc = None
+    for attempt in range(max_retries):
+        try:
+            return fn()
+        except Exception as e:
+            last_exc = e
+            if attempt < max_retries - 1:
+                delay = base_delay * (2 ** attempt)
+                logger.warning("Retry %d/%d after %.1fs: %s", attempt + 1, max_retries, delay, str(e)[:80])
+                time.sleep(delay)
+    raise last_exc
 
 
 def _save(df: pd.DataFrame, table: str):
@@ -99,11 +113,10 @@ def fetch_index_daily(ak_code: str, start: str, end: str) -> pd.DataFrame:
 
 
 def fetch_all_index_incremental(db_path=None):
-    from src.data.database import DB_PATH as _DB
+    from src.data.database import DB_PATH as _DB, get_conn
     _db = db_path or _DB
-    conn = sqlite3.connect(_db)
-    latest = conn.execute("SELECT MAX(trade_date) FROM index_daily").fetchone()[0]
-    conn.close()
+    with get_conn(_db) as conn:
+        latest = conn.execute("SELECT MAX(trade_date) FROM index_daily").fetchone()[0]
     start = latest or "2015-01-01"
     end = date.today().strftime("%Y-%m-%d")
     for ak_code in INDEX_CODE_MAP:
@@ -115,7 +128,7 @@ def fetch_all_index_incremental(db_path=None):
 
 # ── tushare: 成分股列表 ──────────────────────────────────────────────────────
 
-def fetch_index_constituents(index="hs300") -> pd.DataFrame:
+def fetch_index_constituents(index="hs300", start_year: int = None) -> pd.DataFrame:
     INDEX_MAP = {"hs300": "399300.SZ", "sz50": "000016.SH", "zz500": "000905.SH"}
     ts_code = INDEX_MAP.get(index)
     if not ts_code:
@@ -123,7 +136,8 @@ def fetch_index_constituents(index="hs300") -> pd.DataFrame:
     try:
         pro = _get_pro()
         today = date.today().strftime("%Y%m%d")
-        df = pro.index_weight(index_code=ts_code, start_date="20260101", end_date=today)
+        start_date = f"{start_year or date.today().year}0101"
+        df = pro.index_weight(index_code=ts_code, start_date=start_date, end_date=today)
         _ts_sleep()
         if df is None or df.empty:
             return pd.DataFrame()
@@ -270,6 +284,26 @@ def fetch_northbound_history(start: str, end: str) -> pd.DataFrame:
 
 # ── tushare: 国债收益率 ──────────────────────────────────────────────────────
 
+def _fetch_bond_yield_akshare() -> pd.DataFrame:
+    """从 akshare 获取全部历史国债收益率数据"""
+    try:
+        import akshare as ak
+    except ImportError:
+        return pd.DataFrame()
+    df = ak.bond_zh_us_rate(start_date="20100101")
+    if df is None or df.empty:
+        return pd.DataFrame()
+    df = df.rename(columns={
+        "日期": "trade_date",
+        "中国国债收益率10年": "yield_rate"
+    })
+    df["trade_date"] = pd.to_datetime(df["trade_date"]).dt.strftime("%Y-%m-%d")
+    df["curve_term"] = 10.0
+    df["yield_rate"] = pd.to_numeric(df["yield_rate"], errors="coerce")
+    df = df.dropna(subset=["yield_rate"])
+    return df[["trade_date", "curve_term", "yield_rate"]]
+
+
 def fetch_bond_yield_history(start: str, end: str) -> pd.DataFrame:
     try:
         pro = _get_pro()
@@ -279,12 +313,15 @@ def fetch_bond_yield_history(start: str, end: str) -> pd.DataFrame:
         if df is None or df.empty:
             return pd.DataFrame()
         df["trade_date"] = pd.to_datetime(df["trade_date"], format="%Y%m%d").dt.strftime("%Y-%m-%d")
-        # 映射列名: yield → yield_rate, 只保留 curve_term=10 (10年期)
         df = df.rename(columns={"yield": "yield_rate"})
         df = df[df["curve_term"] == 10]
         return df[["trade_date", "curve_term", "yield_rate"]]
     except Exception as e:
-        logger.error("fetch_bond_yield_history failed: %s", str(e)[:80])
+        msg = str(e)[:80]
+        if "没有接口" in msg or "权限" in msg:
+            logger.warning("tushare yc_cb 无权限，回退 akshare bond_zh_us_rate")
+            return _fetch_bond_yield_akshare()
+        logger.error("fetch_bond_yield_history failed: %s", msg)
         return pd.DataFrame()
 
 
@@ -316,42 +353,41 @@ def fetch_daily_basic_to_stock_daily(trade_date: str, db_path: str = None) -> in
     拉取 tushare daily(全市场K线) + daily_basic(PE/PB/市值)
     合并写入 stock_daily 表
     """
-    from src.data.database import DB_PATH as _DB
+    from src.data.database import DB_PATH as _DB, get_conn
     if not TUSHARE_TOKEN:
         logger.warning("TUSHARE_TOKEN not set, skipping")
         return 0
 
     _db = db_path or _DB
-    conn = sqlite3.connect(_db)
-
-    existing = conn.execute(
-        "SELECT COUNT(*) FROM stock_daily WHERE trade_date=? AND total_mv IS NOT NULL AND total_mv > 0 AND amount IS NOT NULL AND amount > 0",
-        (trade_date,)
-    ).fetchone()[0]
+    with get_conn(_db) as conn:
+        existing = conn.execute(
+            "SELECT COUNT(*) FROM stock_daily WHERE trade_date=? AND total_mv IS NOT NULL AND total_mv > 0 AND amount IS NOT NULL AND amount > 0",
+            (trade_date,)
+        ).fetchone()[0]
     if existing > 4000:
         logger.info("daily_basic %s: already has %d rows with full data, skipping", trade_date, existing)
-        conn.close()
         return 0
 
     ds = trade_date.replace("-", "")
     pro = _get_pro()
 
     try:
-        df_daily = pro.daily(trade_date=ds)
+        df_daily = _retry(lambda: pro.daily(trade_date=ds), max_retries=2, base_delay=2)
         _ts_sleep()
     except Exception as e:
         logger.error("daily fetch failed for %s: %s", trade_date, str(e)[:80])
-        conn.close()
         return 0
 
     if df_daily is None or df_daily.empty:
         logger.info("daily %s: no data", trade_date)
-        conn.close()
         return 0
 
     try:
-        df_basic = pro.daily_basic(trade_date=ds,
-            fields='ts_code,pe_ttm,pb,total_mv,circ_mv,turnover_rate')
+        df_basic = _retry(
+            lambda: pro.daily_basic(trade_date=ds,
+                fields='ts_code,pe_ttm,pb,total_mv,circ_mv,turnover_rate'),
+            max_retries=2, base_delay=2,
+        )
         _ts_sleep()
     except Exception as e:
         logger.warning("daily_basic fetch failed for %s: %s", trade_date, str(e)[:60])
@@ -383,44 +419,49 @@ def fetch_daily_basic_to_stock_daily(trade_date: str, db_path: str = None) -> in
         ))
 
     if not rows:
-        conn.close()
         return 0
 
-    conn.executemany("""
-        INSERT INTO stock_daily (open, high, low, close, volume, amount, pct_change,
-                                 peTTM, pbMRQ, total_mv, circ_mv, turnover_rate,
-                                 trade_date, stock_code)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ON CONFLICT(trade_date, stock_code) DO UPDATE SET
-            open = excluded.open, high = excluded.high, low = excluded.low,
-            close = excluded.close, volume = excluded.volume, amount = excluded.amount,
-            pct_change = excluded.pct_change,
-            peTTM = COALESCE(excluded.peTTM, stock_daily.peTTM),
-            pbMRQ = COALESCE(excluded.pbMRQ, stock_daily.pbMRQ),
-            total_mv = COALESCE(excluded.total_mv, stock_daily.total_mv),
-            circ_mv = COALESCE(excluded.circ_mv, stock_daily.circ_mv),
-            turnover_rate = COALESCE(excluded.turnover_rate, stock_daily.turnover_rate)
-    """, rows)
-    conn.commit()
+    with get_conn(_db) as conn:
+        conn.executemany("""
+            INSERT INTO stock_daily (open, high, low, close, volume, amount, pct_change,
+                                     peTTM, pbMRQ, total_mv, circ_mv, turnover_rate,
+                                     trade_date, stock_code)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT(trade_date, stock_code) DO UPDATE SET
+                open = excluded.open, high = excluded.high, low = excluded.low,
+                close = excluded.close, volume = excluded.volume, amount = excluded.amount,
+                pct_change = excluded.pct_change,
+                peTTM = COALESCE(excluded.peTTM, stock_daily.peTTM),
+                pbMRQ = COALESCE(excluded.pbMRQ, stock_daily.pbMRQ),
+                total_mv = COALESCE(excluded.total_mv, stock_daily.total_mv),
+                circ_mv = COALESCE(excluded.circ_mv, stock_daily.circ_mv),
+                turnover_rate = COALESCE(excluded.turnover_rate, stock_daily.turnover_rate)
+        """, rows)
     written = len(rows)
     logger.info("daily_basic %s: wrote %d stocks", trade_date, written)
-    conn.close()
     return written
 
 
-# ── akshare: M2月度数据 ──────────────────────────────────────────────────────
+# ── M2月度数据 (tushare cn_m) ──────────────────────────────────────────────────
 
 def fetch_m2_history(start: str = "2008-01-01", end: str = None):
+    """获取M2货币供应数据 (tushare cn_m 接口)"""
     try:
-        import akshare as ak
-        df = ak.macro_china_money_supply()
+        pro = _get_pro()
+        start_m = start.replace("-", "")[:6] if start else "200801"
+        end_m = end.replace("-", "")[:6] if end else date.today().strftime("%Y%m")
+        df = pro.cn_m(start_m=start_m, end_m=end_m)
+        _ts_sleep()
         if df is None or df.empty:
+            logger.warning("cn_m returned empty data")
             return
-        df.columns = ["month", "m2_billion", "m2_yoy", "m1_billion", "m1_yoy", "m0_billion", "m0_yoy"]
-        df["month"] = pd.to_datetime(df["month"]).dt.strftime("%Y-%m")
+        # 映射列名: month(YYYYMM) → month(YYYY-MM), 只保留 m2_monthly 表需要的列
+        df["month"] = pd.to_datetime(df["month"], format="%Y%m").dt.strftime("%Y-%m")
+        df = df[["month", "m2", "m2_yoy"]].rename(columns={"m2": "m2_billion"})
         _save(df, "m2_monthly")
+        logger.info("M2 data saved: %d rows from %s to %s", len(df), df["month"].min(), df["month"].max())
     except Exception as e:
-        logger.error("fetch_m2_history failed: %s", str(e)[:80])
+        logger.error("fetch_m2_history (tushare) failed: %s", str(e)[:80])
 
 
 # ── 主流程 ────────────────────────────────────────────────────────────────────
@@ -445,7 +486,13 @@ def fetch_all_history(start: str = "2015-01-01", end: str = None):
     if not df.empty:
         _save(df, "stock_industry")
 
-    fetch_margin_history(start, end)
-    fetch_northbound_history(start, end)
+    df = fetch_margin_history(start, end)
+    if df is not None and not df.empty:
+        _save(df, "margin_history")
+
+    df = fetch_northbound_history(start, end)
+    if df is not None and not df.empty:
+        _save(df, "northbound_history")
+
     fetch_m2_history(start, end)
     logger.info("All history fetched!")

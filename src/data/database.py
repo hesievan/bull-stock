@@ -5,6 +5,7 @@
 - 增量数据写入 (INSERT OR REPLACE)
 - 查询接口
 """
+import json
 import sqlite3
 import os
 import logging
@@ -13,6 +14,7 @@ from typing import Optional
 from contextlib import contextmanager
 
 import pandas as pd
+import numpy as np
 
 logger = logging.getLogger(__name__)
 
@@ -22,6 +24,8 @@ DB_PATH = os.environ.get(
 )
 
 # ── 建表 SQL ──────────────────────────────────────────────────────────────────
+SCHEMA_VERSION = 3
+
 SCHEMA = """
 -- 指数日行情 (tushare index_daily)
 CREATE TABLE IF NOT EXISTS index_daily (
@@ -142,7 +146,11 @@ CREATE TABLE IF NOT EXISTS new_investors (
 CREATE TABLE IF NOT EXISTS heat_index (
     trade_date TEXT NOT NULL PRIMARY KEY,
     composite_score REAL NOT NULL,  -- 综合热度 0-100
+    composite_score_smoothed REAL,  -- 平滑后综合热度
+    heat_level TEXT,                -- 热度等级 green/yellow/orange/red
+    heat_level_smoothed TEXT,       -- 平滑后等级
     dim_valuation REAL,             -- 估值维度
+    dim_macro REAL,                 -- 宏观维度
     dim_fund REAL,                  -- 资金维度
     dim_sentiment REAL,             -- 情绪维度
     dim_technical REAL,             -- 技术维度
@@ -166,6 +174,52 @@ CREATE TABLE IF NOT EXISTS metadata (
     value TEXT,
     updated_at TEXT DEFAULT (datetime('now'))
 );
+
+-- 全市场流通市值 (由 stock_daily.circ_mv 汇总)
+CREATE TABLE IF NOT EXISTS daily_circ_mv (
+    trade_date TEXT PRIMARY KEY,
+    total_circ_mv REAL
+);
+
+-- 成分股 PE/PB 中位数 (沪深300+中证500)
+CREATE TABLE IF NOT EXISTS index_daily_pe (
+    trade_date TEXT PRIMARY KEY,
+    pe_med REAL,
+    pb_med REAL,
+    n_stocks INTEGER
+);
+
+-- AH溢价月表 (SSE AH Premium Index 月度值)
+CREATE TABLE IF NOT EXISTS ah_premium_monthly (
+    trade_date TEXT PRIMARY KEY,
+    premium REAL,
+    score REAL
+);
+
+-- 涨跌家数比预计算表 (由 stock_daily 汇总)
+CREATE TABLE IF NOT EXISTS daily_updown (
+    trade_date TEXT PRIMARY KEY,
+    up_down_ratio REAL
+);
+
+-- 涨停/跌停预计算表 (由 stock_daily 汇总)
+CREATE TABLE IF NOT EXISTS daily_limit (
+    trade_date TEXT PRIMARY KEY,
+    limit_up_ratio REAL,
+    limit_ratio REAL
+);
+
+-- 破净率预计算表 (由 stock_daily 汇总)
+CREATE TABLE IF NOT EXISTS daily_below_net (
+    trade_date TEXT PRIMARY KEY,
+    below_net_rate REAL
+);
+
+-- 均线排列比预计算表 (MA5>MA10>MA20>MA60 多头排列占比)
+CREATE TABLE IF NOT EXISTS daily_ma_alignment (
+    trade_date TEXT PRIMARY KEY,
+    ma_alignment_ratio REAL
+);
 """
 
 
@@ -187,21 +241,64 @@ def get_conn(db_path: str = None):
         conn.close()
 
 
+def _migrate(conn, from_ver: int):
+    """数据库版本迁移 — 按版本号逐步升级"""
+    if from_ver < 2:
+        pass
+    if from_ver < 3:
+        cols = {r[1] for r in conn.execute("PRAGMA table_info(heat_index)").fetchall()}
+        for col in ("dim_macro", "composite_score_smoothed", "heat_level", "heat_level_smoothed"):
+            if col not in cols:
+                conn.execute(f"ALTER TABLE heat_index ADD COLUMN {col} TEXT")
+    logger.info("Database migrated from v%d to v%d", from_ver, SCHEMA_VERSION)
+
+
 def init_database(db_path: str = None):
-    """初始化数据库表结构"""
+    """初始化数据库表结构 + 版本迁移"""
     with get_conn(db_path) as conn:
         conn.executescript(SCHEMA)
-    logger.info("Database initialized at %s", db_path or DB_PATH)
+        # 版本检查
+        try:
+            ver = conn.execute("SELECT value FROM metadata WHERE key='schema_version'").fetchone()
+            current_ver = int(ver[0]) if ver else 1
+        except Exception:
+            current_ver = 1
+        if current_ver < SCHEMA_VERSION:
+            _migrate(conn, current_ver)
+            conn.execute(
+                "INSERT OR REPLACE INTO metadata(key, value, updated_at) VALUES('schema_version', ?, datetime('now'))",
+                (str(SCHEMA_VERSION),)
+            )
+    logger.info("Database initialized at %s (v%d)", db_path or DB_PATH, SCHEMA_VERSION)
+
+
+_ALLOWED_TABLES = {
+    "index_daily", "stock_daily", "stock_industry", "m2_monthly",
+    "stock_market_cap", "margin_history", "northbound_history",
+    "bond_yield", "index_pe_history", "ah_premium", "stock_balance",
+    "index_constituents", "limit_up_daily", "new_investors",
+    "heat_index", "sector_heat", "metadata",
+    "daily_circ_mv", "index_daily_pe", "ah_premium_monthly",
+    "daily_updown", "daily_limit", "daily_ma_alignment",
+    "daily_below_net", "daily_erp", "daily_turnover", "qvix_daily",
+    "stock_high_250d",
+}
 
 
 def save_dataframe(df: pd.DataFrame, table: str, db_path: str = None):
     """保存 DataFrame 到数据库（INSERT OR REPLACE upsert）"""
     if df.empty:
         return
+    if table not in _ALLOWED_TABLES:
+        raise ValueError(f"Table '{table}' not in allowlist")
     with get_conn(db_path) as conn:
         df.to_sql('_tmp_upsert', conn, if_exists='replace', index=False)
         cols = ', '.join(df.columns)
-        conn.execute(f'INSERT OR REPLACE INTO {table} ({cols}) SELECT {cols} FROM _tmp_upsert')
+        pk = conn.execute(f"SELECT ltrim(sql, 'CREATE TABLE ') FROM sqlite_master WHERE type='table' AND name='{table}'").fetchone()
+        if pk and 'PRIMARY KEY' in str(pk[0]).upper():
+            conn.execute(f'INSERT OR REPLACE INTO {table} ({cols}) SELECT {cols} FROM _tmp_upsert')
+        else:
+            conn.execute(f'INSERT INTO {table} ({cols}) SELECT {cols} FROM _tmp_upsert')
         conn.execute('DROP TABLE _tmp_upsert')
     logger.info('Saved %d rows to %s', len(df), table)
 
@@ -233,6 +330,232 @@ def get_meta(key: str, db_path: str = None) -> Optional[str]:
     with get_conn(db_path) as conn:
         row = conn.execute("SELECT value FROM metadata WHERE key=?", (key,)).fetchone()
     return row["value"] if row else None
+
+
+def save_heat_index_to_db(result: dict, db_path: str = None):
+    """保存热度指数计算结果到数据库"""
+    from src.output.json_writer import get_heat_level as _gl
+    with get_conn(db_path) as conn:
+        score = result.get("composite_score")
+        smoothed = result.get("composite_score_smoothed")
+        conn.execute("""
+            INSERT OR REPLACE INTO heat_index
+                (trade_date, composite_score, composite_score_smoothed,
+                 heat_level, heat_level_smoothed,
+                 dim_valuation, dim_macro, dim_fund, dim_sentiment,
+                 dim_technical, dim_structure, detail_json)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (
+            result.get("trade_date"),
+            score,
+            smoothed,
+            _gl(score) if score is not None else None,
+            _gl(smoothed) if smoothed is not None else None,
+            result.get("dim_valuation"),
+            result.get("dim_macro"),
+            result.get("dim_fund"),
+            result.get("dim_sentiment"),
+            result.get("dim_technical"),
+            result.get("dim_structure"),
+            json.dumps(result.get("indicators", {}), ensure_ascii=False) if result.get("indicators") else None,
+        ))
+    logger.info("Saved heat index to DB: %s score=%s", result.get("trade_date"), score)
+
+
+def update_index_daily_pe(trade_date: str, db_path: str = None):
+    """计算指定交易日的成分股 PE/PB 中位数并写入 index_daily_pe 表"""
+    with get_conn(db_path) as conn:
+        const = conn.execute(
+            "SELECT trade_date AS const_date, con_code FROM index_constituents_hist "
+            "WHERE index_code IN ('hs300', 'zz500') "
+            "AND trade_date = (SELECT MAX(trade_date) FROM index_constituents_hist WHERE trade_date <= ?)",
+            (trade_date.replace("-", ""),)
+        ).fetchall()
+        if not const:
+            logger.warning("update_index_daily_pe %s: no constituents found", trade_date)
+            return False
+        codes = [r[1] for r in const]
+        placeholders = ",".join(["?" for _ in codes])
+        df = pd.read_sql(
+            f"SELECT peTTM, pbMRQ FROM stock_daily "
+            f"WHERE trade_date=? AND stock_code IN ({placeholders})",
+            conn, params=[trade_date] + codes
+        )
+        if df.empty:
+            logger.warning("update_index_daily_pe %s: no stock_daily data", trade_date)
+            return False
+        pe_vals = pd.to_numeric(df["peTTM"], errors="coerce")
+        pe_vals = pe_vals[(pe_vals > 0) & (pe_vals <= 500)].dropna()
+        pb_vals = pd.to_numeric(df["pbMRQ"], errors="coerce")
+        pb_vals = pb_vals[(pb_vals > 0) & (pb_vals <= 10)].dropna()
+        conn.execute(
+            "INSERT OR REPLACE INTO index_daily_pe (trade_date, pe_med, pb_med, n_stocks) "
+            "VALUES (?, ?, ?, ?)",
+            (trade_date,
+             float(pe_vals.median()) if len(pe_vals) > 0 else None,
+             float(pb_vals.median()) if len(pb_vals) > 0 else None,
+             len(pe_vals))
+        )
+        logger.info("index_daily_pe %s: pe_med=%.2f pb_med=%.2f n=%d",
+                     trade_date, pe_vals.median() if len(pe_vals) > 0 else 0,
+                     pb_vals.median() if len(pb_vals) > 0 else 0, len(pe_vals))
+        return True
+
+
+def compute_daily_circ_mv(trade_date: str, db_path: str = None) -> bool:
+    """从 stock_daily 计算当日全市场流通市值并写入 daily_circ_mv"""
+    with get_conn(db_path) as conn:
+        df = pd.read_sql(
+            "SELECT SUM(circ_mv) AS total_circ_mv FROM stock_daily WHERE trade_date=? AND circ_mv > 0",
+            conn, params=[trade_date]
+        )
+        if df.empty or df.iloc[0]["total_circ_mv"] is None or df.iloc[0]["total_circ_mv"] <= 0:
+            logger.warning("compute_daily_circ_mv %s: no valid circ_mv data", trade_date)
+            return False
+        total = float(df.iloc[0]["total_circ_mv"])
+        conn.execute(
+            "INSERT OR REPLACE INTO daily_circ_mv (trade_date, total_circ_mv) VALUES (?, ?)",
+            (trade_date, total)
+        )
+        logger.info("daily_circ_mv %s: %.2f", trade_date, total)
+        return True
+
+
+def compute_daily_updown(trade_date: str, db_path: str = None) -> bool:
+    """从 stock_daily 计算当日涨跌家数比并写入 daily_updown"""
+    with get_conn(db_path) as conn:
+        df = pd.read_sql(
+            "SELECT pct_change FROM stock_daily WHERE trade_date=? AND pct_change IS NOT NULL",
+            conn, params=[trade_date]
+        )
+        if df.empty or len(df) < 100:
+            logger.warning("compute_daily_updown %s: insufficient data (%d)", trade_date, len(df))
+            return False
+        up = (df["pct_change"] > 0).sum()
+        dn = (df["pct_change"] < 0).sum()
+        if dn == 0:
+            logger.warning("compute_daily_updown %s: no down stocks", trade_date)
+            return False
+        ratio = round(up / dn, 6)
+        conn.execute(
+            "INSERT OR REPLACE INTO daily_updown (trade_date, up_down_ratio) VALUES (?, ?)",
+            (trade_date, ratio)
+        )
+        logger.info("daily_updown %s: up=%d dn=%d ratio=%.4f", trade_date, up, dn, ratio)
+        return True
+
+
+def compute_daily_limit(trade_date: str, db_path: str = None) -> bool:
+    """从 stock_daily 计算当日涨停占比和涨跌停比并写入 daily_limit"""
+    with get_conn(db_path) as conn:
+        df = pd.read_sql(
+            "SELECT pct_change FROM stock_daily WHERE trade_date=? AND pct_change IS NOT NULL",
+            conn, params=[trade_date]
+        )
+        if df.empty or len(df) < 100:
+            logger.warning("compute_daily_limit %s: insufficient data (%d)", trade_date, len(df))
+            return False
+        total = len(df)
+        limit_up = int((df["pct_change"] >= 9.9).sum())
+        limit_down = int((df["pct_change"] <= -9.9).sum())
+        limit_up_ratio = round(limit_up / total, 6)
+        limit_ratio = round(limit_up / limit_down, 6) if limit_down > 0 else None
+        conn.execute(
+            "INSERT OR REPLACE INTO daily_limit (trade_date, limit_up_ratio, limit_ratio) VALUES (?, ?, ?)",
+            (trade_date, limit_up_ratio, limit_ratio)
+        )
+        logger.info("daily_limit %s: total=%d up=%d dn=%d up_ratio=%.4f ratio=%s",
+                     trade_date, total, limit_up, limit_down, limit_up_ratio, limit_ratio)
+        return True
+
+
+def compute_daily_below_net(trade_date: str, db_path: str = None) -> bool:
+    """从 stock_daily 计算当日破净率并写入 daily_below_net"""
+    with get_conn(db_path) as conn:
+        df = pd.read_sql(
+            "SELECT pbMRQ FROM stock_daily WHERE trade_date=? AND pbMRQ IS NOT NULL AND pbMRQ > 0",
+            conn, params=[trade_date]
+        )
+        if df.empty or len(df) < 100:
+            logger.warning("compute_daily_below_net %s: insufficient data (%d)", trade_date, len(df))
+            return False
+        total = len(df)
+        below = int((df["pbMRQ"] < 1).sum())
+        ratio = round(below / total, 6)
+        conn.execute(
+            "INSERT OR REPLACE INTO daily_below_net (trade_date, below_net_rate) VALUES (?, ?)",
+            (trade_date, ratio)
+        )
+        logger.info("daily_below_net %s: total=%d below=%d rate=%.4f", trade_date, total, below, ratio)
+        return True
+
+
+def compute_daily_ma_alignment(trade_date: str, db_path: str = None) -> bool:
+    """计算 MA5>MA10>MA20>MA60 多头排列占比并写入 daily_ma_alignment"""
+    with get_conn(db_path) as conn:
+        target = pd.read_sql(
+            "SELECT stock_code FROM stock_daily WHERE trade_date=? AND close > 0",
+            conn, params=[trade_date]
+        )
+        if target.empty or len(target) < 100:
+            logger.warning("compute_daily_ma_alignment %s: insufficient stocks (%d)", trade_date, len(target))
+            return False
+
+        min_date = (pd.Timestamp(trade_date) - pd.DateOffset(days=400)).strftime("%Y-%m-%d")
+        df = pd.read_sql(
+            "SELECT stock_code, trade_date, close FROM stock_daily "
+            "WHERE trade_date BETWEEN ? AND ? AND close > 0 "
+            "ORDER BY stock_code, trade_date",
+            conn, params=(min_date, trade_date)
+        )
+
+        def _check_alignment(group):
+            group = group.sort_values("trade_date")
+            s = group["close"].values
+            if len(s) < 60:
+                return 0
+            import numpy as np
+            ma5 = np.mean(s[-5:])
+            ma10 = np.mean(s[-10:])
+            ma20 = np.mean(s[-20:])
+            ma60 = np.mean(s[-60:])
+            return 1 if ma5 > ma10 > ma20 > ma60 else 0
+
+        results = df.groupby("stock_code", sort=False).apply(_check_alignment)
+        aligned = int(results.sum())
+        total_stocks = len(results)
+        ratio = round(aligned / total_stocks, 6) if total_stocks > 0 else 0
+
+        conn.execute(
+            "INSERT OR REPLACE INTO daily_ma_alignment (trade_date, ma_alignment_ratio) VALUES (?, ?)",
+            (trade_date, ratio)
+        )
+        logger.info("daily_ma_alignment %s: aligned=%d/%d ratio=%.4f", trade_date, aligned, total_stocks, ratio)
+        return True
+
+
+def aggregate_ah_premium_monthly(trade_date: str, db_path: str = None) -> bool:
+    """将 ah_premium 日表数据聚合成月表 (月尾日写入当月均值)"""
+    month = trade_date[:7]
+    with get_conn(db_path) as conn:
+        rows = conn.execute(
+            "SELECT premium FROM ah_premium WHERE trade_date LIKE ? AND premium IS NOT NULL",
+            (month + "%",)
+        ).fetchall()
+        if not rows:
+            logger.info("aggregate_ah_premium_monthly %s: no daily data", month)
+            return False
+        vals = [float(r[0]) for r in rows if 0.5 < float(r[0]) < 3.0]
+        if len(vals) < 3:
+            logger.info("aggregate_ah_premium_monthly %s: insufficient valid data (%d)", month, len(vals))
+            return False
+        premium = round(float(np.median(vals)) * 100, 2)
+        conn.execute(
+            "INSERT OR REPLACE INTO ah_premium_monthly (trade_date, premium) VALUES (?, ?)",
+            (month, premium)
+        )
+        logger.info("ah_premium_monthly %s: %.2f (from %d daily rows)", month, premium, len(vals))
+        return True
 
 
 if __name__ == "__main__":

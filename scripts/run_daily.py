@@ -16,20 +16,33 @@ from datetime import date, timedelta
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-_env_path = os.path.expanduser("~/daily_stock_analysis/.env")
-if os.path.exists(_env_path):
-    for line in open(_env_path):
-        line = line.strip()
-        if line.startswith("TUSHARE_TOKEN=") and not os.environ.get("TUSHARE_TOKEN"):
-            os.environ["TUSHARE_TOKEN"] = line.split("=", 1)[1]
-            break
+def _load_env():
+    if os.environ.get("TUSHARE_TOKEN"):
+        return
+    from pathlib import Path
+    candidates = [
+        Path(__file__).resolve().parent.parent / ".env",
+        Path.home() / "daily_stock_analysis" / ".env",
+    ]
+    for p in candidates:
+        if p.exists():
+            for line in p.read_text(encoding="utf-8").splitlines():
+                line = line.strip()
+                if line.startswith("TUSHARE_TOKEN="):
+                    os.environ["TUSHARE_TOKEN"] = line.split("=", 1)[1].strip('"\'')
+                    return
+
+_load_env()
 
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
     handlers=[
         logging.StreamHandler(),
-        logging.FileHandler("run_daily.log", encoding="utf-8"),
+        logging.FileHandler(
+            os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "run_daily.log"),
+            encoding="utf-8"
+        ),
     ]
 )
 logger = logging.getLogger(__name__)
@@ -99,6 +112,60 @@ def run_daily(trade_date=None):
 
     _run_step(step_status, "S2_market", _step2)
 
+    # ── Step 2.5: 更新 index_daily_pe (PE/PB 中位数, 供 ERP 和估值使用) ──
+    logger.info("Step 2.5: Updating index_daily_pe...")
+
+    def _step25():
+        from src.data.database import update_index_daily_pe
+        return update_index_daily_pe(trade_date)
+
+    _run_step(step_status, "S25_index_pe", _step25)
+
+    # ── Step 2.6: 全市场流通市值 (daily_circ_mv, 供融资余额比使用) ─────────
+    logger.info("Step 2.6: Computing daily_circ_mv...")
+
+    def _step26():
+        from src.data.database import compute_daily_circ_mv
+        return compute_daily_circ_mv(trade_date)
+
+    _run_step(step_status, "S26_circ_mv", _step26)
+
+    # ── Step 2.7: 涨跌家数比 (daily_updown, 预计算表) ────────────────────────
+    logger.info("Step 2.7: Computing daily_updown...")
+
+    def _step27():
+        from src.data.database import compute_daily_updown
+        return compute_daily_updown(trade_date)
+
+    _run_step(step_status, "S27_updown", _step27)
+
+    # ── Step 2.8: 涨停占比和涨跌停比 (daily_limit, 预计算表) ──────────────────
+    logger.info("Step 2.8: Computing daily_limit...")
+
+    def _step28():
+        from src.data.database import compute_daily_limit
+        return compute_daily_limit(trade_date)
+
+    _run_step(step_status, "S28_limit", _step28)
+
+    # ── Step 2.9: 破净率 (daily_below_net, 预计算表) ─────────────────────────
+    logger.info("Step 2.9: Computing daily_below_net...")
+
+    def _step29():
+        from src.data.database import compute_daily_below_net
+        return compute_daily_below_net(trade_date)
+
+    _run_step(step_status, "S29_below_net", _step29)
+
+    # ── Step 2.10: 均线排列比 (daily_ma_alignment, 预计算表) ──────────────────
+    logger.info("Step 2.10: Computing daily_ma_alignment...")
+
+    def _step30():
+        from src.data.database import compute_daily_ma_alignment
+        return compute_daily_ma_alignment(trade_date)
+
+    _run_step(step_status, "S30_ma_alignment", _step30)
+
     # ── Step 3: tushare 融资融券/北向/国债 ──────────────────────────────────
     logger.info("Step 3: Tushare margin/northbound/bond...")
 
@@ -152,8 +219,9 @@ def run_daily(trade_date=None):
         logger.error("S5 FAILED -- writing fallback result for debug")
         result = {
             "trade_date": trade_date, "composite_score": None,
-            "dim_valuation": None, "dim_fund": None, "dim_sentiment": None,
-            "dim_technical": None, "dim_structure": None, "indicators": {},
+            "dim_valuation": None, "dim_macro": None, "dim_fund": None,
+            "dim_sentiment": None, "dim_technical": None, "dim_structure": None,
+            "indicators": {},
         }
 
     # ── Step 6: 保存结果 ────────────────────────────────────────────────────
@@ -182,7 +250,7 @@ def run_daily(trade_date=None):
     logger.info("Step 7: Sector heat...")
 
     def _step7():
-        from src.indicators.calculator import calculate_sector_heat
+        from src.indicators.sector_calculator import calculate_sector_heat
         sector_results = calculate_sector_heat(trade_date, DB_PATH)
         if sector_results:
             out_dir = os.path.join(os.path.dirname(__file__), "..", "web", "data")

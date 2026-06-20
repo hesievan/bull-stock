@@ -1,19 +1,18 @@
 #!/usr/bin/env python3
 """
-AH股溢价指数计算器 (方案B: akshare H股 + tushare A股)
+AH股溢价指数计算器 (akshare H股 + tushare A股)
 
-用 akshare stock_hk_daily 拿 H 股历史（HKD），
-用 tushare daily 拿 A 股历史（CNY），
-溢价 = A股价格 / H股价格 的中位数。
+优化: 只获取最近1年数据，减少请求次数
+频率限制: akshare stock_hk_daily 约1次/分钟
 
 用法:
   python scripts/ah_premium.py                    # 计算最新
-  python scripts/ah_premium.py 2026-05-29         # 指定日期
-  python scripts/ah_premium.py --backfill         # 回填历史
+  python scripts/ah_premium.py 2026-06-10         # 指定日期
 """
 import sys, os, logging, time
 import sqlite3
 import numpy as np
+import pandas as pd
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger(__name__)
@@ -38,6 +37,7 @@ def fetch_ah_premium_index(trade_date=None):
     if trade_date is None:
         trade_date = time.strftime('%Y-%m-%d')
 
+    # 加载 token
     token = os.environ.get('TUSHARE_TOKEN', '')
     if not token:
         _env = os.path.expanduser('~/daily_stock_analysis/.env')
@@ -54,21 +54,27 @@ def fetch_ah_premium_index(trade_date=None):
 
     for h_code, a_ts_code in AH_PAIRS:
         try:
-            # H股历史 (akshare)
+            # H股历史 (akshare) - 只获取最近1年
             df_h = ak.stock_hk_daily(symbol=h_code, adjust="")
+            if df_h is None or df_h.empty:
+                failed += 1
+                continue
             df_h['date'] = pd.to_datetime(df_h['date']).dt.strftime('%Y-%m-%d')
-            df_h['h_close'] = df_h['close'].astype(float)
-            df_h = df_h[['date', 'h_close']]
+            df_h['h_close'] = pd.to_numeric(df_h['close'], errors='coerce')
+            # 只保留最近1年数据
+            one_year_ago = (pd.to_datetime(trade_date) - pd.DateOffset(years=1)).strftime('%Y-%m-%d')
+            df_h = df_h[df_h['date'] >= one_year_ago][['date', 'h_close']]
 
-            # A股历史 (tushare)
+            # A股历史 (tushare) - 只获取最近1年
             ds = trade_date.replace('-', '')
-            df_a = pro.daily(ts_code=a_ts_code, start_date='20150101', end_date=ds)
+            start_ds = (pd.to_datetime(trade_date) - pd.DateOffset(years=1)).strftime('%Y%m%d')
+            df_a = pro.daily(ts_code=a_ts_code, start_date=start_ds, end_date=ds)
             time.sleep(0.15)
             if df_a is None or df_a.empty:
                 failed += 1
                 continue
             df_a['date'] = pd.to_datetime(df_a['trade_date'], format='%Y%m%d').dt.strftime('%Y-%m-%d')
-            df_a['a_close'] = df_a['close'].astype(float)
+            df_a['a_close'] = pd.to_numeric(df_a['close'], errors='coerce')
             df_a = df_a[['date', 'a_close']]
 
             # 合并
@@ -78,10 +84,14 @@ def fetch_ah_premium_index(trade_date=None):
                 continue
 
             merged['premium'] = merged['a_close'] / merged['h_close']
+            # 取最近的溢价值
             latest = merged.iloc[-1]
-            if -0.5 < latest['premium'] < 3.0:
+            if 0.5 < latest['premium'] < 3.0:
                 premiums.append(float(latest['premium']))
-        except Exception:
+                logger.info("  %s: A=%.2f H=%.2f premium=%.4f",
+                           a_ts_code, latest['a_close'], latest['h_close'], latest['premium'])
+        except Exception as e:
+            logger.warning("  %s failed: %s", h_code, str(e)[:50])
             failed += 1
             continue
 
@@ -90,26 +100,24 @@ def fetch_ah_premium_index(trade_date=None):
         return None, None
 
     premium_val = float(np.median(premiums))
-    logger.info("AH premium index: %.4f (n=%d, failed=%d, %.1fs)", premium_val, len(premiums), failed, time.time() - t0)
+    logger.info("AH premium index: %.4f (n=%d, failed=%d, %.1fs)",
+               premium_val, len(premiums), failed, time.time() - t0)
 
     # 写入数据库
-    conn = sqlite3.connect(DB_PATH)
-    conn.execute('''CREATE TABLE IF NOT EXISTS ah_premium (
-        trade_date TEXT PRIMARY KEY, premium REAL, n_stocks INTEGER,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )''')
-    conn.execute(
-        'INSERT OR REPLACE INTO ah_premium (trade_date, premium, n_stocks) VALUES (?,?,?)',
-        (trade_date, round(premium_val, 4), len(premiums))
-    )
-    conn.commit()
-    conn.close()
+    with sqlite3.connect(DB_PATH) as conn:
+        conn.execute('''CREATE TABLE IF NOT EXISTS ah_premium (
+            trade_date TEXT PRIMARY KEY, premium REAL, n_stocks INTEGER,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )''')
+        conn.execute(
+            'INSERT OR REPLACE INTO ah_premium (trade_date, premium, n_stocks) VALUES (?,?,?)',
+            (trade_date, round(premium_val, 4), len(premiums))
+        )
 
     return trade_date, premium_val
 
 
 if __name__ == '__main__':
-    import pandas as pd
     date_arg = sys.argv[1] if len(sys.argv) > 1 else None
     td, premium = fetch_ah_premium_index(date_arg)
     if premium:

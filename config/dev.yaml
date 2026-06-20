@@ -1,0 +1,37 @@
+# A股牛市热度指数 — 开发环境配置
+
+# 热度等级阈值（综合热度 0-100）
+heat_levels:
+  cool:        { min: 0,  max: 30,  label: "低温", color: "#22c55e" }
+  moderate:    { min: 30, max: 55,  label: "温和", color: "#84cc16" }
+  warm:        { min: 55, max: 70,  label: "偏热", color: "#eab308" }
+  hot:         { min: 70, max: 85,  label: "过热", color: "#f97316" }
+  extreme:     { min: 85, max: 100, label: "极端", color: "#ef4444" }
+
+# 维度权重
+dimension_weights:
+  valuation:  0.25
+  macro:      0.15
+  capital:    0.15
+  sentiment:  0.20
+  technical:  0.10
+  structure:  0.15
+
+# 数据参数
+data:
+  lookback_years: 10
+  min_history_days: 250
+  db_path: "data/heat_index_dev.db"
+  request_delay: 1.0
+  max_retries: 3
+
+# 飞书通知 — 开发环境不推送
+notification:
+  feishu_webhook: ""
+  notify_on: ["extreme", "hot"]
+  notify_on_recovery: true
+
+# 输出
+output:
+  html_path: "web/index.html"
+  json_path: "web/data/latest.json"

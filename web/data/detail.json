@@ -1,114 +1,119 @@
 {
-  "trade_date": "2026-06-08",
-  "composite_score": 61.3,
+  "trade_date": "2026-06-18",
+  "composite_score": 48.7,
   "level": "yellow",
   "dimensions": {
     "valuation": {
-      "score": 44.4,
+      "score": 26.8,
       "label": "估值"
     },
     "macro": {
-      "score": null,
+      "score": 49.5,
       "label": "宏观"
     },
     "fund": {
-      "score": 63.7,
+      "score": 59.6,
       "label": "资金"
     },
     "sentiment": {
-      "score": 95.9,
+      "score": 64.7,
       "label": "情绪"
     },
     "technical": {
-      "score": 48.9,
+      "score": 55.1,
       "label": "技术"
     },
     "structure": {
-      "score": 49.3,
+      "score": 47.8,
       "label": "结构"
     }
   },
-  "updated_at": "2026-06-08 00:00:00",
+  "updated_at": "2026-06-20 00:00:00",
+  "composite_score_smoothed": 49.5,
+  "level_smoothed": "yellow",
   "sectors_top5": [
     {
-      "industry": "",
-      "score": 74.2,
-      "avg_pct": null,
-      "up_ratio": 28.0,
-      "leader": {
-        "code": "sh600403",
-        "pct": 9.95
-      }
-    },
-    {
-      "industry": "",
-      "score": 59.4,
-      "avg_pct": null,
-      "up_ratio": 60.0,
-      "leader": {
-        "code": "sh600938",
-        "pct": 3.95
-      }
-    },
-    {
-      "industry": "",
-      "score": 58.7,
-      "avg_pct": null,
-      "up_ratio": 9.7,
-      "leader": {
-        "code": "sh600505",
-        "pct": 10.03
-      }
-    },
-    {
-      "industry": "",
-      "score": 58.5,
+      "industry": "建筑装饰",
+      "score": 73.1,
       "avg_pct": null,
       "up_ratio": 20.0,
       "leader": {
-        "code": "sh603929",
-        "pct": 10.0
+        "code": "sz000032",
+        "pct": 5.94
       }
     },
     {
-      "industry": "",
-      "score": 57.6,
+      "industry": "计算机通信电子",
+      "score": 71.4,
       "avg_pct": null,
-      "up_ratio": 16.9,
+      "up_ratio": 54.4,
       "leader": {
-        "code": "sz300508",
-        "pct": 12.37
+        "code": "sz300319",
+        "pct": 20.02
+      }
+    },
+    {
+      "industry": "C40仪器仪表制造业",
+      "score": 63.1,
+      "avg_pct": null,
+      "up_ratio": 49.4,
+      "leader": {
+        "code": "sh688671",
+        "pct": 20.0
+      }
+    },
+    {
+      "industry": "非金属矿物制品",
+      "score": 60.7,
+      "avg_pct": null,
+      "up_ratio": 35.2,
+      "leader": {
+        "code": "sh688598",
+        "pct": 20.0
+      }
+    },
+    {
+      "industry": "通用设备制造",
+      "score": 57.0,
+      "avg_pct": null,
+      "up_ratio": 58.4,
+      "leader": {
+        "code": "sh688333",
+        "pct": 20.0
       }
     }
   ],
   "indicators": {
     "valuation": {
-      "PE_percentile": 44.460588448964764,
-      "PB_percentile": 52.815110788231024,
-      "below_net_rate": 36.038961038961034,
-      "erp": null
+      "valuation_composite": 43.859267319550234,
+      "below_net_rate": 21.793948126801155,
+      "erp": 14.69115191986644
     },
     "macro": {
-      "m1m2_scissors": null,
-      "m2_yoy": null
+      "m1m2_scissors": 58.37837837837838,
+      "m2_yoy": 40.612612612612615
     },
     "fund": {
-      "northbound_cumflow": 68.4,
-      "margin_ratio": 59.06666666666667
+      "northbound_cumflow": 60.0,
+      "margin_ratio": 59.199999999999996
     },
     "sentiment": {
-      "turnover": 95.92430858806405,
-      "up_down_ratio": null,
-      "limit_up_ratio": null,
-      "limit_ratio": null
+      "turnover": 93.80530973451327,
+      "up_down_ratio": 34.79827089337176,
+      "limit_up_ratio": 82.7449567723343,
+      "limit_ratio": 44.164265129682995,
+      "qvix": 68.17188638018936
     },
     "technical": {
-      "above_ma250_ratio": null,
-      "deviation_ma250": 48.943014705882355
+      "ma_alignment": 16.6728008833272,
+      "deviation_ma250": 65.16750803120698,
+      "momentum_60d": 69.00337837837837,
+      "momentum_20d": 51.328903654485046,
+      "momentum_120d": 73.35355285961872
     },
     "structure": {
-      "sector_divergence": 48.550724637681164,
-      "ah_premium_index": 50.0
+      "new_high_ratio": 6.4278799612778315,
+      "ah_premium_index": 89.13043478260869
     }
   }
 }
