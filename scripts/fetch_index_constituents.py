@@ -2,7 +2,8 @@
 拉取沪深300+中证500成分股列表, 写入 index_constituents 表
 用于 PE/PB 分位数计算时过滤 (方案B: 仅计算成分股PE分位)
 """
-import sys, os, time, logging
+import sys
+import logging
 import sqlite3
 import pandas as pd
 
@@ -68,8 +69,8 @@ def main():
 
     # 统计
     stats = pd.read_sql('''
-        SELECT index_code, COUNT(*) as cnt 
-        FROM index_constituents 
+        SELECT index_code, COUNT(*) as cnt
+        FROM index_constituents
         GROUP BY index_code
     ''', conn)
     logger.info("成分股表统计:")

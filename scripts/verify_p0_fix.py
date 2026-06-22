@@ -1,4 +1,6 @@
-import sys, logging, time
+import sys
+import logging
+import time
 sys.path.insert(0, '.')
 from src.indicators.calculator import calculate_heat_index
 logging.basicConfig(level=logging.WARNING)

@@ -17,11 +17,12 @@ P1 修复: 用 akshare 补充 2015-2019 融资融券历史数据
   - 与现有 tushare 数据去重: 已存在的不覆盖 (tushare 包含沪深两市合计)
   - rzmre 单位: 元 (用于 margin_ratio 计算)
 """
-import sys, os, time, logging
+import sys
+import time
+import logging
 import sqlite3
 import pandas as pd
 import akshare as ak
-from datetime import date, timedelta
 
 sys.path.insert(0, '.')
 from src.data.database import DB_PATH

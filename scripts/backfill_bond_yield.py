@@ -4,10 +4,11 @@
 
 tushare yc_cb 接口需要5000+积分，本脚本用 akshare bond_zh_us_rate 替代
 """
-import sys, os, time
+import sys
+import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from src.data.database import get_conn, DB_PATH
+from src.data.database import get_conn
 import pandas as pd
 import logging
 

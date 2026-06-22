@@ -2,7 +2,7 @@
 import logging
 import pandas as pd
 import numpy as np
-from src.indicators.utils import _pct_rank, _pct_rank_inv, _score_with_fallback, _to_numeric
+from src.indicators.utils import _pct_rank, _score_with_fallback, _to_numeric
 
 logger = logging.getLogger(__name__)
 

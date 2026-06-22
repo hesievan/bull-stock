@@ -11,8 +11,12 @@
   python scripts/run_daily.py                  # 计算今日
   python scripts/run_daily.py 2026-05-29       # 计算指定日期
 """
-import sys, os, logging, json, time
-from datetime import date, timedelta
+import sys
+import os
+import logging
+import json
+import time
+from datetime import date
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -72,7 +76,6 @@ def run_daily(trade_date=None):
     from src.data.database import init_database, read_dataframe
     from src.data.fetcher import (
         fetch_all_index_incremental,
-        fetch_index_constituents,
         fetch_daily_basic_to_stock_daily,
         fetch_margin_history,
         fetch_northbound_history,
@@ -81,7 +84,7 @@ def run_daily(trade_date=None):
     )
     from src.indicators.calculator import calculate_heat_index
     from src.output.json_writer import (
-        save_results, build_feishu_notification, get_heat_level, send_feishu_webhook
+        save_results, build_feishu_notification, send_feishu_webhook
     )
 
     trade_date = trade_date or date.today().strftime("%Y-%m-%d")

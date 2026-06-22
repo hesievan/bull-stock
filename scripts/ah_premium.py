@@ -9,7 +9,10 @@ AH股溢价指数计算器 (akshare H股 + tushare A股)
   python scripts/ah_premium.py                    # 计算最新
   python scripts/ah_premium.py 2026-06-10         # 指定日期
 """
-import sys, os, logging, time
+import sys
+import os
+import logging
+import time
 import sqlite3
 import numpy as np
 import pandas as pd

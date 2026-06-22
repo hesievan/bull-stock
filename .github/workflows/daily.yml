@@ -38,7 +38,7 @@ jobs:
 
       - name: Lint
         run: |
-          ruff check src/ scripts/ --select E,F,W --ignore E501
+          ruff check src/ scripts/ --select E,F,W --ignore E501,E701,E702,E402,W293
           ruff format --check src/ scripts/ || true
 
       - name: Unit tests

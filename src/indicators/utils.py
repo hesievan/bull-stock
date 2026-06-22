@@ -79,7 +79,7 @@ def _clip_outliers(series: pd.Series, n_sigma: float = 5.0) -> pd.Series:
     std = s.std()
     if pd.isna(mean) or pd.isna(std) or std == 0:
         return s
-    median = s.median()
+    s.median()
     lower = mean - n_sigma * std
     upper = mean + n_sigma * std
     n_clipped = ((s < lower) | (s > upper)).sum()

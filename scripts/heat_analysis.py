@@ -12,8 +12,8 @@
 import sys
 import os
 import json
-from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Tuple
+from datetime import datetime
+from typing import Dict, List
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -80,11 +80,11 @@ def explain_change(current: Dict, history: List) -> str:
 
     lines = [
         f"📊 热度变化归因 · {today_date}",
-        f"",
+        "",
         f"今日热度: {today_score:.1f} ({direction} {abs(change):.1f})",
         f"昨日热度: {prev_score:.1f}",
-        f"",
-        f"维度变化:",
+        "",
+        "维度变化:",
     ]
 
     changes = []
@@ -105,7 +105,7 @@ def explain_change(current: Dict, history: List) -> str:
         changes.sort(key=lambda x: abs(x[1]), reverse=True)
         top = changes[0]
         lines.extend([
-            f"",
+            "",
             f"主要驱动: {top[0]}维度{top[2]}{abs(top[1]):.1f}分",
         ])
 
@@ -123,7 +123,7 @@ def detect_anomalies(current: Dict, history: List) -> str:
 
     lines = [
         f"🔍 异常检测 · {today_date}",
-        f"",
+        "",
     ]
 
     anomalies = []
@@ -178,8 +178,8 @@ def detect_anomalies(current: Dict, history: List) -> str:
         avg = sum(all_scores) / len(all_scores)
         std = (sum((s - avg) ** 2 for s in all_scores) / len(all_scores)) ** 0.5
         lines.extend([
-            f"",
-            f"统计信息:",
+            "",
+            "统计信息:",
             f"  历史均值: {avg:.1f}",
             f"  历史标准差: {std:.1f}",
             f"  当前偏离: {(today_score - avg) / std:.1f}σ" if std > 0 else "",
@@ -226,16 +226,16 @@ def predict_trend(history: List) -> str:
         volatility = 0
 
     lines = [
-        f"🔮 趋势预测",
-        f"",
+        "🔮 趋势预测",
+        "",
         f"当前趋势: {trend_emoji} {trend}",
         f"当前热度: {scores[-1]:.1f}",
-        f"",
-        f"均线系统:",
+        "",
+        "均线系统:",
         f"  MA5:  {ma5:.1f}",
         f"  MA10: {ma10:.1f}",
         f"  MA20: {ma20:.1f}",
-        f"",
+        "",
         f"动量: {momentum:+.1f} (近5日变化)",
         f"波动率: {volatility:.1f}",
     ]
@@ -244,27 +244,27 @@ def predict_trend(history: List) -> str:
     if trend == "上升趋势" and momentum > 0:
         predict = min(100, scores[-1] + momentum * 0.5)
         lines.extend([
-            f"",
+            "",
             f"预测: 未来5日可能升至 {predict:.0f}",
-            f"风险: 若突破65需警惕",
+            "风险: 若突破65需警惕",
         ])
     elif trend == "下降趋势" and momentum < 0:
         predict = max(0, scores[-1] + momentum * 0.5)
         lines.extend([
-            f"",
+            "",
             f"预测: 未来5日可能降至 {predict:.0f}",
-            f"机会: 若跌破40可关注",
+            "机会: 若跌破40可关注",
         ])
     else:
         lines.extend([
-            f"",
-            f"预测: 短期维持震荡",
-            f"关注: 等待方向选择",
+            "",
+            "预测: 短期维持震荡",
+            "关注: 等待方向选择",
         ])
 
     # 相似历史模式
-    lines.append(f"")
-    lines.append(f"相似历史模式:")
+    lines.append("")
+    lines.append("相似历史模式:")
     for node_date, (node_name, node_score) in KEY_NODES.items():
         if abs(scores[-1] - node_score) < 10:
             lines.append(f"  · 当前类似{node_name} ({node_score:.0f})")

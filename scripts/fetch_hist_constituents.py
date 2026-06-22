@@ -12,11 +12,13 @@
 写入 index_constituents_rolling 表 (区别于当前成分股表)
   - 字段: index_code, con_code, trade_date (每月末日期)
 """
-import sys, os, time, logging
+import sys
+import os
+import time
+import logging
 import sqlite3
 import pandas as pd
 import tushare as ts
-from datetime import date, timedelta
 import calendar
 
 sys.path.insert(0, '.')
@@ -130,7 +132,7 @@ def main():
 
     # 2021-02 沪深300成分股数量
     check = pd.read_sql('''
-        SELECT COUNT(*) FROM index_constituents_hist 
+        SELECT COUNT(*) FROM index_constituents_hist
         WHERE index_code='hs300' AND trade_date='20210226'
     ''', conn)
     logger.info("2021-02 HS300成分股: %d", check.iloc[0, 0])

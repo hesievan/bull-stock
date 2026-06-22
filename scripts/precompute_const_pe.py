@@ -7,7 +7,10 @@
   2. 对每个截面, 用 SQL 计算该成分股集合在每个交易日的 PE/PB 中位数
   3. 写入 index_daily_pe 表
 """
-import sys, logging, sqlite3, time
+import sys
+import logging
+import sqlite3
+import time
 import pandas as pd
 
 sys.path.insert(0, '.')

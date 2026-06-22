@@ -40,7 +40,7 @@ def calculate_metrics(results):
         return {}
 
     scores = [r["composite"] for r in valid]
-    vals = [r.get("valuation", 0) or 0 for r in valid]
+    [r.get("valuation", 0) or 0 for r in valid]
 
     bull_peaks = [r for r in valid if r["state"] in ("BULL_PEAK", "SURGE_PEAK")]
     bear_bottoms = [r for r in valid if r["state"] in ("BEAR_BOTTOM", "CRASH_BOTTOM")]
@@ -64,6 +64,7 @@ def generate_html_report(results, history, metrics, output_path):
     scores = [r.get("composite", 0) or 0 for r in results if "error" not in r]
     states = [r["state"] for r in results if "error" not in r]
     descs = [r.get("desc", "") for r in results if "error" not in r]
+    dims = ['valuation', 'fund', 'sentiment', 'technical', 'structure']
 
     html = f"""<!DOCTYPE html>
 <html lang="zh-CN">
@@ -137,6 +138,7 @@ tr:hover {{ background: #161b22; }}
 </div>
 
 <script>
+const dims = {json.dumps(['valuation', 'fund', 'sentiment', 'technical', 'structure'])};
 const dates = {json.dumps(dates)};
 const scores = {json.dumps(scores)};
 const states = {json.dumps(states)};

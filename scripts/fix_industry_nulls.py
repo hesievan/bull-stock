@@ -6,11 +6,12 @@
   python scripts/fix_industry_nulls.py          # 交互模式
   python scripts/fix_industry_nulls.py --auto   # 自动修复
 """
-import sys, os
+import sys
+import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from src.data.database import get_conn, DB_PATH
-from src.data.fetcher import _get_pro, ak_to_ts, ts_to_ak, _ts_sleep
+from src.data.database import get_conn
+from src.data.fetcher import _get_pro, ak_to_ts, _ts_sleep
 import pandas as pd
 import logging
 

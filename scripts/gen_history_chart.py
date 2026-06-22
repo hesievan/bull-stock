@@ -6,7 +6,8 @@
 - 数据 Zoom 联动
 - 各维度极值标记
 """
-import json, os
+import json
+import os
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), '..', 'web', 'data')
 OUTPUT_DIR = os.path.join(os.path.dirname(__file__), '..', 'reports')

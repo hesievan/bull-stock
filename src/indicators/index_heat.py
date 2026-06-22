@@ -167,7 +167,7 @@ def _calc_relative_strength(index_df: pd.DataFrame, benchmark_df: pd.DataFrame, 
 
 def _calc_volume_score(index_df: pd.DataFrame, days: int = 60) -> Optional[float]:
     """Score based on amount vs recent average (percentile).
-    
+
     NOTE: index_daily volume/amount data after mid-2025 appears to have
     incorrect units from tushare. This score is kept as informational
     only and NOT included in the technical composite.

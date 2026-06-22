@@ -5,10 +5,11 @@
 数据源: akshare index_option_50etf_qvix
 用途: 作为恐慌指标，替代波动率替代指标
 """
-import sys, os
+import sys
+import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from src.data.database import get_conn, DB_PATH
+from src.data.database import get_conn
 import pandas as pd
 import logging
 

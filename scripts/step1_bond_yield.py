@@ -3,7 +3,10 @@
 Step 1: bond_yield — 2018~2026 国债收益率 (tushare yc_cb)
 修复列名 yield -> yield_rate
 """
-import sys, os, time, sqlite3
+import sys
+import os
+import time
+import sqlite3
 import pandas as pd
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))

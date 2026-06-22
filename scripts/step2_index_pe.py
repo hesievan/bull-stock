@@ -2,7 +2,10 @@
 """
 Step 2: index_pe_history — 指数PE/PB/总市值/换手率 (tushare index_dailybasic)
 """
-import sys, os, time, sqlite3
+import sys
+import os
+import time
+import sqlite3
 import pandas as pd
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))

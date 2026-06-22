@@ -4,7 +4,6 @@
 从 calculator.py 拆分, 职责: 按行业计算热度评分
 """
 import logging
-import sqlite3
 
 import pandas as pd
 import numpy as np

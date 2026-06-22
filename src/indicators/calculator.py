@@ -21,9 +21,8 @@ import pandas as pd
 import numpy as np
 
 from src.data.database import read_dataframe, DB_PATH
-from src.indicators.utils import (_pct_rank, _score_with_fallback, _to_numeric,
-                                   get_weights, get_lookback_years)
-from src.data.freshness import get_effective_weights, BASE_WEIGHTS
+from src.indicators.utils import (get_weights, get_lookback_years)
+from src.data.freshness import get_effective_weights
 from src.indicators.valuation import calc_valuation, calc_valuation_composite, calc_below_net_rate, calc_erp
 from src.indicators.macro import calc_macro, calc_m1m2_scissors, calc_m2_yoy
 from src.indicators.fund import calc_fund, calc_northbound_cumflow, calc_margin_ratio
@@ -334,7 +333,7 @@ class HeatIndexCalculator:
 
     def _build_data_quality(self, dim_names, dims, freshness_scores):
         """构建数据质量报告"""
-        indicators_data = getattr(self, '_indicators_data', {})
+        getattr(self, '_indicators_data', {})
         dim_labels = {"valuation":"估值","macro":"宏观","fund":"资金",
                       "sentiment":"情绪","technical":"技术","structure":"结构"}
         report = {"overall_quality": "good", "dimensions": {}}

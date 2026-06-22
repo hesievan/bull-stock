@@ -9,7 +9,7 @@ import json
 import sqlite3
 import os
 import logging
-from datetime import datetime, date
+from datetime import date
 from typing import Optional
 from contextlib import contextmanager
 
@@ -300,7 +300,6 @@ def check_precompute_staleness(trade_date: str = None, db_path: str = None) -> l
       - has_fallback: 是否有实时 fallback 机制
       - step: 所属更新步骤
     """
-    from datetime import date
     td = date.fromisoformat(trade_date) if trade_date else date.today()
 
     def _parse_date(s: str) -> Optional[date]:

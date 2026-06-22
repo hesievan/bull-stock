@@ -15,11 +15,12 @@ API:
   GET /api/strategy      — 策略信号
   GET /api/health        — 健康检查
 """
-import sys, os, json
+import sys
+import os
+import json
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from pathlib import Path
-from datetime import date
 
 WEB_DATA = Path(__file__).parent.parent / "web" / "data"
 

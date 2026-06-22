@@ -3,7 +3,11 @@
 周频采样回测：用新指标系统计算 ~580 个代表性日期
 输出: web/data/history.json (精简版) + web/data/history_full.json (完整版)
 """
-import sys, os, time, json, logging
+import sys
+import os
+import time
+import json
+import logging
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")

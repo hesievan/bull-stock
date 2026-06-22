@@ -13,12 +13,11 @@ import os
 import json
 import sqlite3
 from datetime import datetime, date
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from src.data.database import DB_PATH
-from src.indicators.calculator import calculate_heat_index
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), "..", "data")
 REPORT_DIR = os.path.join(os.path.dirname(__file__), "..", "reports")
@@ -58,15 +57,14 @@ class BacktestEngine:
 
         # 构建日频数据 (周频数据向前填充)
         result = {}
-        last_score = None
         for h in history:
             if h["trade_date"] < start:
-                last_score = h.get("composite_score")
+                h.get("composite_score")
                 continue
             if h["trade_date"] > end:
                 break
             result[h["trade_date"]] = h
-            last_score = h.get("composite_score")
+            h.get("composite_score")
 
         return result
 
@@ -314,7 +312,7 @@ class BacktestEngine:
 
         # 最近10笔交易
         if trades:
-            print(f"\n最近10笔交易:")
+            print("\n最近10笔交易:")
             print("-" * 60)
             for t in trades[-10:]:
                 score_str = f"{t['score']:.0f}" if t['score'] else "N/A"

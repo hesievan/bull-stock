@@ -11,7 +11,7 @@ import logging
 import urllib.request
 import urllib.error
 import numpy as np
-from datetime import date, timedelta
+from datetime import date
 from typing import Dict, Optional, Tuple
 
 logger = logging.getLogger(__name__)
@@ -106,7 +106,7 @@ def build_data_quality_report(result: Dict) -> Dict:
     """
     indicators = result.get("indicators", {})
     freshness = result.get("freshness_scores", {})
-    effective_weights = result.get("effective_weights", {})
+    result.get("effective_weights", {})
 
     dim_labels = {
         "valuation": "估值", "macro": "宏观", "fund": "资金",
@@ -408,7 +408,7 @@ def build_feishu_notification(result: Dict, history: list = None) -> Optional[st
     score = result["composite_score"]
     trade_date = result["trade_date"]
     level = get_heat_level(score)
-    level_cn = get_heat_level_cn(score)
+    get_heat_level_cn(score)
 
     if score is None:
         return f"⚠️ A股热度指数 · {trade_date}\n计算失败，请检查日志。"
@@ -434,7 +434,7 @@ def build_feishu_notification(result: Dict, history: list = None) -> Optional[st
 
     lines = [
         f"📊 A股牛市热度指数 · {trade_date}",
-        f"",
+        "",
         f"综合热度：{get_heat_level_cn(score)} {score:.0f}",
     ]
 
@@ -447,8 +447,8 @@ def build_feishu_notification(result: Dict, history: list = None) -> Optional[st
         lines.append(f"此前红色区间持续 {consecutive} 天。")
 
     lines.extend([
-        f"",
-        f"维度拆解：",
+        "",
+        "维度拆解：",
         *dim_lines,
     ])
 
@@ -464,7 +464,7 @@ def build_feishu_notification(result: Dict, history: list = None) -> Optional[st
             if leader:
                 ldr_str = f"  龙头:{leader.get('code','')} +{leader.get('pct',0):.1f}%"
             sec_lines.append(f"  {i}. {name}  {sc:.0f}分{ldr_str}")
-        lines.extend([f"", f"🔥 板块热度 TOP5：", *sec_lines])
+        lines.extend(["", "🔥 板块热度 TOP5：", *sec_lines])
     highlights = []
     vi = sub_indicators.get("valuation", {})
     si = sub_indicators.get("sentiment", {})
@@ -474,23 +474,23 @@ def build_feishu_notification(result: Dict, history: list = None) -> Optional[st
     if vi.get("PE_percentile") is not None and vi["PE_percentile"] > 80:
         highlights.append(f"PE分位 {vi['PE_percentile']:.0f}% (偏高)")
     if vi.get("below_net_rate") is not None and vi["below_net_rate"] < 20:
-        highlights.append(f"破净率极低")
+        highlights.append("破净率极低")
     if si.get("limit_up_ratio") is not None and si["limit_up_ratio"] > 80:
-        highlights.append(f"涨停占比偏高")
+        highlights.append("涨停占比偏高")
     if si.get("volatility") is not None and si["volatility"] > 80:
-        highlights.append(f"波动率偏高")
+        highlights.append("波动率偏高")
     if ti.get("deviation_ma250") is not None and ti["deviation_ma250"] > 80:
-        highlights.append(f"均线偏离度大")
+        highlights.append("均线偏离度大")
     if fi.get("margin_ratio") is not None and fi["margin_ratio"] > 80:
-        highlights.append(f"融资买入占比高")
+        highlights.append("融资买入占比高")
 
     if highlights:
-        lines.extend([f"", f"⚠️ 关注指标：", *[f"  · {h}" for h in highlights]])
+        lines.extend(["", "⚠️ 关注指标：", *[f"  · {h}" for h in highlights]])
 
     # 数据质量告警
     dq = result.get("data_quality") or {}
     if dq and dq.get("overall_quality") != "good":
-        quality_lines = [f"", f"📊 数据质量 ({dq['overall_quality']})："]
+        quality_lines = ["", f"📊 数据质量 ({dq['overall_quality']})："]
         for dim_name, dim_info in dq.get("dimensions", {}).items():
             icon = "✅" if dim_info["status"] == "ok" else "⚠️" if dim_info["status"] == "degraded" else "❌"
             quality_lines.append(
@@ -503,9 +503,9 @@ def build_feishu_notification(result: Dict, history: list = None) -> Optional[st
         lines.extend(quality_lines)
 
     lines.extend([
-        f"",
-        f"不构成投资建议，仅供参考。",
-        f"详情：web/data/detail.json",
+        "",
+        "不构成投资建议，仅供参考。",
+        "详情：web/data/detail.json",
     ])
 
     msg = "\n".join(lines)

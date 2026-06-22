@@ -7,7 +7,9 @@
   python scripts/db_maintenance.py --vacuum     # 压缩数据库
   python scripts/db_maintenance.py --archive 2020  # 归档指定年份之前的数据
 """
-import sys, os, sqlite3
+import sys
+import os
+import sqlite3
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from src.data.database import DB_PATH, get_conn
@@ -37,7 +39,7 @@ def check_db_status(db_path=None):
             try:
                 count = conn.execute(f"SELECT COUNT(*) FROM {tname}").fetchone()[0]
                 print(f"  {tname}: {count:,} rows")
-            except:
+            except Exception:
                 print(f"  {tname}: (error)")
 
         # WAL status
@@ -79,7 +81,7 @@ def archive_before_year(year: int, db_path=None):
                     f"SELECT COUNT(*) FROM {tname} WHERE trade_date < ?", (cutoff,)
                 ).fetchone()[0]
                 total += count
-            except:
+            except Exception:
                 pass
 
         if total == 0:
@@ -125,7 +127,7 @@ def archive_before_year(year: int, db_path=None):
                 ).rowcount
                 if deleted:
                     logger.info("  Deleted from %s: %d rows", tname, deleted)
-            except:
+            except Exception:
                 pass
 
     logger.info("Archive complete: %s", archive_path)

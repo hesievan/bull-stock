@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 """Step 5b: 按股票拉取 circ_mv (比逐日拉取快10倍)"""
-import sys, os, time, sqlite3
+import sys
+import os
+import time
+import sqlite3
 import pandas as pd
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))

@@ -9,16 +9,17 @@
   python scripts/fix_turnover.py          # 检查并修复
   python scripts/fix_turnover.py --check  # 仅检查，不修复
 """
-import sys, os, sqlite3
+import sys
+import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from src.data.database import DB_PATH, get_conn
+from src.data.database import get_conn
 
 def check_turnover():
     """检查 daily_turnover 表中的错误记录"""
     with get_conn() as conn:
         bad_dates = conn.execute("""
-            SELECT sd.trade_date, 
+            SELECT sd.trade_date,
                    AVG(sd.turnover_rate) as avg_tr,
                    SUM(sd.amount) / SUM(sd.circ_mv) * 10 as correct_tr,
                    dt.turnover_rate as current
@@ -34,7 +35,7 @@ def check_turnover():
 def fix_turnover(dry_run=False):
     """修正 daily_turnover 表中的错误记录"""
     bad_dates = check_turnover()
-    
+
     if not bad_dates:
         print("✅ daily_turnover 表数据正确，无需修复")
         return 0

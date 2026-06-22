@@ -3,7 +3,10 @@
 热度指数历史回测 — 验证指标在牛熊转换中的表现
 测试日期覆盖: 2015牛市顶 → 2018熊底 → 2020疫情底 → 2021牛市顶 → 2022熊底 → 2024反弹
 """
-import sys, os, json, time
+import sys
+import os
+import json
+import time
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 os.environ.setdefault("TUSHARE_TOKEN", "473bc93a521c11cac2f5136b08bccbcb819d220fcee5d8f04b389577")
 

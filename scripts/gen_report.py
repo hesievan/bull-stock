@@ -3,7 +3,8 @@
 牛市热度指数日报生成器 v3.5
 输出: MD + HTML(带ECharts交互图) + PNG(精简信息图)
 """
-import json, os, sys
+import json
+import os
 from datetime import datetime
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), '..', 'web', 'data')
@@ -280,7 +281,7 @@ try:
     _font_path = next((p for p in ['/System/Library/Fonts/PingFang.ttc','/System/Library/Fonts/Hiragino Sans GB.ttc','/System/Library/Fonts/STHeiti Medium.ttc'] if os.path.exists(p)), None)
     def _f(sz):
         try: return IF.truetype(_font_path, sz)
-        except: return IF.load_default()
+        except Exception: return IF.load_default()
     C = {'bg':(10,14,23),'card':(17,24,39),'card_hover':(25,32,48),'border':(30,41,59),'border_light':(45,55,72),'text':(201,209,217),'bright':(224,230,237),'dim':(107,114,128),'muted':(55,65,81),'red':(255,77,79),'yellow':(250,173,20),'green':(82,196,26),'accent':(88,166,255)}
     _lc = score_color(score); W,PAD = 880,36; TOTAL_H=2400
     img=Image.new('RGB',(W,TOTAL_H),C['bg']); draw=ImageDraw.Draw(img); y=PAD

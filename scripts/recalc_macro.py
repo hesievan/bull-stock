@@ -60,7 +60,7 @@ def recalc_macro(start=None, end=None):
                     item["dimensions"] = {}
                 item["dimensions"]["macro"] = None
                 failed += 1
-        except Exception as e:
+        except Exception:
             failed += 1
             if "dimensions" not in item:
                 item["dimensions"] = {}

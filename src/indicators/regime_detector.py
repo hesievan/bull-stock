@@ -41,7 +41,7 @@ class RegimeDetector:
         changepoints = []
         i = self.min_window
         while i < n:
-            segment = cumsum[:i]
+            cumsum[:i]
             ref = cumsum[i - self.min_window]
             deviation = abs(cumsum[i] - ref)
             # 阈值: sigma * sqrt(n_segment)

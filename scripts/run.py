@@ -6,8 +6,7 @@ A股牛市热度指数 — 主入口
 import sys
 import os
 import logging
-import json
-from datetime import date, datetime
+from datetime import date
 
 # 项目根目录加入路径
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
@@ -98,7 +97,7 @@ def main():
     notify_cfg = cfg.get("notification", {})
     webhook = notify_cfg.get("feishu_webhook", "")
     if webhook and all_market_result:
-        heat_val = all_market_result["composite"]
+        all_market_result["composite"]
         level_key = all_market_result.get("level_key", "")
         notify_on = notify_cfg.get("notify_on", ["extreme"])
         if level_key in notify_on:

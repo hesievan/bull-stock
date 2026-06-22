@@ -1,6 +1,6 @@
-import sys, json
+import sys
+import json
 sys.path.insert(0, '.')
-from src.indicators.calculator import calculate_heat_index
 import logging
 logging.basicConfig(level=logging.WARNING)
 

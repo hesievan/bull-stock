@@ -6,7 +6,6 @@
 """
 
 import os
-import sys
 import sqlite3
 import requests
 import pandas as pd

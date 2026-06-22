@@ -8,13 +8,12 @@
 import logging
 import time
 import os
-from datetime import datetime, timedelta, date
-from typing import Optional, List
+from datetime import date
 
 import pandas as pd
 import numpy as np
 
-from src.data.database import get_conn, get_latest_date, save_dataframe, DB_PATH
+from src.data.database import get_conn
 
 logger = logging.getLogger(__name__)
 
@@ -117,7 +116,7 @@ def fetch_index_daily(ak_code: str, start: str, end: str) -> pd.DataFrame:
 
 
 def fetch_all_index_incremental(db_path=None):
-    from src.data.database import DB_PATH as _DB, get_conn
+    from src.data.database import DB_PATH as _DB
     _db = db_path or _DB
     for ak_code in INDEX_CODE_MAP:
         with get_conn(_db) as conn:
@@ -363,7 +362,7 @@ def fetch_daily_basic_to_stock_daily(trade_date: str, db_path: str = None) -> in
     拉取 tushare daily(全市场K线) + daily_basic(PE/PB/市值)
     合并写入 stock_daily 表
     """
-    from src.data.database import DB_PATH as _DB, get_conn
+    from src.data.database import DB_PATH as _DB
     if not TUSHARE_TOKEN:
         logger.warning("TUSHARE_TOKEN not set, skipping")
         return 0

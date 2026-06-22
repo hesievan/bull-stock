@@ -3,8 +3,11 @@
 全量历史回测：计算 2015-01-05 至今每个交易日的热度指数
 输出: web/data/history_full.json + 历史走势图
 """
-import sys, os, json, time, logging
-from datetime import datetime, timedelta
+import sys
+import os
+import json
+import time
+import logging
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -15,7 +18,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-from src.data.database import init_database, DB_PATH
+from src.data.database import DB_PATH
 from src.indicators.calculator import calculate_heat_index
 
 # ── 获取全部交易日 ──────────────────────────────────────────────────────────
@@ -23,7 +26,7 @@ import sqlite3
 conn = sqlite3.connect(DB_PATH)
 # 从 stock_daily 获取所有交易日（有 PE/PB 数据的日子）
 rows = conn.execute("""
-    SELECT DISTINCT trade_date FROM stock_daily 
+    SELECT DISTINCT trade_date FROM stock_daily
     WHERE peTTM IS NOT NULL AND peTTM > 0
     ORDER BY trade_date
 """).fetchall()

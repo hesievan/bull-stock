@@ -3,7 +3,8 @@
 全市场 PE/PB 回填 — 从 tushare daily_basic 补全 stock_daily
 将 stock_daily 从 ~260 只成分股扩展到 ~5500 只全市场
 """
-import sys, os
+import sys
+import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 _env_path = os.path.expanduser("~/daily_stock_analysis/.env")

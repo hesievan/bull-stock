@@ -3,7 +3,10 @@
 全量回填 tushare 全市场数据到 stock_daily
 用 tushare daily + daily_basic 替代 baostock 的 800 只成分股数据
 """
-import sys, os, time, logging
+import sys
+import os
+import time
+import logging
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
@@ -18,7 +21,7 @@ conn = sqlite3.connect(DB_PATH)
 # 找出 amount < 100 行的日期 (即 baostock 数据，需要替换)
 dates_to_fill = conn.execute("""
     SELECT trade_date, COUNT(*) as n_amt
-    FROM stock_daily 
+    FROM stock_daily
     WHERE trade_date >= '2015-01-05'
     GROUP BY trade_date
     HAVING SUM(CASE WHEN amount > 0 THEN 1 ELSE 0 END) < 4000
@@ -49,7 +52,7 @@ for i, (td, _) in enumerate(dates_to_fill):
     except Exception as e:
         failed += 1
         logger.error(f"{td}: {str(e)[:60]}")
-    
+
     time.sleep(0.1)  # 限速
 
 elapsed = time.time() - t_start
