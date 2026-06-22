@@ -111,7 +111,7 @@ def run_daily(trade_date=None):
     logger.info("Step 2: Full market daily + daily_basic (tushare)...")
 
     def _step2():
-        from src.data.database import read_dataframe, DB_PATH
+        from src.data.database import DB_PATH
         import sqlite3
         conn = sqlite3.connect(DB_PATH)
         latest = conn.execute("SELECT MAX(trade_date) FROM stock_daily").fetchone()[0]
