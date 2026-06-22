@@ -111,7 +111,22 @@ def run_daily(trade_date=None):
     logger.info("Step 2: Full market daily + daily_basic (tushare)...")
 
     def _step2():
-        return fetch_daily_basic_to_stock_daily(trade_date)
+        from src.data.database import read_dataframe, DB_PATH
+        import sqlite3
+        conn = sqlite3.connect(DB_PATH)
+        latest = conn.execute("SELECT MAX(trade_date) FROM stock_daily").fetchone()[0]
+        conn.close()
+        if latest is None:
+            return fetch_daily_basic_to_stock_daily(trade_date)
+        import datetime
+        cursor = latest
+        total = 0
+        while cursor <= trade_date:
+            n = fetch_daily_basic_to_stock_daily(cursor)
+            if n:
+                total += n
+            cursor = (datetime.date.fromisoformat(cursor) + datetime.timedelta(days=1)).isoformat()
+        return total if total > 0 else False
 
     _run_step(step_status, "S2_market", _step2)
 

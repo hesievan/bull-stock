@@ -133,7 +133,9 @@ CREATE TABLE IF NOT EXISTS limit_up_daily (
 -- AH 溢价指数 (akshare: stock_zh_ah_spot_em)
 CREATE TABLE IF NOT EXISTS ah_premium (
     trade_date TEXT NOT NULL PRIMARY KEY,
-    premium REAL                 -- 溢价率(%)
+    premium REAL,                -- 溢价率(%)
+    n_stocks INTEGER,            -- 有效股对数
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- 新增投资者 (中国结算, 手动录入)
@@ -220,6 +222,32 @@ CREATE TABLE IF NOT EXISTS daily_ma_alignment (
     trade_date TEXT PRIMARY KEY,
     ma_alignment_ratio REAL
 );
+
+-- 历史成分股截面 (月末, 用于 PE/PB 中位数计算)
+CREATE TABLE IF NOT EXISTS index_constituents_hist (
+    index_code TEXT NOT NULL,
+    con_code TEXT NOT NULL,
+    trade_date TEXT NOT NULL,
+    weight REAL,
+    PRIMARY KEY (index_code, con_code, trade_date)
+);
+
+-- 股权风险溢价预计算表 (ERP = 1/PE - 10Y国债)
+CREATE TABLE IF NOT EXISTS daily_erp (
+    trade_date TEXT PRIMARY KEY,
+    erp REAL,
+    ey REAL,
+    bond_rate REAL,
+    pe REAL
+);
+
+-- 宏观指标预计算表 (M1-M2 剪刀差, M2同比)
+CREATE TABLE IF NOT EXISTS daily_macro (
+    trade_date TEXT PRIMARY KEY,
+    m1_yoy REAL,
+    m2_yoy REAL,
+    scissors REAL
+);
 """
 
 
@@ -250,6 +278,12 @@ def _migrate(conn, from_ver: int):
         for col in ("dim_macro", "composite_score_smoothed", "heat_level", "heat_level_smoothed"):
             if col not in cols:
                 conn.execute(f"ALTER TABLE heat_index ADD COLUMN {col} TEXT")
+    # 迁移: ah_premium 增加 n_stocks 列
+    ah_cols = {r[1] for r in conn.execute("PRAGMA table_info(ah_premium)").fetchall()}
+    if 'n_stocks' not in ah_cols:
+        conn.execute("ALTER TABLE ah_premium ADD COLUMN n_stocks INTEGER")
+    if 'created_at' not in ah_cols:
+        conn.execute("ALTER TABLE ah_premium ADD COLUMN created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     logger.info("Database migrated from v%d to v%d", from_ver, SCHEMA_VERSION)
 
 
@@ -344,8 +378,8 @@ _ALLOWED_TABLES = {
     "heat_index", "sector_heat", "metadata",
     "daily_circ_mv", "index_daily_pe", "ah_premium_monthly",
     "daily_updown", "daily_limit", "daily_ma_alignment",
-    "daily_below_net", "daily_erp", "daily_turnover", "qvix_daily",
-    "stock_high_250d",
+    "daily_below_net", "daily_erp", "daily_macro", "daily_turnover", "qvix_daily",
+    "stock_high_250d", "index_constituents_hist",
 }
 
 
