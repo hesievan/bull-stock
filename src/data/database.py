@@ -272,6 +272,71 @@ def init_database(db_path: str = None):
     logger.info("Database initialized at %s (v%d)", db_path or DB_PATH, SCHEMA_VERSION)
 
 
+# 配置：各预计算表的陈旧检测阈值
+STALENESS_CONFIG = [
+    {"table": "daily_updown",       "step": "S27", "fallback": True,  "max_gap_days": 5, "desc": "涨跌家数比"},
+    {"table": "daily_limit",        "step": "S28", "fallback": True,  "max_gap_days": 5, "desc": "涨停/跌停"},
+    {"table": "daily_below_net",    "step": "S29", "fallback": True,  "max_gap_days": 5, "desc": "破净率"},
+    {"table": "daily_ma_alignment", "step": "S30", "fallback": False, "max_gap_days": 5, "desc": "MA排列比"},
+    {"table": "daily_erp",          "step": "-",   "fallback": True,  "max_gap_days": 5, "desc": "股权风险溢价"},
+    {"table": "daily_circ_mv",      "step": "S26", "fallback": False, "max_gap_days": 5, "desc": "流通市值"},
+    {"table": "daily_macro",        "step": "-",   "fallback": False, "max_gap_days": 7, "desc": "宏观(M1-M2)"},
+    {"table": "qvix_daily",         "step": "manual", "fallback": False, "max_gap_days": 5, "desc": "QVIX恐慌"},
+    {"table": "index_daily_pe",     "step": "S25", "fallback": False, "max_gap_days": 5, "desc": "指数PE中位数"},
+    {"table": "ah_premium_monthly", "step": "S4",  "fallback": True,  "max_gap_days": 38, "desc": "AH溢价(月)"},
+]
+
+
+def check_precompute_staleness(trade_date: str = None, db_path: str = None) -> list[dict]:
+    """检查所有预计算表的最新日期，返回陈旧状态列表。
+
+    每条记录包含:
+      - table: 表名
+      - desc: 中文描述
+      - latest_date: 表中最新日期 (None = 无数据)
+      - gap_days: 距目标交易日的日历天数差
+      - max_gap_days: 允许的最大陈旧天数
+      - stale: 是否陈旧（gap_days > max_gap_days）
+      - has_fallback: 是否有实时 fallback 机制
+      - step: 所属更新步骤
+    """
+    from datetime import date
+    td = date.fromisoformat(trade_date) if trade_date else date.today()
+
+    def _parse_date(s: str) -> Optional[date]:
+        if not s:
+            return None
+        try:
+            return date.fromisoformat(s)
+        except ValueError:
+            # 处理 YYYY-MM 月格式 -> 映射到当月最后一天
+            if len(s) == 7 and s[4] == '-':
+                import calendar
+                y, m = int(s[:4]), int(s[5:7])
+                return date(y, m, calendar.monthrange(y, m)[1])
+        return None
+
+    results = []
+    for cfg in STALENESS_CONFIG:
+        latest_raw = get_latest_date(cfg["table"], db_path=db_path)
+        latest_dt = _parse_date(latest_raw)
+        gap = None
+        if latest_dt:
+            gap = (td - latest_dt).days
+        stale = gap is not None and gap > cfg["max_gap_days"]
+        results.append({
+            "table": cfg["table"],
+            "desc": cfg["desc"],
+            "latest_date": latest_raw,
+            "gap_days": gap,
+            "max_gap_days": cfg["max_gap_days"],
+            "stale": stale,
+            "has_fallback": cfg["fallback"],
+            "step": cfg["step"],
+        })
+    return results
+
+
 _ALLOWED_TABLES = {
     "index_daily", "stock_daily", "stock_industry", "m2_monthly",
     "stock_market_cap", "margin_history", "northbound_history",

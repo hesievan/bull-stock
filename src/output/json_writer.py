@@ -70,6 +70,10 @@ def _get_quiet_hours():
 # 飞书 Webhook（可选，通过环境变量）
 FEISHU_WEBHOOK = os.environ.get("FEISHU_WEBHOOK", "")
 
+# Bark 推送配置
+BARK_KEY = os.environ.get("BARK_KEY", os.environ.get("bark", "").replace("https://api.day.app/", "").rstrip("/"))
+BARK_API = f"https://api.day.app/{BARK_KEY}" if BARK_KEY else ""
+
 
 def get_heat_level(score: float) -> str:
     if score is None:
@@ -93,6 +97,70 @@ def get_heat_level_cn(score: float) -> str:
         "yellow": "🟡 黄色警惕",
         "green": "🟢 绿色安全"
     }.get(level, "未知")
+
+
+def build_data_quality_report(result: Dict) -> Dict:
+    """构建数据质量报告
+
+    根据每个维度的子指标可用性 + 新鲜度，输出质量评级和告警。
+    """
+    indicators = result.get("indicators", {})
+    freshness = result.get("freshness_scores", {})
+    effective_weights = result.get("effective_weights", {})
+
+    dim_labels = {
+        "valuation": "估值", "macro": "宏观", "fund": "资金",
+        "sentiment": "情绪", "technical": "技术", "structure": "结构",
+    }
+
+    report = {
+        "overall_quality": "good",
+        "dimensions": {},
+        "missing_indicators": [],
+        "stale_dimensions": [],
+    }
+
+    stale_count = 0
+    degraded_count = 0
+    for dim, sub_indicators in indicators.items():
+        total = len(sub_indicators)
+        available = sum(1 for v in sub_indicators.values() if v is not None)
+        ratio = available / total if total > 0 else 0
+
+        f = freshness.get(dim, 1.0)
+        is_stale = f < 0.8
+
+        status = "ok"
+        if ratio < 0.5 or is_stale:
+            status = "poor"
+            stale_count += 1
+        elif ratio < 0.8:
+            status = "degraded"
+            degraded_count += 1
+
+        report["dimensions"][dim] = {
+            "label": dim_labels.get(dim, dim),
+            "available": available,
+            "total": total,
+            "completeness": round(ratio, 2),
+            "freshness": round(f, 2),
+            "status": status,
+        }
+
+        if ratio < 1.0:
+            for k, v in sub_indicators.items():
+                if v is None:
+                    report["missing_indicators"].append(f"{dim}.{k}")
+
+        if is_stale:
+            report["stale_dimensions"].append(dim)
+
+    if stale_count > 0:
+        report["overall_quality"] = "poor"
+    elif degraded_count > 0:
+        report["overall_quality"] = "degraded"
+
+    return report
 
 
 def save_results(result: Dict, output_dir: str = None):
@@ -126,6 +194,8 @@ def save_results(result: Dict, output_dir: str = None):
             "technical": {"score": _round_score(result["dim_technical"]), "label": "技术"},
             "structure": {"score": _round_score(result["dim_structure"]), "label": "结构"},
         },
+        "effective_weights": result.get("effective_weights", {}),
+        "data_quality": build_data_quality_report(result),
         "updated_at": date.today().strftime("%Y-%m-%d %H:%M:%S"),
     }
 
@@ -417,6 +487,21 @@ def build_feishu_notification(result: Dict, history: list = None) -> Optional[st
     if highlights:
         lines.extend([f"", f"⚠️ 关注指标：", *[f"  · {h}" for h in highlights]])
 
+    # 数据质量告警
+    dq = result.get("data_quality") or {}
+    if dq and dq.get("overall_quality") != "good":
+        quality_lines = [f"", f"📊 数据质量 ({dq['overall_quality']})："]
+        for dim_name, dim_info in dq.get("dimensions", {}).items():
+            icon = "✅" if dim_info["status"] == "ok" else "⚠️" if dim_info["status"] == "degraded" else "❌"
+            quality_lines.append(
+                f"  {icon} {dim_info['label']}: {dim_info['available']}/{dim_info['total']} "
+                f"(新鲜度 {dim_info['freshness']:.0%})"
+            )
+        if dq.get("missing_indicators"):
+            quality_lines.append(f"  缺失: {', '.join(dq['missing_indicators'][:5])}")
+        quality_lines.append("  提示: 评分可信度降低，建议关注数据恢复")
+        lines.extend(quality_lines)
+
     lines.extend([
         f"",
         f"不构成投资建议，仅供参考。",
@@ -452,4 +537,34 @@ def send_feishu_webhook(message: str, webhook_url: str = None) -> bool:
             return False
     except (urllib.error.URLError, OSError, json.JSONDecodeError) as e:
         logger.error("Feishu webhook send error: %s", e)
+        return False
+
+
+def send_bark(title: str, body: str, level: str = "active", group: str = "HeatIndex") -> bool:
+    """通过 Bark 推送通知到 iPhone"""
+    if not BARK_API:
+        logger.warning("Bark not configured (BARK_KEY env var missing)")
+        return False
+    payload = json.dumps({
+        "title": title,
+        "body": body,
+        "group": group,
+        "level": level,
+    }).encode("utf-8")
+    req = urllib.request.Request(
+        BARK_API, data=payload,
+        headers={"Content-Type": "application/json"},
+        method="POST",
+    )
+    try:
+        resp = urllib.request.urlopen(req, timeout=10)
+        result = json.loads(resp.read())
+        if result.get("code") == 200:
+            logger.info("Bark notification sent: %s", title)
+            return True
+        else:
+            logger.error("Bark failed: %s", result)
+            return False
+    except (urllib.error.URLError, OSError, json.JSONDecodeError) as e:
+        logger.error("Bark send error: %s", e)
         return False

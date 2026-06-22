@@ -5,6 +5,7 @@
 推送时间: 每交易日 11:00, 14:00, 16:00
 """
 
+import os
 import sys
 import sqlite3
 import requests
@@ -28,6 +29,12 @@ HOLDINGS = [
 ]
 
 FEISHU_WEBHOOK = "https://www.feishu.cn/flow/api/trigger-webhook/18d944beda7772e52c8e326e34b40da0"
+
+# Bark 推送配置
+import urllib.request as _urllib_request
+import json as _json
+_BARK_KEY = os.environ.get("BARK_KEY", os.environ.get("bark", "").replace("https://api.day.app/", "").rstrip("/"))
+_BARK_API = f"https://api.day.app/{_BARK_KEY}" if _BARK_KEY else ""
 
 
 def fetch_realtime_tencent():
@@ -216,6 +223,33 @@ def push_feishu(text):
         print(f"Feishu push failed: {e}")
 
 
+def push_bark(title, body, level="active", group="Watchlist"):
+    """通过 Bark 推送持仓监控到 iPhone"""
+    if not _BARK_API:
+        print("Bark not configured, skip")
+        return
+    payload = _json.dumps({
+        "title": title,
+        "body": body,
+        "group": group,
+        "level": level,
+    }).encode("utf-8")
+    req = _urllib_request.Request(
+        _BARK_API, data=payload,
+        headers={"Content-Type": "application/json"},
+        method="POST",
+    )
+    try:
+        resp = _urllib_request.urlopen(req, timeout=10)
+        result = _json.loads(resp.read())
+        if result.get("code") == 200:
+            print(f"Bark push OK: {title}")
+        else:
+            print(f"Bark push failed: {result}")
+    except Exception as e:
+        print(f"Bark push error: {e}")
+
+
 if __name__ == "__main__":
     report = build_report()
     print(report)
@@ -227,3 +261,14 @@ if __name__ == "__main__":
     print(f"\n--- saved to {out_file} ---")
 
     push_feishu(report)
+
+    # Bark 推送（完整信息，与飞书通知内容一致）
+    try:
+        now_str = datetime.now().strftime('%H:%M')
+        push_bark(
+            title=f"📊 持仓监控 {now_str}",
+            body=report,
+            group="Watchlist",
+        )
+    except Exception as e:
+        print(f"Bark push error: {e}")

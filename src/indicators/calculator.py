@@ -21,7 +21,9 @@ import pandas as pd
 import numpy as np
 
 from src.data.database import read_dataframe, DB_PATH
-from src.indicators.utils import _pct_rank, _score_with_fallback, _to_numeric, get_weights, get_lookback_years
+from src.indicators.utils import (_pct_rank, _score_with_fallback, _to_numeric,
+                                   get_weights, get_lookback_years)
+from src.data.freshness import get_effective_weights, BASE_WEIGHTS
 from src.indicators.valuation import calc_valuation, calc_valuation_composite, calc_below_net_rate, calc_erp
 from src.indicators.macro import calc_macro, calc_m1m2_scissors, calc_m2_yoy
 from src.indicators.fund import calc_fund, calc_northbound_cumflow, calc_margin_ratio
@@ -297,7 +299,11 @@ class HeatIndexCalculator:
                     label, result, len(valid), [f"{v:.1f}" for v in valid])
         return max(0, min(100, result))
 
-    def _calc_composite(self, dims: list) -> Optional[float]:
+    def _calc_composite(self, dims: list, indicators: dict = None) -> tuple:
+        """计算加权综合得分，返回 (composite_score, effective_weights, freshness_scores)
+
+        当数据陈旧时自动衰减权重，将权重重新分配给新鲜维度。
+        """
         w = get_weights()
         w_val = w.get("valuation", 0.25)
         w_macro = w.get("macro", 0.15)
@@ -306,10 +312,59 @@ class HeatIndexCalculator:
         w_tech = w.get("technical", 0.10)
         w_struct = w.get("structure", 0.15)
         weights = [w_val, w_macro, w_fund, w_sent, w_tech, w_struct]
-        valid = [(d, w) for d, w in zip(dims, weights) if d is not None]
+        dim_names = ["valuation", "macro", "fund", "sentiment", "technical", "structure"]
+
+        # 新鲜度调整
+        effective_weights = dict(zip(dim_names, weights))
+        freshness_scores = {}
+        if indicators:
+            eff_w, fresh = get_effective_weights(indicators, self.trade_date)
+            effective_weights.update(eff_w)
+            freshness_scores = fresh
+
+        valid = [(d, effective_weights.get(n, w))
+                 for d, n, w in zip(dims, dim_names, weights)
+                 if d is not None and effective_weights.get(n, w) > 0]
         if valid:
-            return sum(d * w for d, w in valid) / sum(w for _, w in valid)
-        return None
+            composite = sum(d * w for d, w in valid) / sum(w for _, w in valid)
+        else:
+            composite = None
+
+        return composite, effective_weights, freshness_scores
+
+    def _build_data_quality(self, dim_names, dims, freshness_scores):
+        """构建数据质量报告"""
+        indicators_data = getattr(self, '_indicators_data', {})
+        dim_labels = {"valuation":"估值","macro":"宏观","fund":"资金",
+                      "sentiment":"情绪","technical":"技术","structure":"结构"}
+        report = {"overall_quality": "good", "dimensions": {}}
+        stale_count = 0
+        degraded_count = 0
+        for i, name in enumerate(dim_names):
+            f = freshness_scores.get(name, 1.0)
+            is_stale = f < 0.8
+            dim_score = dims[i]
+            available = 1 if dim_score is not None else 0
+            total = 1
+            status = "ok"
+            if available == 0 or is_stale:
+                status = "poor" if (available == 0 or f < 0.5) else "degraded"
+            if status == "poor":
+                stale_count += 1
+            elif status == "degraded":
+                degraded_count += 1
+            report["dimensions"][name] = {
+                "label": dim_labels.get(name, name),
+                "available": available,
+                "total": total,
+                "freshness": round(f, 2),
+                "status": status,
+            }
+        if stale_count > 0:
+            report["overall_quality"] = "poor"
+        elif degraded_count > 0:
+            report["overall_quality"] = "degraded"
+        return report
 
     def calculate(self) -> dict:
         logger.info("=" * 50)
@@ -324,7 +379,7 @@ class HeatIndexCalculator:
         dim_struct = self._calc_structure()
 
         dims = [dim_val, dim_macro, dim_fund, dim_sent, dim_tech, dim_struct]
-        composite = self._calc_composite(dims)
+        dim_names = ["valuation", "macro", "fund", "sentiment", "technical", "structure"]
 
         v1 = self._calc_valuation_composite()
         v4 = self._calc_below_net_rate()
@@ -346,9 +401,48 @@ class HeatIndexCalculator:
         st1 = self._calc_new_high_ratio()
         st2 = self._calc_ah_premium_index()
 
+        indicators_dict = {
+            "valuation": {
+                "valuation_composite": {"value": v1},
+                "below_net_rate": {"value": v4},
+                "erp": {"value": v5},
+            },
+            "macro": {
+                "m1m2_scissors": {"value": m1},
+                "m2_yoy": {"value": m2},
+            },
+            "fund": {
+                "northbound_cumflow": {"value": f3},
+                "margin_ratio": {"value": f1},
+            },
+            "sentiment": {
+                "turnover": {"value": s1},
+                "up_down_ratio": {"value": s2},
+                "limit_up_ratio": {"value": s3},
+                "limit_ratio": {"value": s5},
+                "qvix": {"value": s6},
+            },
+            "technical": {
+                "ma_alignment": {"value": t1},
+                "deviation_ma250": {"value": t3},
+                "momentum_60d": {"value": t4},
+                "momentum_20d": {"value": t5},
+                "momentum_120d": {"value": t6},
+            },
+            "structure": {
+                "new_high_ratio": {"value": st1},
+                "ah_premium_index": {"value": st2},
+            },
+        }
+
+        composite, effective_weights, freshness_scores = self._calc_composite(dims, indicators_dict)
+
         result = {
             "trade_date": self.trade_date,
             "composite_score": composite,
+            "effective_weights": effective_weights,
+            "freshness_scores": freshness_scores,
+            "data_quality": self._build_data_quality(dim_names, dims, freshness_scores),
             "dim_valuation": dim_val,
             "dim_macro": dim_macro,
             "dim_fund": dim_fund,

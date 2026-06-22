@@ -166,6 +166,29 @@ def run_daily(trade_date=None):
 
     _run_step(step_status, "S30_ma_alignment", _step30)
 
+    # ── Step 2.4: 预计算表陈旧检测 ────────────────────────────────────────────
+    logger.info("Step 2.4: Checking precompute table staleness...")
+
+    def _step24():
+        from src.data.database import check_precompute_staleness
+        stale_results = check_precompute_staleness(trade_date)
+        stale_tables = [r for r in stale_results if r["stale"]]
+        if stale_tables:
+            logger.warning("Stale precompute tables (%d):", len(stale_tables))
+            for r in stale_tables:
+                fallback_info = "yes" if r["has_fallback"] else "NO"
+                logger.warning(
+                    "  %s (%s): latest=%s, gap=%sd, max=%sd, fallback=%s",
+                    r["table"], r["desc"], r["latest_date"],
+                    r["gap_days"], r["max_gap_days"], fallback_info,
+                )
+        else:
+            logger.info("All precompute tables fresh")
+        step_status["precompute_staleness"] = stale_results
+        return True
+
+    _run_step(step_status, "S24_precompute_check", _step24)
+
     # ── Step 3: tushare 融资融券/北向/国债 ──────────────────────────────────
     logger.info("Step 3: Tushare margin/northbound/bond...")
 
@@ -224,6 +247,22 @@ def run_daily(trade_date=None):
             "indicators": {},
         }
 
+    # ── Step 5.5: 指数牛市见顶预判 ────────────────────────────────────────────
+    logger.info("Step 5.5: Computing index overheating scores...")
+
+    def _step55():
+        from src.indicators.index_heat import compute_index_heat
+        idx_results = compute_index_heat(trade_date=trade_date)
+        out_dir = os.path.join(os.path.dirname(__file__), "..", "web", "data")
+        os.makedirs(out_dir, exist_ok=True)
+        with open(os.path.join(out_dir, "index_heat.json"), "w", encoding="utf-8") as f:
+            json.dump(idx_results, f, ensure_ascii=False, indent=2)
+        n_ok = sum(1 for r in idx_results if "error" not in r)
+        logger.info("Index heat: %d/%d computed", n_ok, len(idx_results))
+        return n_ok > 0
+
+    _run_step(step_status, "S55_index_heat", _step55)
+
     # ── Step 6: 保存结果 ────────────────────────────────────────────────────
     logger.info("Step 6: Saving results...")
 
@@ -231,9 +270,9 @@ def run_daily(trade_date=None):
         save_results(result)
         out_dir = os.path.join(os.path.dirname(__file__), "..", "web", "data")
         os.makedirs(out_dir, exist_ok=True)
-        n_ok = sum(1 for v in step_status.values() if v["status"] == "OK")
-        n_fail = sum(1 for v in step_status.values() if v["status"] == "FAILED")
-        n_skip = sum(1 for v in step_status.values() if v["status"] == "SKIPPED")
+        n_ok = sum(1 for v in step_status.values() if isinstance(v, dict) and v.get("status") == "OK")
+        n_fail = sum(1 for v in step_status.values() if isinstance(v, dict) and v.get("status") == "FAILED")
+        n_skip = sum(1 for v in step_status.values() if isinstance(v, dict) and v.get("status") == "SKIPPED")
         status_out = {
             "trade_date": trade_date,
             "generated_at": date.today().strftime("%Y-%m-%d %H:%M:%S"),
@@ -303,21 +342,35 @@ def run_daily(trade_date=None):
                 send_feishu_webhook(msg, webhook_url=webhook_url)
             except Exception as hook_exc:
                 logger.warning("Feishu webhook failed: %s", str(hook_exc)[:80])
+
+        # Bark 推送（完整信息，与飞书通知内容一致）
+        try:
+            from src.output.json_writer import send_bark, get_heat_level
+            bark_status = "timeSensitive" if get_heat_level(result.get("composite_score", 0)) == "red" else "active"
+            score = result.get("composite_score", 0)
+            send_bark(
+                title=f"🔥 热度指数 {score:.1f}",
+                body=msg,
+                level=bark_status,
+                group="HeatIndex",
+            )
+        except Exception as bark_exc:
+            logger.warning("Bark push failed: %s", str(bark_exc)[:80])
         return True
 
     _run_step(step_status, "S9_notify", _step9)
 
     # ── 最终汇总 ────────────────────────────────────────────────────────────
     elapsed = time.time() - t_start
-    n_ok = sum(1 for v in step_status.values() if v["status"] == "OK")
-    n_fail = sum(1 for v in step_status.values() if v["status"] == "FAILED")
-    n_skip = sum(1 for v in step_status.values() if v["status"] == "SKIPPED")
+    n_ok = sum(1 for v in step_status.values() if isinstance(v, dict) and v.get("status") == "OK")
+    n_fail = sum(1 for v in step_status.values() if isinstance(v, dict) and v.get("status") == "FAILED")
+    n_skip = sum(1 for v in step_status.values() if isinstance(v, dict) and v.get("status") == "SKIPPED")
 
     logger.info("=" * 60)
     logger.info("RUN SUMMARY: %d OK / %d FAILED / %d SKIPPED (%.1fs)",
                 n_ok, n_fail, n_skip, elapsed)
     for sn, sv in step_status.items():
-        if sv["status"] != "OK":
+        if isinstance(sv, dict) and sv.get("status") != "OK":
             logger.info("  [%s] %s: %s", sv["status"], sn, sv.get("detail", ""))
     logger.info("=" * 60)
 

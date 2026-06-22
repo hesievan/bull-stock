@@ -27,10 +27,12 @@ TUSHARE_RETRIES = 2
 INDEX_CODE_MAP = {
     "sh000001": "000001.SH", "sz399001": "399001.SZ", "sz399006": "399006.SZ",
     "sh000300": "000300.SH", "sh000905": "000905.SH", "sh000852": "000852.SH",
+    "sh000688": "000688.SH", "bj899050": "899050.BJ", "sh000510": "000510.SH",
 }
 INDEX_NAMES = {
     "sh000001": "上证综指", "sz399001": "深证成指", "sz399006": "创业板指",
     "sh000300": "沪深300", "sh000905": "中证500", "sh000852": "中证1000",
+    "sh000688": "科创50", "bj899050": "北证50", "sh000510": "中证A500",
 }
 
 
@@ -78,6 +80,8 @@ def ts_to_ak(ts_code: str) -> str:
         return "sh" + ts_code.replace(".SH", "")
     elif ts_code.endswith(".SZ"):
         return "sz" + ts_code.replace(".SZ", "")
+    elif ts_code.endswith(".BJ"):
+        return "bj" + ts_code.replace(".BJ", "")
     return ts_code
 
 
@@ -115,11 +119,14 @@ def fetch_index_daily(ak_code: str, start: str, end: str) -> pd.DataFrame:
 def fetch_all_index_incremental(db_path=None):
     from src.data.database import DB_PATH as _DB, get_conn
     _db = db_path or _DB
-    with get_conn(_db) as conn:
-        latest = conn.execute("SELECT MAX(trade_date) FROM index_daily").fetchone()[0]
-    start = latest or "2015-01-01"
-    end = date.today().strftime("%Y-%m-%d")
     for ak_code in INDEX_CODE_MAP:
+        with get_conn(_db) as conn:
+            latest = conn.execute(
+                "SELECT MAX(trade_date) FROM index_daily WHERE index_code=?",
+                (ak_code,)
+            ).fetchone()[0]
+        start = latest or "2015-01-01"
+        end = date.today().strftime("%Y-%m-%d")
         df = fetch_index_daily(ak_code, start, end)
         if not df.empty:
             _save(df, "index_daily")
@@ -331,13 +338,16 @@ def fetch_index_pe_history(start: str, end: str) -> pd.DataFrame:
     try:
         pro = _get_pro()
         dfs = []
-        for ts_code in ["000300.SH", "000905.SH"]:
-            df = pro.index_dailybasic(ts_code=ts_code,
-                                      start_date=start.replace("-", ""),
-                                      end_date=end.replace("-", ""))
-            _ts_sleep()
-            if df is not None and not df.empty:
-                dfs.append(df)
+        for ts_code in ["000300.SH", "000905.SH", "000688.SH", "899050.BJ", "399006.SZ", "000852.SH"]:
+            try:
+                df = pro.index_dailybasic(ts_code=ts_code,
+                                          start_date=start.replace("-", ""),
+                                          end_date=end.replace("-", ""))
+                _ts_sleep()
+                if df is not None and not df.empty:
+                    dfs.append(df)
+            except Exception:
+                logger.warning("fetch_index_pe_history %s: skipped", ts_code)
         if not dfs:
             return pd.DataFrame()
         return pd.concat(dfs, ignore_index=True)
