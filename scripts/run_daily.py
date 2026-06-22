@@ -73,14 +73,14 @@ def _run_step(step_status, step_name, fn, *args, **kwargs):
 
 
 def run_daily(trade_date=None):
-    from src.data.database import init_database, read_dataframe
+    from src.data.database import init_database, read_dataframe, DB_PATH
     from src.data.fetcher import (
         fetch_all_index_incremental,
         fetch_daily_basic_to_stock_daily,
         fetch_margin_history,
         fetch_northbound_history,
         fetch_bond_yield_history,
-        _save, DB_PATH,
+        _save,
     )
     from src.indicators.calculator import calculate_heat_index
     from src.output.json_writer import (
