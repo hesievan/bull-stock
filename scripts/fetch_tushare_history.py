@@ -32,8 +32,10 @@ logger = logging.getLogger(__name__)
 def main():
     import tushare as ts
     import pandas as pd
-    from src.data.database import get_latest_date, save_dataframe, DB_PATH
+    from src.data.database import get_latest_date, save_dataframe, DB_PATH, init_database
     import sqlite3
+
+    init_database()
 
     pro = ts.pro_api(os.environ["TUSHARE_TOKEN"])
     START = "2015-01-01"
