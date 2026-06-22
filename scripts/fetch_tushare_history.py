@@ -116,7 +116,7 @@ def main():
                 ts_code=ts_code,
                 start_date=start3.replace("-", ""),
                 end_date=END.replace("-", ""),
-                fields="trade_date,pe_ttm,pb,total_mv,turnover_rate,turnover_rate_f",
+                fields="trade_date,pe_ttm,pb,total_mv,turnover_rate",
             )
             if not df3.empty:
                 df3["index_code"] = ak_code
