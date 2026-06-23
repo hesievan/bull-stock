@@ -106,10 +106,13 @@ def fetch_index_daily(ak_code: str, start: str, end: str) -> pd.DataFrame:
         df["trade_date"] = pd.to_datetime(df["trade_date"], format="%Y%m%d").dt.strftime("%Y-%m-%d")
         df["index_code"] = ak_code
         df.rename(columns={"pct_chg": "pct_change", "vol": "volume"}, inplace=True)
-        for col in ["open", "high", "low", "close", "volume", "amount", "pct_change"]:
-            if col in df.columns:
+        expected_cols = ["trade_date", "index_code", "open", "high", "low", "close", "volume", "amount", "pct_change"]
+        for col in expected_cols:
+            if col not in df.columns and col not in ("trade_date", "index_code"):
+                df[col] = None
+            elif col in df.columns:
                 df[col] = pd.to_numeric(df[col], errors="coerce")
-        return df[["trade_date", "index_code", "open", "high", "low", "close", "volume", "amount", "pct_change"]]
+        return df[expected_cols]
     except Exception as e:
         logger.error("fetch_index_daily(%s) failed: %s", ak_code, str(e)[:80])
         return pd.DataFrame()
@@ -227,10 +230,13 @@ def fetch_stock_kline(ak_code: str, start: str, end: str,
         df["trade_date"] = pd.to_datetime(df["trade_date"], format="%Y%m%d").dt.strftime("%Y-%m-%d")
         df["stock_code"] = ak_code
         df.rename(columns={"pct_chg": "pct_change", "vol": "volume"}, inplace=True)
-        for col in ["open", "high", "low", "close", "volume", "amount", "pct_change"]:
-            if col in df.columns:
+        expected_cols = ["trade_date", "stock_code", "open", "high", "low", "close", "volume", "amount", "pct_change"]
+        for col in expected_cols:
+            if col not in df.columns and col not in ("trade_date", "stock_code"):
+                df[col] = None
+            elif col in df.columns:
                 df[col] = pd.to_numeric(df[col], errors="coerce")
-        return df[["trade_date", "stock_code", "open", "high", "low", "close", "volume", "amount", "pct_change"]]
+        return df[expected_cols]
     except Exception as e:
         logger.error("fetch_stock_kline(%s) failed: %s", ak_code, str(e)[:80])
         return pd.DataFrame()
