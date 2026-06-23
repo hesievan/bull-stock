@@ -1,0 +1,8652 @@
+[
+  {
+    "trade_date": "2015-01-30",
+    "composite_score": 65.6,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 93.8,
+      "fund": null,
+      "sentiment": 44.6,
+      "technical": null,
+      "structure": 38.0,
+      "macro": 74.4
+    }
+  },
+  {
+    "trade_date": "2015-02-06",
+    "composite_score": 59.7,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 90.5,
+      "fund": null,
+      "sentiment": 27.7,
+      "technical": null,
+      "structure": 55.4,
+      "macro": 55.3
+    }
+  },
+  {
+    "trade_date": "2015-02-13",
+    "composite_score": 73.8,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 93.9,
+      "fund": null,
+      "sentiment": 76.2,
+      "technical": null,
+      "structure": 55.4,
+      "macro": 55.3
+    }
+  },
+  {
+    "trade_date": "2015-02-17",
+    "composite_score": 71.5,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 94.4,
+      "fund": null,
+      "sentiment": 67.1,
+      "technical": null,
+      "structure": 55.4,
+      "macro": 55.3
+    }
+  },
+  {
+    "trade_date": "2015-02-27",
+    "composite_score": 73.8,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 95.2,
+      "fund": null,
+      "sentiment": 74.6,
+      "technical": null,
+      "structure": 55.4,
+      "macro": 55.3
+    }
+  },
+  {
+    "trade_date": "2015-03-06",
+    "composite_score": 62.2,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 94.9,
+      "fund": null,
+      "sentiment": 60.2,
+      "technical": null,
+      "structure": 29.3,
+      "macro": 43.1
+    }
+  },
+  {
+    "trade_date": "2015-03-13",
+    "composite_score": 66.8,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 95.9,
+      "fund": null,
+      "sentiment": 76.1,
+      "technical": null,
+      "structure": 29.3,
+      "macro": 43.1
+    }
+  },
+  {
+    "trade_date": "2015-03-20",
+    "composite_score": 67.7,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 96.8,
+      "fund": null,
+      "sentiment": 78.6,
+      "technical": null,
+      "structure": 29.3,
+      "macro": 43.1
+    }
+  },
+  {
+    "trade_date": "2015-03-27",
+    "composite_score": 68.0,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 96.9,
+      "fund": null,
+      "sentiment": 79.7,
+      "technical": null,
+      "structure": 29.3,
+      "macro": 43.1
+    }
+  },
+  {
+    "trade_date": "2015-04-03",
+    "composite_score": 60.8,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 98.1,
+      "fund": null,
+      "sentiment": 83.1,
+      "technical": 0.0,
+      "structure": 27.5,
+      "macro": 43.0
+    }
+  },
+  {
+    "trade_date": "2015-04-10",
+    "composite_score": 64.9,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 100.0,
+      "fund": 22.2,
+      "sentiment": 86.3,
+      "technical": 87.4,
+      "structure": 27.5,
+      "macro": 43.0
+    }
+  },
+  {
+    "trade_date": "2015-04-17",
+    "composite_score": 61.3,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 100.0,
+      "fund": 7.4,
+      "sentiment": 77.0,
+      "technical": 92.8,
+      "structure": 27.5,
+      "macro": 43.0
+    }
+  },
+  {
+    "trade_date": "2015-04-24",
+    "composite_score": 68.7,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 100.0,
+      "fund": 58.9,
+      "sentiment": 73.4,
+      "technical": 96.5,
+      "structure": 27.5,
+      "macro": 43.0
+    }
+  },
+  {
+    "trade_date": "2015-04-30",
+    "composite_score": 68.5,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 100.0,
+      "fund": 55.8,
+      "sentiment": 74.3,
+      "technical": 96.5,
+      "structure": 27.5,
+      "macro": 43.0
+    }
+  },
+  {
+    "trade_date": "2015-05-08",
+    "composite_score": 67.6,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 90.5,
+      "fund": 44.9,
+      "sentiment": 86.8,
+      "technical": 95.3,
+      "structure": 26.1,
+      "macro": 49.5
+    }
+  },
+  {
+    "trade_date": "2015-05-15",
+    "composite_score": 66.7,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 100.0,
+      "fund": 44.5,
+      "sentiment": 71.6,
+      "technical": 93.8,
+      "structure": 26.1,
+      "macro": 49.5
+    }
+  },
+  {
+    "trade_date": "2015-05-22",
+    "composite_score": 67.5,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 100.0,
+      "fund": 38.0,
+      "sentiment": 81.3,
+      "technical": 91.8,
+      "structure": 26.1,
+      "macro": 49.5
+    }
+  },
+  {
+    "trade_date": "2015-05-29",
+    "composite_score": 69.2,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 97.2,
+      "fund": 58.3,
+      "sentiment": 79.0,
+      "technical": 90.3,
+      "structure": 26.1,
+      "macro": 49.5
+    }
+  },
+  {
+    "trade_date": "2015-06-05",
+    "composite_score": 64.0,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 100.0,
+      "fund": 16.7,
+      "sentiment": 82.0,
+      "technical": 90.5,
+      "structure": 23.7,
+      "macro": 49.8
+    }
+  },
+  {
+    "trade_date": "2015-06-12",
+    "composite_score": 70.4,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 100.0,
+      "fund": 60.2,
+      "sentiment": 81.5,
+      "technical": 90.2,
+      "structure": 23.7,
+      "macro": 49.8
+    }
+  },
+  {
+    "trade_date": "2015-06-19",
+    "composite_score": 65.2,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 88.6,
+      "fund": 95.8,
+      "sentiment": 43.7,
+      "technical": 88.5,
+      "structure": 23.7,
+      "macro": 49.8
+    }
+  },
+  {
+    "trade_date": "2015-06-26",
+    "composite_score": 62.5,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 83.8,
+      "fund": 94.5,
+      "sentiment": 38.9,
+      "technical": 85.9,
+      "structure": 23.7,
+      "macro": 49.8
+    }
+  },
+  {
+    "trade_date": "2015-07-03",
+    "composite_score": 51.7,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 50.3,
+      "fund": 90.4,
+      "sentiment": 39.2,
+      "technical": 75.2,
+      "structure": 10.1,
+      "macro": 58.3
+    }
+  },
+  {
+    "trade_date": "2015-07-09",
+    "composite_score": 45.4,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 30.5,
+      "fund": 41.5,
+      "sentiment": 88.9,
+      "technical": 35.6,
+      "structure": 10.1,
+      "macro": 58.3
+    }
+  },
+  {
+    "trade_date": "2015-07-10",
+    "composite_score": 48.0,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 43.4,
+      "fund": 42.7,
+      "sentiment": 88.5,
+      "technical": 27.9,
+      "structure": 10.1,
+      "macro": 58.3
+    }
+  },
+  {
+    "trade_date": "2015-07-17",
+    "composite_score": 47.6,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 61.3,
+      "fund": 19.0,
+      "sentiment": 88.2,
+      "technical": 15.0,
+      "structure": 10.1,
+      "macro": 58.3
+    }
+  },
+  {
+    "trade_date": "2015-07-24",
+    "composite_score": 49.8,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 71.5,
+      "fund": 48.6,
+      "sentiment": 67.3,
+      "technical": 9.4,
+      "structure": 10.1,
+      "macro": 58.3
+    }
+  },
+  {
+    "trade_date": "2015-07-31",
+    "composite_score": 44.4,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 58.6,
+      "fund": 51.2,
+      "sentiment": 55.4,
+      "technical": 6.8,
+      "structure": 10.1,
+      "macro": 58.3
+    }
+  },
+  {
+    "trade_date": "2015-08-07",
+    "composite_score": 49.7,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 66.4,
+      "fund": 10.9,
+      "sentiment": 86.3,
+      "technical": 6.0,
+      "structure": 16.8,
+      "macro": 73.9
+    }
+  },
+  {
+    "trade_date": "2015-08-14",
+    "composite_score": 56.6,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 85.4,
+      "fund": 36.4,
+      "sentiment": 77.2,
+      "technical": 7.0,
+      "structure": 16.8,
+      "macro": 73.9
+    }
+  },
+  {
+    "trade_date": "2015-08-21",
+    "composite_score": 40.3,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 55.8,
+      "fund": 47.3,
+      "sentiment": 23.8,
+      "technical": 8.0,
+      "structure": 16.8,
+      "macro": 73.9
+    }
+  },
+  {
+    "trade_date": "2015-08-28",
+    "composite_score": 44.9,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 42.9,
+      "fund": 15.3,
+      "sentiment": 88.2,
+      "technical": 6.0,
+      "structure": 16.8,
+      "macro": 73.9
+    }
+  },
+  {
+    "trade_date": "2015-09-02",
+    "composite_score": 36.9,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 29.1,
+      "fund": 14.2,
+      "sentiment": 38.6,
+      "technical": 4.6,
+      "structure": 46.4,
+      "macro": 82.5
+    }
+  },
+  {
+    "trade_date": "2015-09-11",
+    "composite_score": 50.8,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 39.6,
+      "fund": 47.9,
+      "sentiment": 70.4,
+      "technical": 3.5,
+      "structure": 46.4,
+      "macro": 82.5
+    }
+  },
+  {
+    "trade_date": "2015-09-18",
+    "composite_score": 47.9,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 30.5,
+      "fund": 47.7,
+      "sentiment": 67.9,
+      "technical": 2.4,
+      "structure": 46.4,
+      "macro": 82.5
+    }
+  },
+  {
+    "trade_date": "2015-09-25",
+    "composite_score": 38.7,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 34.1,
+      "fund": 33.1,
+      "sentiment": 28.0,
+      "technical": 2.5,
+      "structure": 46.4,
+      "macro": 82.5
+    }
+  },
+  {
+    "trade_date": "2015-09-30",
+    "composite_score": 46.7,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 34.2,
+      "fund": 57.3,
+      "sentiment": 50.2,
+      "technical": 2.5,
+      "structure": 46.4,
+      "macro": 82.5
+    }
+  },
+  {
+    "trade_date": "2015-10-09",
+    "composite_score": 56.0,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 43.9,
+      "fund": 63.8,
+      "sentiment": 78.6,
+      "technical": 2.5,
+      "structure": 42.0,
+      "macro": 88.3
+    }
+  },
+  {
+    "trade_date": "2015-10-16",
+    "composite_score": 53.9,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 57.4,
+      "fund": 20.8,
+      "sentiment": 82.8,
+      "technical": 2.9,
+      "structure": 42.0,
+      "macro": 88.3
+    }
+  },
+  {
+    "trade_date": "2015-10-23",
+    "composite_score": 54.2,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 58.8,
+      "fund": 14.5,
+      "sentiment": 87.2,
+      "technical": 3.9,
+      "structure": 42.0,
+      "macro": 88.3
+    }
+  },
+  {
+    "trade_date": "2015-10-30",
+    "composite_score": 55.9,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 58.2,
+      "fund": 50.3,
+      "sentiment": 68.7,
+      "technical": 5.3,
+      "structure": 42.0,
+      "macro": 88.3
+    }
+  },
+  {
+    "trade_date": "2015-11-06",
+    "composite_score": 60.7,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 69.4,
+      "fund": 57.2,
+      "sentiment": 87.6,
+      "technical": 6.3,
+      "structure": 21.5,
+      "macro": 89.3
+    }
+  },
+  {
+    "trade_date": "2015-11-13",
+    "composite_score": 54.5,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 70.2,
+      "fund": 67.0,
+      "sentiment": 47.7,
+      "technical": 6.8,
+      "structure": 21.5,
+      "macro": 89.3
+    }
+  },
+  {
+    "trade_date": "2015-11-20",
+    "composite_score": 58.5,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 74.4,
+      "fund": 43.2,
+      "sentiment": 80.7,
+      "technical": 7.0,
+      "structure": 21.5,
+      "macro": 89.3
+    }
+  },
+  {
+    "trade_date": "2015-11-27",
+    "composite_score": 49.6,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 62.0,
+      "fund": 63.4,
+      "sentiment": 35.7,
+      "technical": 8.7,
+      "structure": 21.5,
+      "macro": 89.3
+    }
+  },
+  {
+    "trade_date": "2015-12-04",
+    "composite_score": 54.4,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 70.3,
+      "fund": 30.6,
+      "sentiment": 65.3,
+      "technical": 13.0,
+      "structure": 32.4,
+      "macro": 86.7
+    }
+  },
+  {
+    "trade_date": "2015-12-11",
+    "composite_score": 52.6,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 59.3,
+      "fund": 52.8,
+      "sentiment": 49.4,
+      "technical": 21.5,
+      "structure": 32.4,
+      "macro": 86.7
+    }
+  },
+  {
+    "trade_date": "2015-12-18",
+    "composite_score": 60.9,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 73.8,
+      "fund": 49.3,
+      "sentiment": 66.8,
+      "technical": 38.4,
+      "structure": 32.4,
+      "macro": 86.7
+    }
+  },
+  {
+    "trade_date": "2015-12-25",
+    "composite_score": 59.7,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 76.8,
+      "fund": 22.7,
+      "sentiment": 71.2,
+      "technical": 50.4,
+      "structure": 32.4,
+      "macro": 86.7
+    }
+  },
+  {
+    "trade_date": "2015-12-31",
+    "composite_score": 61.0,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 75.2,
+      "fund": 67.2,
+      "sentiment": 43.6,
+      "technical": 55.6,
+      "structure": 32.4,
+      "macro": 86.7
+    }
+  },
+  {
+    "trade_date": "2016-01-08",
+    "composite_score": 50.2,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 41.1,
+      "fund": 22.1,
+      "sentiment": 75.6,
+      "technical": 50.1,
+      "structure": 17.9,
+      "macro": 91.8
+    }
+  },
+  {
+    "trade_date": "2016-01-15",
+    "composite_score": 42.9,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 26.6,
+      "fund": 83.6,
+      "sentiment": 22.1,
+      "technical": 28.7,
+      "structure": 17.9,
+      "macro": 91.8
+    }
+  },
+  {
+    "trade_date": "2016-01-22",
+    "composite_score": 45.0,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 27.1,
+      "fund": 53.5,
+      "sentiment": 63.6,
+      "technical": 10.4,
+      "structure": 17.9,
+      "macro": 91.8
+    }
+  },
+  {
+    "trade_date": "2016-01-29",
+    "composite_score": 44.8,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 24.4,
+      "fund": 46.1,
+      "sentiment": 74.7,
+      "technical": 3.7,
+      "structure": 17.9,
+      "macro": 91.8
+    }
+  },
+  {
+    "trade_date": "2016-02-05",
+    "composite_score": 36.4,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 26.5,
+      "fund": 41.8,
+      "sentiment": 34.5,
+      "technical": 2.3,
+      "structure": 20.4,
+      "macro": 88.6
+    }
+  },
+  {
+    "trade_date": "2016-02-19",
+    "composite_score": 44.9,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 31.0,
+      "fund": 56.1,
+      "sentiment": 60.8,
+      "technical": 2.6,
+      "structure": 20.4,
+      "macro": 88.6
+    }
+  },
+  {
+    "trade_date": "2016-02-26",
+    "composite_score": 42.8,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 28.7,
+      "fund": 49.8,
+      "sentiment": 57.5,
+      "technical": 3.3,
+      "structure": 20.4,
+      "macro": 88.6
+    }
+  },
+  {
+    "trade_date": "2016-03-04",
+    "composite_score": 41.8,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 30.4,
+      "fund": 44.7,
+      "sentiment": 27.2,
+      "technical": 4.0,
+      "structure": 50.1,
+      "macro": 94.5
+    }
+  },
+  {
+    "trade_date": "2016-03-11",
+    "composite_score": 40.9,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 30.3,
+      "fund": 40.6,
+      "sentiment": 25.5,
+      "technical": 4.6,
+      "structure": 50.1,
+      "macro": 94.5
+    }
+  },
+  {
+    "trade_date": "2016-03-18",
+    "composite_score": 55.4,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 35.5,
+      "fund": 47.7,
+      "sentiment": 86.1,
+      "technical": 4.6,
+      "structure": 50.1,
+      "macro": 94.5
+    }
+  },
+  {
+    "trade_date": "2016-03-25",
+    "composite_score": 50.8,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 37.3,
+      "fund": 42.7,
+      "sentiment": 64.5,
+      "technical": 5.0,
+      "structure": 50.1,
+      "macro": 94.5
+    }
+  },
+  {
+    "trade_date": "2016-04-01",
+    "composite_score": 44.2,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 40.2,
+      "fund": 32.2,
+      "sentiment": 45.0,
+      "technical": 5.1,
+      "structure": 39.6,
+      "macro": 92.3
+    }
+  },
+  {
+    "trade_date": "2016-04-08",
+    "composite_score": 47.9,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 42.2,
+      "fund": 52.2,
+      "sentiment": 45.8,
+      "technical": 6.1,
+      "structure": 39.6,
+      "macro": 92.3
+    }
+  },
+  {
+    "trade_date": "2016-04-15",
+    "composite_score": 49.9,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 48.1,
+      "fund": 51.6,
+      "sentiment": 48.1,
+      "technical": 7.2,
+      "structure": 39.6,
+      "macro": 92.3
+    }
+  },
+  {
+    "trade_date": "2016-04-22",
+    "composite_score": 45.8,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 41.3,
+      "fund": 33.9,
+      "sentiment": 48.9,
+      "technical": 7.7,
+      "structure": 39.6,
+      "macro": 92.3
+    }
+  },
+  {
+    "trade_date": "2016-04-29",
+    "composite_score": 41.7,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 41.0,
+      "fund": 29.9,
+      "sentiment": 31.2,
+      "technical": 8.8,
+      "structure": 39.6,
+      "macro": 92.3
+    }
+  },
+  {
+    "trade_date": "2016-05-06",
+    "composite_score": 45.8,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 40.3,
+      "fund": 58.5,
+      "sentiment": 24.8,
+      "technical": 9.5,
+      "structure": 51.2,
+      "macro": 89.1
+    }
+  },
+  {
+    "trade_date": "2016-05-13",
+    "composite_score": 39.3,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 35.8,
+      "fund": 28.3,
+      "sentiment": 21.1,
+      "technical": 8.7,
+      "structure": 51.2,
+      "macro": 89.1
+    }
+  },
+  {
+    "trade_date": "2016-05-20",
+    "composite_score": 47.5,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 37.6,
+      "fund": 34.6,
+      "sentiment": 55.2,
+      "technical": 8.6,
+      "structure": 51.2,
+      "macro": 89.1
+    }
+  },
+  {
+    "trade_date": "2016-05-27",
+    "composite_score": 48.7,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 38.0,
+      "fund": 62.8,
+      "sentiment": 38.6,
+      "technical": 10.3,
+      "structure": 51.2,
+      "macro": 89.1
+    }
+  },
+  {
+    "trade_date": "2016-06-03",
+    "composite_score": 56.6,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 43.8,
+      "fund": 52.1,
+      "sentiment": 65.4,
+      "technical": 10.9,
+      "structure": 68.1,
+      "macro": 89.8
+    }
+  },
+  {
+    "trade_date": "2016-06-08",
+    "composite_score": 54.4,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 43.5,
+      "fund": 53.3,
+      "sentiment": 53.0,
+      "technical": 12.8,
+      "structure": 68.1,
+      "macro": 89.8
+    }
+  },
+  {
+    "trade_date": "2016-06-17",
+    "composite_score": 57.5,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 44.0,
+      "fund": 48.7,
+      "sentiment": 69.2,
+      "technical": 16.6,
+      "structure": 68.1,
+      "macro": 89.8
+    }
+  },
+  {
+    "trade_date": "2016-06-24",
+    "composite_score": 54.7,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 44.5,
+      "fund": 43.1,
+      "sentiment": 56.2,
+      "technical": 21.7,
+      "structure": 68.1,
+      "macro": 89.8
+    }
+  },
+  {
+    "trade_date": "2016-07-01",
+    "composite_score": 51.2,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 47.8,
+      "fund": 26.9,
+      "sentiment": 46.0,
+      "technical": 28.2,
+      "structure": 73.9,
+      "macro": 80.7
+    }
+  },
+  {
+    "trade_date": "2016-07-08",
+    "composite_score": 54.4,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 51.4,
+      "fund": 29.8,
+      "sentiment": 53.1,
+      "technical": 33.1,
+      "structure": 73.9,
+      "macro": 80.7
+    }
+  },
+  {
+    "trade_date": "2016-07-15",
+    "composite_score": 58.6,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 56.0,
+      "fund": 59.7,
+      "sentiment": 43.6,
+      "technical": 38.0,
+      "structure": 73.9,
+      "macro": 80.7
+    }
+  },
+  {
+    "trade_date": "2016-07-22",
+    "composite_score": 55.6,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 53.6,
+      "fund": 60.2,
+      "sentiment": 28.9,
+      "technical": 42.4,
+      "structure": 73.9,
+      "macro": 80.7
+    }
+  },
+  {
+    "trade_date": "2016-07-29",
+    "composite_score": 53.2,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 52.1,
+      "fund": 59.4,
+      "sentiment": 20.1,
+      "technical": 40.4,
+      "structure": 73.9,
+      "macro": 80.7
+    }
+  },
+  {
+    "trade_date": "2016-08-05",
+    "composite_score": 55.7,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 52.2,
+      "fund": 60.9,
+      "sentiment": 27.4,
+      "technical": 37.0,
+      "structure": 74.6,
+      "macro": 87.9
+    }
+  },
+  {
+    "trade_date": "2016-08-12",
+    "composite_score": 57.2,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 55.0,
+      "fund": 31.3,
+      "sentiment": 54.3,
+      "technical": 35.0,
+      "structure": 74.6,
+      "macro": 87.9
+    }
+  },
+  {
+    "trade_date": "2016-08-19",
+    "composite_score": 61.1,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 59.3,
+      "fund": 48.2,
+      "sentiment": 57.4,
+      "technical": 32.2,
+      "structure": 74.6,
+      "macro": 87.9
+    }
+  },
+  {
+    "trade_date": "2016-08-26",
+    "composite_score": 60.8,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 57.5,
+      "fund": 52.1,
+      "sentiment": 54.9,
+      "technical": 32.4,
+      "structure": 74.6,
+      "macro": 87.9
+    }
+  },
+  {
+    "trade_date": "2016-09-02",
+    "composite_score": 54.4,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 56.9,
+      "fund": 36.5,
+      "sentiment": 33.3,
+      "technical": 35.1,
+      "structure": 75.0,
+      "macro": 88.7
+    }
+  },
+  {
+    "trade_date": "2016-09-09",
+    "composite_score": 57.7,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 58.5,
+      "fund": 46.9,
+      "sentiment": 38.2,
+      "technical": 38.6,
+      "structure": 75.0,
+      "macro": 88.7
+    }
+  },
+  {
+    "trade_date": "2016-09-14",
+    "composite_score": 54.2,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 55.4,
+      "fund": 33.6,
+      "sentiment": 35.5,
+      "technical": 37.1,
+      "structure": 75.0,
+      "macro": 88.7
+    }
+  },
+  {
+    "trade_date": "2016-09-23",
+    "composite_score": 57.2,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 57.6,
+      "fund": 57.5,
+      "sentiment": 30.4,
+      "technical": 35.7,
+      "structure": 75.0,
+      "macro": 88.7
+    }
+  },
+  {
+    "trade_date": "2016-09-30",
+    "composite_score": 51.7,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 56.4,
+      "fund": 16.1,
+      "sentiment": 37.1,
+      "technical": 32.4,
+      "structure": 75.0,
+      "macro": 88.7
+    }
+  },
+  {
+    "trade_date": "2016-10-14",
+    "composite_score": 52.4,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 59.0,
+      "fund": 26.4,
+      "sentiment": 37.5,
+      "technical": 34.3,
+      "structure": 63.8,
+      "macro": 88.4
+    }
+  },
+  {
+    "trade_date": "2016-10-21",
+    "composite_score": 53.5,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 59.4,
+      "fund": 25.6,
+      "sentiment": 41.5,
+      "technical": 37.6,
+      "structure": 63.8,
+      "macro": 88.4
+    }
+  },
+  {
+    "trade_date": "2016-10-28",
+    "composite_score": 58.1,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 56.2,
+      "fund": 67.1,
+      "sentiment": 34.8,
+      "technical": 42.5,
+      "structure": 63.8,
+      "macro": 88.4
+    }
+  },
+  {
+    "trade_date": "2016-11-04",
+    "composite_score": 61.8,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 56.6,
+      "fund": 57.7,
+      "sentiment": 53.8,
+      "technical": 48.1,
+      "structure": 70.3,
+      "macro": 86.1
+    }
+  },
+  {
+    "trade_date": "2016-11-11",
+    "composite_score": 62.4,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 60.1,
+      "fund": 30.8,
+      "sentiment": 71.7,
+      "technical": 49.9,
+      "structure": 70.3,
+      "macro": 86.1
+    }
+  },
+  {
+    "trade_date": "2016-11-18",
+    "composite_score": 58.2,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 59.9,
+      "fund": 31.7,
+      "sentiment": 48.7,
+      "technical": 52.6,
+      "structure": 70.3,
+      "macro": 86.1
+    }
+  },
+  {
+    "trade_date": "2016-11-25",
+    "composite_score": 65.5,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 64.0,
+      "fund": 62.4,
+      "sentiment": 57.5,
+      "technical": 51.9,
+      "structure": 70.3,
+      "macro": 86.1
+    }
+  },
+  {
+    "trade_date": "2016-12-02",
+    "composite_score": 52.1,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 62.1,
+      "fund": 46.0,
+      "sentiment": 39.2,
+      "technical": 52.5,
+      "structure": 26.4,
+      "macro": 84.3
+    }
+  },
+  {
+    "trade_date": "2016-12-09",
+    "composite_score": 53.6,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 62.7,
+      "fund": 51.4,
+      "sentiment": 43.1,
+      "technical": 50.1,
+      "structure": 26.4,
+      "macro": 84.3
+    }
+  },
+  {
+    "trade_date": "2016-12-16",
+    "composite_score": 52.7,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 49.0,
+      "fund": 50.5,
+      "sentiment": 61.1,
+      "technical": 40.2,
+      "structure": 26.4,
+      "macro": 84.3
+    }
+  },
+  {
+    "trade_date": "2016-12-23",
+    "composite_score": 41.5,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 46.9,
+      "fund": 41.5,
+      "sentiment": 20.0,
+      "technical": 29.2,
+      "structure": 26.4,
+      "macro": 84.3
+    }
+  },
+  {
+    "trade_date": "2016-12-30",
+    "composite_score": 41.1,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 50.6,
+      "fund": 19.7,
+      "sentiment": 32.7,
+      "technical": 23.9,
+      "structure": 26.4,
+      "macro": 84.3
+    }
+  },
+  {
+    "trade_date": "2017-01-06",
+    "composite_score": 49.0,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 54.7,
+      "fund": 29.6,
+      "sentiment": 31.1,
+      "technical": 22.2,
+      "structure": 73.6,
+      "macro": 76.3
+    }
+  },
+  {
+    "trade_date": "2017-01-13",
+    "composite_score": 45.9,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 45.0,
+      "fund": 19.8,
+      "sentiment": 18.7,
+      "technical": 55.4,
+      "structure": 73.6,
+      "macro": 76.3
+    }
+  },
+  {
+    "trade_date": "2017-01-20",
+    "composite_score": 59.2,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 44.2,
+      "fund": 56.1,
+      "sentiment": 59.1,
+      "technical": 54.7,
+      "structure": 73.6,
+      "macro": 76.3
+    }
+  },
+  {
+    "trade_date": "2017-01-26",
+    "composite_score": 55.8,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 46.1,
+      "fund": 44.2,
+      "sentiment": 48.3,
+      "technical": 55.8,
+      "structure": 73.6,
+      "macro": 76.3
+    }
+  },
+  {
+    "trade_date": "2017-02-03",
+    "composite_score": 52.8,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 44.6,
+      "fund": 79.6,
+      "sentiment": 31.6,
+      "technical": 53.9,
+      "structure": 40.6,
+      "macro": 79.6
+    }
+  },
+  {
+    "trade_date": "2017-02-10",
+    "composite_score": 55.4,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 50.3,
+      "fund": 60.0,
+      "sentiment": 50.7,
+      "technical": 56.6,
+      "structure": 40.6,
+      "macro": 79.6
+    }
+  },
+  {
+    "trade_date": "2017-02-17",
+    "composite_score": 52.4,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 48.9,
+      "fund": 60.0,
+      "sentiment": 38.1,
+      "technical": 55.8,
+      "structure": 40.6,
+      "macro": 79.6
+    }
+  },
+  {
+    "trade_date": "2017-02-24",
+    "composite_score": 55.2,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 58.7,
+      "fund": 42.9,
+      "sentiment": 50.3,
+      "technical": 60.2,
+      "structure": 40.6,
+      "macro": 79.6
+    }
+  },
+  {
+    "trade_date": "2017-03-03",
+    "composite_score": 49.4,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 54.7,
+      "fund": 33.3,
+      "sentiment": 39.8,
+      "technical": 57.4,
+      "structure": 37.7,
+      "macro": 76.2
+    }
+  },
+  {
+    "trade_date": "2017-03-10",
+    "composite_score": 48.1,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 55.5,
+      "fund": 30.0,
+      "sentiment": 35.2,
+      "technical": 56.1,
+      "structure": 37.7,
+      "macro": 76.2
+    }
+  },
+  {
+    "trade_date": "2017-03-17",
+    "composite_score": 54.8,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 54.9,
+      "fund": 62.0,
+      "sentiment": 45.1,
+      "technical": 57.1,
+      "structure": 37.7,
+      "macro": 76.2
+    }
+  },
+  {
+    "trade_date": "2017-03-24",
+    "composite_score": 57.6,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 58.6,
+      "fund": 52.9,
+      "sentiment": 59.4,
+      "technical": 60.6,
+      "structure": 37.7,
+      "macro": 76.2
+    }
+  },
+  {
+    "trade_date": "2017-03-31",
+    "composite_score": 45.5,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 46.6,
+      "fund": 27.7,
+      "sentiment": 36.7,
+      "technical": 53.3,
+      "structure": 37.7,
+      "macro": 76.2
+    }
+  },
+  {
+    "trade_date": "2017-04-07",
+    "composite_score": 60.1,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 58.6,
+      "fund": 48.4,
+      "sentiment": 55.9,
+      "technical": 60.9,
+      "structure": 65.6,
+      "macro": 73.7
+    }
+  },
+  {
+    "trade_date": "2017-04-14",
+    "composite_score": 55.0,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 52.2,
+      "fund": 76.9,
+      "sentiment": 21.0,
+      "technical": 53.5,
+      "structure": 65.6,
+      "macro": 73.7
+    }
+  },
+  {
+    "trade_date": "2017-04-21",
+    "composite_score": 44.8,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 42.6,
+      "fund": 30.8,
+      "sentiment": 20.5,
+      "technical": 45.4,
+      "structure": 65.6,
+      "macro": 73.7
+    }
+  },
+  {
+    "trade_date": "2017-04-28",
+    "composite_score": 50.0,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 35.3,
+      "fund": 50.3,
+      "sentiment": 42.8,
+      "technical": 41.7,
+      "structure": 65.6,
+      "macro": 73.7
+    }
+  },
+  {
+    "trade_date": "2017-05-05",
+    "composite_score": 38.0,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 31.6,
+      "fund": 42.2,
+      "sentiment": 17.9,
+      "technical": 37.7,
+      "structure": 39.1,
+      "macro": 70.8
+    }
+  },
+  {
+    "trade_date": "2017-05-12",
+    "composite_score": 37.4,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 27.8,
+      "fund": 29.8,
+      "sentiment": 30.3,
+      "technical": 34.7,
+      "structure": 39.1,
+      "macro": 70.8
+    }
+  },
+  {
+    "trade_date": "2017-05-19",
+    "composite_score": 39.9,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 30.9,
+      "fund": 39.1,
+      "sentiment": 31.9,
+      "technical": 34.5,
+      "structure": 39.1,
+      "macro": 70.8
+    }
+  },
+  {
+    "trade_date": "2017-05-26",
+    "composite_score": 38.5,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 29.6,
+      "fund": 28.1,
+      "sentiment": 34.4,
+      "technical": 35.1,
+      "structure": 39.1,
+      "macro": 70.8
+    }
+  },
+  {
+    "trade_date": "2017-06-02",
+    "composite_score": 48.3,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 27.9,
+      "fund": 58.1,
+      "sentiment": 47.7,
+      "technical": 34.4,
+      "structure": 62.3,
+      "macro": 68.8
+    }
+  },
+  {
+    "trade_date": "2017-06-09",
+    "composite_score": 44.5,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 33.2,
+      "fund": 31.2,
+      "sentiment": 40.8,
+      "technical": 37.1,
+      "structure": 62.3,
+      "macro": 68.8
+    }
+  },
+  {
+    "trade_date": "2017-06-16",
+    "composite_score": 43.3,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 33.4,
+      "fund": 45.0,
+      "sentiment": 25.9,
+      "technical": 34.0,
+      "structure": 62.3,
+      "macro": 68.8
+    }
+  },
+  {
+    "trade_date": "2017-06-23",
+    "composite_score": 42.5,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 33.6,
+      "fund": 38.4,
+      "sentiment": 25.5,
+      "technical": 36.4,
+      "structure": 62.3,
+      "macro": 68.8
+    }
+  },
+  {
+    "trade_date": "2017-06-30",
+    "composite_score": 43.3,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 36.0,
+      "fund": 28.1,
+      "sentiment": 32.4,
+      "technical": 39.3,
+      "structure": 62.3,
+      "macro": 68.8
+    }
+  },
+  {
+    "trade_date": "2017-07-07",
+    "composite_score": 43.5,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 39.4,
+      "fund": 32.6,
+      "sentiment": 48.1,
+      "technical": 41.1,
+      "structure": 32.6,
+      "macro": 67.8
+    }
+  },
+  {
+    "trade_date": "2017-07-14",
+    "composite_score": 35.9,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 38.3,
+      "fund": 32.2,
+      "sentiment": 11.7,
+      "technical": 41.0,
+      "structure": 32.6,
+      "macro": 67.8
+    }
+  },
+  {
+    "trade_date": "2017-07-21",
+    "composite_score": 42.4,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 39.6,
+      "fund": 52.1,
+      "sentiment": 27.4,
+      "technical": 41.6,
+      "structure": 32.6,
+      "macro": 67.8
+    }
+  },
+  {
+    "trade_date": "2017-07-28",
+    "composite_score": 45.5,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 41.6,
+      "fund": 62.2,
+      "sentiment": 32.4,
+      "technical": 42.2,
+      "structure": 32.6,
+      "macro": 67.8
+    }
+  },
+  {
+    "trade_date": "2017-08-04",
+    "composite_score": 49.0,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 42.5,
+      "fund": 67.0,
+      "sentiment": 41.5,
+      "technical": 42.1,
+      "structure": 43.8,
+      "macro": 61.2
+    }
+  },
+  {
+    "trade_date": "2017-08-11",
+    "composite_score": 41.5,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 39.4,
+      "fund": 61.9,
+      "sentiment": 15.2,
+      "technical": 35.7,
+      "structure": 43.8,
+      "macro": 61.2
+    }
+  },
+  {
+    "trade_date": "2017-08-18",
+    "composite_score": 41.4,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 41.7,
+      "fund": 32.3,
+      "sentiment": 30.9,
+      "technical": 42.2,
+      "structure": 43.8,
+      "macro": 61.2
+    }
+  },
+  {
+    "trade_date": "2017-08-25",
+    "composite_score": 47.9,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 41.1,
+      "fund": 32.4,
+      "sentiment": 60.2,
+      "technical": 49.3,
+      "structure": 43.8,
+      "macro": 61.2
+    }
+  },
+  {
+    "trade_date": "2017-09-01",
+    "composite_score": 55.5,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 43.4,
+      "fund": 43.7,
+      "sentiment": 59.7,
+      "technical": 53.2,
+      "structure": 73.2,
+      "macro": 66.3
+    }
+  },
+  {
+    "trade_date": "2017-09-08",
+    "composite_score": 55.6,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 44.4,
+      "fund": 61.1,
+      "sentiment": 45.8,
+      "technical": 52.9,
+      "structure": 73.2,
+      "macro": 66.3
+    }
+  },
+  {
+    "trade_date": "2017-09-15",
+    "composite_score": 52.9,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 46.7,
+      "fund": 54.1,
+      "sentiment": 34.8,
+      "technical": 53.0,
+      "structure": 73.2,
+      "macro": 66.3
+    }
+  },
+  {
+    "trade_date": "2017-09-22",
+    "composite_score": 50.3,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 44.1,
+      "fund": 30.2,
+      "sentiment": 42.2,
+      "technical": 54.1,
+      "structure": 73.2,
+      "macro": 66.3
+    }
+  },
+  {
+    "trade_date": "2017-09-29",
+    "composite_score": 48.8,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 43.7,
+      "fund": 13.2,
+      "sentiment": 48.2,
+      "technical": 54.1,
+      "structure": 73.2,
+      "macro": 66.3
+    }
+  },
+  {
+    "trade_date": "2017-10-13",
+    "composite_score": 53.2,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 49.1,
+      "fund": 39.9,
+      "sentiment": 51.8,
+      "technical": 58.0,
+      "structure": 60.5,
+      "macro": 64.9
+    }
+  },
+  {
+    "trade_date": "2017-10-20",
+    "composite_score": 52.2,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 44.9,
+      "fund": 41.6,
+      "sentiment": 51.5,
+      "technical": 56.5,
+      "structure": 60.5,
+      "macro": 64.9
+    }
+  },
+  {
+    "trade_date": "2017-10-27",
+    "composite_score": 50.0,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 48.3,
+      "fund": 52.4,
+      "sentiment": 25.8,
+      "technical": 61.6,
+      "structure": 60.5,
+      "macro": 64.9
+    }
+  },
+  {
+    "trade_date": "2017-11-03",
+    "composite_score": 45.5,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 34.0,
+      "fund": 40.7,
+      "sentiment": 27.6,
+      "technical": 52.2,
+      "structure": 68.5,
+      "macro": 66.0
+    }
+  },
+  {
+    "trade_date": "2017-11-10",
+    "composite_score": 52.8,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 39.3,
+      "fund": 47.0,
+      "sentiment": 49.1,
+      "technical": 60.2,
+      "structure": 68.5,
+      "macro": 66.0
+    }
+  },
+  {
+    "trade_date": "2017-11-17",
+    "composite_score": 40.6,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 29.7,
+      "fund": 30.5,
+      "sentiment": 17.8,
+      "technical": 49.5,
+      "structure": 68.5,
+      "macro": 66.0
+    }
+  },
+  {
+    "trade_date": "2017-11-24",
+    "composite_score": 43.6,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 27.8,
+      "fund": 47.2,
+      "sentiment": 25.3,
+      "technical": 44.0,
+      "structure": 68.5,
+      "macro": 66.0
+    }
+  },
+  {
+    "trade_date": "2017-12-01",
+    "composite_score": 44.8,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 31.2,
+      "fund": 64.7,
+      "sentiment": 41.2,
+      "technical": 38.0,
+      "structure": 54.0,
+      "macro": 47.6
+    }
+  },
+  {
+    "trade_date": "2017-12-08",
+    "composite_score": 37.0,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 27.7,
+      "fund": 12.1,
+      "sentiment": 48.6,
+      "technical": 33.3,
+      "structure": 54.0,
+      "macro": 47.6
+    }
+  },
+  {
+    "trade_date": "2017-12-15",
+    "composite_score": 36.2,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 27.0,
+      "fund": 40.1,
+      "sentiment": 26.0,
+      "technical": 29.5,
+      "structure": 54.0,
+      "macro": 47.6
+    }
+  },
+  {
+    "trade_date": "2017-12-22",
+    "composite_score": 34.0,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 26.6,
+      "fund": 33.5,
+      "sentiment": 19.3,
+      "technical": 31.8,
+      "structure": 54.0,
+      "macro": 47.6
+    }
+  },
+  {
+    "trade_date": "2017-12-29",
+    "composite_score": 36.8,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 27.5,
+      "fund": 36.0,
+      "sentiment": 30.2,
+      "technical": 32.6,
+      "structure": 54.0,
+      "macro": 47.6
+    }
+  },
+  {
+    "trade_date": "2018-01-05",
+    "composite_score": 45.5,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 35.9,
+      "fund": 72.6,
+      "sentiment": 35.1,
+      "technical": 42.0,
+      "structure": 33.3,
+      "macro": 62.4
+    }
+  },
+  {
+    "trade_date": "2018-01-12",
+    "composite_score": 42.0,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 35.5,
+      "fund": 60.5,
+      "sentiment": 25.3,
+      "technical": 46.0,
+      "structure": 33.3,
+      "macro": 62.4
+    }
+  },
+  {
+    "trade_date": "2018-01-19",
+    "composite_score": 41.8,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 34.1,
+      "fund": 48.6,
+      "sentiment": 30.7,
+      "technical": 55.1,
+      "structure": 33.3,
+      "macro": 62.4
+    }
+  },
+  {
+    "trade_date": "2018-01-26",
+    "composite_score": 39.9,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 36.7,
+      "fund": 44.2,
+      "sentiment": 20.8,
+      "technical": 56.0,
+      "structure": 33.3,
+      "macro": 62.4
+    }
+  },
+  {
+    "trade_date": "2018-02-02",
+    "composite_score": 33.0,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 25.5,
+      "fund": 22.1,
+      "sentiment": 15.9,
+      "technical": 46.5,
+      "structure": 43.5,
+      "macro": 60.4
+    }
+  },
+  {
+    "trade_date": "2018-02-09",
+    "composite_score": 32.3,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 23.8,
+      "fund": 47.7,
+      "sentiment": 9.6,
+      "technical": 17.9,
+      "structure": 43.5,
+      "macro": 60.4
+    }
+  },
+  {
+    "trade_date": "2018-02-14",
+    "composite_score": 36.5,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 24.7,
+      "fund": 52.8,
+      "sentiment": 24.7,
+      "technical": 19.2,
+      "structure": 43.5,
+      "macro": 60.4
+    }
+  },
+  {
+    "trade_date": "2018-02-23",
+    "composite_score": 39.6,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 25.3,
+      "fund": 64.3,
+      "sentiment": 28.1,
+      "technical": 24.2,
+      "structure": 43.5,
+      "macro": 60.4
+    }
+  },
+  {
+    "trade_date": "2018-03-02",
+    "composite_score": 34.6,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 26.1,
+      "fund": 34.3,
+      "sentiment": 28.5,
+      "technical": 20.6,
+      "structure": 55.1,
+      "macro": 46.3
+    }
+  },
+  {
+    "trade_date": "2018-03-09",
+    "composite_score": 38.0,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 27.3,
+      "fund": 7.5,
+      "sentiment": 61.8,
+      "technical": 25.3,
+      "structure": 55.1,
+      "macro": 46.3
+    }
+  },
+  {
+    "trade_date": "2018-03-16",
+    "composite_score": 42.4,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 26.9,
+      "fund": 71.3,
+      "sentiment": 37.8,
+      "technical": 22.2,
+      "structure": 55.1,
+      "macro": 46.3
+    }
+  },
+  {
+    "trade_date": "2018-03-23",
+    "composite_score": 35.1,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 24.9,
+      "fund": 49.1,
+      "sentiment": 22.5,
+      "technical": 18.1,
+      "structure": 55.1,
+      "macro": 46.3
+    }
+  },
+  {
+    "trade_date": "2018-03-30",
+    "composite_score": 38.9,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 26.8,
+      "fund": 19.6,
+      "sentiment": 60.7,
+      "technical": 19.2,
+      "structure": 55.1,
+      "macro": 46.3
+    }
+  },
+  {
+    "trade_date": "2018-04-04",
+    "composite_score": 42.4,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 26.0,
+      "fund": 65.5,
+      "sentiment": 42.6,
+      "technical": 18.0,
+      "structure": 56.9,
+      "macro": 48.2
+    }
+  },
+  {
+    "trade_date": "2018-04-13",
+    "composite_score": 36.5,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 26.3,
+      "fund": 58.5,
+      "sentiment": 17.4,
+      "technical": 19.4,
+      "structure": 56.9,
+      "macro": 48.2
+    }
+  },
+  {
+    "trade_date": "2018-04-20",
+    "composite_score": 33.9,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 24.9,
+      "fund": 59.2,
+      "sentiment": 7.0,
+      "technical": 16.6,
+      "structure": 56.9,
+      "macro": 48.2
+    }
+  },
+  {
+    "trade_date": "2018-04-27",
+    "composite_score": 32.0,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 24.5,
+      "fund": 27.8,
+      "sentiment": 21.2,
+      "technical": 17.0,
+      "structure": 56.9,
+      "macro": 48.2
+    }
+  },
+  {
+    "trade_date": "2018-05-04",
+    "composite_score": 34.6,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 24.1,
+      "fund": 48.7,
+      "sentiment": 24.8,
+      "technical": 17.7,
+      "structure": 52.2,
+      "macro": 44.6
+    }
+  },
+  {
+    "trade_date": "2018-05-11",
+    "composite_score": 35.2,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 25.5,
+      "fund": 62.7,
+      "sentiment": 13.6,
+      "technical": 22.2,
+      "structure": 52.2,
+      "macro": 44.6
+    }
+  },
+  {
+    "trade_date": "2018-05-18",
+    "composite_score": 33.4,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 25.8,
+      "fund": 17.3,
+      "sentiment": 36.5,
+      "technical": 24.9,
+      "structure": 52.2,
+      "macro": 44.6
+    }
+  },
+  {
+    "trade_date": "2018-05-25",
+    "composite_score": 36.9,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 25.2,
+      "fund": 52.3,
+      "sentiment": 29.4,
+      "technical": 23.9,
+      "structure": 52.2,
+      "macro": 44.6
+    }
+  },
+  {
+    "trade_date": "2018-06-01",
+    "composite_score": 36.5,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 23.2,
+      "fund": 65.5,
+      "sentiment": 11.3,
+      "technical": 21.0,
+      "structure": 68.8,
+      "macro": 41.3
+    }
+  },
+  {
+    "trade_date": "2018-06-08",
+    "composite_score": 35.6,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 23.6,
+      "fund": 59.6,
+      "sentiment": 11.3,
+      "technical": 19.6,
+      "structure": 68.8,
+      "macro": 41.3
+    }
+  },
+  {
+    "trade_date": "2018-06-15",
+    "composite_score": 33.7,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 23.2,
+      "fund": 58.4,
+      "sentiment": 4.3,
+      "technical": 17.8,
+      "structure": 68.8,
+      "macro": 41.3
+    }
+  },
+  {
+    "trade_date": "2018-06-22",
+    "composite_score": 34.9,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 19.0,
+      "fund": 24.1,
+      "sentiment": 42.8,
+      "technical": 14.8,
+      "structure": 68.8,
+      "macro": 41.3
+    }
+  },
+  {
+    "trade_date": "2018-06-29",
+    "composite_score": 36.2,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 21.2,
+      "fund": 5.7,
+      "sentiment": 61.1,
+      "technical": 12.7,
+      "structure": 68.8,
+      "macro": 41.3
+    }
+  },
+  {
+    "trade_date": "2018-07-06",
+    "composite_score": 33.2,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 15.5,
+      "fund": 47.7,
+      "sentiment": 30.1,
+      "technical": 9.6,
+      "structure": 56.5,
+      "macro": 44.8
+    }
+  },
+  {
+    "trade_date": "2018-07-13",
+    "composite_score": 34.1,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 20.5,
+      "fund": 39.8,
+      "sentiment": 33.2,
+      "technical": 11.7,
+      "structure": 56.5,
+      "macro": 44.8
+    }
+  },
+  {
+    "trade_date": "2018-07-20",
+    "composite_score": 38.1,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 20.3,
+      "fund": 47.7,
+      "sentiment": 46.9,
+      "technical": 12.6,
+      "structure": 56.5,
+      "macro": 44.8
+    }
+  },
+  {
+    "trade_date": "2018-07-27",
+    "composite_score": 37.3,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 24.2,
+      "fund": 64.3,
+      "sentiment": 25.5,
+      "technical": 13.5,
+      "structure": 56.5,
+      "macro": 44.8
+    }
+  },
+  {
+    "trade_date": "2018-08-03",
+    "composite_score": 25.9,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 17.5,
+      "fund": 48.3,
+      "sentiment": 10.4,
+      "technical": 10.1,
+      "structure": 41.3,
+      "macro": 33.3
+    }
+  },
+  {
+    "trade_date": "2018-08-10",
+    "composite_score": 31.6,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 21.3,
+      "fund": 37.9,
+      "sentiment": 40.8,
+      "technical": 11.9,
+      "structure": 41.3,
+      "macro": 33.3
+    }
+  },
+  {
+    "trade_date": "2018-08-17",
+    "composite_score": 23.7,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 13.4,
+      "fund": 52.2,
+      "sentiment": 2.7,
+      "technical": 7.8,
+      "structure": 41.3,
+      "macro": 33.3
+    }
+  },
+  {
+    "trade_date": "2018-08-24",
+    "composite_score": 22.9,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 14.0,
+      "fund": 24.3,
+      "sentiment": 17.7,
+      "technical": 10.0,
+      "structure": 41.3,
+      "macro": 33.3
+    }
+  },
+  {
+    "trade_date": "2018-08-31",
+    "composite_score": 26.7,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 11.0,
+      "fund": 68.1,
+      "sentiment": 7.5,
+      "technical": 10.1,
+      "structure": 41.3,
+      "macro": 33.3
+    }
+  },
+  {
+    "trade_date": "2018-09-07",
+    "composite_score": 32.8,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 10.7,
+      "fund": 33.6,
+      "sentiment": 39.5,
+      "technical": 9.4,
+      "structure": 72.8,
+      "macro": 34.9
+    }
+  },
+  {
+    "trade_date": "2018-09-14",
+    "composite_score": 30.0,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 9.1,
+      "fund": 61.5,
+      "sentiment": 6.7,
+      "technical": 9.2,
+      "structure": 72.8,
+      "macro": 34.9
+    }
+  },
+  {
+    "trade_date": "2018-09-21",
+    "composite_score": 35.5,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 15.7,
+      "fund": 45.6,
+      "sentiment": 35.6,
+      "technical": 14.5,
+      "structure": 72.8,
+      "macro": 34.9
+    }
+  },
+  {
+    "trade_date": "2018-09-28",
+    "composite_score": 31.6,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 12.9,
+      "fund": 29.2,
+      "sentiment": 31.4,
+      "technical": 15.2,
+      "structure": 72.8,
+      "macro": 34.9
+    }
+  },
+  {
+    "trade_date": "2018-10-12",
+    "composite_score": 26.9,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 1.2,
+      "fund": 49.8,
+      "sentiment": 21.3,
+      "technical": 7.5,
+      "structure": 69.9,
+      "macro": 23.8
+    }
+  },
+  {
+    "trade_date": "2018-10-18",
+    "composite_score": 22.6,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 0.4,
+      "fund": 49.3,
+      "sentiment": 3.3,
+      "technical": 4.0,
+      "structure": 69.9,
+      "macro": 23.8
+    }
+  },
+  {
+    "trade_date": "2018-10-19",
+    "composite_score": 24.0,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 0.8,
+      "fund": 0.4,
+      "sentiment": 45.4,
+      "technical": 5.7,
+      "structure": 69.9,
+      "macro": 23.8
+    }
+  },
+  {
+    "trade_date": "2018-10-26",
+    "composite_score": 34.8,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 2.1,
+      "fund": 70.5,
+      "sentiment": 43.8,
+      "technical": 8.2,
+      "structure": 69.9,
+      "macro": 23.8
+    }
+  },
+  {
+    "trade_date": "2018-11-02",
+    "composite_score": 35.4,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 3.2,
+      "fund": 50.1,
+      "sentiment": 65.6,
+      "technical": 13.6,
+      "structure": 67.0,
+      "macro": 17.0
+    }
+  },
+  {
+    "trade_date": "2018-11-09",
+    "composite_score": 34.1,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 3.5,
+      "fund": 85.3,
+      "sentiment": 34.2,
+      "technical": 10.1,
+      "structure": 67.0,
+      "macro": 17.0
+    }
+  },
+  {
+    "trade_date": "2018-11-16",
+    "composite_score": 33.8,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 13.8,
+      "fund": 25.5,
+      "sentiment": 61.5,
+      "technical": 16.1,
+      "structure": 67.0,
+      "macro": 17.0
+    }
+  },
+  {
+    "trade_date": "2018-11-23",
+    "composite_score": 27.1,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 4.7,
+      "fund": 76.9,
+      "sentiment": 2.7,
+      "technical": 11.9,
+      "structure": 67.0,
+      "macro": 17.0
+    }
+  },
+  {
+    "trade_date": "2018-11-30",
+    "composite_score": 23.3,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 5.6,
+      "fund": 9.1,
+      "sentiment": 32.3,
+      "technical": 14.7,
+      "structure": 67.0,
+      "macro": 17.0
+    }
+  },
+  {
+    "trade_date": "2018-12-07",
+    "composite_score": 26.0,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 6.8,
+      "fund": 36.7,
+      "sentiment": 22.6,
+      "technical": 17.8,
+      "structure": 64.1,
+      "macro": 18.8
+    }
+  },
+  {
+    "trade_date": "2018-12-14",
+    "composite_score": 25.1,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 5.5,
+      "fund": 55.9,
+      "sentiment": 5.2,
+      "technical": 18.6,
+      "structure": 64.1,
+      "macro": 18.8
+    }
+  },
+  {
+    "trade_date": "2018-12-21",
+    "composite_score": 28.1,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 3.8,
+      "fund": 72.9,
+      "sentiment": 12.0,
+      "technical": 13.7,
+      "structure": 64.1,
+      "macro": 18.8
+    }
+  },
+  {
+    "trade_date": "2018-12-28",
+    "composite_score": 22.9,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 2.3,
+      "fund": 28.3,
+      "sentiment": 21.6,
+      "technical": 13.1,
+      "structure": 64.1,
+      "macro": 18.8
+    }
+  },
+  {
+    "trade_date": "2019-01-04",
+    "composite_score": 26.1,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 9.8,
+      "fund": 4.2,
+      "sentiment": 58.2,
+      "technical": 15.6,
+      "structure": 44.6,
+      "macro": 20.8
+    }
+  },
+  {
+    "trade_date": "2019-01-11",
+    "composite_score": 34.0,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 13.9,
+      "fund": 54.7,
+      "sentiment": 51.9,
+      "technical": 21.4,
+      "structure": 44.6,
+      "macro": 20.8
+    }
+  },
+  {
+    "trade_date": "2019-01-18",
+    "composite_score": 35.9,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 15.4,
+      "fund": 88.7,
+      "sentiment": 32.3,
+      "technical": 24.7,
+      "structure": 44.6,
+      "macro": 20.8
+    }
+  },
+  {
+    "trade_date": "2019-01-25",
+    "composite_score": 32.1,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 14.6,
+      "fund": 79.1,
+      "sentiment": 20.3,
+      "technical": 27.1,
+      "structure": 44.6,
+      "macro": 20.8
+    }
+  },
+  {
+    "trade_date": "2019-02-01",
+    "composite_score": 37.3,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 13.2,
+      "fund": 80.5,
+      "sentiment": 45.7,
+      "technical": 28.2,
+      "structure": 48.2,
+      "macro": 18.1
+    }
+  },
+  {
+    "trade_date": "2019-02-15",
+    "composite_score": 35.5,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 21.0,
+      "fund": 61.7,
+      "sentiment": 39.5,
+      "technical": 30.7,
+      "structure": 48.2,
+      "macro": 18.1
+    }
+  },
+  {
+    "trade_date": "2019-02-22",
+    "composite_score": 46.3,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 31.6,
+      "fund": 61.3,
+      "sentiment": 76.1,
+      "technical": 39.9,
+      "structure": 48.2,
+      "macro": 18.1
+    }
+  },
+  {
+    "trade_date": "2019-03-01",
+    "composite_score": 53.3,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 43.4,
+      "fund": 66.1,
+      "sentiment": 58.7,
+      "technical": 63.2,
+      "structure": 50.7,
+      "macro": 45.2
+    }
+  },
+  {
+    "trade_date": "2019-03-08",
+    "composite_score": 49.1,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 44.5,
+      "fund": 51.5,
+      "sentiment": 45.0,
+      "technical": 67.9,
+      "structure": 50.7,
+      "macro": 45.2
+    }
+  },
+  {
+    "trade_date": "2019-03-15",
+    "composite_score": 59.1,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 45.7,
+      "fund": 69.1,
+      "sentiment": 73.6,
+      "technical": 81.0,
+      "structure": 50.7,
+      "macro": 45.2
+    }
+  },
+  {
+    "trade_date": "2019-03-22",
+    "composite_score": 55.8,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 49.0,
+      "fund": 45.5,
+      "sentiment": 67.5,
+      "technical": 87.6,
+      "structure": 50.7,
+      "macro": 45.2
+    }
+  },
+  {
+    "trade_date": "2019-03-29",
+    "composite_score": 57.7,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 48.2,
+      "fund": 43.9,
+      "sentiment": 77.6,
+      "technical": 91.1,
+      "structure": 50.7,
+      "macro": 45.2
+    }
+  },
+  {
+    "trade_date": "2019-04-04",
+    "composite_score": 63.4,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 51.7,
+      "fund": 92.1,
+      "sentiment": 69.1,
+      "technical": 93.7,
+      "structure": 57.6,
+      "macro": 32.1
+    }
+  },
+  {
+    "trade_date": "2019-04-12",
+    "composite_score": 57.6,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 50.2,
+      "fund": 90.9,
+      "sentiment": 42.3,
+      "technical": 95.1,
+      "structure": 57.6,
+      "macro": 32.1
+    }
+  },
+  {
+    "trade_date": "2019-04-19",
+    "composite_score": 58.8,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 51.3,
+      "fund": 66.9,
+      "sentiment": 64.5,
+      "technical": 95.9,
+      "structure": 57.6,
+      "macro": 32.1
+    }
+  },
+  {
+    "trade_date": "2019-04-26",
+    "composite_score": 53.8,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 47.3,
+      "fund": 86.5,
+      "sentiment": 30.6,
+      "technical": 94.3,
+      "structure": 57.6,
+      "macro": 32.1
+    }
+  },
+  {
+    "trade_date": "2019-04-30",
+    "composite_score": 50.5,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 45.9,
+      "fund": 51.5,
+      "sentiment": 42.5,
+      "technical": 93.3,
+      "structure": 57.6,
+      "macro": 32.1
+    }
+  },
+  {
+    "trade_date": "2019-05-10",
+    "composite_score": 55.9,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 41.1,
+      "fund": 60.5,
+      "sentiment": 73.4,
+      "technical": 69.9,
+      "structure": 63.4,
+      "macro": 35.4
+    }
+  },
+  {
+    "trade_date": "2019-05-17",
+    "composite_score": 45.0,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 37.6,
+      "fund": 75.3,
+      "sentiment": 23.3,
+      "technical": 48.2,
+      "structure": 63.4,
+      "macro": 35.4
+    }
+  },
+  {
+    "trade_date": "2019-05-24",
+    "composite_score": 42.5,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 33.5,
+      "fund": 73.7,
+      "sentiment": 22.3,
+      "technical": 37.7,
+      "structure": 63.4,
+      "macro": 35.4
+    }
+  },
+  {
+    "trade_date": "2019-05-31",
+    "composite_score": 49.6,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 37.0,
+      "fund": 83.1,
+      "sentiment": 45.1,
+      "technical": 40.1,
+      "structure": 63.4,
+      "macro": 35.4
+    }
+  },
+  {
+    "trade_date": "2019-06-06",
+    "composite_score": 33.7,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 26.4,
+      "fund": 51.3,
+      "sentiment": 5.0,
+      "technical": 33.6,
+      "structure": 58.7,
+      "macro": 41.0
+    }
+  },
+  {
+    "trade_date": "2019-06-14",
+    "composite_score": 41.6,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 30.2,
+      "fund": 91.5,
+      "sentiment": 7.4,
+      "technical": 38.9,
+      "structure": 58.7,
+      "macro": 41.0
+    }
+  },
+  {
+    "trade_date": "2019-06-21",
+    "composite_score": 58.0,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 41.1,
+      "fund": 87.9,
+      "sentiment": 71.6,
+      "technical": 52.6,
+      "structure": 58.7,
+      "macro": 41.0
+    }
+  },
+  {
+    "trade_date": "2019-06-28",
+    "composite_score": 43.3,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 38.7,
+      "fund": 72.5,
+      "sentiment": 13.1,
+      "technical": 51.7,
+      "structure": 58.7,
+      "macro": 41.0
+    }
+  },
+  {
+    "trade_date": "2019-07-05",
+    "composite_score": 47.9,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 42.1,
+      "fund": 57.3,
+      "sentiment": 39.1,
+      "technical": 55.5,
+      "structure": 74.3,
+      "macro": 28.1
+    }
+  },
+  {
+    "trade_date": "2019-07-12",
+    "composite_score": 45.6,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 35.5,
+      "fund": 72.9,
+      "sentiment": 28.6,
+      "technical": 46.8,
+      "structure": 74.3,
+      "macro": 28.1
+    }
+  },
+  {
+    "trade_date": "2019-07-19",
+    "composite_score": 46.6,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 33.4,
+      "fund": 76.7,
+      "sentiment": 34.0,
+      "technical": 45.2,
+      "structure": 74.3,
+      "macro": 28.1
+    }
+  },
+  {
+    "trade_date": "2019-07-26",
+    "composite_score": 40.4,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 32.8,
+      "fund": 47.9,
+      "sentiment": 25.6,
+      "technical": 45.5,
+      "structure": 74.3,
+      "macro": 28.1
+    }
+  },
+  {
+    "trade_date": "2019-08-02",
+    "composite_score": 35.1,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 28.1,
+      "fund": 45.3,
+      "sentiment": 20.9,
+      "technical": 35.4,
+      "structure": 59.8,
+      "macro": 30.4
+    }
+  },
+  {
+    "trade_date": "2019-08-09",
+    "composite_score": 33.3,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 21.1,
+      "fund": 54.3,
+      "sentiment": 18.1,
+      "technical": 26.7,
+      "structure": 59.8,
+      "macro": 30.4
+    }
+  },
+  {
+    "trade_date": "2019-08-16",
+    "composite_score": 44.1,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 23.6,
+      "fund": 91.5,
+      "sentiment": 39.3,
+      "technical": 30.3,
+      "structure": 59.8,
+      "macro": 30.4
+    }
+  },
+  {
+    "trade_date": "2019-08-23",
+    "composite_score": 38.4,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 29.8,
+      "fund": 44.3,
+      "sentiment": 35.1,
+      "technical": 37.3,
+      "structure": 59.8,
+      "macro": 30.4
+    }
+  },
+  {
+    "trade_date": "2019-08-30",
+    "composite_score": 42.3,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 29.3,
+      "fund": 90.3,
+      "sentiment": 21.4,
+      "technical": 35.9,
+      "structure": 59.8,
+      "macro": 30.4
+    }
+  },
+  {
+    "trade_date": "2019-09-06",
+    "composite_score": 52.1,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 37.0,
+      "fund": 81.1,
+      "sentiment": 49.0,
+      "technical": 51.2,
+      "structure": 70.7,
+      "macro": 34.4
+    }
+  },
+  {
+    "trade_date": "2019-09-12",
+    "composite_score": 52.4,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 41.0,
+      "fund": 75.7,
+      "sentiment": 47.7,
+      "technical": 54.7,
+      "structure": 70.7,
+      "macro": 34.4
+    }
+  },
+  {
+    "trade_date": "2019-09-20",
+    "composite_score": 51.1,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 37.8,
+      "fund": 84.9,
+      "sentiment": 38.8,
+      "technical": 53.5,
+      "structure": 70.7,
+      "macro": 34.4
+    }
+  },
+  {
+    "trade_date": "2019-09-27",
+    "composite_score": 46.0,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 30.7,
+      "fund": 66.9,
+      "sentiment": 40.4,
+      "technical": 44.0,
+      "structure": 70.7,
+      "macro": 34.4
+    }
+  },
+  {
+    "trade_date": "2019-09-30",
+    "composite_score": 36.8,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 29.1,
+      "fund": 56.7,
+      "sentiment": 5.8,
+      "technical": 40.4,
+      "structure": 70.7,
+      "macro": 34.4
+    }
+  },
+  {
+    "trade_date": "2019-10-11",
+    "composite_score": 40.9,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 34.0,
+      "fund": 56.7,
+      "sentiment": 39.9,
+      "technical": 49.0,
+      "structure": 39.5,
+      "macro": 33.3
+    }
+  },
+  {
+    "trade_date": "2019-10-18",
+    "composite_score": 35.2,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 30.2,
+      "fund": 56.3,
+      "sentiment": 18.8,
+      "technical": 45.0,
+      "structure": 39.5,
+      "macro": 33.3
+    }
+  },
+  {
+    "trade_date": "2019-10-25",
+    "composite_score": 32.7,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 29.6,
+      "fund": 18.1,
+      "sentiment": 35.3,
+      "technical": 46.1,
+      "structure": 39.5,
+      "macro": 33.3
+    }
+  },
+  {
+    "trade_date": "2019-11-01",
+    "composite_score": 41.5,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 27.1,
+      "fund": 49.3,
+      "sentiment": 36.1,
+      "technical": 45.4,
+      "structure": 72.5,
+      "macro": 31.2
+    }
+  },
+  {
+    "trade_date": "2019-11-08",
+    "composite_score": 39.0,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 27.4,
+      "fund": 48.4,
+      "sentiment": 23.9,
+      "technical": 45.4,
+      "structure": 72.5,
+      "macro": 31.2
+    }
+  },
+  {
+    "trade_date": "2019-11-15",
+    "composite_score": 37.6,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 22.3,
+      "fund": 71.7,
+      "sentiment": 10.5,
+      "technical": 35.9,
+      "structure": 72.5,
+      "macro": 31.2
+    }
+  },
+  {
+    "trade_date": "2019-11-22",
+    "composite_score": 36.6,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 23.9,
+      "fund": 58.4,
+      "sentiment": 14.2,
+      "technical": 34.9,
+      "structure": 72.5,
+      "macro": 31.2
+    }
+  },
+  {
+    "trade_date": "2019-11-29",
+    "composite_score": 37.3,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 24.3,
+      "fund": 45.3,
+      "sentiment": 27.9,
+      "technical": 32.2,
+      "structure": 72.5,
+      "macro": 31.2
+    }
+  },
+  {
+    "trade_date": "2019-12-06",
+    "composite_score": 43.4,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 28.2,
+      "fund": 45.4,
+      "sentiment": 43.2,
+      "technical": 34.5,
+      "structure": 71.0,
+      "macro": 45.3
+    }
+  },
+  {
+    "trade_date": "2019-12-13",
+    "composite_score": 44.0,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 30.0,
+      "fund": 34.9,
+      "sentiment": 49.1,
+      "technical": 40.0,
+      "structure": 71.0,
+      "macro": 45.3
+    }
+  },
+  {
+    "trade_date": "2019-12-20",
+    "composite_score": 47.2,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 35.4,
+      "fund": 62.4,
+      "sentiment": 34.8,
+      "technical": 45.5,
+      "structure": 71.0,
+      "macro": 45.3
+    }
+  },
+  {
+    "trade_date": "2019-12-27",
+    "composite_score": 46.4,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 35.3,
+      "fund": 54.2,
+      "sentiment": 37.1,
+      "technical": 45.9,
+      "structure": 71.0,
+      "macro": 45.3
+    }
+  },
+  {
+    "trade_date": "2020-01-03",
+    "composite_score": 47.1,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 41.2,
+      "fund": 46.7,
+      "sentiment": 56.9,
+      "technical": 57.5,
+      "structure": 66.7,
+      "macro": 17.9
+    }
+  },
+  {
+    "trade_date": "2020-01-10",
+    "composite_score": 43.3,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 41.8,
+      "fund": 49.0,
+      "sentiment": 34.5,
+      "technical": 59.5,
+      "structure": 66.7,
+      "macro": 17.9
+    }
+  },
+  {
+    "trade_date": "2020-01-17",
+    "composite_score": 40.1,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 41.2,
+      "fund": 34.0,
+      "sentiment": 31.4,
+      "technical": 57.2,
+      "structure": 66.7,
+      "macro": 17.9
+    }
+  },
+  {
+    "trade_date": "2020-01-23",
+    "composite_score": 38.6,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 36.6,
+      "fund": 50.1,
+      "sentiment": 23.2,
+      "technical": 45.4,
+      "structure": 66.7,
+      "macro": 17.9
+    }
+  },
+  {
+    "trade_date": "2020-02-03",
+    "composite_score": 41.9,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 27.8,
+      "fund": 95.5,
+      "sentiment": 25.2,
+      "technical": 34.1,
+      "structure": 33.0,
+      "macro": 48.1
+    }
+  },
+  {
+    "trade_date": "2020-02-07",
+    "composite_score": 43.8,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 33.1,
+      "fund": 30.9,
+      "sentiment": 74.9,
+      "technical": 36.8,
+      "structure": 33.0,
+      "macro": 48.1
+    }
+  },
+  {
+    "trade_date": "2020-02-14",
+    "composite_score": 40.2,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 34.2,
+      "fund": 26.5,
+      "sentiment": 60.0,
+      "technical": 35.4,
+      "structure": 33.0,
+      "macro": 48.1
+    }
+  },
+  {
+    "trade_date": "2020-02-21",
+    "composite_score": 47.2,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 40.2,
+      "fund": 36.2,
+      "sentiment": 75.6,
+      "technical": 44.8,
+      "structure": 33.0,
+      "macro": 48.1
+    }
+  },
+  {
+    "trade_date": "2020-02-28",
+    "composite_score": 45.6,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 34.6,
+      "fund": 96.8,
+      "sentiment": 34.5,
+      "technical": 34.1,
+      "structure": 33.0,
+      "macro": 48.1
+    }
+  },
+  {
+    "trade_date": "2020-03-06",
+    "composite_score": 49.4,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 42.9,
+      "fund": 60.0,
+      "sentiment": 65.4,
+      "technical": 48.4,
+      "structure": 29.0,
+      "macro": 49.4
+    }
+  },
+  {
+    "trade_date": "2020-03-13",
+    "composite_score": 47.1,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 37.2,
+      "fund": 82.2,
+      "sentiment": 48.1,
+      "technical": 40.5,
+      "structure": 29.0,
+      "macro": 49.4
+    }
+  },
+  {
+    "trade_date": "2020-03-20",
+    "composite_score": 40.9,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 32.0,
+      "fund": 21.5,
+      "sentiment": 72.8,
+      "technical": 33.5,
+      "structure": 29.0,
+      "macro": 49.4
+    }
+  },
+  {
+    "trade_date": "2020-03-27",
+    "composite_score": 32.8,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 31.5,
+      "fund": 22.1,
+      "sentiment": 33.8,
+      "technical": 30.4,
+      "structure": 29.0,
+      "macro": 49.4
+    }
+  },
+  {
+    "trade_date": "2020-04-03",
+    "composite_score": 41.5,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 30.7,
+      "fund": 40.9,
+      "sentiment": 42.2,
+      "technical": 25.2,
+      "structure": 58.0,
+      "macro": 53.4
+    }
+  },
+  {
+    "trade_date": "2020-04-10",
+    "composite_score": 38.7,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 33.3,
+      "fund": 47.3,
+      "sentiment": 20.6,
+      "technical": 25.0,
+      "structure": 58.0,
+      "macro": 53.4
+    }
+  },
+  {
+    "trade_date": "2020-04-17",
+    "composite_score": 46.5,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 34.5,
+      "fund": 55.0,
+      "sentiment": 51.1,
+      "technical": 27.4,
+      "structure": 58.0,
+      "macro": 53.4
+    }
+  },
+  {
+    "trade_date": "2020-04-24",
+    "composite_score": 39.0,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 34.0,
+      "fund": 50.6,
+      "sentiment": 17.6,
+      "technical": 26.6,
+      "structure": 58.0,
+      "macro": 53.4
+    }
+  },
+  {
+    "trade_date": "2020-04-30",
+    "composite_score": 48.3,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 40.5,
+      "fund": 32.3,
+      "sentiment": 68.4,
+      "technical": 29.7,
+      "structure": 58.0,
+      "macro": 53.4
+    }
+  },
+  {
+    "trade_date": "2020-05-08",
+    "composite_score": 49.4,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 41.6,
+      "fund": 40.3,
+      "sentiment": 64.2,
+      "technical": 31.8,
+      "structure": 51.8,
+      "macro": 61.2
+    }
+  },
+  {
+    "trade_date": "2020-05-15",
+    "composite_score": 49.0,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 40.5,
+      "fund": 59.4,
+      "sentiment": 49.5,
+      "technical": 31.1,
+      "structure": 51.8,
+      "macro": 61.2
+    }
+  },
+  {
+    "trade_date": "2020-05-22",
+    "composite_score": 41.9,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 38.9,
+      "fund": 51.3,
+      "sentiment": 23.2,
+      "technical": 28.9,
+      "structure": 51.8,
+      "macro": 61.2
+    }
+  },
+  {
+    "trade_date": "2020-05-29",
+    "composite_score": 47.4,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 40.6,
+      "fund": 43.1,
+      "sentiment": 53.9,
+      "technical": 30.6,
+      "structure": 51.8,
+      "macro": 61.2
+    }
+  },
+  {
+    "trade_date": "2020-06-05",
+    "composite_score": 43.8,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 43.1,
+      "fund": 37.1,
+      "sentiment": 39.9,
+      "technical": 35.8,
+      "structure": 45.7,
+      "macro": 60.2
+    }
+  },
+  {
+    "trade_date": "2020-06-12",
+    "composite_score": 45.4,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 42.8,
+      "fund": 37.3,
+      "sentiment": 49.0,
+      "technical": 34.1,
+      "structure": 45.7,
+      "macro": 60.2
+    }
+  },
+  {
+    "trade_date": "2020-06-19",
+    "composite_score": 50.9,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 45.3,
+      "fund": 52.7,
+      "sentiment": 59.3,
+      "technical": 39.3,
+      "structure": 45.7,
+      "macro": 60.2
+    }
+  },
+  {
+    "trade_date": "2020-06-24",
+    "composite_score": 43.6,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 44.1,
+      "fund": 35.3,
+      "sentiment": 36.3,
+      "technical": 41.2,
+      "structure": 45.7,
+      "macro": 60.2
+    }
+  },
+  {
+    "trade_date": "2020-07-03",
+    "composite_score": 56.4,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 50.8,
+      "fund": 52.1,
+      "sentiment": 76.3,
+      "technical": 61.0,
+      "structure": 34.9,
+      "macro": 61.9
+    }
+  },
+  {
+    "trade_date": "2020-07-09",
+    "composite_score": 63.9,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 64.3,
+      "fund": 64.5,
+      "sentiment": 85.7,
+      "technical": 65.0,
+      "structure": 34.9,
+      "macro": 61.9
+    }
+  },
+  {
+    "trade_date": "2020-07-10",
+    "composite_score": 58.8,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 60.7,
+      "fund": 60.0,
+      "sentiment": 67.7,
+      "technical": 65.7,
+      "structure": 34.9,
+      "macro": 61.9
+    }
+  },
+  {
+    "trade_date": "2020-07-17",
+    "composite_score": 49.2,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 55.2,
+      "fund": 22.6,
+      "sentiment": 52.8,
+      "technical": 68.9,
+      "structure": 34.9,
+      "macro": 61.9
+    }
+  },
+  {
+    "trade_date": "2020-07-24",
+    "composite_score": 49.7,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 55.2,
+      "fund": 52.3,
+      "sentiment": 31.5,
+      "technical": 71.8,
+      "structure": 34.9,
+      "macro": 61.9
+    }
+  },
+  {
+    "trade_date": "2020-07-31",
+    "composite_score": 61.3,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 59.3,
+      "fund": 60.9,
+      "sentiment": 76.5,
+      "technical": 74.8,
+      "structure": 34.9,
+      "macro": 61.9
+    }
+  },
+  {
+    "trade_date": "2020-08-07",
+    "composite_score": 59.2,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 61.7,
+      "fund": 52.2,
+      "sentiment": 52.4,
+      "technical": 76.5,
+      "structure": 53.0,
+      "macro": 65.8
+    }
+  },
+  {
+    "trade_date": "2020-08-14",
+    "composite_score": 52.4,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 63.3,
+      "fund": 8.8,
+      "sentiment": 48.6,
+      "technical": 77.4,
+      "structure": 53.0,
+      "macro": 65.8
+    }
+  },
+  {
+    "trade_date": "2020-08-21",
+    "composite_score": 54.7,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 64.6,
+      "fund": 10.9,
+      "sentiment": 55.7,
+      "technical": 79.6,
+      "structure": 53.0,
+      "macro": 65.8
+    }
+  },
+  {
+    "trade_date": "2020-08-28",
+    "composite_score": 52.8,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 63.7,
+      "fund": 4.0,
+      "sentiment": 51.6,
+      "technical": 81.5,
+      "structure": 53.0,
+      "macro": 65.8
+    }
+  },
+  {
+    "trade_date": "2020-09-04",
+    "composite_score": 62.5,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 61.5,
+      "fund": 83.1,
+      "sentiment": 37.9,
+      "technical": 79.7,
+      "structure": 59.6,
+      "macro": 68.3
+    }
+  },
+  {
+    "trade_date": "2020-09-11",
+    "composite_score": 58.8,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 56.1,
+      "fund": 49.5,
+      "sentiment": 53.4,
+      "technical": 75.8,
+      "structure": 59.6,
+      "macro": 68.3
+    }
+  },
+  {
+    "trade_date": "2020-09-18",
+    "composite_score": 53.4,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 59.5,
+      "fund": 3.9,
+      "sentiment": 58.4,
+      "technical": 71.0,
+      "structure": 59.6,
+      "macro": 68.3
+    }
+  },
+  {
+    "trade_date": "2020-09-25",
+    "composite_score": 51.2,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 53.2,
+      "fund": 63.7,
+      "sentiment": 14.8,
+      "technical": 62.0,
+      "structure": 59.6,
+      "macro": 68.3
+    }
+  },
+  {
+    "trade_date": "2020-09-30",
+    "composite_score": 45.0,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 50.9,
+      "fund": 15.2,
+      "sentiment": 25.0,
+      "technical": 58.5,
+      "structure": 59.6,
+      "macro": 68.3
+    }
+  },
+  {
+    "trade_date": "2020-10-09",
+    "composite_score": 47.9,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 55.7,
+      "fund": 6.2,
+      "sentiment": 66.5,
+      "technical": 60.9,
+      "structure": 21.7,
+      "macro": 69.4
+    }
+  },
+  {
+    "trade_date": "2020-10-16",
+    "composite_score": 50.9,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 57.7,
+      "fund": 68.1,
+      "sentiment": 32.3,
+      "technical": 61.5,
+      "structure": 21.7,
+      "macro": 69.4
+    }
+  },
+  {
+    "trade_date": "2020-10-23",
+    "composite_score": 46.5,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 54.7,
+      "fund": 73.9,
+      "sentiment": 11.0,
+      "technical": 59.0,
+      "structure": 21.7,
+      "macro": 69.4
+    }
+  },
+  {
+    "trade_date": "2020-10-30",
+    "composite_score": 47.0,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 46.8,
+      "fund": 88.6,
+      "sentiment": 15.7,
+      "technical": 52.5,
+      "structure": 21.7,
+      "macro": 69.4
+    }
+  },
+  {
+    "trade_date": "2020-11-06",
+    "composite_score": 53.8,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 50.0,
+      "fund": 77.3,
+      "sentiment": 21.6,
+      "technical": 59.8,
+      "structure": 57.4,
+      "macro": 72.3
+    }
+  },
+  {
+    "trade_date": "2020-11-13",
+    "composite_score": 49.5,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 50.9,
+      "fund": 43.6,
+      "sentiment": 24.8,
+      "technical": 58.8,
+      "structure": 57.4,
+      "macro": 72.3
+    }
+  },
+  {
+    "trade_date": "2020-11-20",
+    "composite_score": 55.9,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 54.7,
+      "fund": 54.9,
+      "sentiment": 42.8,
+      "technical": 60.2,
+      "structure": 57.4,
+      "macro": 72.3
+    }
+  },
+  {
+    "trade_date": "2020-11-27",
+    "composite_score": 51.6,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 55.0,
+      "fund": 45.3,
+      "sentiment": 27.9,
+      "technical": 60.3,
+      "structure": 57.4,
+      "macro": 72.3
+    }
+  },
+  {
+    "trade_date": "2020-12-04",
+    "composite_score": 47.5,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 56.0,
+      "fund": 40.5,
+      "sentiment": 30.7,
+      "technical": 59.9,
+      "structure": 37.1,
+      "macro": 65.4
+    }
+  },
+  {
+    "trade_date": "2020-12-11",
+    "composite_score": 46.1,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 48.3,
+      "fund": 66.6,
+      "sentiment": 15.9,
+      "technical": 55.8,
+      "structure": 37.1,
+      "macro": 65.4
+    }
+  },
+  {
+    "trade_date": "2020-12-18",
+    "composite_score": 46.8,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 48.7,
+      "fund": 49.3,
+      "sentiment": 31.7,
+      "technical": 55.5,
+      "structure": 37.1,
+      "macro": 65.4
+    }
+  },
+  {
+    "trade_date": "2020-12-25",
+    "composite_score": 46.2,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 46.4,
+      "fund": 21.3,
+      "sentiment": 53.4,
+      "technical": 54.0,
+      "structure": 37.1,
+      "macro": 65.4
+    }
+  },
+  {
+    "trade_date": "2020-12-31",
+    "composite_score": 52.7,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 49.4,
+      "fund": 43.1,
+      "sentiment": 65.0,
+      "technical": 55.5,
+      "structure": 37.1,
+      "macro": 65.4
+    }
+  },
+  {
+    "trade_date": "2021-01-08",
+    "composite_score": 54.6,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 53.0,
+      "fund": 75.4,
+      "sentiment": 50.7,
+      "technical": 56.9,
+      "structure": 25.9,
+      "macro": 69.5
+    }
+  },
+  {
+    "trade_date": "2021-01-15",
+    "composite_score": 52.7,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 50.9,
+      "fund": 43.1,
+      "sentiment": 68.1,
+      "technical": 56.2,
+      "structure": 25.9,
+      "macro": 69.5
+    }
+  },
+  {
+    "trade_date": "2021-01-22",
+    "composite_score": 47.6,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 50.8,
+      "fund": 39.3,
+      "sentiment": 45.2,
+      "technical": 56.9,
+      "structure": 25.9,
+      "macro": 69.5
+    }
+  },
+  {
+    "trade_date": "2021-01-29",
+    "composite_score": 43.5,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 47.1,
+      "fund": 44.3,
+      "sentiment": 27.2,
+      "technical": 53.8,
+      "structure": 25.9,
+      "macro": 69.5
+    }
+  },
+  {
+    "trade_date": "2021-02-05",
+    "composite_score": 41.3,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 45.0,
+      "fund": 42.9,
+      "sentiment": 28.2,
+      "technical": 53.5,
+      "structure": 21.9,
+      "macro": 62.6
+    }
+  },
+  {
+    "trade_date": "2021-02-10",
+    "composite_score": 41.7,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 47.9,
+      "fund": 14.7,
+      "sentiment": 46.4,
+      "technical": 56.4,
+      "structure": 21.9,
+      "macro": 62.6
+    }
+  },
+  {
+    "trade_date": "2021-02-18",
+    "composite_score": 57.2,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 52.8,
+      "fund": 71.7,
+      "sentiment": 74.9,
+      "technical": 56.8,
+      "structure": 21.9,
+      "macro": 62.6
+    }
+  },
+  {
+    "trade_date": "2021-02-19",
+    "composite_score": 54.8,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 53.8,
+      "fund": 55.5,
+      "sentiment": 73.5,
+      "technical": 57.0,
+      "structure": 21.9,
+      "macro": 62.6
+    }
+  },
+  {
+    "trade_date": "2021-02-26",
+    "composite_score": 48.2,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 51.4,
+      "fund": 60.7,
+      "sentiment": 42.0,
+      "technical": 52.3,
+      "structure": 21.9,
+      "macro": 62.6
+    }
+  },
+  {
+    "trade_date": "2021-03-05",
+    "composite_score": 50.6,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 52.8,
+      "fund": 33.1,
+      "sentiment": 54.9,
+      "technical": 51.1,
+      "structure": 48.6,
+      "macro": 60.6
+    }
+  },
+  {
+    "trade_date": "2021-03-12",
+    "composite_score": 45.7,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 51.5,
+      "fund": 19.4,
+      "sentiment": 43.6,
+      "technical": 48.4,
+      "structure": 48.6,
+      "macro": 60.6
+    }
+  },
+  {
+    "trade_date": "2021-03-19",
+    "composite_score": 49.0,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 50.1,
+      "fund": 49.7,
+      "sentiment": 42.2,
+      "technical": 42.7,
+      "structure": 48.6,
+      "macro": 60.6
+    }
+  },
+  {
+    "trade_date": "2021-03-26",
+    "composite_score": 52.4,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 50.6,
+      "fund": 49.3,
+      "sentiment": 58.8,
+      "technical": 42.9,
+      "structure": 48.6,
+      "macro": 60.6
+    }
+  },
+  {
+    "trade_date": "2021-04-02",
+    "composite_score": 48.7,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 50.4,
+      "fund": 54.7,
+      "sentiment": 49.1,
+      "technical": 48.3,
+      "structure": 46.0,
+      "macro": 42.6
+    }
+  },
+  {
+    "trade_date": "2021-04-09",
+    "composite_score": 46.0,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 51.3,
+      "fund": 50.0,
+      "sentiment": 40.2,
+      "technical": 43.8,
+      "structure": 46.0,
+      "macro": 42.6
+    }
+  },
+  {
+    "trade_date": "2021-04-16",
+    "composite_score": 47.4,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 51.5,
+      "fund": 39.7,
+      "sentiment": 56.1,
+      "technical": 40.7,
+      "structure": 46.0,
+      "macro": 42.6
+    }
+  },
+  {
+    "trade_date": "2021-04-23",
+    "composite_score": 43.8,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 50.7,
+      "fund": 57.9,
+      "sentiment": 23.5,
+      "technical": 45.1,
+      "structure": 46.0,
+      "macro": 42.6
+    }
+  },
+  {
+    "trade_date": "2021-04-30",
+    "composite_score": 38.4,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 43.8,
+      "fund": 28.5,
+      "sentiment": 28.8,
+      "technical": 41.5,
+      "structure": 46.0,
+      "macro": 42.6
+    }
+  },
+  {
+    "trade_date": "2021-05-07",
+    "composite_score": 46.0,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 44.8,
+      "fund": 67.1,
+      "sentiment": 39.8,
+      "technical": 38.5,
+      "structure": 40.9,
+      "macro": 45.4
+    }
+  },
+  {
+    "trade_date": "2021-05-14",
+    "composite_score": 47.1,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 47.6,
+      "fund": 30.7,
+      "sentiment": 65.3,
+      "technical": 45.5,
+      "structure": 40.9,
+      "macro": 45.4
+    }
+  },
+  {
+    "trade_date": "2021-05-21",
+    "composite_score": 44.2,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 45.8,
+      "fund": 38.1,
+      "sentiment": 48.4,
+      "technical": 44.0,
+      "structure": 40.9,
+      "macro": 45.4
+    }
+  },
+  {
+    "trade_date": "2021-05-28",
+    "composite_score": 48.3,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 49.9,
+      "fund": 49.2,
+      "sentiment": 49.8,
+      "technical": 55.0,
+      "structure": 40.9,
+      "macro": 45.4
+    }
+  },
+  {
+    "trade_date": "2021-06-04",
+    "composite_score": 44.3,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 50.3,
+      "fund": 41.1,
+      "sentiment": 41.6,
+      "technical": 55.2,
+      "structure": 28.8,
+      "macro": 49.5
+    }
+  },
+  {
+    "trade_date": "2021-06-11",
+    "composite_score": 45.7,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 50.3,
+      "fund": 42.1,
+      "sentiment": 47.9,
+      "technical": 54.5,
+      "structure": 28.8,
+      "macro": 49.5
+    }
+  },
+  {
+    "trade_date": "2021-06-18",
+    "composite_score": 48.4,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 48.1,
+      "fund": 50.1,
+      "sentiment": 61.5,
+      "technical": 47.6,
+      "structure": 28.8,
+      "macro": 49.5
+    }
+  },
+  {
+    "trade_date": "2021-06-25",
+    "composite_score": 45.7,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 51.4,
+      "fund": 29.4,
+      "sentiment": 55.7,
+      "technical": 55.9,
+      "structure": 28.8,
+      "macro": 49.5
+    }
+  },
+  {
+    "trade_date": "2021-07-02",
+    "composite_score": 42.1,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 48.4,
+      "fund": 51.2,
+      "sentiment": 42.7,
+      "technical": 45.5,
+      "structure": 21.2,
+      "macro": 40.2
+    }
+  },
+  {
+    "trade_date": "2021-07-09",
+    "composite_score": 44.6,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 50.1,
+      "fund": 36.0,
+      "sentiment": 65.2,
+      "technical": 44.7,
+      "structure": 21.2,
+      "macro": 40.2
+    }
+  },
+  {
+    "trade_date": "2021-07-16",
+    "composite_score": 41.7,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 50.5,
+      "fund": 41.8,
+      "sentiment": 45.3,
+      "technical": 46.0,
+      "structure": 21.2,
+      "macro": 40.2
+    }
+  },
+  {
+    "trade_date": "2021-07-23",
+    "composite_score": 42.2,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 48.9,
+      "fund": 48.5,
+      "sentiment": 44.4,
+      "technical": 46.7,
+      "structure": 21.2,
+      "macro": 40.2
+    }
+  },
+  {
+    "trade_date": "2021-07-30",
+    "composite_score": 49.1,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 43.0,
+      "fund": 77.5,
+      "sentiment": 70.3,
+      "technical": 34.7,
+      "structure": 21.2,
+      "macro": 40.2
+    }
+  },
+  {
+    "trade_date": "2021-08-06",
+    "composite_score": 44.4,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 45.3,
+      "fund": 53.9,
+      "sentiment": 59.0,
+      "technical": 38.0,
+      "structure": 26.2,
+      "macro": 35.9
+    }
+  },
+  {
+    "trade_date": "2021-08-13",
+    "composite_score": 47.1,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 50.0,
+      "fund": 59.4,
+      "sentiment": 60.5,
+      "technical": 42.0,
+      "structure": 26.2,
+      "macro": 35.9
+    }
+  },
+  {
+    "trade_date": "2021-08-20",
+    "composite_score": 39.4,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 46.9,
+      "fund": 39.5,
+      "sentiment": 44.4,
+      "technical": 35.4,
+      "structure": 26.2,
+      "macro": 35.9
+    }
+  },
+  {
+    "trade_date": "2021-08-27",
+    "composite_score": 44.3,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 49.0,
+      "fund": 50.9,
+      "sentiment": 53.8,
+      "technical": 43.3,
+      "structure": 26.2,
+      "macro": 35.9
+    }
+  },
+  {
+    "trade_date": "2021-09-03",
+    "composite_score": 46.5,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 52.2,
+      "fund": 66.5,
+      "sentiment": 55.7,
+      "technical": 48.8,
+      "structure": 15.7,
+      "macro": 33.9
+    }
+  },
+  {
+    "trade_date": "2021-09-10",
+    "composite_score": 47.6,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 56.9,
+      "fund": 55.1,
+      "sentiment": 57.3,
+      "technical": 61.1,
+      "structure": 15.7,
+      "macro": 33.9
+    }
+  },
+  {
+    "trade_date": "2021-09-17",
+    "composite_score": 42.7,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 55.0,
+      "fund": 43.6,
+      "sentiment": 49.1,
+      "technical": 51.1,
+      "structure": 15.7,
+      "macro": 33.9
+    }
+  },
+  {
+    "trade_date": "2021-09-24",
+    "composite_score": 41.8,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 55.9,
+      "fund": 59.1,
+      "sentiment": 32.3,
+      "technical": 50.0,
+      "structure": 15.7,
+      "macro": 33.9
+    }
+  },
+  {
+    "trade_date": "2021-09-30",
+    "composite_score": 39.9,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 51.0,
+      "fund": 13.3,
+      "sentiment": 66.7,
+      "technical": 43.3,
+      "structure": 15.7,
+      "macro": 33.9
+    }
+  },
+  {
+    "trade_date": "2021-10-08",
+    "composite_score": 45.9,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 52.2,
+      "fund": 34.9,
+      "sentiment": 57.7,
+      "technical": 45.2,
+      "structure": 41.4,
+      "macro": 35.5
+    }
+  },
+  {
+    "trade_date": "2021-10-15",
+    "composite_score": 36.2,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 47.9,
+      "fund": 25.1,
+      "sentiment": 24.2,
+      "technical": 40.6,
+      "structure": 41.4,
+      "macro": 35.5
+    }
+  },
+  {
+    "trade_date": "2021-10-22",
+    "composite_score": 44.0,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 46.7,
+      "fund": 69.2,
+      "sentiment": 33.0,
+      "technical": 38.1,
+      "structure": 41.4,
+      "macro": 35.5
+    }
+  },
+  {
+    "trade_date": "2021-10-29",
+    "composite_score": 45.3,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 42.3,
+      "fund": 44.7,
+      "sentiment": 66.3,
+      "technical": 32.5,
+      "structure": 41.4,
+      "macro": 35.5
+    }
+  },
+  {
+    "trade_date": "2021-11-05",
+    "composite_score": 43.5,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 42.3,
+      "fund": 53.7,
+      "sentiment": 43.6,
+      "technical": 26.8,
+      "structure": 56.3,
+      "macro": 32.8
+    }
+  },
+  {
+    "trade_date": "2021-11-12",
+    "composite_score": 47.8,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 45.2,
+      "fund": 43.8,
+      "sentiment": 67.0,
+      "technical": 30.9,
+      "structure": 56.3,
+      "macro": 32.8
+    }
+  },
+  {
+    "trade_date": "2021-11-19",
+    "composite_score": 44.6,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 48.0,
+      "fund": 15.2,
+      "sentiment": 68.0,
+      "technical": 33.2,
+      "structure": 56.3,
+      "macro": 32.8
+    }
+  },
+  {
+    "trade_date": "2021-11-26",
+    "composite_score": 44.1,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 48.9,
+      "fund": 33.1,
+      "sentiment": 50.3,
+      "technical": 34.9,
+      "structure": 56.3,
+      "macro": 32.8
+    }
+  },
+  {
+    "trade_date": "2021-12-03",
+    "composite_score": 49.7,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 52.5,
+      "fund": 53.9,
+      "sentiment": 52.4,
+      "technical": 40.8,
+      "structure": 51.4,
+      "macro": 41.7
+    }
+  },
+  {
+    "trade_date": "2021-12-10",
+    "composite_score": 53.5,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 55.3,
+      "fund": 57.8,
+      "sentiment": 61.6,
+      "technical": 47.7,
+      "structure": 51.4,
+      "macro": 41.7
+    }
+  },
+  {
+    "trade_date": "2021-12-17",
+    "composite_score": 51.1,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 56.7,
+      "fund": 50.6,
+      "sentiment": 54.4,
+      "technical": 44.5,
+      "structure": 51.4,
+      "macro": 41.7
+    }
+  },
+  {
+    "trade_date": "2021-12-24",
+    "composite_score": 48.7,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 56.1,
+      "fund": 65.0,
+      "sentiment": 33.3,
+      "technical": 42.8,
+      "structure": 51.4,
+      "macro": 41.7
+    }
+  },
+  {
+    "trade_date": "2021-12-31",
+    "composite_score": 48.0,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 56.0,
+      "fund": 34.1,
+      "sentiment": 51.8,
+      "technical": 45.5,
+      "structure": 51.4,
+      "macro": 41.7
+    }
+  },
+  {
+    "trade_date": "2022-01-07",
+    "composite_score": 38.3,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 60.7,
+      "fund": 41.3,
+      "sentiment": 31.6,
+      "technical": 40.3,
+      "structure": 14.4,
+      "macro": 29.7
+    }
+  },
+  {
+    "trade_date": "2022-01-14",
+    "composite_score": 44.6,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 59.8,
+      "fund": 55.5,
+      "sentiment": 55.7,
+      "technical": 35.9,
+      "structure": 14.4,
+      "macro": 29.7
+    }
+  },
+  {
+    "trade_date": "2022-01-21",
+    "composite_score": 40.8,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 58.5,
+      "fund": 71.5,
+      "sentiment": 26.2,
+      "technical": 36.3,
+      "structure": 14.4,
+      "macro": 29.7
+    }
+  },
+  {
+    "trade_date": "2022-01-28",
+    "composite_score": 31.8,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 49.8,
+      "fund": 6.8,
+      "sentiment": 44.3,
+      "technical": 28.9,
+      "structure": 14.4,
+      "macro": 29.7
+    }
+  },
+  {
+    "trade_date": "2022-02-11",
+    "composite_score": 44.9,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 53.8,
+      "fund": 42.5,
+      "sentiment": 26.1,
+      "technical": 29.7,
+      "structure": 62.1,
+      "macro": 50.3
+    }
+  },
+  {
+    "trade_date": "2022-02-18",
+    "composite_score": 51.3,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 55.1,
+      "fund": 55.5,
+      "sentiment": 48.2,
+      "technical": 27.1,
+      "structure": 62.1,
+      "macro": 50.3
+    }
+  },
+  {
+    "trade_date": "2022-02-25",
+    "composite_score": 51.4,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 54.0,
+      "fund": 43.1,
+      "sentiment": 60.3,
+      "technical": 24.6,
+      "structure": 62.1,
+      "macro": 50.3
+    }
+  },
+  {
+    "trade_date": "2022-03-04",
+    "composite_score": 40.6,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 54.9,
+      "fund": 39.9,
+      "sentiment": 27.6,
+      "technical": 26.3,
+      "structure": 35.8,
+      "macro": 49.1
+    }
+  },
+  {
+    "trade_date": "2022-03-11",
+    "composite_score": 46.8,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 47.1,
+      "fund": 47.8,
+      "sentiment": 64.9,
+      "technical": 22.0,
+      "structure": 35.8,
+      "macro": 49.1
+    }
+  },
+  {
+    "trade_date": "2022-03-18",
+    "composite_score": 42.5,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 42.8,
+      "fund": 22.5,
+      "sentiment": 69.2,
+      "technical": 19.1,
+      "structure": 35.8,
+      "macro": 49.1
+    }
+  },
+  {
+    "trade_date": "2022-03-25",
+    "composite_score": 46.2,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 40.5,
+      "fund": 80.5,
+      "sentiment": 47.6,
+      "technical": 17.9,
+      "structure": 35.8,
+      "macro": 49.1
+    }
+  },
+  {
+    "trade_date": "2022-04-01",
+    "composite_score": 36.5,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 43.4,
+      "fund": 18.7,
+      "sentiment": 43.9,
+      "technical": 18.5,
+      "structure": 30.2,
+      "macro": 51.3
+    }
+  },
+  {
+    "trade_date": "2022-04-08",
+    "composite_score": 34.7,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 42.6,
+      "fund": 20.5,
+      "sentiment": 34.3,
+      "technical": 18.4,
+      "structure": 30.2,
+      "macro": 51.3
+    }
+  },
+  {
+    "trade_date": "2022-04-15",
+    "composite_score": 39.6,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 38.4,
+      "fund": 78.4,
+      "sentiment": 21.0,
+      "technical": 18.4,
+      "structure": 30.2,
+      "macro": 51.3
+    }
+  },
+  {
+    "trade_date": "2022-04-22",
+    "composite_score": 35.7,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 26.8,
+      "fund": 58.2,
+      "sentiment": 32.4,
+      "technical": 15.9,
+      "structure": 30.2,
+      "macro": 51.3
+    }
+  },
+  {
+    "trade_date": "2022-04-26",
+    "composite_score": 29.2,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 10.7,
+      "fund": 57.6,
+      "sentiment": 23.7,
+      "technical": 9.2,
+      "structure": 30.2,
+      "macro": 51.3
+    }
+  },
+  {
+    "trade_date": "2022-04-29",
+    "composite_score": 37.0,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 18.6,
+      "fund": 21.2,
+      "sentiment": 78.1,
+      "technical": 12.9,
+      "structure": 30.2,
+      "macro": 51.3
+    }
+  },
+  {
+    "trade_date": "2022-05-06",
+    "composite_score": 32.3,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 18.7,
+      "fund": 49.9,
+      "sentiment": 39.2,
+      "technical": 10.0,
+      "structure": 26.6,
+      "macro": 48.8
+    }
+  },
+  {
+    "trade_date": "2022-05-13",
+    "composite_score": 31.4,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 27.2,
+      "fund": 10.5,
+      "sentiment": 52.7,
+      "technical": 11.6,
+      "structure": 26.6,
+      "macro": 48.8
+    }
+  },
+  {
+    "trade_date": "2022-05-20",
+    "composite_score": 34.2,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 33.5,
+      "fund": 2.0,
+      "sentiment": 64.8,
+      "technical": 12.5,
+      "structure": 26.6,
+      "macro": 48.8
+    }
+  },
+  {
+    "trade_date": "2022-05-27",
+    "composite_score": 32.7,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 31.8,
+      "fund": 17.2,
+      "sentiment": 47.7,
+      "technical": 12.8,
+      "structure": 26.6,
+      "macro": 48.8
+    }
+  },
+  {
+    "trade_date": "2022-06-02",
+    "composite_score": 40.0,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 37.3,
+      "fund": 31.9,
+      "sentiment": 62.0,
+      "technical": 14.2,
+      "structure": 25.5,
+      "macro": 54.8
+    }
+  },
+  {
+    "trade_date": "2022-06-10",
+    "composite_score": 45.2,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 40.9,
+      "fund": 43.9,
+      "sentiment": 73.1,
+      "technical": 17.5,
+      "structure": 25.5,
+      "macro": 54.8
+    }
+  },
+  {
+    "trade_date": "2022-06-17",
+    "composite_score": 42.5,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 44.1,
+      "fund": 37.1,
+      "sentiment": 60.1,
+      "technical": 18.9,
+      "structure": 25.5,
+      "macro": 54.8
+    }
+  },
+  {
+    "trade_date": "2022-06-24",
+    "composite_score": 46.2,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 45.6,
+      "fund": 44.3,
+      "sentiment": 70.3,
+      "technical": 20.5,
+      "structure": 25.5,
+      "macro": 54.8
+    }
+  },
+  {
+    "trade_date": "2022-07-01",
+    "composite_score": 46.7,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 47.8,
+      "fund": 49.7,
+      "sentiment": 41.6,
+      "technical": 22.0,
+      "structure": 49.4,
+      "macro": 62.2
+    }
+  },
+  {
+    "trade_date": "2022-07-08",
+    "composite_score": 48.2,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 47.6,
+      "fund": 46.7,
+      "sentiment": 51.8,
+      "technical": 21.8,
+      "structure": 49.4,
+      "macro": 62.2
+    }
+  },
+  {
+    "trade_date": "2022-07-15",
+    "composite_score": 43.2,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 40.5,
+      "fund": 49.1,
+      "sentiment": 35.4,
+      "technical": 18.5,
+      "structure": 49.4,
+      "macro": 62.2
+    }
+  },
+  {
+    "trade_date": "2022-07-22",
+    "composite_score": 42.2,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 45.7,
+      "fund": 21.6,
+      "sentiment": 43.1,
+      "technical": 21.9,
+      "structure": 49.4,
+      "macro": 62.2
+    }
+  },
+  {
+    "trade_date": "2022-07-29",
+    "composite_score": 50.6,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 45.2,
+      "fund": 70.3,
+      "sentiment": 47.7,
+      "technical": 24.4,
+      "structure": 49.4,
+      "macro": 62.2
+    }
+  },
+  {
+    "trade_date": "2022-08-05",
+    "composite_score": 42.8,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 44.7,
+      "fund": 23.7,
+      "sentiment": 65.6,
+      "technical": 25.8,
+      "structure": 24.1,
+      "macro": 58.3
+    }
+  },
+  {
+    "trade_date": "2022-08-12",
+    "composite_score": 39.4,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 49.0,
+      "fund": 21.7,
+      "sentiment": 42.7,
+      "technical": 30.2,
+      "structure": 24.1,
+      "macro": 58.3
+    }
+  },
+  {
+    "trade_date": "2022-08-19",
+    "composite_score": 43.9,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 48.8,
+      "fund": 58.5,
+      "sentiment": 37.0,
+      "technical": 31.9,
+      "structure": 24.1,
+      "macro": 58.3
+    }
+  },
+  {
+    "trade_date": "2022-08-26",
+    "composite_score": 43.9,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 46.3,
+      "fund": 73.9,
+      "sentiment": 27.8,
+      "technical": 32.7,
+      "structure": 24.1,
+      "macro": 58.3
+    }
+  },
+  {
+    "trade_date": "2022-09-02",
+    "composite_score": 43.6,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 44.5,
+      "fund": 23.0,
+      "sentiment": 52.7,
+      "technical": 31.9,
+      "structure": 42.9,
+      "macro": 59.2
+    }
+  },
+  {
+    "trade_date": "2022-09-09",
+    "composite_score": 37.3,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 47.4,
+      "fund": 6.5,
+      "sentiment": 28.8,
+      "technical": 33.5,
+      "structure": 42.9,
+      "macro": 59.2
+    }
+  },
+  {
+    "trade_date": "2022-09-16",
+    "composite_score": 39.2,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 33.5,
+      "fund": 72.6,
+      "sentiment": 10.4,
+      "technical": 25.3,
+      "structure": 42.9,
+      "macro": 59.2
+    }
+  },
+  {
+    "trade_date": "2022-09-23",
+    "composite_score": 37.7,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 30.0,
+      "fund": 77.3,
+      "sentiment": 5.8,
+      "technical": 20.9,
+      "structure": 42.9,
+      "macro": 59.2
+    }
+  },
+  {
+    "trade_date": "2022-09-30",
+    "composite_score": 31.4,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 22.9,
+      "fund": 42.3,
+      "sentiment": 11.6,
+      "technical": 17.0,
+      "structure": 42.9,
+      "macro": 59.2
+    }
+  },
+  {
+    "trade_date": "2022-10-14",
+    "composite_score": 33.6,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 29.6,
+      "fund": 3.5,
+      "sentiment": 69.3,
+      "technical": 15.7,
+      "structure": 12.2,
+      "macro": 56.1
+    }
+  },
+  {
+    "trade_date": "2022-10-21",
+    "composite_score": 34.1,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 28.4,
+      "fund": 55.8,
+      "sentiment": 34.4,
+      "technical": 15.1,
+      "structure": 12.2,
+      "macro": 56.1
+    }
+  },
+  {
+    "trade_date": "2022-10-28",
+    "composite_score": 31.4,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 19.9,
+      "fund": 77.1,
+      "sentiment": 16.3,
+      "technical": 13.0,
+      "structure": 12.2,
+      "macro": 56.1
+    }
+  },
+  {
+    "trade_date": "2022-11-04",
+    "composite_score": 40.7,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 35.4,
+      "fund": 15.0,
+      "sentiment": 70.6,
+      "technical": 17.7,
+      "structure": 39.1,
+      "macro": 52.0
+    }
+  },
+  {
+    "trade_date": "2022-11-11",
+    "composite_score": 40.1,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 39.3,
+      "fund": 16.6,
+      "sentiment": 60.6,
+      "technical": 20.4,
+      "structure": 39.1,
+      "macro": 52.0
+    }
+  },
+  {
+    "trade_date": "2022-11-18",
+    "composite_score": 45.2,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 41.7,
+      "fund": 72.9,
+      "sentiment": 40.1,
+      "technical": 21.8,
+      "structure": 39.1,
+      "macro": 52.0
+    }
+  },
+  {
+    "trade_date": "2022-11-25",
+    "composite_score": 37.7,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 39.2,
+      "fund": 53.6,
+      "sentiment": 19.6,
+      "technical": 22.7,
+      "structure": 39.1,
+      "macro": 52.0
+    }
+  },
+  {
+    "trade_date": "2022-12-02",
+    "composite_score": 44.1,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 46.0,
+      "fund": 43.2,
+      "sentiment": 51.0,
+      "technical": 26.8,
+      "structure": 40.0,
+      "macro": 48.2
+    }
+  },
+  {
+    "trade_date": "2022-12-09",
+    "composite_score": 40.7,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 48.5,
+      "fund": 26.2,
+      "sentiment": 42.1,
+      "technical": 29.5,
+      "structure": 40.0,
+      "macro": 48.2
+    }
+  },
+  {
+    "trade_date": "2022-12-16",
+    "composite_score": 38.8,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 44.9,
+      "fund": 44.0,
+      "sentiment": 24.5,
+      "technical": 28.1,
+      "structure": 40.0,
+      "macro": 48.2
+    }
+  },
+  {
+    "trade_date": "2022-12-23",
+    "composite_score": 33.9,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 32.5,
+      "fund": 36.4,
+      "sentiment": 24.2,
+      "technical": 22.2,
+      "structure": 40.0,
+      "macro": 48.2
+    }
+  },
+  {
+    "trade_date": "2022-12-30",
+    "composite_score": 36.3,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 36.7,
+      "fund": 23.8,
+      "sentiment": 39.2,
+      "technical": 24.4,
+      "structure": 40.0,
+      "macro": 48.2
+    }
+  },
+  {
+    "trade_date": "2023-01-06",
+    "composite_score": 43.0,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 36.8,
+      "fund": 57.8,
+      "sentiment": 27.3,
+      "technical": 28.4,
+      "structure": 51.6,
+      "macro": 60.4
+    }
+  },
+  {
+    "trade_date": "2023-01-13",
+    "composite_score": 42.7,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 39.4,
+      "fund": 43.8,
+      "sentiment": 32.1,
+      "technical": 30.3,
+      "structure": 51.6,
+      "macro": 60.4
+    }
+  },
+  {
+    "trade_date": "2023-01-20",
+    "composite_score": 43.3,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 43.7,
+      "fund": 33.3,
+      "sentiment": 34.2,
+      "technical": 37.4,
+      "structure": 51.6,
+      "macro": 60.4
+    }
+  },
+  {
+    "trade_date": "2023-02-03",
+    "composite_score": 50.5,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 46.6,
+      "fund": 61.9,
+      "sentiment": 38.2,
+      "technical": 42.2,
+      "structure": 61.7,
+      "macro": 55.9
+    }
+  },
+  {
+    "trade_date": "2023-02-10",
+    "composite_score": 46.2,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 48.0,
+      "fund": 46.5,
+      "sentiment": 25.3,
+      "technical": 45.7,
+      "structure": 61.7,
+      "macro": 55.9
+    }
+  },
+  {
+    "trade_date": "2023-02-17",
+    "composite_score": 47.2,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 46.4,
+      "fund": 53.3,
+      "sentiment": 26.8,
+      "technical": 45.9,
+      "structure": 61.7,
+      "macro": 55.9
+    }
+  },
+  {
+    "trade_date": "2023-02-24",
+    "composite_score": 47.4,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 49.5,
+      "fund": 47.2,
+      "sentiment": 24.7,
+      "technical": 53.4,
+      "structure": 61.7,
+      "macro": 55.9
+    }
+  },
+  {
+    "trade_date": "2023-03-03",
+    "composite_score": 48.4,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 52.0,
+      "fund": 60.8,
+      "sentiment": 29.5,
+      "technical": 62.0,
+      "structure": 41.1,
+      "macro": 53.7
+    }
+  },
+  {
+    "trade_date": "2023-03-10",
+    "composite_score": 41.4,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 46.6,
+      "fund": 47.1,
+      "sentiment": 15.8,
+      "technical": 53.0,
+      "structure": 41.1,
+      "macro": 53.7
+    }
+  },
+  {
+    "trade_date": "2023-03-17",
+    "composite_score": 50.6,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 47.0,
+      "fund": 58.5,
+      "sentiment": 51.7,
+      "technical": 55.1,
+      "structure": 41.1,
+      "macro": 53.7
+    }
+  },
+  {
+    "trade_date": "2023-03-24",
+    "composite_score": 51.4,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 50.0,
+      "fund": 75.8,
+      "sentiment": 38.8,
+      "technical": 55.2,
+      "structure": 41.1,
+      "macro": 53.7
+    }
+  },
+  {
+    "trade_date": "2023-03-31",
+    "composite_score": 46.5,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 50.0,
+      "fund": 34.1,
+      "sentiment": 46.8,
+      "technical": 52.7,
+      "structure": 41.1,
+      "macro": 53.7
+    }
+  },
+  {
+    "trade_date": "2023-04-07",
+    "composite_score": 48.7,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 52.3,
+      "fund": 41.3,
+      "sentiment": 60.1,
+      "technical": 56.1,
+      "structure": 24.8,
+      "macro": 53.8
+    }
+  },
+  {
+    "trade_date": "2023-04-14",
+    "composite_score": 48.7,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 51.7,
+      "fund": 53.7,
+      "sentiment": 52.0,
+      "technical": 55.8,
+      "structure": 24.8,
+      "macro": 53.8
+    }
+  },
+  {
+    "trade_date": "2023-04-21",
+    "composite_score": 40.9,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 46.9,
+      "fund": 56.7,
+      "sentiment": 19.3,
+      "technical": 50.4,
+      "structure": 24.8,
+      "macro": 53.8
+    }
+  },
+  {
+    "trade_date": "2023-04-28",
+    "composite_score": 48.8,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 48.5,
+      "fund": 41.7,
+      "sentiment": 68.4,
+      "technical": 49.7,
+      "structure": 24.8,
+      "macro": 53.8
+    }
+  },
+  {
+    "trade_date": "2023-05-05",
+    "composite_score": 38.9,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 48.0,
+      "fund": 26.5,
+      "sentiment": 31.4,
+      "technical": 49.8,
+      "structure": 27.0,
+      "macro": 51.1
+    }
+  },
+  {
+    "trade_date": "2023-05-12",
+    "composite_score": 38.4,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 45.3,
+      "fund": 53.5,
+      "sentiment": 16.5,
+      "technical": 40.2,
+      "structure": 27.0,
+      "macro": 51.1
+    }
+  },
+  {
+    "trade_date": "2023-05-19",
+    "composite_score": 37.7,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 45.3,
+      "fund": 25.8,
+      "sentiment": 33.9,
+      "technical": 39.8,
+      "structure": 27.0,
+      "macro": 51.1
+    }
+  },
+  {
+    "trade_date": "2023-05-26",
+    "composite_score": 42.9,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 41.7,
+      "fund": 59.5,
+      "sentiment": 42.5,
+      "technical": 33.2,
+      "structure": 27.0,
+      "macro": 51.1
+    }
+  },
+  {
+    "trade_date": "2023-06-02",
+    "composite_score": 39.4,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 41.8,
+      "fund": 9.3,
+      "sentiment": 49.0,
+      "technical": 34.7,
+      "structure": 50.9,
+      "macro": 44.1
+    }
+  },
+  {
+    "trade_date": "2023-06-09",
+    "composite_score": 46.6,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 41.2,
+      "fund": 48.5,
+      "sentiment": 56.9,
+      "technical": 34.7,
+      "structure": 50.9,
+      "macro": 44.1
+    }
+  },
+  {
+    "trade_date": "2023-06-16",
+    "composite_score": 42.4,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 44.9,
+      "fund": 12.1,
+      "sentiment": 56.1,
+      "technical": 38.7,
+      "structure": 50.9,
+      "macro": 44.1
+    }
+  },
+  {
+    "trade_date": "2023-06-21",
+    "composite_score": 38.2,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 40.1,
+      "fund": 41.4,
+      "sentiment": 22.6,
+      "technical": 32.1,
+      "structure": 50.9,
+      "macro": 44.1
+    }
+  },
+  {
+    "trade_date": "2023-06-30",
+    "composite_score": 47.2,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 44.6,
+      "fund": 52.7,
+      "sentiment": 53.7,
+      "technical": 31.6,
+      "structure": 50.9,
+      "macro": 44.1
+    }
+  },
+  {
+    "trade_date": "2023-07-07",
+    "composite_score": 30.4,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 44.3,
+      "fund": 28.7,
+      "sentiment": 19.2,
+      "technical": 30.4,
+      "structure": 15.1,
+      "macro": 39.0
+    }
+  },
+  {
+    "trade_date": "2023-07-14",
+    "composite_score": 38.8,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 46.5,
+      "fund": 60.7,
+      "sentiment": 32.9,
+      "technical": 33.6,
+      "structure": 15.1,
+      "macro": 39.0
+    }
+  },
+  {
+    "trade_date": "2023-07-21",
+    "composite_score": 29.8,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 44.9,
+      "fund": 28.1,
+      "sentiment": 17.6,
+      "technical": 27.8,
+      "structure": 15.1,
+      "macro": 39.0
+    }
+  },
+  {
+    "trade_date": "2023-07-28",
+    "composite_score": 41.7,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 49.7,
+      "fund": 48.7,
+      "sentiment": 50.0,
+      "technical": 38.5,
+      "structure": 15.1,
+      "macro": 39.0
+    }
+  },
+  {
+    "trade_date": "2023-08-04",
+    "composite_score": 46.5,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 52.3,
+      "fund": 51.5,
+      "sentiment": 38.1,
+      "technical": 39.9,
+      "structure": 55.2,
+      "macro": 38.5
+    }
+  },
+  {
+    "trade_date": "2023-08-11",
+    "composite_score": 38.6,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 45.6,
+      "fund": 54.3,
+      "sentiment": 10.2,
+      "technical": 29.4,
+      "structure": 55.2,
+      "macro": 38.5
+    }
+  },
+  {
+    "trade_date": "2023-08-18",
+    "composite_score": 35.9,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 41.5,
+      "fund": 45.0,
+      "sentiment": 11.1,
+      "technical": 25.6,
+      "structure": 55.2,
+      "macro": 38.5
+    }
+  },
+  {
+    "trade_date": "2023-08-25",
+    "composite_score": 37.0,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 33.0,
+      "fund": 72.1,
+      "sentiment": 8.4,
+      "technical": 21.7,
+      "structure": 55.2,
+      "macro": 38.5
+    }
+  },
+  {
+    "trade_date": "2023-09-01",
+    "composite_score": 36.4,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 38.8,
+      "fund": 39.9,
+      "sentiment": 23.4,
+      "technical": 24.8,
+      "structure": 52.7,
+      "macro": 37.7
+    }
+  },
+  {
+    "trade_date": "2023-09-08",
+    "composite_score": 39.6,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 37.0,
+      "fund": 54.1,
+      "sentiment": 31.3,
+      "technical": 24.3,
+      "structure": 52.7,
+      "macro": 37.7
+    }
+  },
+  {
+    "trade_date": "2023-09-15",
+    "composite_score": 39.9,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 37.7,
+      "fund": 57.2,
+      "sentiment": 29.7,
+      "technical": 24.4,
+      "structure": 52.7,
+      "macro": 37.7
+    }
+  },
+  {
+    "trade_date": "2023-09-22",
+    "composite_score": 37.2,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 37.8,
+      "fund": 12.5,
+      "sentiment": 48.3,
+      "technical": 26.8,
+      "structure": 52.7,
+      "macro": 37.7
+    }
+  },
+  {
+    "trade_date": "2023-09-28",
+    "composite_score": 39.4,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 36.4,
+      "fund": 37.0,
+      "sentiment": 43.4,
+      "technical": 25.6,
+      "structure": 52.7,
+      "macro": 37.7
+    }
+  },
+  {
+    "trade_date": "2023-10-13",
+    "composite_score": 39.6,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 32.8,
+      "fund": 74.3,
+      "sentiment": 29.0,
+      "technical": 24.0,
+      "structure": 44.5,
+      "macro": 35.9
+    }
+  },
+  {
+    "trade_date": "2023-10-20",
+    "composite_score": 30.7,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 22.4,
+      "fund": 54.7,
+      "sentiment": 15.2,
+      "technical": 18.1,
+      "structure": 44.5,
+      "macro": 35.9
+    }
+  },
+  {
+    "trade_date": "2023-10-27",
+    "composite_score": 36.5,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 27.9,
+      "fund": 16.9,
+      "sentiment": 65.0,
+      "technical": 19.2,
+      "structure": 44.5,
+      "macro": 35.9
+    }
+  },
+  {
+    "trade_date": "2023-11-03",
+    "composite_score": 32.6,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 26.9,
+      "fund": 19.4,
+      "sentiment": 46.8,
+      "technical": 19.8,
+      "structure": 45.9,
+      "macro": 31.7
+    }
+  },
+  {
+    "trade_date": "2023-11-10",
+    "composite_score": 38.0,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 31.4,
+      "fund": 79.2,
+      "sentiment": 22.9,
+      "technical": 20.8,
+      "structure": 45.9,
+      "macro": 31.7
+    }
+  },
+  {
+    "trade_date": "2023-11-17",
+    "composite_score": 35.1,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 32.0,
+      "fund": 24.9,
+      "sentiment": 46.9,
+      "technical": 23.9,
+      "structure": 45.9,
+      "macro": 31.7
+    }
+  },
+  {
+    "trade_date": "2023-11-24",
+    "composite_score": 37.7,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 32.0,
+      "fund": 84.8,
+      "sentiment": 13.8,
+      "technical": 25.6,
+      "structure": 45.9,
+      "macro": 31.7
+    }
+  },
+  {
+    "trade_date": "2023-12-01",
+    "composite_score": 40.0,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 29.4,
+      "fund": 67.9,
+      "sentiment": 46.5,
+      "technical": 27.2,
+      "structure": 37.2,
+      "macro": 32.4
+    }
+  },
+  {
+    "trade_date": "2023-12-08",
+    "composite_score": 28.4,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 24.9,
+      "fund": 26.5,
+      "sentiment": 26.2,
+      "technical": 25.1,
+      "structure": 37.2,
+      "macro": 32.4
+    }
+  },
+  {
+    "trade_date": "2023-12-15",
+    "composite_score": 33.7,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 23.2,
+      "fund": 64.9,
+      "sentiment": 26.4,
+      "technical": 24.3,
+      "structure": 37.2,
+      "macro": 32.4
+    }
+  },
+  {
+    "trade_date": "2023-12-22",
+    "composite_score": 24.5,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 19.2,
+      "fund": 34.7,
+      "sentiment": 9.3,
+      "technical": 22.2,
+      "structure": 37.2,
+      "macro": 32.4
+    }
+  },
+  {
+    "trade_date": "2023-12-29",
+    "composite_score": 32.2,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 28.9,
+      "fund": 9.2,
+      "sentiment": 54.6,
+      "technical": 22.2,
+      "structure": 37.2,
+      "macro": 32.4
+    }
+  },
+  {
+    "trade_date": "2024-01-05",
+    "composite_score": 26.3,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 28.1,
+      "fund": 40.6,
+      "sentiment": 8.4,
+      "technical": 19.9,
+      "structure": 10.8,
+      "macro": 53.2
+    }
+  },
+  {
+    "trade_date": "2024-01-12",
+    "composite_score": 25.6,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 23.4,
+      "fund": 32.1,
+      "sentiment": 18.3,
+      "technical": 17.7,
+      "structure": 10.8,
+      "macro": 53.2
+    }
+  },
+  {
+    "trade_date": "2024-01-19",
+    "composite_score": 27.8,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 17.2,
+      "fund": 68.8,
+      "sentiment": 10.6,
+      "technical": 15.0,
+      "structure": 10.8,
+      "macro": 53.2
+    }
+  },
+  {
+    "trade_date": "2024-01-26",
+    "composite_score": 32.7,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 18.8,
+      "fund": 65.5,
+      "sentiment": 36.0,
+      "technical": 14.7,
+      "structure": 10.8,
+      "macro": 53.2
+    }
+  },
+  {
+    "trade_date": "2024-02-02",
+    "composite_score": 20.6,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 6.1,
+      "fund": 42.8,
+      "sentiment": 11.7,
+      "technical": 7.8,
+      "structure": 34.7,
+      "macro": 29.2
+    }
+  },
+  {
+    "trade_date": "2024-02-08",
+    "composite_score": 32.3,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 16.1,
+      "fund": 12.1,
+      "sentiment": 79.2,
+      "technical": 10.8,
+      "structure": 34.7,
+      "macro": 29.2
+    }
+  },
+  {
+    "trade_date": "2024-02-23",
+    "composite_score": 36.7,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 20.0,
+      "fund": 42.5,
+      "sentiment": 70.1,
+      "technical": 17.5,
+      "structure": 34.7,
+      "macro": 29.2
+    }
+  },
+  {
+    "trade_date": "2024-03-01",
+    "composite_score": 30.8,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 25.4,
+      "fund": 27.7,
+      "sentiment": 62.9,
+      "technical": 19.5,
+      "structure": 18.4,
+      "macro": 19.8
+    }
+  },
+  {
+    "trade_date": "2024-03-08",
+    "composite_score": 31.7,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 24.9,
+      "fund": 43.2,
+      "sentiment": 55.7,
+      "technical": 21.4,
+      "structure": 18.4,
+      "macro": 19.8
+    }
+  },
+  {
+    "trade_date": "2024-03-15",
+    "composite_score": 35.2,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 30.4,
+      "fund": 47.3,
+      "sentiment": 61.7,
+      "technical": 23.5,
+      "structure": 18.4,
+      "macro": 19.8
+    }
+  },
+  {
+    "trade_date": "2024-03-22",
+    "composite_score": 32.6,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 28.5,
+      "fund": 64.4,
+      "sentiment": 38.2,
+      "technical": 24.2,
+      "structure": 18.4,
+      "macro": 19.8
+    }
+  },
+  {
+    "trade_date": "2024-03-29",
+    "composite_score": 27.8,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 26.5,
+      "fund": 12.3,
+      "sentiment": 55.7,
+      "technical": 24.5,
+      "structure": 18.4,
+      "macro": 19.8
+    }
+  },
+  {
+    "trade_date": "2024-04-03",
+    "composite_score": 29.7,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 30.4,
+      "fund": 59.9,
+      "sentiment": 27.9,
+      "technical": 26.4,
+      "structure": 25.3,
+      "macro": 7.4
+    }
+  },
+  {
+    "trade_date": "2024-04-12",
+    "composite_score": 24.9,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 26.1,
+      "fund": 35.6,
+      "sentiment": 28.6,
+      "technical": 23.5,
+      "structure": 25.3,
+      "macro": 7.4
+    }
+  },
+  {
+    "trade_date": "2024-04-19",
+    "composite_score": 32.0,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 26.7,
+      "fund": 71.2,
+      "sentiment": 35.4,
+      "technical": 26.8,
+      "structure": 25.3,
+      "macro": 7.4
+    }
+  },
+  {
+    "trade_date": "2024-04-26",
+    "composite_score": 28.8,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 27.1,
+      "fund": 4.7,
+      "sentiment": 67.1,
+      "technical": 29.5,
+      "structure": 25.3,
+      "macro": 7.4
+    }
+  },
+  {
+    "trade_date": "2024-04-30",
+    "composite_score": 27.3,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 30.8,
+      "fund": 31.8,
+      "sentiment": 34.1,
+      "technical": 31.4,
+      "structure": 25.3,
+      "macro": 7.4
+    }
+  },
+  {
+    "trade_date": "2024-05-10",
+    "composite_score": 30.7,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 34.7,
+      "fund": 36.6,
+      "sentiment": 20.3,
+      "technical": 37.7,
+      "structure": 54.9,
+      "macro": 3.3
+    }
+  },
+  {
+    "trade_date": "2024-05-17",
+    "composite_score": 39.8,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 35.2,
+      "fund": 43.3,
+      "sentiment": 59.2,
+      "technical": 39.2,
+      "structure": 54.9,
+      "macro": 3.3
+    }
+  },
+  {
+    "trade_date": "2024-05-24",
+    "composite_score": 31.0,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 29.2,
+      "fund": 55.9,
+      "sentiment": 15.7,
+      "technical": 34.3,
+      "structure": 54.9,
+      "macro": 3.3
+    }
+  },
+  {
+    "trade_date": "2024-05-31",
+    "composite_score": 29.5,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 28.0,
+      "fund": 23.3,
+      "sentiment": 33.8,
+      "technical": 35.1,
+      "structure": 54.9,
+      "macro": 3.3
+    }
+  },
+  {
+    "trade_date": "2024-06-07",
+    "composite_score": 24.9,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 26.5,
+      "fund": 14.3,
+      "sentiment": 48.9,
+      "technical": 32.3,
+      "structure": 18.6,
+      "macro": 1.8
+    }
+  },
+  {
+    "trade_date": "2024-06-14",
+    "composite_score": 20.5,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 24.7,
+      "fund": 13.0,
+      "sentiment": 31.8,
+      "technical": 29.9,
+      "structure": 18.6,
+      "macro": 1.8
+    }
+  },
+  {
+    "trade_date": "2024-06-21",
+    "composite_score": 20.8,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 19.9,
+      "fund": 41.7,
+      "sentiment": 19.4,
+      "technical": 26.1,
+      "structure": 18.6,
+      "macro": 1.8
+    }
+  },
+  {
+    "trade_date": "2024-06-28",
+    "composite_score": 19.4,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 17.1,
+      "fund": 26.6,
+      "sentiment": 28.7,
+      "technical": 22.6,
+      "structure": 18.6,
+      "macro": 1.8
+    }
+  },
+  {
+    "trade_date": "2024-07-05",
+    "composite_score": 24.7,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 15.6,
+      "fund": 41.0,
+      "sentiment": 38.8,
+      "technical": 21.2,
+      "structure": 30.4,
+      "macro": 1.4
+    }
+  },
+  {
+    "trade_date": "2024-07-12",
+    "composite_score": 19.5,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 18.0,
+      "fund": 26.5,
+      "sentiment": 20.2,
+      "technical": 22.2,
+      "structure": 30.4,
+      "macro": 1.4
+    }
+  },
+  {
+    "trade_date": "2024-07-19",
+    "composite_score": 26.4,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 18.3,
+      "fund": 47.2,
+      "sentiment": 38.3,
+      "technical": 23.1,
+      "structure": 30.4,
+      "macro": 1.4
+    }
+  },
+  {
+    "trade_date": "2024-07-26",
+    "composite_score": 21.9,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 13.8,
+      "fund": 15.5,
+      "sentiment": 48.5,
+      "technical": 16.8,
+      "structure": 30.4,
+      "macro": 1.4
+    }
+  },
+  {
+    "trade_date": "2024-08-02",
+    "composite_score": 26.0,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 13.5,
+      "fund": 67.3,
+      "sentiment": 21.3,
+      "technical": 18.5,
+      "structure": 42.0,
+      "macro": 0.7
+    }
+  },
+  {
+    "trade_date": "2024-08-09",
+    "composite_score": 23.5,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 11.0,
+      "fund": 71.9,
+      "sentiment": 10.2,
+      "technical": 15.3,
+      "structure": 42.0,
+      "macro": 0.7
+    }
+  },
+  {
+    "trade_date": "2024-08-16",
+    "composite_score": 21.3,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 9.4,
+      "fund": 47.9,
+      "sentiment": 18.3,
+      "technical": 16.7,
+      "structure": 42.0,
+      "macro": 0.7
+    }
+  },
+  {
+    "trade_date": "2024-08-23",
+    "composite_score": 21.2,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 6.6,
+      "fund": 52.4,
+      "sentiment": 18.8,
+      "technical": 15.2,
+      "structure": 42.0,
+      "macro": 0.7
+    }
+  },
+  {
+    "trade_date": "2024-08-30",
+    "composite_score": 28.9,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 8.1,
+      "fund": 44.1,
+      "sentiment": 62.1,
+      "technical": 14.4,
+      "structure": 42.0,
+      "macro": 0.7
+    }
+  },
+  {
+    "trade_date": "2024-09-06",
+    "composite_score": 18.4,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 6.2,
+      "fund": 75.0,
+      "sentiment": 16.0,
+      "technical": 11.1,
+      "structure": 7.2,
+      "macro": 1.2
+    }
+  },
+  {
+    "trade_date": "2024-09-13",
+    "composite_score": 13.5,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 4.2,
+      "fund": 52.9,
+      "sentiment": 11.6,
+      "technical": 9.6,
+      "structure": 7.2,
+      "macro": 1.2
+    }
+  },
+  {
+    "trade_date": "2024-09-20",
+    "composite_score": 15.9,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 5.1,
+      "fund": 44.3,
+      "sentiment": 28.3,
+      "technical": 10.7,
+      "structure": 7.2,
+      "macro": 1.2
+    }
+  },
+  {
+    "trade_date": "2024-09-27",
+    "composite_score": 32.5,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 25.2,
+      "fund": 28.7,
+      "sentiment": 83.7,
+      "technical": 38.7,
+      "structure": 7.2,
+      "macro": 1.2
+    }
+  },
+  {
+    "trade_date": "2024-09-30",
+    "composite_score": 40.7,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 44.8,
+      "fund": 35.2,
+      "sentiment": 88.8,
+      "technical": 51.6,
+      "structure": 7.2,
+      "macro": 1.2
+    }
+  },
+  {
+    "trade_date": "2024-10-08",
+    "composite_score": 53.4,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 55.0,
+      "fund": 87.0,
+      "sentiment": 88.1,
+      "technical": 53.9,
+      "structure": 19.9,
+      "macro": 4.4
+    }
+  },
+  {
+    "trade_date": "2024-10-11",
+    "composite_score": 33.7,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 31.8,
+      "fund": 77.1,
+      "sentiment": 27.2,
+      "technical": 51.4,
+      "structure": 19.9,
+      "macro": 4.4
+    }
+  },
+  {
+    "trade_date": "2024-10-18",
+    "composite_score": 39.2,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 33.1,
+      "fund": 29.6,
+      "sentiment": 86.2,
+      "technical": 55.8,
+      "structure": 19.9,
+      "macro": 4.4
+    }
+  },
+  {
+    "trade_date": "2024-10-25",
+    "composite_score": 41.4,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 39.7,
+      "fund": 34.6,
+      "sentiment": 82.4,
+      "technical": 61.8,
+      "structure": 19.9,
+      "macro": 4.4
+    }
+  },
+  {
+    "trade_date": "2024-11-01",
+    "composite_score": 41.6,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 39.0,
+      "fund": 60.3,
+      "sentiment": 47.2,
+      "technical": 67.0,
+      "structure": 38.9,
+      "macro": 5.4
+    }
+  },
+  {
+    "trade_date": "2024-11-08",
+    "composite_score": 52.5,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 52.0,
+      "fund": 71.2,
+      "sentiment": 72.1,
+      "technical": 77.4,
+      "structure": 38.9,
+      "macro": 5.4
+    }
+  },
+  {
+    "trade_date": "2024-11-15",
+    "composite_score": 44.1,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 44.2,
+      "fund": 69.1,
+      "sentiment": 39.4,
+      "technical": 81.9,
+      "structure": 38.9,
+      "macro": 5.4
+    }
+  },
+  {
+    "trade_date": "2024-11-22",
+    "composite_score": 44.9,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 39.1,
+      "fund": 72.4,
+      "sentiment": 46.0,
+      "technical": 84.4,
+      "structure": 38.9,
+      "macro": 5.4
+    }
+  },
+  {
+    "trade_date": "2024-11-29",
+    "composite_score": 47.5,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 46.6,
+      "fund": 28.1,
+      "sentiment": 80.1,
+      "technical": 89.8,
+      "structure": 38.9,
+      "macro": 5.4
+    }
+  },
+  {
+    "trade_date": "2024-12-06",
+    "composite_score": 48.7,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 52.3,
+      "fund": 23.9,
+      "sentiment": 76.7,
+      "technical": 92.9,
+      "structure": 43.3,
+      "macro": 6.5
+    }
+  },
+  {
+    "trade_date": "2024-12-13",
+    "composite_score": 52.8,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 52.8,
+      "fund": 73.9,
+      "sentiment": 59.1,
+      "technical": 92.5,
+      "structure": 43.3,
+      "macro": 6.5
+    }
+  },
+  {
+    "trade_date": "2024-12-20",
+    "composite_score": 49.9,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 47.4,
+      "fund": 50.7,
+      "sentiment": 70.7,
+      "technical": 88.7,
+      "structure": 43.3,
+      "macro": 6.5
+    }
+  },
+  {
+    "trade_date": "2024-12-27",
+    "composite_score": 45.0,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 44.8,
+      "fund": 38.6,
+      "sentiment": 60.8,
+      "technical": 84.1,
+      "structure": 43.3,
+      "macro": 6.5
+    }
+  },
+  {
+    "trade_date": "2025-01-03",
+    "composite_score": 36.1,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 22.2,
+      "fund": 67.5,
+      "sentiment": 24.8,
+      "technical": 69.0,
+      "structure": 43.6,
+      "macro": 13.1
+    }
+  },
+  {
+    "trade_date": "2025-01-10",
+    "composite_score": 32.7,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 19.9,
+      "fund": 63.1,
+      "sentiment": 23.9,
+      "technical": 49.5,
+      "structure": 43.6,
+      "macro": 13.1
+    }
+  },
+  {
+    "trade_date": "2025-01-17",
+    "composite_score": 33.8,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 26.1,
+      "fund": 30.8,
+      "sentiment": 45.6,
+      "technical": 50.1,
+      "structure": 43.6,
+      "macro": 13.1
+    }
+  },
+  {
+    "trade_date": "2025-01-24",
+    "composite_score": 37.0,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 26.8,
+      "fund": 30.5,
+      "sentiment": 61.7,
+      "technical": 48.5,
+      "structure": 43.6,
+      "macro": 13.1
+    }
+  },
+  {
+    "trade_date": "2025-01-27",
+    "composite_score": 30.1,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 26.5,
+      "fund": 28.7,
+      "sentiment": 29.2,
+      "technical": 47.8,
+      "structure": 43.6,
+      "macro": 13.1
+    }
+  },
+  {
+    "trade_date": "2025-02-07",
+    "composite_score": 40.0,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 31.5,
+      "fund": 37.7,
+      "sentiment": 77.3,
+      "technical": 51.5,
+      "structure": 27.3,
+      "macro": 11.8
+    }
+  },
+  {
+    "trade_date": "2025-02-14",
+    "composite_score": 39.3,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 32.6,
+      "fund": 42.9,
+      "sentiment": 66.1,
+      "technical": 55.9,
+      "structure": 27.3,
+      "macro": 11.8
+    }
+  },
+  {
+    "trade_date": "2025-02-21",
+    "composite_score": 40.9,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 32.0,
+      "fund": 40.1,
+      "sentiment": 74.5,
+      "technical": 61.5,
+      "structure": 27.3,
+      "macro": 11.8
+    }
+  },
+  {
+    "trade_date": "2025-02-28",
+    "composite_score": 37.5,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 30.7,
+      "fund": 77.0,
+      "sentiment": 30.0,
+      "technical": 64.4,
+      "structure": 27.3,
+      "macro": 11.8
+    }
+  },
+  {
+    "trade_date": "2025-03-07",
+    "composite_score": 44.0,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 33.3,
+      "fund": 40.3,
+      "sentiment": 47.7,
+      "technical": 69.6,
+      "structure": 67.8,
+      "macro": 19.9
+    }
+  },
+  {
+    "trade_date": "2025-03-14",
+    "composite_score": 49.6,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 39.0,
+      "fund": 27.9,
+      "sentiment": 77.5,
+      "technical": 70.0,
+      "structure": 67.8,
+      "macro": 19.9
+    }
+  },
+  {
+    "trade_date": "2025-03-21",
+    "composite_score": 44.4,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 36.6,
+      "fund": 59.1,
+      "sentiment": 33.8,
+      "technical": 64.8,
+      "structure": 67.8,
+      "macro": 19.9
+    }
+  },
+  {
+    "trade_date": "2025-03-28",
+    "composite_score": 39.4,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 35.2,
+      "fund": 49.1,
+      "sentiment": 20.0,
+      "technical": 60.7,
+      "structure": 67.8,
+      "macro": 19.9
+    }
+  },
+  {
+    "trade_date": "2025-04-03",
+    "composite_score": 34.6,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 34.2,
+      "fund": 42.0,
+      "sentiment": 30.8,
+      "technical": 58.6,
+      "structure": 34.2,
+      "macro": 17.0
+    }
+  },
+  {
+    "trade_date": "2025-04-11",
+    "composite_score": 36.2,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 22.5,
+      "fund": 34.0,
+      "sentiment": 66.7,
+      "technical": 44.3,
+      "structure": 34.2,
+      "macro": 17.0
+    }
+  },
+  {
+    "trade_date": "2025-04-18",
+    "composite_score": 28.1,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 20.3,
+      "fund": 29.2,
+      "sentiment": 32.9,
+      "technical": 43.1,
+      "structure": 34.2,
+      "macro": 17.0
+    }
+  },
+  {
+    "trade_date": "2025-04-25",
+    "composite_score": 32.4,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 23.9,
+      "fund": 35.3,
+      "sentiment": 45.5,
+      "technical": 42.7,
+      "structure": 34.2,
+      "macro": 17.0
+    }
+  },
+  {
+    "trade_date": "2025-04-30",
+    "composite_score": 32.6,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 18.4,
+      "fund": 32.3,
+      "sentiment": 56.9,
+      "technical": 40.4,
+      "structure": 34.2,
+      "macro": 17.0
+    }
+  },
+  {
+    "trade_date": "2025-05-09",
+    "composite_score": 32.9,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 23.2,
+      "fund": 48.5,
+      "sentiment": 28.3,
+      "technical": 47.1,
+      "structure": 42.5,
+      "macro": 20.5
+    }
+  },
+  {
+    "trade_date": "2025-05-16",
+    "composite_score": 38.0,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 27.6,
+      "fund": 39.9,
+      "sentiment": 52.7,
+      "technical": 51.3,
+      "structure": 42.5,
+      "macro": 20.5
+    }
+  },
+  {
+    "trade_date": "2025-05-23",
+    "composite_score": 36.3,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 24.6,
+      "fund": 62.6,
+      "sentiment": 30.4,
+      "technical": 51.8,
+      "structure": 42.5,
+      "macro": 20.5
+    }
+  },
+  {
+    "trade_date": "2025-05-30",
+    "composite_score": 35.1,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 25.7,
+      "fund": 59.2,
+      "sentiment": 25.1,
+      "technical": 53.3,
+      "structure": 42.5,
+      "macro": 20.5
+    }
+  },
+  {
+    "trade_date": "2025-06-06",
+    "composite_score": 40.1,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 26.4,
+      "fund": 39.5,
+      "sentiment": 44.9,
+      "technical": 57.4,
+      "structure": 46.7,
+      "macro": 39.0
+    }
+  },
+  {
+    "trade_date": "2025-06-13",
+    "composite_score": 44.8,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 27.2,
+      "fund": 78.7,
+      "sentiment": 37.9,
+      "technical": 56.9,
+      "structure": 46.7,
+      "macro": 39.0
+    }
+  },
+  {
+    "trade_date": "2025-06-20",
+    "composite_score": 37.3,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 22.8,
+      "fund": 50.3,
+      "sentiment": 28.5,
+      "technical": 54.3,
+      "structure": 46.7,
+      "macro": 39.0
+    }
+  },
+  {
+    "trade_date": "2025-06-27",
+    "composite_score": 49.0,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 32.0,
+      "fund": 65.3,
+      "sentiment": 61.3,
+      "technical": 60.3,
+      "structure": 46.7,
+      "macro": 39.0
+    }
+  },
+  {
+    "trade_date": "2025-07-04",
+    "composite_score": 44.7,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 35.7,
+      "fund": 42.4,
+      "sentiment": 34.4,
+      "technical": 62.7,
+      "structure": 56.2,
+      "macro": 52.4
+    }
+  },
+  {
+    "trade_date": "2025-07-11",
+    "composite_score": 54.5,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 41.2,
+      "fund": 60.9,
+      "sentiment": 61.7,
+      "technical": 65.1,
+      "structure": 56.2,
+      "macro": 52.4
+    }
+  },
+  {
+    "trade_date": "2025-07-18",
+    "composite_score": 51.9,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 43.0,
+      "fund": 48.7,
+      "sentiment": 54.3,
+      "technical": 68.0,
+      "structure": 56.2,
+      "macro": 52.4
+    }
+  },
+  {
+    "trade_date": "2025-07-25",
+    "composite_score": 56.6,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 48.2,
+      "fund": 73.6,
+      "sentiment": 50.4,
+      "technical": 71.9,
+      "structure": 56.2,
+      "macro": 52.4
+    }
+  },
+  {
+    "trade_date": "2025-08-01",
+    "composite_score": 52.1,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 44.6,
+      "fund": 56.1,
+      "sentiment": 51.7,
+      "technical": 71.2,
+      "structure": 47.5,
+      "macro": 53.8
+    }
+  },
+  {
+    "trade_date": "2025-08-08",
+    "composite_score": 50.9,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 47.1,
+      "fund": 32.3,
+      "sentiment": 58.6,
+      "technical": 74.4,
+      "structure": 47.5,
+      "macro": 53.8
+    }
+  },
+  {
+    "trade_date": "2025-08-15",
+    "composite_score": 59.0,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 51.0,
+      "fund": 46.9,
+      "sentiment": 81.7,
+      "technical": 77.5,
+      "structure": 47.5,
+      "macro": 53.8
+    }
+  },
+  {
+    "trade_date": "2025-08-22",
+    "composite_score": 56.9,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 53.4,
+      "fund": 41.3,
+      "sentiment": 70.2,
+      "technical": 81.8,
+      "structure": 47.5,
+      "macro": 53.8
+    }
+  },
+  {
+    "trade_date": "2025-08-29",
+    "composite_score": 59.7,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 51.6,
+      "fund": 77.5,
+      "sentiment": 58.0,
+      "technical": 84.5,
+      "structure": 47.5,
+      "macro": 53.8
+    }
+  },
+  {
+    "trade_date": "2025-09-05",
+    "composite_score": 59.6,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 53.2,
+      "fund": 35.9,
+      "sentiment": 83.5,
+      "technical": 84.9,
+      "structure": 54.3,
+      "macro": 50.7
+    }
+  },
+  {
+    "trade_date": "2025-09-11",
+    "composite_score": 58.3,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 55.4,
+      "fund": 27.7,
+      "sentiment": 80.0,
+      "technical": 85.6,
+      "structure": 54.3,
+      "macro": 50.7
+    }
+  },
+  {
+    "trade_date": "2025-09-12",
+    "composite_score": 59.0,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 54.5,
+      "fund": 58.8,
+      "sentiment": 61.4,
+      "technical": 85.0,
+      "structure": 54.3,
+      "macro": 50.7
+    }
+  },
+  {
+    "trade_date": "2025-09-19",
+    "composite_score": 53.4,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 52.7,
+      "fund": 48.5,
+      "sentiment": 46.4,
+      "technical": 79.5,
+      "structure": 54.3,
+      "macro": 50.7
+    }
+  },
+  {
+    "trade_date": "2025-09-26",
+    "composite_score": 49.7,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 51.4,
+      "fund": 35.5,
+      "sentiment": 41.9,
+      "technical": 74.2,
+      "structure": 54.3,
+      "macro": 50.7
+    }
+  },
+  {
+    "trade_date": "2025-09-30",
+    "composite_score": 50.3,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 54.2,
+      "fund": 7.7,
+      "sentiment": 62.4,
+      "technical": 74.2,
+      "structure": 54.3,
+      "macro": 50.7
+    }
+  },
+  {
+    "trade_date": "2025-10-10",
+    "composite_score": 54.3,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 55.9,
+      "fund": 58.7,
+      "sentiment": 51.8,
+      "technical": 74.1,
+      "structure": 47.8,
+      "macro": 43.4
+    }
+  },
+  {
+    "trade_date": "2025-10-17",
+    "composite_score": 48.0,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 52.9,
+      "fund": 56.9,
+      "sentiment": 27.6,
+      "technical": 70.3,
+      "structure": 47.8,
+      "macro": 43.4
+    }
+  },
+  {
+    "trade_date": "2025-10-24",
+    "composite_score": 48.8,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 54.1,
+      "fund": 9.9,
+      "sentiment": 65.7,
+      "technical": 70.2,
+      "structure": 47.8,
+      "macro": 43.4
+    }
+  },
+  {
+    "trade_date": "2025-10-31",
+    "composite_score": 54.1,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 53.1,
+      "fund": 52.2,
+      "sentiment": 62.1,
+      "technical": 69.2,
+      "structure": 47.8,
+      "macro": 43.4
+    }
+  },
+  {
+    "trade_date": "2025-11-07",
+    "composite_score": 49.9,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 55.8,
+      "fund": 27.3,
+      "sentiment": 53.6,
+      "technical": 69.9,
+      "structure": 58.3,
+      "macro": 35.9
+    }
+  },
+  {
+    "trade_date": "2025-11-14",
+    "composite_score": 53.0,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 54.9,
+      "fund": 50.5,
+      "sentiment": 52.5,
+      "technical": 70.7,
+      "structure": 58.3,
+      "macro": 35.9
+    }
+  },
+  {
+    "trade_date": "2025-11-21",
+    "composite_score": 50.1,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 48.2,
+      "fund": 84.2,
+      "sentiment": 23.7,
+      "technical": 65.6,
+      "structure": 58.3,
+      "macro": 35.9
+    }
+  },
+  {
+    "trade_date": "2025-11-28",
+    "composite_score": 49.3,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 50.9,
+      "fund": 14.8,
+      "sentiment": 69.1,
+      "technical": 64.4,
+      "structure": 58.3,
+      "macro": 35.9
+    }
+  },
+  {
+    "trade_date": "2025-12-05",
+    "composite_score": 52.3,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 52.2,
+      "fund": 17.5,
+      "sentiment": 71.2,
+      "technical": 62.4,
+      "structure": 69.2,
+      "macro": 37.7
+    }
+  },
+  {
+    "trade_date": "2025-12-12",
+    "composite_score": 55.0,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 50.0,
+      "fund": 54.7,
+      "sentiment": 61.7,
+      "technical": 58.9,
+      "structure": 69.2,
+      "macro": 37.7
+    }
+  },
+  {
+    "trade_date": "2025-12-19",
+    "composite_score": 53.7,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 50.7,
+      "fund": 33.0,
+      "sentiment": 71.3,
+      "technical": 57.0,
+      "structure": 69.2,
+      "macro": 37.7
+    }
+  },
+  {
+    "trade_date": "2025-12-26",
+    "composite_score": 52.5,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 53.8,
+      "fund": 31.9,
+      "sentiment": 61.2,
+      "technical": 59.3,
+      "structure": 69.2,
+      "macro": 37.7
+    }
+  },
+  {
+    "trade_date": "2025-12-31",
+    "composite_score": 53.0,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 56.4,
+      "fund": 36.3,
+      "sentiment": 57.3,
+      "technical": 59.2,
+      "structure": 69.2,
+      "macro": 37.7
+    }
+  },
+  {
+    "trade_date": "2026-01-09",
+    "composite_score": 58.0,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 61.2,
+      "fund": 55.8,
+      "sentiment": 80.9,
+      "technical": 63.8,
+      "structure": 28.3,
+      "macro": 49.9
+    }
+  },
+  {
+    "trade_date": "2026-01-12",
+    "composite_score": 62.5,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 61.3,
+      "fund": 81.5,
+      "sentiment": 83.6,
+      "technical": 64.9,
+      "structure": 28.3,
+      "macro": 49.9
+    }
+  },
+  {
+    "trade_date": "2026-01-16",
+    "composite_score": 58.1,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 62.0,
+      "fund": 89.5,
+      "sentiment": 54.7,
+      "technical": 65.4,
+      "structure": 28.3,
+      "macro": 49.9
+    }
+  },
+  {
+    "trade_date": "2026-01-23",
+    "composite_score": 59.5,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 65.9,
+      "fund": 55.8,
+      "sentiment": 80.7,
+      "technical": 68.1,
+      "structure": 28.3,
+      "macro": 49.9
+    }
+  },
+  {
+    "trade_date": "2026-01-30",
+    "composite_score": 54.5,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 62.7,
+      "fund": 68.5,
+      "sentiment": 49.9,
+      "technical": 67.8,
+      "structure": 28.3,
+      "macro": 49.9
+    }
+  },
+  {
+    "trade_date": "2026-02-06",
+    "composite_score": 52.5,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 62.4,
+      "fund": 23.2,
+      "sentiment": 60.7,
+      "technical": 66.2,
+      "structure": 43.1,
+      "macro": 55.3
+    }
+  },
+  {
+    "trade_date": "2026-02-13",
+    "composite_score": 45.4,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 63.3,
+      "fund": 11.5,
+      "sentiment": 32.6,
+      "technical": 66.1,
+      "structure": 43.1,
+      "macro": 55.3
+    }
+  },
+  {
+    "trade_date": "2026-02-27",
+    "composite_score": 58.9,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 67.2,
+      "fund": 42.9,
+      "sentiment": 70.2,
+      "technical": 68.8,
+      "structure": 43.1,
+      "macro": 55.3
+    }
+  },
+  {
+    "trade_date": "2026-03-06",
+    "composite_score": 50.4,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 66.5,
+      "fund": 10.1,
+      "sentiment": 75.4,
+      "technical": 67.1,
+      "structure": 25.4,
+      "macro": 44.8
+    }
+  },
+  {
+    "trade_date": "2026-03-13",
+    "composite_score": 51.9,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 66.8,
+      "fund": 60.0,
+      "sentiment": 45.7,
+      "technical": 65.6,
+      "structure": 25.4,
+      "macro": 44.8
+    }
+  },
+  {
+    "trade_date": "2026-03-20",
+    "composite_score": 48.2,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 60.6,
+      "fund": 71.6,
+      "sentiment": 30.5,
+      "technical": 57.0,
+      "structure": 25.4,
+      "macro": 44.8
+    }
+  },
+  {
+    "trade_date": "2026-03-27",
+    "composite_score": 46.2,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 59.7,
+      "fund": 9.3,
+      "sentiment": 72.7,
+      "technical": 48.2,
+      "structure": 25.4,
+      "macro": 44.8
+    }
+  },
+  {
+    "trade_date": "2026-04-03",
+    "composite_score": 43.3,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 55.6,
+      "fund": 40.3,
+      "sentiment": 27.9,
+      "technical": 42.0,
+      "structure": 42.8,
+      "macro": 47.5
+    }
+  },
+  {
+    "trade_date": "2026-04-10",
+    "composite_score": 51.2,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 59.8,
+      "fund": 29.7,
+      "sentiment": 68.1,
+      "technical": 46.5,
+      "structure": 42.8,
+      "macro": 47.5
+    }
+  },
+  {
+    "trade_date": "2026-04-17",
+    "composite_score": 53.8,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 60.5,
+      "fund": 53.7,
+      "sentiment": 61.4,
+      "technical": 48.6,
+      "structure": 42.8,
+      "macro": 47.5
+    }
+  },
+  {
+    "trade_date": "2026-04-24",
+    "composite_score": 52.4,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 59.7,
+      "fund": 59.8,
+      "sentiment": 49.6,
+      "technical": 50.5,
+      "structure": 42.8,
+      "macro": 47.5
+    }
+  },
+  {
+    "trade_date": "2026-04-30",
+    "composite_score": 54.7,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 61.7,
+      "fund": 48.6,
+      "sentiment": 65.9,
+      "technical": 52.5,
+      "structure": 42.8,
+      "macro": 47.5
+    }
+  },
+  {
+    "trade_date": "2026-05-08",
+    "composite_score": 63.0,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 62.7,
+      "fund": 82.5,
+      "sentiment": 76.8,
+      "technical": 56.8,
+      "structure": 29.7,
+      "macro": 47.1
+    }
+  },
+  {
+    "trade_date": "2026-05-15",
+    "composite_score": 56.2,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 58.6,
+      "fund": 82.9,
+      "sentiment": 53.0,
+      "technical": 56.1,
+      "structure": 29.7,
+      "macro": 47.1
+    }
+  },
+  {
+    "trade_date": "2026-05-22",
+    "composite_score": 52.9,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 55.4,
+      "fund": 32.1,
+      "sentiment": 82.0,
+      "technical": 54.5,
+      "structure": 29.7,
+      "macro": 47.1
+    }
+  },
+  {
+    "trade_date": "2026-05-29",
+    "composite_score": 49.4,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 57.5,
+      "fund": 68.5,
+      "sentiment": 39.8,
+      "technical": 49.0,
+      "structure": 29.7,
+      "macro": 47.1
+    }
+  },
+  {
+    "trade_date": "2026-06-03",
+    "composite_score": 54.0,
+    "level": "unknown",
+    "dimensions": {
+      "valuation": 46.5,
+      "fund": 63.7,
+      "sentiment": 62.0,
+      "technical": 48.9,
+      "structure": 49.3,
+      "macro": 47.1
+    }
+  },
+  {
+    "trade_date": "2026-06-08",
+    "composite_score": 61.3,
+    "level": "yellow",
+    "dimensions": {
+      "valuation": {
+        "score": 44.4,
+        "label": "估值"
+      },
+      "macro": {
+        "score": null,
+        "label": "宏观"
+      },
+      "fund": {
+        "score": 63.7,
+        "label": "资金"
+      },
+      "sentiment": {
+        "score": 95.9,
+        "label": "情绪"
+      },
+      "technical": {
+        "score": 48.9,
+        "label": "技术"
+      },
+      "structure": {
+        "score": 49.3,
+        "label": "结构"
+      }
+    },
+    "updated_at": "2026-06-08 00:00:00",
+    "sectors_top5": [
+      {
+        "industry": "",
+        "score": 74.2,
+        "avg_pct": null,
+        "up_ratio": 28.0,
+        "leader": {
+          "code": "sh600403",
+          "pct": 9.95
+        }
+      },
+      {
+        "industry": "",
+        "score": 59.4,
+        "avg_pct": null,
+        "up_ratio": 60.0,
+        "leader": {
+          "code": "sh600938",
+          "pct": 3.95
+        }
+      },
+      {
+        "industry": "",
+        "score": 58.7,
+        "avg_pct": null,
+        "up_ratio": 9.7,
+        "leader": {
+          "code": "sh600505",
+          "pct": 10.03
+        }
+      },
+      {
+        "industry": "",
+        "score": 58.5,
+        "avg_pct": null,
+        "up_ratio": 20.0,
+        "leader": {
+          "code": "sh603929",
+          "pct": 10.0
+        }
+      },
+      {
+        "industry": "",
+        "score": 57.6,
+        "avg_pct": null,
+        "up_ratio": 16.9,
+        "leader": {
+          "code": "sz300508",
+          "pct": 12.37
+        }
+      }
+    ]
+  },
+  {
+    "trade_date": "2026-06-10",
+    "composite_score": 47.9,
+    "level": "yellow",
+    "dimensions": {
+      "valuation": {
+        "score": 42.9,
+        "label": "估值"
+      },
+      "macro": {
+        "score": 47.1,
+        "label": "宏观"
+      },
+      "fund": {
+        "score": 59.3,
+        "label": "资金"
+      },
+      "sentiment": {
+        "score": 49.4,
+        "label": "情绪"
+      },
+      "technical": {
+        "score": 39.9,
+        "label": "技术"
+      },
+      "structure": {
+        "score": 49.3,
+        "label": "结构"
+      }
+    },
+    "updated_at": "2026-06-14 00:00:00",
+    "sectors_top5": [
+      {
+        "industry": "",
+        "score": 82.5,
+        "avg_pct": null,
+        "up_ratio": 80.0,
+        "leader": {
+          "code": "sh603929",
+          "pct": 7.9
+        }
+      },
+      {
+        "industry": "",
+        "score": 63.9,
+        "avg_pct": null,
+        "up_ratio": 4.0,
+        "leader": {
+          "code": "sz002128",
+          "pct": 0.36
+        }
+      },
+      {
+        "industry": "",
+        "score": 58.9,
+        "avg_pct": null,
+        "up_ratio": 21.2,
+        "leader": {
+          "code": "sh688216",
+          "pct": 20.01
+        }
+      },
+      {
+        "industry": "",
+        "score": 55.8,
+        "avg_pct": null,
+        "up_ratio": 66.7,
+        "leader": {
+          "code": "sz000048",
+          "pct": 9.99
+        }
+      },
+      {
+        "industry": "",
+        "score": 53.6,
+        "avg_pct": null,
+        "up_ratio": 9.7,
+        "leader": {
+          "code": "sz002256",
+          "pct": 10.08
+        }
+      }
+    ]
+  },
+  {
+    "trade_date": "2026-06-13",
+    "composite_score": 57.5,
+    "level": "orange",
+    "dimensions": {
+      "valuation": {
+        "score": null,
+        "label": "估值"
+      },
+      "macro": {
+        "score": null,
+        "label": "宏观"
+      },
+      "fund": {
+        "score": 59.3,
+        "label": "资金"
+      },
+      "sentiment": {
+        "score": 68.2,
+        "label": "情绪"
+      },
+      "technical": {
+        "score": 44.5,
+        "label": "技术"
+      },
+      "structure": {
+        "score": 50.0,
+        "label": "结构"
+      }
+    },
+    "updated_at": "2026-06-15 00:00:00",
+    "composite_score_smoothed": 56.8,
+    "level_smoothed": "orange",
+    "sectors_top5": [
+      {
+        "industry": "建筑装饰",
+        "score": 82.5,
+        "avg_pct": null,
+        "up_ratio": 80.0,
+        "leader": {
+          "code": "sh603929",
+          "pct": 7.9
+        }
+      },
+      {
+        "industry": "煤炭开采",
+        "score": 63.9,
+        "avg_pct": null,
+        "up_ratio": 4.0,
+        "leader": {
+          "code": "sz002128",
+          "pct": 0.36
+        }
+      },
+      {
+        "industry": "计算机通信电子",
+        "score": 58.9,
+        "avg_pct": null,
+        "up_ratio": 21.2,
+        "leader": {
+          "code": "sh688216",
+          "pct": 20.01
+        }
+      },
+      {
+        "industry": "畜牧业",
+        "score": 55.8,
+        "avg_pct": null,
+        "up_ratio": 66.7,
+        "leader": {
+          "code": "sz000048",
+          "pct": 9.99
+        }
+      },
+      {
+        "industry": "电力生产供应",
+        "score": 53.6,
+        "avg_pct": null,
+        "up_ratio": 9.7,
+        "leader": {
+          "code": "sz002256",
+          "pct": 10.08
+        }
+      }
+    ]
+  },
+  {
+    "trade_date": "2026-06-14",
+    "composite_score": 55.4,
+    "level": "yellow",
+    "dimensions": {
+      "valuation": {
+        "score": null,
+        "label": "估值"
+      },
+      "macro": {
+        "score": null,
+        "label": "宏观"
+      },
+      "fund": {
+        "score": 59.3,
+        "label": "资金"
+      },
+      "sentiment": {
+        "score": null,
+        "label": "情绪"
+      },
+      "technical": {
+        "score": 58.6,
+        "label": "技术"
+      },
+      "structure": {
+        "score": 49.3,
+        "label": "结构"
+      }
+    },
+    "updated_at": "2026-06-14 00:00:00",
+    "sectors_top5": [
+      {
+        "industry": "",
+        "score": 82.5,
+        "avg_pct": null,
+        "up_ratio": 80.0,
+        "leader": {
+          "code": "sh603929",
+          "pct": 7.9
+        }
+      },
+      {
+        "industry": "",
+        "score": 63.9,
+        "avg_pct": null,
+        "up_ratio": 4.0,
+        "leader": {
+          "code": "sz002128",
+          "pct": 0.36
+        }
+      },
+      {
+        "industry": "",
+        "score": 58.9,
+        "avg_pct": null,
+        "up_ratio": 21.2,
+        "leader": {
+          "code": "sh688216",
+          "pct": 20.01
+        }
+      },
+      {
+        "industry": "",
+        "score": 55.8,
+        "avg_pct": null,
+        "up_ratio": 66.7,
+        "leader": {
+          "code": "sz000048",
+          "pct": 9.99
+        }
+      },
+      {
+        "industry": "",
+        "score": 53.6,
+        "avg_pct": null,
+        "up_ratio": 9.7,
+        "leader": {
+          "code": "sz002256",
+          "pct": 10.08
+        }
+      }
+    ]
+  },
+  {
+    "trade_date": "2026-06-15",
+    "composite_score": 54.7,
+    "level": "yellow",
+    "dimensions": {
+      "valuation": {
+        "score": 44.7,
+        "label": "估值"
+      },
+      "macro": {
+        "score": null,
+        "label": "宏观"
+      },
+      "fund": {
+        "score": 59.3,
+        "label": "资金"
+      },
+      "sentiment": {
+        "score": 82.4,
+        "label": "情绪"
+      },
+      "technical": {
+        "score": 58.2,
+        "label": "技术"
+      },
+      "structure": {
+        "score": 27.3,
+        "label": "结构"
+      }
+    },
+    "updated_at": "2026-06-15 00:00:00",
+    "composite_score_smoothed": 54.9,
+    "level_smoothed": "yellow",
+    "sectors_top5": [
+      {
+        "industry": "计算机通信电子",
+        "score": 75.2,
+        "avg_pct": null,
+        "up_ratio": 92.7,
+        "leader": {
+          "code": "sz301566",
+          "pct": 20.01
+        }
+      },
+      {
+        "industry": "建筑装饰",
+        "score": 75.2,
+        "avg_pct": null,
+        "up_ratio": 40.0,
+        "leader": {
+          "code": "sh601133",
+          "pct": 10.02
+        }
+      },
+      {
+        "industry": "C40仪器仪表制造业",
+        "score": 67.9,
+        "avg_pct": null,
+        "up_ratio": 83.1,
+        "leader": {
+          "code": "sz300508",
+          "pct": 13.82
+        }
+      },
+      {
+        "industry": "电力生产供应",
+        "score": 64.6,
+        "avg_pct": null,
+        "up_ratio": 71.0,
+        "leader": {
+          "code": "sh600578",
+          "pct": 10.01
+        }
+      },
+      {
+        "industry": "非金属矿物制品",
+        "score": 61.0,
+        "avg_pct": null,
+        "up_ratio": 65.7,
+        "leader": {
+          "code": "sz301526",
+          "pct": 20.01
+        }
+      }
+    ]
+  },
+  {
+    "trade_date": "2026-06-16",
+    "composite_score": 52.9,
+    "level": "yellow",
+    "dimensions": {
+      "valuation": {
+        "score": 40.2,
+        "label": "估值"
+      },
+      "macro": {
+        "score": null,
+        "label": "宏观"
+      },
+      "fund": {
+        "score": 59.3,
+        "label": "资金"
+      },
+      "sentiment": {
+        "score": 82.5,
+        "label": "情绪"
+      },
+      "technical": {
+        "score": 53.6,
+        "label": "技术"
+      },
+      "structure": {
+        "score": 27.9,
+        "label": "结构"
+      }
+    },
+    "updated_at": "2026-06-17 00:00:00",
+    "composite_score_smoothed": 54.9,
+    "level_smoothed": "yellow",
+    "sectors_top5": [
+      {
+        "industry": "建筑装饰",
+        "score": 78.3,
+        "avg_pct": null,
+        "up_ratio": 60.0,
+        "leader": {
+          "code": "sz000032",
+          "pct": 10.0
+        }
+      },
+      {
+        "industry": "计算机通信电子",
+        "score": 75.5,
+        "avg_pct": null,
+        "up_ratio": 78.0,
+        "leader": {
+          "code": "sz300843",
+          "pct": 20.0
+        }
+      },
+      {
+        "industry": "C40仪器仪表制造业",
+        "score": 67.1,
+        "avg_pct": null,
+        "up_ratio": 67.5,
+        "leader": {
+          "code": "sh688337",
+          "pct": 17.56
+        }
+      },
+      {
+        "industry": "非金属矿物制品",
+        "score": 61.8,
+        "avg_pct": null,
+        "up_ratio": 61.0,
+        "leader": {
+          "code": "sz301526",
+          "pct": 13.33
+        }
+      },
+      {
+        "industry": "电力生产供应",
+        "score": 59.7,
+        "avg_pct": null,
+        "up_ratio": 45.2,
+        "leader": {
+          "code": "sz000791",
+          "pct": 9.95
+        }
+      }
+    ]
+  },
+  {
+    "trade_date": "2026-06-17",
+    "composite_score": 53.1,
+    "level": "yellow",
+    "dimensions": {
+      "valuation": {
+        "score": null,
+        "label": "估值"
+      },
+      "macro": {
+        "score": 47.1,
+        "label": "宏观"
+      },
+      "fund": {
+        "score": 59.3,
+        "label": "资金"
+      },
+      "sentiment": {
+        "score": 68.2,
+        "label": "情绪"
+      },
+      "technical": {
+        "score": 59.6,
+        "label": "技术"
+      },
+      "structure": {
+        "score": 28.2,
+        "label": "结构"
+      }
+    },
+    "updated_at": "2026-06-17 00:00:00",
+    "composite_score_smoothed": 53.0,
+    "level_smoothed": "yellow",
+    "sectors_top5": [
+      {
+        "industry": "建筑装饰",
+        "score": 85.4,
+        "avg_pct": null,
+        "up_ratio": 100.0,
+        "leader": {
+          "code": "sh603929",
+          "pct": 10.0
+        }
+      },
+      {
+        "industry": "计算机通信电子",
+        "score": 51.2,
+        "avg_pct": null,
+        "up_ratio": 64.4,
+        "leader": {
+          "code": "sh688766",
+          "pct": 20.0
+        }
+      },
+      {
+        "industry": "有色金属矿采选",
+        "score": 40.4,
+        "avg_pct": null,
+        "up_ratio": 42.9,
+        "leader": {
+          "code": "sh601168",
+          "pct": 1.78
+        }
+      },
+      {
+        "industry": "非金属矿物制品",
+        "score": 38.9,
+        "avg_pct": null,
+        "up_ratio": 45.7,
+        "leader": {
+          "code": "sh688598",
+          "pct": 20.0
+        }
+      },
+      {
+        "industry": "研究和试验",
+        "score": 36.5,
+        "avg_pct": null,
+        "up_ratio": 58.1,
+        "leader": {
+          "code": "sz301333",
+          "pct": 2.43
+        }
+      }
+    ]
+  },
+  {
+    "trade_date": "2026-06-18",
+    "composite_score": 48.7,
+    "level": "yellow",
+    "dimensions": {
+      "valuation": {
+        "score": 26.8,
+        "label": "估值"
+      },
+      "macro": {
+        "score": 49.5,
+        "label": "宏观"
+      },
+      "fund": {
+        "score": 59.6,
+        "label": "资金"
+      },
+      "sentiment": {
+        "score": 64.8,
+        "label": "情绪"
+      },
+      "technical": {
+        "score": 55.1,
+        "label": "技术"
+      },
+      "structure": {
+        "score": 47.8,
+        "label": "结构"
+      }
+    },
+    "effective_weights": {
+      "valuation": 0.25,
+      "macro": 0.15,
+      "fund": 0.15,
+      "sentiment": 0.2,
+      "technical": 0.1,
+      "structure": 0.15
+    },
+    "data_quality": {
+      "overall_quality": "good",
+      "dimensions": {
+        "valuation": {
+          "label": "估值",
+          "available": 3,
+          "total": 3,
+          "completeness": 1.0,
+          "freshness": 1.0,
+          "status": "ok"
+        },
+        "macro": {
+          "label": "宏观",
+          "available": 2,
+          "total": 2,
+          "completeness": 1.0,
+          "freshness": 1.0,
+          "status": "ok"
+        },
+        "fund": {
+          "label": "资金",
+          "available": 2,
+          "total": 2,
+          "completeness": 1.0,
+          "freshness": 1.0,
+          "status": "ok"
+        },
+        "sentiment": {
+          "label": "情绪",
+          "available": 5,
+          "total": 5,
+          "completeness": 1.0,
+          "freshness": 1.0,
+          "status": "ok"
+        },
+        "technical": {
+          "label": "技术",
+          "available": 5,
+          "total": 5,
+          "completeness": 1.0,
+          "freshness": 1.0,
+          "status": "ok"
+        },
+        "structure": {
+          "label": "结构",
+          "available": 2,
+          "total": 2,
+          "completeness": 1.0,
+          "freshness": 1.0,
+          "status": "ok"
+        }
+      },
+      "missing_indicators": [],
+      "stale_dimensions": []
+    },
+    "updated_at": "2026-06-20 00:00:00",
+    "composite_score_smoothed": 49.5,
+    "level_smoothed": "yellow",
+    "sectors_top5": [
+      {
+        "industry": "建筑装饰",
+        "score": 73.1,
+        "avg_pct": null,
+        "up_ratio": 20.0,
+        "leader": {
+          "code": "sz000032",
+          "pct": 5.94
+        }
+      },
+      {
+        "industry": "计算机通信电子",
+        "score": 71.4,
+        "avg_pct": null,
+        "up_ratio": 54.4,
+        "leader": {
+          "code": "sz300319",
+          "pct": 20.02
+        }
+      },
+      {
+        "industry": "C40仪器仪表制造业",
+        "score": 63.1,
+        "avg_pct": null,
+        "up_ratio": 49.4,
+        "leader": {
+          "code": "sh688671",
+          "pct": 20.0
+        }
+      },
+      {
+        "industry": "非金属矿物制品",
+        "score": 60.7,
+        "avg_pct": null,
+        "up_ratio": 35.2,
+        "leader": {
+          "code": "sh688598",
+          "pct": 20.0
+        }
+      },
+      {
+        "industry": "通用设备制造",
+        "score": 57.0,
+        "avg_pct": null,
+        "up_ratio": 58.4,
+        "leader": {
+          "code": "sh688333",
+          "pct": 20.0
+        }
+      }
+    ]
+  },
+  {
+    "trade_date": "2026-06-19",
+    "composite_score": 51.2,
+    "level": "yellow",
+    "dimensions": {
+      "valuation": {
+        "score": 32.8,
+        "label": "估值"
+      },
+      "macro": {
+        "score": 49.5,
+        "label": "宏观"
+      },
+      "fund": {
+        "score": 59.6,
+        "label": "资金"
+      },
+      "sentiment": {
+        "score": 64.7,
+        "label": "情绪"
+      },
+      "technical": {
+        "score": 64.7,
+        "label": "技术"
+      },
+      "structure": {
+        "score": 47.8,
+        "label": "结构"
+      }
+    },
+    "updated_at": "2026-06-20 00:00:00",
+    "composite_score_smoothed": 51.6,
+    "level_smoothed": "yellow",
+    "sectors_top5": [
+      {
+        "industry": "建筑装饰",
+        "score": 73.1,
+        "avg_pct": null,
+        "up_ratio": 20.0,
+        "leader": {
+          "code": "sz000032",
+          "pct": 5.94
+        }
+      },
+      {
+        "industry": "计算机通信电子",
+        "score": 71.4,
+        "avg_pct": null,
+        "up_ratio": 54.4,
+        "leader": {
+          "code": "sz300319",
+          "pct": 20.02
+        }
+      },
+      {
+        "industry": "C40仪器仪表制造业",
+        "score": 63.1,
+        "avg_pct": null,
+        "up_ratio": 49.4,
+        "leader": {
+          "code": "sh688671",
+          "pct": 20.0
+        }
+      },
+      {
+        "industry": "非金属矿物制品",
+        "score": 60.7,
+        "avg_pct": null,
+        "up_ratio": 35.2,
+        "leader": {
+          "code": "sh688598",
+          "pct": 20.0
+        }
+      },
+      {
+        "industry": "通用设备制造",
+        "score": 57.0,
+        "avg_pct": null,
+        "up_ratio": 58.4,
+        "leader": {
+          "code": "sh688333",
+          "pct": 20.0
+        }
+      }
+    ]
+  },
+  {
+    "trade_date": "2026-06-22",
+    "composite_score": 54.3,
+    "level": "yellow",
+    "dimensions": {
+      "valuation": {
+        "score": 30.7,
+        "label": "估值"
+      },
+      "macro": {
+        "score": 49.5,
+        "label": "宏观"
+      },
+      "fund": {
+        "score": 59.6,
+        "label": "资金"
+      },
+      "sentiment": {
+        "score": 83.4,
+        "label": "情绪"
+      },
+      "technical": {
+        "score": 63.9,
+        "label": "技术"
+      },
+      "structure": {
+        "score": 47.9,
+        "label": "结构"
+      }
+    },
+    "effective_weights": {
+      "valuation": 0.25,
+      "macro": 0.15,
+      "fund": 0.15,
+      "sentiment": 0.2,
+      "technical": 0.1,
+      "structure": 0.15
+    },
+    "data_quality": {
+      "overall_quality": "good",
+      "dimensions": {
+        "valuation": {
+          "label": "估值",
+          "available": 3,
+          "total": 3,
+          "completeness": 1.0,
+          "freshness": 1.0,
+          "status": "ok"
+        },
+        "macro": {
+          "label": "宏观",
+          "available": 2,
+          "total": 2,
+          "completeness": 1.0,
+          "freshness": 1.0,
+          "status": "ok"
+        },
+        "fund": {
+          "label": "资金",
+          "available": 2,
+          "total": 2,
+          "completeness": 1.0,
+          "freshness": 1.0,
+          "status": "ok"
+        },
+        "sentiment": {
+          "label": "情绪",
+          "available": 5,
+          "total": 5,
+          "completeness": 1.0,
+          "freshness": 1.0,
+          "status": "ok"
+        },
+        "technical": {
+          "label": "技术",
+          "available": 5,
+          "total": 5,
+          "completeness": 1.0,
+          "freshness": 1.0,
+          "status": "ok"
+        },
+        "structure": {
+          "label": "结构",
+          "available": 2,
+          "total": 2,
+          "completeness": 1.0,
+          "freshness": 1.0,
+          "status": "ok"
+        }
+      },
+      "missing_indicators": [],
+      "stale_dimensions": []
+    },
+    "updated_at": "2026-06-22 00:00:00",
+    "composite_score_smoothed": 53.3,
+    "level_smoothed": "yellow",
+    "sectors_top5": [
+      {
+        "industry": "计算机通信电子",
+        "score": 72.5,
+        "avg_pct": null,
+        "up_ratio": 43.3,
+        "leader": {
+          "code": "sh688496",
+          "pct": 20.45
+        }
+      },
+      {
+        "industry": "非金属矿物制品",
+        "score": 70.1,
+        "avg_pct": null,
+        "up_ratio": 64.8,
+        "leader": {
+          "code": "sz300179",
+          "pct": 20.0
+        }
+      },
+      {
+        "industry": "有色金属冶炼",
+        "score": 67.7,
+        "avg_pct": null,
+        "up_ratio": 78.2,
+        "leader": {
+          "code": "sz000751",
+          "pct": 10.1
+        }
+      },
+      {
+        "industry": "建筑装饰",
+        "score": 63.5,
+        "avg_pct": null,
+        "up_ratio": 0.0,
+        "leader": {
+          "code": "sz000032",
+          "pct": -0.04
+        }
+      },
+      {
+        "industry": "C40仪器仪表制造业",
+        "score": 63.1,
+        "avg_pct": null,
+        "up_ratio": 41.0,
+        "leader": {
+          "code": "sz300882",
+          "pct": 20.03
+        }
+      }
+    ]
+  }
+]

@@ -1,0 +1,196 @@
+{
+  "trade_date": "2026-06-22",
+  "generated_at": "2026-06-22 00:00:00",
+  "steps": {
+    "init_db": {
+      "status": "OK",
+      "detail": "",
+      "elapsed": 0.0012509822845458984
+    },
+    "S1_index": {
+      "status": "OK",
+      "detail": "",
+      "elapsed": 1.6782989501953125
+    },
+    "S2_market": {
+      "status": "OK",
+      "detail": "",
+      "elapsed": 3.791910171508789
+    },
+    "S25_index_pe": {
+      "status": "OK",
+      "detail": "",
+      "elapsed": 0.011790275573730469
+    },
+    "S26_circ_mv": {
+      "status": "OK",
+      "detail": "",
+      "elapsed": 0.0012478828430175781
+    },
+    "S27_updown": {
+      "status": "OK",
+      "detail": "",
+      "elapsed": 0.0022249221801757812
+    },
+    "S28_limit": {
+      "status": "OK",
+      "detail": "",
+      "elapsed": 0.002238035202026367
+    },
+    "S29_below_net": {
+      "status": "OK",
+      "detail": "",
+      "elapsed": 0.002380847930908203
+    },
+    "S30_ma_alignment": {
+      "status": "OK",
+      "detail": "",
+      "elapsed": 2.008460760116577
+    },
+    "precompute_staleness": [
+      {
+        "table": "daily_updown",
+        "desc": "涨跌家数比",
+        "latest_date": "2026-06-22",
+        "gap_days": 0,
+        "max_gap_days": 5,
+        "stale": false,
+        "has_fallback": true,
+        "step": "S27"
+      },
+      {
+        "table": "daily_limit",
+        "desc": "涨停/跌停",
+        "latest_date": "2026-06-22",
+        "gap_days": 0,
+        "max_gap_days": 5,
+        "stale": false,
+        "has_fallback": true,
+        "step": "S28"
+      },
+      {
+        "table": "daily_below_net",
+        "desc": "破净率",
+        "latest_date": "2026-06-22",
+        "gap_days": 0,
+        "max_gap_days": 5,
+        "stale": false,
+        "has_fallback": true,
+        "step": "S29"
+      },
+      {
+        "table": "daily_ma_alignment",
+        "desc": "MA排列比",
+        "latest_date": "2026-06-22",
+        "gap_days": 0,
+        "max_gap_days": 5,
+        "stale": false,
+        "has_fallback": false,
+        "step": "S30"
+      },
+      {
+        "table": "daily_erp",
+        "desc": "股权风险溢价",
+        "latest_date": "2026-06-03",
+        "gap_days": 19,
+        "max_gap_days": 5,
+        "stale": true,
+        "has_fallback": true,
+        "step": "-"
+      },
+      {
+        "table": "daily_circ_mv",
+        "desc": "流通市值",
+        "latest_date": "2026-06-22",
+        "gap_days": 0,
+        "max_gap_days": 5,
+        "stale": false,
+        "has_fallback": false,
+        "step": "S26"
+      },
+      {
+        "table": "daily_macro",
+        "desc": "宏观(M1-M2)",
+        "latest_date": "2026-06-10",
+        "gap_days": 12,
+        "max_gap_days": 7,
+        "stale": true,
+        "has_fallback": false,
+        "step": "-"
+      },
+      {
+        "table": "qvix_daily",
+        "desc": "QVIX恐慌",
+        "latest_date": "2026-06-12",
+        "gap_days": 10,
+        "max_gap_days": 5,
+        "stale": true,
+        "has_fallback": false,
+        "step": "manual"
+      },
+      {
+        "table": "index_daily_pe",
+        "desc": "指数PE中位数",
+        "latest_date": "2026-06-22",
+        "gap_days": 0,
+        "max_gap_days": 5,
+        "stale": false,
+        "has_fallback": false,
+        "step": "S25"
+      },
+      {
+        "table": "ah_premium_monthly",
+        "desc": "AH溢价(月)",
+        "latest_date": "2026-06",
+        "gap_days": -8,
+        "max_gap_days": 38,
+        "stale": false,
+        "has_fallback": true,
+        "step": "S4"
+      }
+    ],
+    "S24_precompute_check": {
+      "status": "OK",
+      "detail": "",
+      "elapsed": 0.00467991828918457
+    },
+    "S3_margin": {
+      "status": "OK",
+      "detail": "",
+      "elapsed": 0.0009593963623046875
+    },
+    "S3_northbound": {
+      "status": "OK",
+      "detail": "",
+      "elapsed": 7.605552673339844e-05
+    },
+    "S3_bond_yield": {
+      "status": "OK",
+      "detail": "",
+      "elapsed": 1.7444431781768799
+    },
+    "S3_tushare": {
+      "status": "OK",
+      "detail": "",
+      "elapsed": 1.758903980255127
+    },
+    "S4_ah_premium": {
+      "status": "OK",
+      "detail": "",
+      "elapsed": 13.708111763000488
+    },
+    "S5_calc": {
+      "status": "OK",
+      "detail": "",
+      "elapsed": 23.58888292312622
+    },
+    "S55_index_heat": {
+      "status": "OK",
+      "detail": "",
+      "elapsed": 0.0482020378112793
+    }
+  },
+  "n_ok": 17,
+  "n_failed": 0,
+  "n_skipped": 0
+}

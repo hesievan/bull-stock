@@ -1,0 +1,125 @@
+[
+  {
+    "index_code": "sh000300",
+    "index_name": "沪深300",
+    "trade_date": "2026-06-22",
+    "close": 5059.6582,
+    "pct_change": 2.3891,
+    "tech_score": 83.2,
+    "val_score": 66.7,
+    "composite_score": 74.9,
+    "level": "red",
+    "n_tech_indicators": 4,
+    "n_val_indicators": 2,
+    "detail": {
+      "ma250_deviation": 82.8,
+      "momentum_20d": 83.7,
+      "momentum_60d": 91.7,
+      "momentum_120d": 74.6,
+      "volume": 0.6,
+      "pe": 88.7,
+      "pe_current": 14.56,
+      "pb": 44.6,
+      "pb_current": 1.45
+    }
+  },
+  {
+    "index_code": "sz399006",
+    "index_name": "创业板指",
+    "trade_date": "2026-06-22",
+    "close": 4359.392,
+    "pct_change": 2.5163,
+    "tech_score": 94.2,
+    "val_score": 62.3,
+    "composite_score": 78.2,
+    "level": "red",
+    "n_tech_indicators": 4,
+    "n_val_indicators": 2,
+    "detail": {
+      "ma250_deviation": 98.3,
+      "momentum_20d": 90.2,
+      "momentum_60d": 95.6,
+      "momentum_120d": 92.6,
+      "volume": 0.6,
+      "pe": 54.5,
+      "pe_current": 48.25,
+      "pb": 70.2,
+      "pb_current": 6.32
+    }
+  },
+  {
+    "index_code": "sh000688",
+    "index_name": "科创50",
+    "trade_date": "2026-06-22",
+    "close": 1948.9281,
+    "pct_change": 1.9573,
+    "tech_score": 94.8,
+    "val_score": null,
+    "composite_score": 94.8,
+    "level": "red",
+    "n_tech_indicators": 4,
+    "n_val_indicators": 0,
+    "detail": {
+      "ma250_deviation": 99.8,
+      "momentum_20d": 83.3,
+      "momentum_60d": 99.6,
+      "momentum_120d": 96.5,
+      "volume": 87.8
+    }
+  },
+  {
+    "index_code": "bj899050",
+    "index_name": "北证50",
+    "trade_date": "2026-06-22",
+    "close": 1271.4531,
+    "pct_change": 0.4978,
+    "tech_score": 19.5,
+    "val_score": null,
+    "composite_score": 19.5,
+    "level": "green",
+    "n_tech_indicators": 2,
+    "n_val_indicators": 0,
+    "detail": {
+      "ma250_deviation": 17.1,
+      "relative_strength_60d": 21.9,
+      "volume": 73.5
+    }
+  },
+  {
+    "index_code": "sh000510",
+    "index_name": "中证A500",
+    "trade_date": "2026-06-22",
+    "close": 6373.5624,
+    "pct_change": 2.4723,
+    "tech_score": 83.9,
+    "val_score": null,
+    "composite_score": 83.9,
+    "level": "red",
+    "n_tech_indicators": 1,
+    "n_val_indicators": 0,
+    "detail": {
+      "relative_strength_60d": 83.9,
+      "volume": 88.9
+    }
+  },
+  {
+    "index_code": "sh000852",
+    "index_name": "中证1000",
+    "trade_date": "2026-06-22",
+    "close": 8865.676,
+    "pct_change": 1.0791,
+    "tech_score": 84.8,
+    "val_score": null,
+    "composite_score": 84.8,
+    "level": "red",
+    "n_tech_indicators": 4,
+    "n_val_indicators": 0,
+    "detail": {
+      "ma250_deviation": 90.8,
+      "momentum_20d": 64.4,
+      "momentum_60d": 92.8,
+      "momentum_120d": 91.5,
+      "volume": 0.6
+    }
+  }
+]
