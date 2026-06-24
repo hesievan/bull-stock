@@ -1,182 +1,51 @@
 {
   "trade_date": "2026-06-22",
-  "composite_score": 54.3,
+  "composite_score": 50.3,
   "level": "yellow",
   "dimensions": {
     "valuation": {
-      "score": 30.7,
+      "score": 28.3,
       "label": "估值"
     },
-    "macro": {
-      "score": 49.5,
-      "label": "宏观"
-    },
     "fund": {
-      "score": 59.6,
+      "score": 50.8,
       "label": "资金"
     },
     "sentiment": {
-      "score": 83.4,
+      "score": 99.1,
       "label": "情绪"
     },
-    "technical": {
-      "score": 63.9,
-      "label": "技术"
-    },
     "structure": {
-      "score": 47.9,
+      "score": 6.3,
       "label": "结构"
     }
   },
-  "effective_weights": {
-    "valuation": 0.25,
-    "macro": 0.15,
-    "fund": 0.15,
-    "sentiment": 0.2,
-    "technical": 0.1,
-    "structure": 0.15
+  "indicators_v2": {
+    "pe": 42.8,
+    "erp": 13.9,
+    "buffett": null,
+    "margin_ratio_v2": 1.6,
+    "deposit_ratio": 100.0,
+    "turnover_m2": 100.0,
+    "turnover": 98.2,
+    "new_high": 12.4,
+    "ma_alignment": 10.0
   },
-  "data_quality": {
-    "overall_quality": "good",
-    "dimensions": {
-      "valuation": {
-        "label": "估值",
-        "available": 3,
-        "total": 3,
-        "completeness": 1.0,
-        "freshness": 1.0,
-        "status": "ok"
-      },
-      "macro": {
-        "label": "宏观",
-        "available": 2,
-        "total": 2,
-        "completeness": 1.0,
-        "freshness": 1.0,
-        "status": "ok"
-      },
-      "fund": {
-        "label": "资金",
-        "available": 2,
-        "total": 2,
-        "completeness": 1.0,
-        "freshness": 1.0,
-        "status": "ok"
-      },
-      "sentiment": {
-        "label": "情绪",
-        "available": 5,
-        "total": 5,
-        "completeness": 1.0,
-        "freshness": 1.0,
-        "status": "ok"
-      },
-      "technical": {
-        "label": "技术",
-        "available": 5,
-        "total": 5,
-        "completeness": 1.0,
-        "freshness": 1.0,
-        "status": "ok"
-      },
-      "structure": {
-        "label": "结构",
-        "available": 2,
-        "total": 2,
-        "completeness": 1.0,
-        "freshness": 1.0,
-        "status": "ok"
-      }
-    },
-    "missing_indicators": [],
-    "stale_dimensions": []
-  },
-  "updated_at": "2026-06-22 00:00:00",
-  "composite_score_smoothed": 53.3,
+  "qvix_display": 17.18,
+  "version": "v2",
+  "updated_at": "2026-06-24 00:00:00",
+  "composite_score_smoothed": 50.6,
   "level_smoothed": "yellow",
-  "sectors_top5": [
-    {
-      "industry": "计算机通信电子",
-      "score": 72.5,
-      "avg_pct": null,
-      "up_ratio": 43.3,
-      "leader": {
-        "code": "sh688496",
-        "pct": 20.45
-      }
-    },
-    {
-      "industry": "非金属矿物制品",
-      "score": 70.1,
-      "avg_pct": null,
-      "up_ratio": 64.8,
-      "leader": {
-        "code": "sz300179",
-        "pct": 20.0
-      }
-    },
-    {
-      "industry": "有色金属冶炼",
-      "score": 67.7,
-      "avg_pct": null,
-      "up_ratio": 78.2,
-      "leader": {
-        "code": "sz000751",
-        "pct": 10.1
-      }
-    },
-    {
-      "industry": "建筑装饰",
-      "score": 63.5,
-      "avg_pct": null,
-      "up_ratio": 0.0,
-      "leader": {
-        "code": "sz000032",
-        "pct": -0.04
-      }
-    },
-    {
-      "industry": "C40仪器仪表制造业",
-      "score": 63.1,
-      "avg_pct": null,
-      "up_ratio": 41.0,
-      "leader": {
-        "code": "sz300882",
-        "pct": 20.03
-      }
-    }
-  ],
   "indicators": {
-    "valuation": {
-      "valuation_composite": 48.02755620014503,
-      "below_net_rate": 25.46695402298851,
-      "erp": 18.475236505286585
-    },
-    "macro": {
-      "m1m2_scissors": 58.37837837837838,
-      "m2_yoy": 40.612612612612615
-    },
-    "fund": {
-      "northbound_cumflow": 60.0,
-      "margin_ratio": 59.199999999999996
-    },
-    "sentiment": {
-      "turnover": 98.21428571428571,
-      "up_down_ratio": 57.04022988505747,
-      "limit_up_ratio": 93.53448275862068,
-      "limit_ratio": 100,
-      "qvix": 68.17188638018936
-    },
-    "technical": {
-      "ma_alignment": 19.72038263428992,
-      "deviation_ma250": 75.22977941176471,
-      "momentum_60d": 88.79492600422833,
-      "momentum_20d": 60.08316008316008,
-      "momentum_120d": 75.53145336225596
-    },
-    "structure": {
-      "new_high_ratio": 6.695046439628483,
-      "ah_premium_index": 89.13043478260869
-    }
+    "pe": 42.809917355371894,
+    "erp": 13.88429752066116,
+    "buffett": null,
+    "margin_ratio_v2": 1.5873015873015928,
+    "deposit_ratio": 100,
+    "turnover_m2": 100,
+    "turnover": 98.21428571428571,
+    "new_high": 12.431941923774954,
+    "ma_alignment": 0.100307,
+    "qvix": 17.18
   }
 }
