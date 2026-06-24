@@ -1,12 +1,11 @@
 # A股牛市热度指数 — 开发环境配置
 
-# 热度等级阈值（综合热度 0-100）
+# 热度等级阈值（综合热度 0-100）— 与 V2 引擎 / json_writer / 前端同步
 heat_levels:
-  cool:        { min: 0,  max: 30,  label: "低温", color: "#22c55e" }
-  moderate:    { min: 30, max: 55,  label: "温和", color: "#84cc16" }
-  warm:        { min: 55, max: 70,  label: "偏热", color: "#eab308" }
-  hot:         { min: 70, max: 85,  label: "过热", color: "#f97316" }
-  extreme:     { min: 85, max: 100, label: "极端", color: "#ef4444" }
+  red:    { min: 65, max: 100, label: "红色预警", color: "#f85149" }
+  orange: { min: 55, max: 64,  label: "橙色关注", color: "#e5892a" }
+  yellow: { min: 40, max: 54,  label: "黄色警惕", color: "#d29922" }
+  green:  { min: 0,  max: 39,  label: "绿色安全", color: "#3fb950" }
 
 # 维度权重
 dimension_weights:
