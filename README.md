@@ -7,7 +7,7 @@
 > **定位：仅提示离场 / 减仓，不发出进场或加仓信号。**
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-v3.12-blue" alt="version">
+  <img src="https://img.shields.io/badge/version-v3.13-blue" alt="version">
   <img src="https://img.shields.io/badge/python-3.10%2B-blue" alt="python">
   <img src="https://img.shields.io/badge/tests-70_passing-brightgreen" alt="tests">
   <img src="https://img.shields.io/badge/license-MIT-green" alt="license">
@@ -294,4 +294,4 @@ MIT
 
 ---
 
-*版本: v3.12 | 更新: 2026-06-24*
+*版本: v3.13 | 调整: 2026-06-25*
