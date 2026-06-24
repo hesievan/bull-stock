@@ -21,15 +21,12 @@
     }
   },
   "indicators_v2": {
-    "pe": 42.8,
-    "erp": 13.9,
-    "buffett": null,
-    "margin_ratio_v2": 1.6,
-    "deposit_ratio": 100.0,
-    "turnover_m2": 100.0,
-    "turnover": 98.2,
-    "new_high": 12.4,
-    "ma_alignment": 10.0
+    "pe": 24.54,
+    "erp": 2.3448,
+    "turnover": 3.492,
+    "ma_alignment": 10.0,
+    "buffett": 0.9619,
+    "new_high": 12.2
   },
   "qvix_display": 17.18,
   "version": "v2",
@@ -47,5 +44,13 @@
     "new_high": 12.431941923774954,
     "ma_alignment": 0.100307,
     "qvix": 17.18
+  },
+  "indicators_raw": {
+    "pe": 24.54,
+    "erp": 2.3448,
+    "turnover": 3.492,
+    "ma_alignment": 10.0,
+    "buffett": 0.9619,
+    "new_high": 12.2
   }
 }
