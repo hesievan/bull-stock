@@ -347,17 +347,20 @@ def calc_deposit_ratio(conn, trade_date: str) -> Optional[float]:
             conn
         )
         mv_monthly = pd.read_sql("""
-            SELECT substr(trade_date, 1, 7) as month, AVG(total_mv) as avg_mv
-            FROM stock_daily WHERE total_mv > 0 AND trade_date >= '2010-01-01'
-            GROUP BY month ORDER BY month
+            SELECT substr(trade_date, 1, 7) as month, AVG(daily_mv) as avg_total_mv FROM (
+                SELECT trade_date, SUM(total_mv) as daily_mv
+                FROM stock_daily WHERE total_mv > 0 AND trade_date >= '2010-01-01'
+                GROUP BY trade_date
+            ) GROUP BY month ORDER BY month
         """, conn)
 
         merged = m2_all.merge(mv_monthly, on="month", how="inner")
         if merged.empty or len(merged) < 60:
             return None
 
-        # m2_billion: 亿元→元(×1e8), avg_mv: 万元→元(×10000)
-        merged["ratio"] = (merged["m2_billion"] * 1e8) / (merged["avg_mv"] * 10000)
+        # m2_billion: 亿元, avg_total_mv: 万元
+        # 两者统一单位: M2(亿元)*10000 / total_mv(万元) = 无量纲倍数
+        merged["ratio"] = (merged["m2_billion"] * 10000) / merged["avg_total_mv"]
         hist_ratios = merged["ratio"].dropna()
 
         pct = _pct_rank(hist_ratios, cur_ratio)
@@ -404,17 +407,19 @@ def calc_turnover_m2(conn, trade_date: str) -> Optional[float]:
             conn
         )
         amt_monthly = pd.read_sql("""
-            SELECT substr(trade_date, 1, 7) as month, AVG(amount) as avg_amt
-            FROM stock_daily WHERE amount > 0 AND trade_date >= '2010-01-01'
-            GROUP BY month ORDER BY month
+            SELECT substr(trade_date, 1, 7) as month, AVG(daily_amt)*1000 as avg_daily_amt FROM (
+                SELECT trade_date, SUM(amount) as daily_amt
+                FROM stock_daily WHERE amount > 0 AND trade_date >= '2010-01-01'
+                GROUP BY trade_date
+            ) GROUP BY month ORDER BY month
         """, conn)
 
         merged = m2_all.merge(amt_monthly, on="month", how="inner")
         if merged.empty or len(merged) < 60:
             return None
 
-        # avg_amt 单位为元, m2_billion 亿元→元(×1e8)
-        merged["ratio"] = merged["avg_amt"] / (merged["m2_billion"] * 1e8)
+        # avg_daily_amt 已转为元(千元→元×1000), m2_billion 亿元→元(×1e8)
+        merged["ratio"] = merged["avg_daily_amt"] / (merged["m2_billion"] * 1e8)
         hist_ratios = merged["ratio"].dropna()
 
         pct = _pct_rank(hist_ratios, cur_ratio)
