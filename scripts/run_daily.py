@@ -84,7 +84,7 @@ def run_daily(trade_date=None):
     )
     from src.indicators.calculator import calculate_heat_index
     from src.output.json_writer import (
-        save_results, build_feishu_notification, send_feishu_webhook
+        save_results_v2, build_feishu_notification, send_feishu_webhook
     )
 
     trade_date = trade_date or date.today().strftime("%Y-%m-%d")
@@ -245,13 +245,14 @@ def run_daily(trade_date=None):
 
     _run_step(step_status, "S4_ah_premium", _step4)
 
-    # ── Step 5: 计算热度指数 ────────────────────────────────────────────────
-    logger.info("Step 5: Calculating heat index...")
+    # ── Step 5: 计算热度指数 V2 (精简版9指标) ──────────────────────────────
+    logger.info("Step 5: Calculating heat index v2...")
 
     def _step5():
-        res = calculate_heat_index(trade_date=trade_date)
+        from src.indicators.heat_index_v2 import compute_index_v2
+        res = compute_index_v2(trade_date=trade_date)
         if res is None or res.get("composite_score") is None:
-            raise RuntimeError("heat index composite_score is None")
+            raise RuntimeError("heat index v2 composite_score is None")
         return res
 
     result = _run_step(step_status, "S5_calc", _step5)
@@ -285,7 +286,7 @@ def run_daily(trade_date=None):
     logger.info("Step 6: Saving results...")
 
     def _step6():
-        save_results(result)
+        save_results_v2(result)
         out_dir = os.path.join(os.path.dirname(__file__), "..", "web", "data")
         os.makedirs(out_dir, exist_ok=True)
         n_ok = sum(1 for v in step_status.values() if isinstance(v, dict) and v.get("status") == "OK")
@@ -330,7 +331,7 @@ def run_daily(trade_date=None):
             with open(sectors_file) as f:
                 sector_results = json.load(f)
         result["sectors_top5"] = (sector_results or [])[:5]
-        save_results(result)
+        save_results_v2(result)
         return True
 
     _run_step(step_status, "S8_final_save", _step8)

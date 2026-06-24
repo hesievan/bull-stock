@@ -163,7 +163,79 @@ def build_data_quality_report(result: Dict) -> Dict:
     return report
 
 
-def save_results(result: Dict, output_dir: str = None):
+def save_results_v2(result_v2: Dict, output_dir: str = None):
+    """保存 V2 版计算结果到 JSON 文件（4维度 + 9指标 + QVIX展示）"""
+    output_dir = output_dir or os.path.join(os.path.dirname(__file__), "..", "..", "web", "data")
+    os.makedirs(output_dir, exist_ok=True)
+
+    trade_date = result_v2["trade_date"]
+
+    def _round_score(v):
+        if v is None:
+            return None
+        try:
+            f = float(v)
+            if np.isnan(f) or np.isinf(f):
+                return None
+            return round(f, 1)
+        except (TypeError, ValueError):
+            return None
+
+    composite = result_v2["composite_score"]
+    index_data = {
+        "trade_date": trade_date,
+        "composite_score": _round_score(composite),
+        "level": get_heat_level(composite) if composite is not None else "unknown",
+        "dimensions": result_v2["dimensions"],
+        "indicators_v2": {
+            k: _round_score(v) if k != "qvix" else v
+            for k, v in result_v2["indicators"].items()
+            if k != "qvix"
+        },
+        "qvix_display": result_v2["indicators"].get("qvix"),
+        "version": "v2",
+        "updated_at": date.today().strftime("%Y-%m-%d %H:%M:%S"),
+    }
+
+    # 得分平滑: 3日移动平均
+    history_file = os.path.join(output_dir, "history.json")
+    if os.path.exists(history_file):
+        try:
+            with open(history_file, encoding="utf-8") as f:
+                history = json.load(f)
+            recent_scores = [h["composite_score"] for h in history[-2:]]
+            recent_scores.append(composite)
+            valid_scores = [s for s in recent_scores if s is not None]
+            if valid_scores:
+                smoothed = sum(valid_scores) / len(valid_scores)
+                index_data["composite_score_smoothed"] = round(smoothed, 1)
+                index_data["level_smoothed"] = get_heat_level(smoothed)
+        except Exception:
+            pass
+
+    _atomic_write_json(os.path.join(output_dir, "index.json"), index_data)
+
+    detail_data = {**index_data, "indicators": result_v2["indicators"]}
+    _atomic_write_json(os.path.join(output_dir, "detail.json"), detail_data)
+
+    # 历史数据（去重追加）
+    history_file = os.path.join(output_dir, "history.json")
+    history = []
+    if os.path.exists(history_file):
+        try:
+            with open(history_file, "r", encoding="utf-8") as f:
+                history = json.load(f)
+        except (json.JSONDecodeError, FileNotFoundError, OSError) as e:
+            logger.warning("Failed to load history.json: %s", e)
+            history = []
+    # 兼容新旧格式: 如果已有 V1 历史，保留并追加 V2 格式
+    history = [h for h in history if h.get("trade_date") != trade_date]
+    history.append(index_data)
+    history.sort(key=lambda x: x["trade_date"])
+    _atomic_write_json(history_file, history)
+
+    logger.info("V2 Results saved: score=%.1f level=%s", composite, index_data["level"])
+    return index_data
     """保存计算结果到 JSON 文件"""
     output_dir = output_dir or os.path.join(os.path.dirname(__file__), "..", "..", "web", "data")
     os.makedirs(output_dir, exist_ok=True)

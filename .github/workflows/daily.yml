@@ -80,12 +80,18 @@ jobs:
           echo "Running full historical backfill (this may take 30-60 minutes)..."
           python scripts/fetch_tushare_history.py
 
-      # ── 日常计算 ────────────────────────────────────────────────────────────
+      # ── 补充数据 ──────────────────────────────────────────────────────────
+      - name: Fetch supplementary data (GDP, IPO, etc.)
+        if: success()
+        run: |
+          python scripts/fetch_gdp.py || echo "GDP fetch skipped"
+
       - name: Backfill precompute tables if empty
         if: success()
         run: |
           python scripts/backfill_precompute.py || echo "Precompute backfill skipped"
 
+      # ── 日常计算 ────────────────────────────────────────────────────────────
       - name: Run daily update
         env:
           TUSHARE_TOKEN: ${{ secrets.TUSHARE_TOKEN }}
