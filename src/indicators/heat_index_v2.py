@@ -519,14 +519,14 @@ def calc_ma_alignment_v2(conn, trade_date: str) -> Optional[float]:
     """MA排列比 = MA20>MA60>MA120 多头排列占比"""
     try:
         td = trade_date
-        # 直接从预计算表读取
+        # 直接从预计算表读取 (值范围0-1, 转为0-100)
         row = conn.execute(
             "SELECT ma_alignment_ratio FROM daily_ma_alignment WHERE trade_date=?",
             (td,)
         ).fetchone()
         if row and row[0] is not None:
-            score = float(row[0])
-            logger.info("MA排列比 (precomputed): %.2f", score)
+            score = float(row[0]) * 100  # 0-1 → 0-100
+            logger.info("MA排列比 (precomputed): %.2f%%", score)
             return max(0, min(100, score))
 
         # fallback: 用最近日期
@@ -535,8 +535,8 @@ def calc_ma_alignment_v2(conn, trade_date: str) -> Optional[float]:
             (td,)
         ).fetchone()
         if row and row[0] is not None:
-            score = float(row[0])
-            logger.info("MA排列比 (最近): %.2f", score)
+            score = float(row[0]) * 100
+            logger.info("MA排列比 (最近): %.2f%%", score)
             return max(0, min(100, score))
         return None
     except Exception as e:
