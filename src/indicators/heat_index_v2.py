@@ -4,10 +4,10 @@
 9 个核心指标 + QVIX 仅展示不计分
 
 指标:
-  估值(35%):  大盘PE, ERP, 巴菲特指标
-  资金(25%):  两融余额市值比, 存款市值比
-  情绪(25%):  成交额M2比, 换手率
-  结构(15%):  创新高占比, MA排列比
+   估值(40%):  大盘PE(14%), ERP(13%), 巴菲特指标(13%)
+   资金(30%):  两融余额市值比(15%), 存款市值比(15%)
+   情绪(20%):  成交额M2比(10%), 换手率(10%)
+   结构(10%):  创新高占比(6%), MA排列比(4%)
 
 展示(不计分): QVIX恐慌指数
 """
@@ -41,11 +41,14 @@ assert abs(sum(INDICATOR_WEIGHTS.values()) - 1.0) < 0.001, \
 
 DIMENSIONS = ["valuation", "fund", "sentiment", "structure"]
 
+# 新高占比判定: 收盘价达到250日最高价的此比例即视为"新高"（2%容差，过滤盘中冲高回落噪声）
+NEW_HIGH_THRESHOLD = 0.98
+
 # 背离检测参数
 DIVERGENCE_CONFIG = {
     "turnover_threshold": 70,       # 换手率超过此值才触发背离检查
     "decline_threshold": -1.5,      # 指数跌幅超过此值(%)触发惩罚
-    "penalty_factor": 0.3,          # 每次背离扣除的分数
+    "penalty_factor": 0.2,          # 每次背离扣除的分数（×100=20分，匹配README文档"最多20分"）
     "lookback_days": 20,            # 背离检测的回看天数
     "new_high_penalty": 15,         # 顶背离时扣除的结构分
 }
@@ -221,9 +224,9 @@ def calc_buffett(conn, trade_date: str) -> Optional[float]:
         gdp_all["year"] = gdp_all["quarter"].str[:4].astype(int)
         annual_gdp = gdp_all.groupby("year")["gdp"].sum().to_dict()
 
-        # 当前年度GDP: 最近一个完整年
+        # 当前年度GDP: 最近一个完整年（始终用前一年度，避免使用当年不完整数据）
         available_years = sorted(annual_gdp.keys())
-        cur_year = td_year
+        cur_year = td_year - 1
         while cur_year not in annual_gdp and cur_year > min(available_years):
             cur_year -= 1
         if cur_year not in annual_gdp:
@@ -524,7 +527,7 @@ def calc_new_high_v2(conn, trade_date: str) -> Optional[float]:
         if len(merged) < 100:
             return None
 
-        new_high = (merged["close"] >= merged["max_close"] * 0.98).sum()
+        new_high = (merged["close"] >= merged["max_close"] * NEW_HIGH_THRESHOLD).sum()
         ratio = new_high / len(merged)
         score = ratio * 100
         logger.info("创新高占比: %.4f (%d/%d), score=%.1f", ratio, new_high, len(merged), score)
@@ -750,7 +753,7 @@ def _apply_new_high_divergence(conn, trade_date: str,
         if hist.empty:
             return new_high_score
         merged = today.merge(hist, on="stock_code", how="inner").dropna()
-        now_val = (merged["close"] >= merged["max_close"] * 0.98).sum() / len(merged) * 100 if len(merged) > 0 else 0
+        now_val = (merged["close"] >= merged["max_close"] * NEW_HIGH_THRESHOLD).sum() / len(merged) * 100 if len(merged) > 0 else 0
 
         # 对比日
         prev_today = pd.read_sql(
@@ -768,7 +771,7 @@ def _apply_new_high_divergence(conn, trade_date: str,
         if prev_hist.empty:
             return new_high_score
         prev_merged = prev_today.merge(prev_hist, on="stock_code", how="inner").dropna()
-        prev_val = (prev_merged["close"] >= prev_merged["max_close"] * 0.98).sum() / len(prev_merged) * 100 if len(prev_merged) > 0 else 0
+        prev_val = (prev_merged["close"] >= prev_merged["max_close"] * NEW_HIGH_THRESHOLD).sum() / len(prev_merged) * 100 if len(prev_merged) > 0 else 0
 
         # 指数涨跌
         idx = conn.execute(

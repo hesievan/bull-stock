@@ -633,7 +633,6 @@ def compute_daily_ma_alignment(trade_date: str, db_path: str = None) -> bool:
             s = group["close"].values
             if len(s) < 60:
                 return 0
-            import numpy as np
             ma5 = np.mean(s[-5:])
             ma10 = np.mean(s[-10:])
             ma20 = np.mean(s[-20:])
