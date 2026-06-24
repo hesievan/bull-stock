@@ -40,12 +40,16 @@ def main():
     # 4. 存款市值比 (M2/总市值, 倍数)
     logger.info("4/9 存款市值比...")
     m2 = pd.read_sql("SELECT month, m2_billion FROM m2_monthly WHERE m2_billion IS NOT NULL ORDER BY month", conn)
+    # 日均总市值(万元): total_mv(万元/股), SUM得全市场总值(万元)
     mv_m = pd.read_sql("""
-        SELECT substr(trade_date,1,7) as m, AVG(total_mv)*10000 as avg_mv
-        FROM stock_daily WHERE total_mv>0 GROUP BY m ORDER BY m
+        SELECT m, AVG(daily_mv) as avg_total_mv FROM (
+            SELECT substr(trade_date,1,7) as m, SUM(total_mv) as daily_mv
+            FROM stock_daily WHERE total_mv>0 GROUP BY trade_date
+        ) GROUP BY m ORDER BY m
     """, conn)
     merged = m2.merge(mv_m, left_on="month", right_on="m", how="inner")
-    merged["ratio"] = (merged["m2_billion"]*1e8) / merged["avg_mv"]
+    # M2(亿元)*10000 / total_mv(万元) = 无量纲倍数
+    merged["ratio"] = (merged["m2_billion"] * 10000) / merged["avg_total_mv"]
     month_ratio = dict(zip(merged["month"], merged["ratio"].round(4)))
     dep_d = {}
     for td in pd.read_sql("SELECT DISTINCT trade_date FROM stock_daily WHERE trade_date>='2010-01-01' ORDER BY trade_date", conn)["trade_date"]:
