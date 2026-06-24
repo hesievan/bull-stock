@@ -254,8 +254,6 @@ CREATE TABLE IF NOT EXISTS gdp_quarterly (
     quarter TEXT PRIMARY KEY,       -- e.g. "2024Q1"
     gdp REAL,                      -- GDP 当季值 (亿元)
     gdp_yoy REAL,                  -- GDP 同比 (%)
-    gdp_accumulate REAL,           -- GDP 累计值 (亿元)
-    gdp_accumulate_yoy REAL,       -- GDP 累计同比 (%)
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 """

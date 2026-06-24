@@ -24,15 +24,15 @@ logger = logging.getLogger(__name__)
 
 # ── 指标权重配置 ─────────────────────────────────────────────────────────────
 INDICATOR_WEIGHTS = {
-    "pe": 0.12,                # 大盘PE
-    "erp": 0.12,               # ERP 股权风险溢价
-    "buffett": 0.11,           # 巴菲特指标
-    "margin_ratio": 0.13,      # 两融余额市值比
-    "deposit_ratio": 0.12,     # 存款市值比
-    "turnover_m2": 0.13,       # 成交额M2比
-    "turnover": 0.12,          # 换手率
-    "new_high": 0.08,          # 创新高占比
-    "ma_alignment": 0.07,      # MA排列比
+    "pe": 0.14,                # 大盘PE
+    "erp": 0.13,               # ERP 股权风险溢价
+    "buffett": 0.13,           # 巴菲特指标
+    "margin_ratio": 0.15,      # 两融余额市值比
+    "deposit_ratio": 0.15,     # 存款市值比
+    "turnover_m2": 0.10,       # 成交额M2比
+    "turnover": 0.10,          # 换手率
+    "new_high": 0.06,          # 创新高占比
+    "ma_alignment": 0.04,      # MA排列比
 }
 
 # 验证权重总和为1.0
@@ -40,10 +40,19 @@ assert abs(sum(INDICATOR_WEIGHTS.values()) - 1.0) < 0.001, \
     f"Indicator weights must sum to 1.0, got {sum(INDICATOR_WEIGHTS.values())}"
 
 DIMENSION_WEIGHTS = {
-    "valuation": 0.35,   # 估值
-    "fund": 0.25,        # 资金
-    "sentiment": 0.25,   # 情绪
-    "structure": 0.15,   # 结构
+    "valuation": 0.40,   # 估值(↑)
+    "fund": 0.30,        # 资金(↑)
+    "sentiment": 0.20,   # 情绪(↓)
+    "structure": 0.10,   # 结构(↓)
+}
+
+# 背离检测参数
+DIVERGENCE_CONFIG = {
+    "turnover_threshold": 70,       # 换手率超过此值才触发背离检查
+    "decline_threshold": -1.5,      # 指数跌幅超过此值(%)触发惩罚
+    "penalty_factor": 0.3,          # 每次背离扣除的分数
+    "lookback_days": 20,            # 背离检测的回看天数
+    "new_high_penalty": 15,         # 顶背离时扣除的结构分
 }
 
 # 各指标所属维度
@@ -172,7 +181,10 @@ def calc_erp_v2(conn, trade_date: str) -> Optional[float]:
 
 
 def calc_buffett(conn, trade_date: str) -> Optional[float]:
-    """巴菲特指标 = A股总市值 / GDP (反向: 越高=越贵=分越低)"""
+    """巴菲特指标 = A股总市值 / 年度GDP (反向: 越高=越贵=分越低)
+
+    年度GDP = 最近4个季度GDP之和
+    """
     try:
         td = trade_date
         # 总市值 (stock_daily.total_mv 单位为万元, 转为元: ×10000)
@@ -181,7 +193,6 @@ def calc_buffett(conn, trade_date: str) -> Optional[float]:
             (td,)
         ).fetchone()
         if not mv_row or mv_row[0] is None:
-            # 用最近日期
             mv_row = conn.execute(
                 "SELECT SUM(total_mv) * 10000 FROM stock_daily WHERE trade_date = (SELECT MAX(trade_date) FROM stock_daily WHERE total_mv > 0)",
             ).fetchone()
@@ -189,57 +200,58 @@ def calc_buffett(conn, trade_date: str) -> Optional[float]:
             return None
         total_mv = mv_row[0]  # 元
 
-        # GDP: 取最新季度GDP的4倍(年化)
-        gdp_row = conn.execute(
-            "SELECT quarter, gdp FROM gdp_quarterly ORDER BY quarter DESC LIMIT 1"
-        ).fetchone()
-        if not gdp_row or gdp_row[1] is None:
-            return None
-        # GDP数据是当季值, 乘以4得到年化
-        annual_gdp = gdp_row[1] * 4
-
-        if annual_gdp <= 0:
-            return None
-
-        buffett_ratio = total_mv / annual_gdp
-
-        # 历史巴菲特指标(用历史总市值+对应季度GDP)
-        mv_hist = pd.read_sql(
-            "SELECT trade_date, SUM(total_mv) * 10000 as tot_mv FROM stock_daily WHERE total_mv > 0 AND trade_date >= ? GROUP BY trade_date ORDER BY trade_date",
-            conn, params=[str(int(td[:4]) - 10) + td[4:]]
-        )
-        gdp_hist = pd.read_sql(
+        # 找到当日所属年份，用前一年的年度GDP（巴菲特指标的常规做法）
+        td_year = int(td[:4])
+        gdp_all = pd.read_sql(
             "SELECT quarter, gdp FROM gdp_quarterly WHERE gdp IS NOT NULL ORDER BY quarter",
             conn
         )
-        if mv_hist.empty or gdp_hist.empty:
+        if gdp_all.empty:
             return None
 
-        # 季度GDP映射到日频(同季度内每天用同一GDP值)
-        # gdp_quarterly.gdp 单位为亿元, 转为元: ×1e8
-        gdp_map = {}
-        for _, g in gdp_hist.iterrows():
-            q = g["quarter"]  # e.g. "2024Q1"
-            year = q[:4]
-            q_num = int(q[5])
-            # 该季度的最后月份
-            last_month = q_num * 3
-            first_month = last_month - 2
-            for m in range(first_month, last_month + 1):
-                gdp_map[f"{year}-{m:02d}"] = g["gdp"] * 1e8 * 4  # 年化(元)
+        # 计算每年的年度GDP
+        gdp_all["year"] = gdp_all["quarter"].str[:4].astype(int)
+        annual_gdp = gdp_all.groupby("year")["gdp"].sum().to_dict()
+
+        # 当前年度GDP: 最近一个完整年
+        available_years = sorted(annual_gdp.keys())
+        cur_year = td_year
+        while cur_year not in annual_gdp and cur_year > min(available_years):
+            cur_year -= 1
+        if cur_year not in annual_gdp:
+            return None
+        cur_annual_gdp = annual_gdp[cur_year] * 1e8  # 亿元→元
+
+        if cur_annual_gdp <= 0:
+            return None
+
+        buffett_ratio = total_mv / cur_annual_gdp
+
+        # 历史巴菲特指标
+        mv_hist = pd.read_sql(
+            "SELECT trade_date, SUM(total_mv) * 10000 as tot_mv FROM stock_daily WHERE total_mv > 0 AND trade_date >= ? GROUP BY trade_date ORDER BY trade_date",
+            conn, params=[str(td_year - 10) + td[4:]]
+        )
+        if mv_hist.empty:
+            return None
 
         hist_ratios = []
         for _, m in mv_hist.iterrows():
-            month_key = m["trade_date"][:7]
-            if month_key in gdp_map and gdp_map[month_key] > 0:
-                hist_ratios.append(m["tot_mv"] / gdp_map[month_key])
+            my = int(m["trade_date"][:4])
+            # 用前一年GDP
+            gdp_year = my - 1
+            while gdp_year not in annual_gdp and gdp_year > min(available_years):
+                gdp_year -= 1
+            if gdp_year in annual_gdp and annual_gdp[gdp_year] > 0:
+                hist_ratios.append(m["tot_mv"] / (annual_gdp[gdp_year] * 1e8))
 
         if len(hist_ratios) < 60:
             return None
 
         pct = _pct_rank(hist_ratios, buffett_ratio)
-        score = (1 - pct) * 100  # 巴菲特指标越高 = 市场越贵 = 分越低
-        logger.info("巴菲特指标: %.4f, score=%.1f (n=%d)", buffett_ratio, score, len(hist_ratios))
+        score = (1 - pct) * 100
+        logger.info("巴菲特指标: %.4f (%s年GDP=%.0f亿), score=%.1f (n=%d)",
+                     buffett_ratio, cur_year, cur_annual_gdp / 1e8, score, len(hist_ratios))
         return max(0, min(100, score))
     except Exception as e:
         logger.warning("Buffett calc failed: %s", e)
@@ -574,6 +586,17 @@ def compute_index_v2(trade_date: str = None, db_path: str = None) -> dict:
 
         qvix = calc_qvix_v2(conn, td)
 
+        # ── 背离惩罚 ────────────────────────────────────────────────────
+        # 情绪背离: 高换手率 + 指数下跌
+        sentiment_keys = {"turnover_m2", "turnover"}
+        sentiment_scores = {k: scores[k] for k in sentiment_keys}
+        sentiment_scores = _apply_sentiment_divergence(conn, td, sentiment_scores)
+        for k, v in sentiment_scores.items():
+            scores[k] = v
+
+        # 新高顶背离: 指数涨 + 新高占比下降
+        scores["new_high"] = _apply_new_high_divergence(conn, td, scores["new_high"])
+
         # 各维度分数计算
         dim_scores = {}
         for dim_name in DIMENSION_WEIGHTS:
@@ -622,3 +645,112 @@ def compute_index_v2(trade_date: str = None, db_path: str = None) -> dict:
         return result
     finally:
         conn.close()
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 背离惩罚与评分调整
+# ═══════════════════════════════════════════════════════════════════════════
+
+def _apply_sentiment_divergence(conn, trade_date: str,
+                                 sentiment_scores: dict) -> dict:
+    """情绪背离惩罚: 高活跃度(换手率高) + 指数下跌 = 减分"""
+    try:
+        td = trade_date
+        idx_close = pd.read_sql("""
+            SELECT trade_date, close FROM index_daily
+            WHERE index_code='sh000001' AND trade_date <= ? AND trade_date >= date(?, ?)
+            ORDER BY trade_date DESC LIMIT 2
+        """, conn, params=(td, td, f'-{DIVERGENCE_CONFIG["lookback_days"]} days'))
+
+        if len(idx_close) < 2:
+            return sentiment_scores
+
+        pct_change = (idx_close.iloc[0]["close"] / idx_close.iloc[-1]["close"] - 1) * 100
+
+        turnover_score = sentiment_scores.get("turnover")
+        if (turnover_score is not None
+                and turnover_score > DIVERGENCE_CONFIG["turnover_threshold"]
+                and pct_change < DIVERGENCE_CONFIG["decline_threshold"]):
+
+            penalty = DIVERGENCE_CONFIG["penalty_factor"]
+            logger.info("情绪背离惩罚: 换手率=%.1f, 指数%.1f%%, 减%.1f分",
+                        turnover_score, pct_change, penalty)
+            for key in ("turnover_m2", "turnover"):
+                if sentiment_scores.get(key) is not None:
+                    sentiment_scores[key] = max(0, sentiment_scores[key] - penalty * 100)
+    except Exception as e:
+        logger.warning("Sentiment divergence check failed: %s", e)
+    return sentiment_scores
+
+
+def _apply_new_high_divergence(conn, trade_date: str,
+                                new_high_score: float) -> float:
+    """创新高顶背离: 指数涨 + 新高占比下降 = 扣分"""
+    if new_high_score is None:
+        return new_high_score
+    try:
+        td = trade_date
+        lookback = DIVERGENCE_CONFIG["lookback_days"]
+        prev_td = (pd.Timestamp(td) - pd.DateOffset(days=lookback)).strftime("%Y-%m-%d")
+
+        # 简化的新高占比变化
+        now_ratio = conn.execute(
+            "SELECT AVG(ratio) FROM ("
+            "  SELECT SUM(CASE WHEN close >= 0.98 * max_close THEN 1 ELSE 0 END) * 1.0 / COUNT(*) as ratio"
+            "  FROM ("
+            "    SELECT a.stock_code, a.close, MAX(b.close) as max_close"
+            "    FROM stock_daily a"
+            "    JOIN stock_daily b ON a.stock_code = b.stock_code"
+            "       AND b.trade_date <= a.trade_date"
+            "       AND b.trade_date >= date(a.trade_date, '-250 days')"
+            "    WHERE a.trade_date = ?"
+            "    GROUP BY a.stock_code"
+            "  )"
+            ")",
+            (td,)
+        ).fetchone()
+        prev_ratio = conn.execute(
+            "SELECT AVG(ratio) FROM ("
+            "  SELECT SUM(CASE WHEN close >= 0.98 * max_close THEN 1 ELSE 0 END) * 1.0 / COUNT(*) as ratio"
+            "  FROM ("
+            "    SELECT a.stock_code, a.close, MAX(b.close) as max_close"
+            "    FROM stock_daily a"
+            "    JOIN stock_daily b ON a.stock_code = b.stock_code"
+            "       AND b.trade_date <= a.trade_date"
+            "       AND b.trade_date >= date(a.trade_date, '-250 days')"
+            "    WHERE a.trade_date = ?"
+            "    GROUP BY a.stock_code"
+            "  )"
+            ")",
+            (prev_td,)
+        ).fetchone()
+
+        if not now_ratio or not prev_ratio or now_ratio[0] is None or prev_ratio[0] is None:
+            return new_high_score
+
+        now_val = float(now_ratio[0]) * 100
+        prev_val = float(prev_ratio[0]) * 100
+
+        # 指数涨跌
+        idx = conn.execute(
+            "SELECT close FROM index_daily WHERE index_code='sh000001' AND trade_date <= ? ORDER BY trade_date DESC LIMIT 1",
+            (td,)
+        ).fetchone()
+        idx_prev = conn.execute(
+            "SELECT close FROM index_daily WHERE index_code='sh000001' AND trade_date <= ? ORDER BY trade_date DESC LIMIT 1",
+            (prev_td,)
+        ).fetchone()
+        if not idx or not idx_prev:
+            return new_high_score
+
+        idx_change = (idx[0] / idx_prev[0] - 1) * 100
+
+        # 顶背离: 指数涨>3%, 新高占比下降>5%, 且当前<30%
+        if idx_change > 3 and prev_val - now_val > 5 and now_val < 30:
+            penalty = DIVERGENCE_CONFIG["new_high_penalty"]
+            logger.info("新高顶背离: 指数+%.1f%%, 新高%.1f→%.1f%%, 扣%.0f分",
+                        idx_change, prev_val, now_val, penalty)
+            return max(0, new_high_score - penalty)
+    except Exception as e:
+        logger.warning("New high divergence check failed: %s", e)
+    return new_high_score

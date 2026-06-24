@@ -57,18 +57,15 @@ def fetch_gdp(since: str = None):
         logger.warning("No GDP data returned")
         return False
 
-    # 处理列名: Tushare 返回 quarter, gdp, gdp_yoy, gdp_accumulate, gdp_accumulate_yoy
+    # 处理列名: Tushare 返回 quarter, gdp, gdp_yoy, pi, pi_yoy, si, si_yoy, ti, ti_yoy
+    # gdp 单位为亿元(季度值), pi/si/ti 为三大产业
     df = df.rename(columns={
         "quarter": "quarter",
         "gdp": "gdp",
         "gdp_yoy": "gdp_yoy",
-        "gdp_accumulate": "gdp_accumulate",
-        "gdp_accumulate_yoy": "gdp_accumulate_yoy",
     })
     df["gdp"] = pd.to_numeric(df["gdp"], errors="coerce")
     df["gdp_yoy"] = pd.to_numeric(df["gdp_yoy"], errors="coerce")
-    df["gdp_accumulate"] = pd.to_numeric(df["gdp_accumulate"], errors="coerce")
-    df["gdp_accumulate_yoy"] = pd.to_numeric(df["gdp_accumulate_yoy"], errors="coerce")
 
     conn = sqlite3.connect(DB_PATH)
     written = 0
@@ -76,14 +73,12 @@ def fetch_gdp(since: str = None):
         try:
             conn.execute(
                 """INSERT OR REPLACE INTO gdp_quarterly
-                   (quarter, gdp, gdp_yoy, gdp_accumulate, gdp_accumulate_yoy)
-                   VALUES (?, ?, ?, ?, ?)""",
+                   (quarter, gdp, gdp_yoy)
+                   VALUES (?, ?, ?)""",
                 (
                     row["quarter"],
                     float(row["gdp"]) if pd.notna(row["gdp"]) else None,
                     float(row["gdp_yoy"]) if pd.notna(row["gdp_yoy"]) else None,
-                    float(row["gdp_accumulate"]) if pd.notna(row["gdp_accumulate"]) else None,
-                    float(row["gdp_accumulate_yoy"]) if pd.notna(row["gdp_accumulate_yoy"]) else None,
                 )
             )
             written += 1
