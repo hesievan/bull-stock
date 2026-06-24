@@ -11,8 +11,6 @@ from src.data.database import (
     save_dataframe,
     read_dataframe,
     get_latest_date,
-    record_meta,
-    get_meta,
     SCHEMA_VERSION,
 )
 import pandas as pd
@@ -145,15 +143,4 @@ class TestGetLatestDate:
         assert result == "2025-01-02"
 
 
-class TestMetadata:
-    def test_set_and_get(self, tmp_db):
-        record_meta("test_key", "test_value", tmp_db)
-        assert get_meta("test_key", tmp_db) == "test_value"
 
-    def test_overwrite(self, tmp_db):
-        record_meta("k", "v1", tmp_db)
-        record_meta("k", "v2", tmp_db)
-        assert get_meta("k", tmp_db) == "v2"
-
-    def test_missing_key(self, tmp_db):
-        assert get_meta("nonexistent", tmp_db) is None

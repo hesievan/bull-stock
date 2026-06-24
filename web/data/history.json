@@ -8416,237 +8416,119 @@
   },
   {
     "trade_date": "2026-06-19",
-    "composite_score": 51.2,
-    "level": "yellow",
+    "composite_score": 32.1,
+    "level": "green",
     "dimensions": {
       "valuation": {
         "score": 32.8,
         "label": "估值"
       },
-      "macro": {
-        "score": 49.5,
-        "label": "宏观"
-      },
       "fund": {
-        "score": 59.6,
+        "score": 0.7,
         "label": "资金"
       },
       "sentiment": {
-        "score": 64.7,
+        "score": 98.2,
         "label": "情绪"
       },
-      "technical": {
-        "score": 64.7,
-        "label": "技术"
-      },
       "structure": {
-        "score": 47.8,
+        "score": 9.6,
         "label": "结构"
       }
     },
-    "updated_at": "2026-06-20 00:00:00",
-    "composite_score_smoothed": 51.6,
-    "level_smoothed": "yellow",
-    "sectors_top5": [
-      {
-        "industry": "建筑装饰",
-        "score": 73.1,
-        "avg_pct": null,
-        "up_ratio": 20.0,
-        "leader": {
-          "code": "sz000032",
-          "pct": 5.94
-        }
-      },
-      {
-        "industry": "计算机通信电子",
-        "score": 71.4,
-        "avg_pct": null,
-        "up_ratio": 54.4,
-        "leader": {
-          "code": "sz300319",
-          "pct": 20.02
-        }
-      },
-      {
-        "industry": "C40仪器仪表制造业",
-        "score": 63.1,
-        "avg_pct": null,
-        "up_ratio": 49.4,
-        "leader": {
-          "code": "sh688671",
-          "pct": 20.0
-        }
-      },
-      {
-        "industry": "非金属矿物制品",
-        "score": 60.7,
-        "avg_pct": null,
-        "up_ratio": 35.2,
-        "leader": {
-          "code": "sh688598",
-          "pct": 20.0
-        }
-      },
-      {
-        "industry": "通用设备制造",
-        "score": 57.0,
-        "avg_pct": null,
-        "up_ratio": 58.4,
-        "leader": {
-          "code": "sh688333",
-          "pct": 20.0
-        }
-      }
-    ]
+    "indicators_v2": {
+      "pe": 24.1845,
+      "erp": 2.404979778370444,
+      "buffett": null,
+      "margin_ratio_v2": 8.658937183726853e-05,
+      "deposit_ratio": null,
+      "turnover_m2": null,
+      "turnover": 3.492048823879645,
+      "new_high": 0.07031400500866886,
+      "ma_alignment": 0.091122
+    },
+    "qvix_display": 17.18,
+    "version": "v2",
+    "updated_at": "2026-06-24 00:00:00",
+    "composite_score_smoothed": 40.3,
+    "level_smoothed": "yellow"
   },
   {
     "trade_date": "2026-06-22",
-    "composite_score": 54.3,
-    "level": "yellow",
+    "composite_score": 56.7,
+    "level": "orange",
     "dimensions": {
       "valuation": {
-        "score": 30.7,
+        "score": 57.0,
         "label": "估值"
       },
-      "macro": {
-        "score": 49.5,
-        "label": "宏观"
-      },
       "fund": {
-        "score": 59.6,
+        "score": 43.1,
         "label": "资金"
       },
       "sentiment": {
-        "score": 83.4,
+        "score": 98.0,
         "label": "情绪"
       },
-      "technical": {
-        "score": 63.9,
-        "label": "技术"
-      },
       "structure": {
-        "score": 47.9,
+        "score": 13.8,
         "label": "结构"
       }
     },
-    "effective_weights": {
-      "valuation": 0.25,
-      "macro": 0.15,
-      "fund": 0.15,
-      "sentiment": 0.2,
-      "technical": 0.1,
-      "structure": 0.15
+    "indicators_v2": {
+      "pe": 57.3,
+      "erp": 13.9,
+      "buffett": 99.7,
+      "margin_ratio_v2": 0.2,
+      "deposit_ratio": 86.0,
+      "turnover_m2": 97.8,
+      "turnover": 98.2,
+      "new_high": 12.4,
+      "ma_alignment": 15.1
     },
-    "data_quality": {
-      "overall_quality": "good",
-      "dimensions": {
-        "valuation": {
-          "label": "估值",
-          "available": 3,
-          "total": 3,
-          "completeness": 1.0,
-          "freshness": 1.0,
-          "status": "ok"
-        },
-        "macro": {
-          "label": "宏观",
-          "available": 2,
-          "total": 2,
-          "completeness": 1.0,
-          "freshness": 1.0,
-          "status": "ok"
-        },
-        "fund": {
-          "label": "资金",
-          "available": 2,
-          "total": 2,
-          "completeness": 1.0,
-          "freshness": 1.0,
-          "status": "ok"
-        },
-        "sentiment": {
-          "label": "情绪",
-          "available": 5,
-          "total": 5,
-          "completeness": 1.0,
-          "freshness": 1.0,
-          "status": "ok"
-        },
-        "technical": {
-          "label": "技术",
-          "available": 5,
-          "total": 5,
-          "completeness": 1.0,
-          "freshness": 1.0,
-          "status": "ok"
-        },
-        "structure": {
-          "label": "结构",
-          "available": 2,
-          "total": 2,
-          "completeness": 1.0,
-          "freshness": 1.0,
-          "status": "ok"
-        }
+    "qvix_display": 17.18,
+    "version": "v2",
+    "updated_at": "2026-06-24 00:00:00",
+    "composite_score_smoothed": 54.9,
+    "level_smoothed": "yellow"
+  },
+  {
+    "trade_date": "2026-06-24",
+    "composite_score": 53.9,
+    "level": "yellow",
+    "dimensions": {
+      "valuation": {
+        "score": 53.4,
+        "label": "估值"
       },
-      "missing_indicators": [],
-      "stale_dimensions": []
-    },
-    "updated_at": "2026-06-22 00:00:00",
-    "composite_score_smoothed": 53.3,
-    "level_smoothed": "yellow",
-    "sectors_top5": [
-      {
-        "industry": "计算机通信电子",
-        "score": 72.5,
-        "avg_pct": null,
-        "up_ratio": 43.3,
-        "leader": {
-          "code": "sh688496",
-          "pct": 20.45
-        }
+      "fund": {
+        "score": 42.3,
+        "label": "资金"
       },
-      {
-        "industry": "非金属矿物制品",
-        "score": 70.1,
-        "avg_pct": null,
-        "up_ratio": 64.8,
-        "leader": {
-          "code": "sz300179",
-          "pct": 20.0
-        }
+      "sentiment": {
+        "score": 93.1,
+        "label": "情绪"
       },
-      {
-        "industry": "有色金属冶炼",
-        "score": 67.7,
-        "avg_pct": null,
-        "up_ratio": 78.2,
-        "leader": {
-          "code": "sz000751",
-          "pct": 10.1
-        }
-      },
-      {
-        "industry": "建筑装饰",
-        "score": 63.5,
-        "avg_pct": null,
-        "up_ratio": 0.0,
-        "leader": {
-          "code": "sz000032",
-          "pct": -0.04
-        }
-      },
-      {
-        "industry": "C40仪器仪表制造业",
-        "score": 63.1,
-        "avg_pct": null,
-        "up_ratio": 41.0,
-        "leader": {
-          "code": "sz300882",
-          "pct": 20.03
-        }
+      "structure": {
+        "score": 14.3,
+        "label": "结构"
       }
-    ]
+    },
+    "indicators_v2": {
+      "pe": 23.88395,
+      "erp": 2.443212131368555,
+      "buffett": 0.9484108460461856,
+      "margin_ratio_v2": 0.028231708521816612,
+      "deposit_ratio": 2.655338617769417,
+      "turnover_m2": 0.009366971376979233,
+      "turnover": 3.1017715729922557,
+      "new_high": 0.06803338171262699,
+      "ma_alignment": 0.118829
+    },
+    "qvix_display": 17.18,
+    "version": "v2",
+    "updated_at": "2026-06-24 00:00:00",
+    "composite_score_smoothed": 54.8,
+    "level_smoothed": "yellow"
   }
 ]

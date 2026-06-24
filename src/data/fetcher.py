@@ -110,7 +110,7 @@ def fetch_index_daily(ak_code: str, start: str, end: str) -> pd.DataFrame:
         for col in expected_cols:
             if col not in df.columns and col not in ("trade_date", "index_code"):
                 df[col] = None
-            elif col in df.columns:
+            elif col in df.columns and col not in ("trade_date", "index_code"):
                 df[col] = pd.to_numeric(df[col], errors="coerce")
         return df[expected_cols]
     except Exception as e:
@@ -135,120 +135,15 @@ def fetch_all_index_incremental(db_path=None):
     return True
 
 
-# ── tushare: 成分股列表 ──────────────────────────────────────────────────────
-
-def fetch_index_constituents(index="hs300", start_year: int = None) -> pd.DataFrame:
-    INDEX_MAP = {"hs300": "399300.SZ", "sz50": "000016.SH", "zz500": "000905.SH"}
-    ts_code = INDEX_MAP.get(index)
-    if not ts_code:
-        return pd.DataFrame()
-    try:
-        pro = _get_pro()
-        today = date.today().strftime("%Y%m%d")
-        start_date = f"{start_year or date.today().year}0101"
-        df = pro.index_weight(index_code=ts_code, start_date=start_date, end_date=today)
-        _ts_sleep()
-        if df is None or df.empty:
-            return pd.DataFrame()
-        df["code"] = df["con_code"].apply(ts_to_ak)
-        df["index_code"] = index
-        return df[["index_code", "code", "stock_name", "weight"]]
-    except Exception as e:
-        logger.error("fetch_index_constituents(%s) failed: %s", index, str(e)[:80])
-        return pd.DataFrame()
-
-
-# ── tushare: 全市场股票列表 ──────────────────────────────────────────────────
-
-def fetch_all_stock_list(day: str = None) -> pd.DataFrame:
-    try:
-        pro = _get_pro()
-        df = pro.stock_basic(exchange="", list_status="L",
-                             fields="ts_code,symbol,name,area,industry,market,list_date")
-        _ts_sleep()
-        if df is None or df.empty:
-            return pd.DataFrame()
-        df["code"] = df["ts_code"].apply(ts_to_ak)
-        return df
-    except Exception as e:
-        logger.error("fetch_all_stock_list failed: %s", str(e)[:80])
-        return pd.DataFrame()
-
-
-# ── tushare: 行业分类 ──────────────────────────────────────────────────────
-
-def fetch_stock_industry() -> pd.DataFrame:
-    try:
-        pro = _get_pro()
-        df = pro.stock_basic(exchange="", list_status="L",
-                             fields="ts_code,name,industry")
-        _ts_sleep()
-        if df is None or df.empty:
-            return pd.DataFrame()
-        df["code"] = df["ts_code"].apply(ts_to_ak)
-        df["code_name"] = df["name"]
-        df["industry_classification"] = "证监会"
-        df["update_date"] = date.today().strftime("%Y-%m-%d")
-        return df[["code", "code_name", "industry", "industry_classification", "update_date"]]
-    except Exception as e:
-        logger.error("fetch_stock_industry failed: %s", str(e)[:80])
-        return pd.DataFrame()
-
-
-# ── tushare: 交易日历 ──────────────────────────────────────────────────────
-
-def fetch_trade_dates(start: str, end: str) -> pd.DataFrame:
-    try:
-        pro = _get_pro()
-        df = pro.trade_cal(exchange="SSE",
-                           start_date=start.replace("-", ""),
-                           end_date=end.replace("-", ""),
-                           is_open="1")
-        _ts_sleep()
-        if df is None or df.empty:
-            return pd.DataFrame()
-        df["cal_date"] = pd.to_datetime(df["cal_date"], format="%Y%m%d").dt.strftime("%Y-%m-%d")
-        return df[["cal_date"]].rename(columns={"cal_date": "trade_date"})
-    except Exception as e:
-        logger.error("fetch_trade_dates failed: %s", str(e)[:80])
-        return pd.DataFrame()
-
-
-# ── tushare: 个股K线 ──────────────────────────────────────────────────────
-
-def fetch_stock_kline(ak_code: str, start: str, end: str,
-                      fields="date,close,peTTM,pbMRQ,pctChg,volume,amount") -> pd.DataFrame:
-    ts_code = ak_to_ts(ak_code)
-    try:
-        pro = _get_pro()
-        df = pro.daily(ts_code=ts_code,
-                       start_date=start.replace("-", ""),
-                       end_date=end.replace("-", ""))
-        _ts_sleep()
-        if df is None or df.empty:
-            return pd.DataFrame()
-        df["trade_date"] = pd.to_datetime(df["trade_date"], format="%Y%m%d").dt.strftime("%Y-%m-%d")
-        df["stock_code"] = ak_code
-        df.rename(columns={"pct_chg": "pct_change", "vol": "volume"}, inplace=True)
-        expected_cols = ["trade_date", "stock_code", "open", "high", "low", "close", "volume", "amount", "pct_change"]
-        for col in expected_cols:
-            if col not in df.columns and col not in ("trade_date", "stock_code"):
-                df[col] = None
-            elif col in df.columns:
-                df[col] = pd.to_numeric(df[col], errors="coerce")
-        return df[expected_cols]
-    except Exception as e:
-        logger.error("fetch_stock_kline(%s) failed: %s", ak_code, str(e)[:80])
-        return pd.DataFrame()
-
-
 # ── tushare: 融资融券 ──────────────────────────────────────────────────────
 
 def fetch_margin_history(start: str, end: str) -> pd.DataFrame:
     try:
         pro = _get_pro()
         dfs = []
-        for dt in pd.date_range(start, end, freq="MS"):
+        # 从 start 所在月初开始，以月为单位迭代
+        start_m = pd.Timestamp(start).replace(day=1)
+        for dt in pd.date_range(start_m, end, freq="MS"):
             ds = dt.strftime("%Y%m%d")
             try:
                 df = pro.margin(exchange="sse", start_date=ds,
@@ -262,6 +157,13 @@ def fetch_margin_history(start: str, end: str) -> pd.DataFrame:
             return pd.DataFrame()
         result = pd.concat(dfs, ignore_index=True)
         result["trade_date"] = pd.to_datetime(result["trade_date"], format="%Y%m%d").dt.strftime("%Y-%m-%d")
+        # 只保留 margin_history 表已有的列 (tushare 可能新加 exchange_id 等列)
+        keep = {"trade_date", "rzye", "rzmre", "rzche", "rqye", "rqmcl", "rzrqye"}
+        cols = [c for c in result.columns if c in keep]
+        result = result[cols]
+        # tushare margin 接口按交易所返回多行(exchange_id), 按日期汇总
+        agg = {c: "sum" for c in cols if c != "trade_date"}
+        result = result.groupby("trade_date", as_index=False).agg(agg)
         return result
     except Exception as e:
         logger.error("fetch_margin_history failed: %s", str(e)[:80])
@@ -274,7 +176,8 @@ def fetch_northbound_history(start: str, end: str) -> pd.DataFrame:
     try:
         pro = _get_pro()
         dfs = []
-        for dt in pd.date_range(start, end, freq="MS"):
+        start_m = pd.Timestamp(start).replace(day=1)
+        for dt in pd.date_range(start_m, end, freq="MS"):
             ds = dt.strftime("%Y%m%d")
             end_ds = (dt + pd.offsets.MonthEnd(0)).strftime("%Y%m%d")
             try:
@@ -288,7 +191,10 @@ def fetch_northbound_history(start: str, end: str) -> pd.DataFrame:
             return pd.DataFrame()
         result = pd.concat(dfs, ignore_index=True)
         result["trade_date"] = pd.to_datetime(result["trade_date"], format="%Y%m%d").dt.strftime("%Y-%m-%d")
-        return result
+        # 只保留 northbound_history 表已有的列
+        keep = {"trade_date", "hgt", "sgt", "north_net", "south_money"}
+        cols = [c for c in result.columns if c in keep]
+        return result[cols]
     except Exception as e:
         logger.error("fetch_northbound_history failed: %s", str(e)[:80])
         return pd.DataFrame()
@@ -334,30 +240,6 @@ def fetch_bond_yield_history(start: str, end: str) -> pd.DataFrame:
             logger.warning("tushare yc_cb 无权限，回退 akshare bond_zh_us_rate")
             return _fetch_bond_yield_akshare()
         logger.error("fetch_bond_yield_history failed: %s", msg)
-        return pd.DataFrame()
-
-
-# ── tushare: 指数PE/PB ──────────────────────────────────────────────────────
-
-def fetch_index_pe_history(start: str, end: str) -> pd.DataFrame:
-    try:
-        pro = _get_pro()
-        dfs = []
-        for ts_code in ["000300.SH", "000905.SH", "000688.SH", "899050.BJ", "399006.SZ", "000852.SH"]:
-            try:
-                df = pro.index_dailybasic(ts_code=ts_code,
-                                          start_date=start.replace("-", ""),
-                                          end_date=end.replace("-", ""))
-                _ts_sleep()
-                if df is not None and not df.empty:
-                    dfs.append(df)
-            except Exception:
-                logger.warning("fetch_index_pe_history %s: skipped", ts_code)
-        if not dfs:
-            return pd.DataFrame()
-        return pd.concat(dfs, ignore_index=True)
-    except Exception as e:
-        logger.error("fetch_index_pe_history failed: %s", str(e)[:80])
         return pd.DataFrame()
 
 
@@ -477,37 +359,3 @@ def fetch_m2_history(start: str = "2008-01-01", end: str = None):
         logger.info("M2 data saved: %d rows from %s to %s", len(df), df["month"].min(), df["month"].max())
     except Exception as e:
         logger.error("fetch_m2_history (tushare) failed: %s", str(e)[:80])
-
-
-# ── 主流程 ────────────────────────────────────────────────────────────────────
-
-def fetch_all_history(start: str = "2015-01-01", end: str = None):
-    from src.data.database import init_database
-    init_database()
-    end = end or date.today().strftime("%Y-%m-%d")
-    logger.info("Fetching all history: %s ~ %s", start, end)
-
-    for ak_code in INDEX_CODE_MAP:
-        df = fetch_index_daily(ak_code, start, end)
-        if not df.empty:
-            _save(df, "index_daily")
-
-    for idx in ["hs300", "sz50", "zz500"]:
-        df = fetch_index_constituents(idx)
-        if not df.empty:
-            _save(df, "index_constituents")
-
-    df = fetch_stock_industry()
-    if not df.empty:
-        _save(df, "stock_industry")
-
-    df = fetch_margin_history(start, end)
-    if df is not None and not df.empty:
-        _save(df, "margin_history")
-
-    df = fetch_northbound_history(start, end)
-    if df is not None and not df.empty:
-        _save(df, "northbound_history")
-
-    fetch_m2_history(start, end)
-    logger.info("All history fetched!")

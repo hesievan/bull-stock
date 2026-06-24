@@ -22,13 +22,8 @@ class TestLoadConfig:
 
     def test_file_not_found(self, tmp_path):
         fake_path = tmp_path / "nonexistent.yaml"
-        config = load_config(fake_path)
-        assert "heat_levels" in config
-
-    def test_fallback_to_default(self, tmp_path):
-        fake_path = tmp_path / "nonexistent.yaml"
-        config = load_config(fake_path)
-        assert "heat_levels" in config
+        with pytest.raises(FileNotFoundError):
+            load_config(fake_path)
 
     def test_heat_levels_structure(self):
         config = load_config()

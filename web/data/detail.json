@@ -1,56 +1,51 @@
 {
-  "trade_date": "2026-06-22",
-  "composite_score": 50.3,
+  "trade_date": "2026-06-24",
+  "composite_score": 53.9,
   "level": "yellow",
   "dimensions": {
     "valuation": {
-      "score": 28.3,
+      "score": 53.4,
       "label": "估值"
     },
     "fund": {
-      "score": 50.8,
+      "score": 42.3,
       "label": "资金"
     },
     "sentiment": {
-      "score": 99.1,
+      "score": 93.1,
       "label": "情绪"
     },
     "structure": {
-      "score": 6.3,
+      "score": 14.3,
       "label": "结构"
     }
   },
   "indicators_v2": {
-    "pe": 24.54,
-    "erp": 2.3448,
-    "turnover": 3.492,
-    "ma_alignment": 10.0,
-    "buffett": 0.9619,
-    "new_high": 12.2
+    "pe": 23.88395,
+    "erp": 2.443212131368555,
+    "buffett": 0.9484108460461856,
+    "margin_ratio_v2": 0.028231708521816612,
+    "deposit_ratio": 2.655338617769417,
+    "turnover_m2": 0.009366971376979233,
+    "turnover": 3.1017715729922557,
+    "new_high": 0.06803338171262699,
+    "ma_alignment": 0.118829
   },
   "qvix_display": 17.18,
   "version": "v2",
   "updated_at": "2026-06-24 00:00:00",
-  "composite_score_smoothed": 50.6,
+  "composite_score_smoothed": 54.8,
   "level_smoothed": "yellow",
   "indicators": {
-    "pe": 42.809917355371894,
-    "erp": 13.88429752066116,
-    "buffett": null,
-    "margin_ratio_v2": 1.5873015873015928,
-    "deposit_ratio": 100,
-    "turnover_m2": 100,
-    "turnover": 98.21428571428571,
-    "new_high": 12.431941923774954,
-    "ma_alignment": 0.100307,
+    "pe": 50.413907284768214,
+    "erp": 10.876757650951197,
+    "buffett": 98.79618098796182,
+    "margin_ratio_v2": 0,
+    "deposit_ratio": 84.55882352941177,
+    "turnover_m2": 97.79411764705883,
+    "turnover": 88.39285714285714,
+    "new_high": 6.803338171262699,
+    "ma_alignment": 21.827201322860688,
     "qvix": 17.18
-  },
-  "indicators_raw": {
-    "pe": 24.54,
-    "erp": 2.3448,
-    "turnover": 3.492,
-    "ma_alignment": 10.0,
-    "buffett": 0.9619,
-    "new_high": 12.2
   }
 }

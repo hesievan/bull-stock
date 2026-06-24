@@ -188,7 +188,8 @@ CREATE TABLE IF NOT EXISTS index_daily_pe (
     trade_date TEXT PRIMARY KEY,
     pe_med REAL,
     pb_med REAL,
-    n_stocks INTEGER
+    n_stocks INTEGER,
+    const_date TEXT
 );
 
 -- AH溢价月表 (SSE AH Premium Index 月度值)
@@ -386,7 +387,7 @@ _ALLOWED_TABLES = {
     "index_daily", "stock_daily", "stock_industry", "m2_monthly",
     "stock_market_cap", "margin_history", "northbound_history",
     "bond_yield", "index_pe_history", "ah_premium", "stock_balance",
-    "index_constituents", "limit_up_daily", "new_investors",
+    "limit_up_daily", "new_investors",
     "heat_index", "sector_heat", "metadata",
     "daily_circ_mv", "index_daily_pe", "ah_premium_monthly",
     "daily_updown", "daily_limit", "daily_ma_alignment",
@@ -426,20 +427,6 @@ def get_latest_date(table: str, date_col: str = "trade_date", db_path: str = Non
             f"SELECT MAX({date_col}) as d FROM {table}"
         ).fetchone()
     return row["d"] if row and row["d"] else None
-
-
-def record_meta(key: str, value: str, db_path: str = None):
-    with get_conn(db_path) as conn:
-        conn.execute(
-            "INSERT OR REPLACE INTO metadata(key,value,updated_at) VALUES(?,?,datetime('now'))",
-            (key, value)
-        )
-
-
-def get_meta(key: str, db_path: str = None) -> Optional[str]:
-    with get_conn(db_path) as conn:
-        row = conn.execute("SELECT value FROM metadata WHERE key=?", (key,)).fetchone()
-    return row["value"] if row else None
 
 
 def save_heat_index_to_db(result: dict, db_path: str = None):
@@ -498,17 +485,19 @@ def update_index_daily_pe(trade_date: str, db_path: str = None):
         pe_vals = pe_vals[(pe_vals > 0) & (pe_vals <= 500)].dropna()
         pb_vals = pd.to_numeric(df["pbMRQ"], errors="coerce")
         pb_vals = pb_vals[(pb_vals > 0) & (pb_vals <= 10)].dropna()
+        const_date = const[0][0] if const else None
         conn.execute(
-            "INSERT OR REPLACE INTO index_daily_pe (trade_date, pe_med, pb_med, n_stocks) "
-            "VALUES (?, ?, ?, ?)",
+            "INSERT OR REPLACE INTO index_daily_pe (trade_date, pe_med, pb_med, n_stocks, const_date) "
+            "VALUES (?, ?, ?, ?, ?)",
             (trade_date,
              float(pe_vals.median()) if len(pe_vals) > 0 else None,
              float(pb_vals.median()) if len(pb_vals) > 0 else None,
-             len(pe_vals))
+             len(pe_vals),
+             const_date)
         )
-        logger.info("index_daily_pe %s: pe_med=%.2f pb_med=%.2f n=%d",
+        logger.info("index_daily_pe %s: pe_med=%.2f pb_med=%.2f n=%d const=%s",
                      trade_date, pe_vals.median() if len(pe_vals) > 0 else 0,
-                     pb_vals.median() if len(pb_vals) > 0 else 0, len(pe_vals))
+                     pb_vals.median() if len(pb_vals) > 0 else 0, len(pe_vals), const_date)
         return True
 
 
@@ -528,6 +517,26 @@ def compute_daily_circ_mv(trade_date: str, db_path: str = None) -> bool:
             (trade_date, total)
         )
         logger.info("daily_circ_mv %s: %.2f", trade_date, total)
+        return True
+
+
+def compute_daily_total_mv(trade_date: str, db_path: str = None) -> bool:
+    """从 stock_daily 计算当日全市场总市值并写入 stock_market_cap"""
+    with get_conn(db_path) as conn:
+        df = pd.read_sql(
+            "SELECT SUM(total_mv) AS total_mv, COUNT(*) AS stock_count FROM stock_daily WHERE trade_date=? AND total_mv > 0",
+            conn, params=[trade_date]
+        )
+        if df.empty or df.iloc[0]["total_mv"] is None or df.iloc[0]["total_mv"] <= 0:
+            logger.warning("compute_daily_total_mv %s: no valid total_mv data", trade_date)
+            return False
+        total = float(df.iloc[0]["total_mv"])
+        count = int(df.iloc[0]["stock_count"])
+        conn.execute(
+            "INSERT OR REPLACE INTO stock_market_cap (trade_date, total_mv, stock_count) VALUES (?, ?, ?)",
+            (trade_date, total, count)
+        )
+        logger.info("stock_market_cap %s: total_mv=%.2f stocks=%d", trade_date, total, count)
         return True
 
 
@@ -641,30 +650,6 @@ def compute_daily_ma_alignment(trade_date: str, db_path: str = None) -> bool:
             (trade_date, ratio)
         )
         logger.info("daily_ma_alignment %s: aligned=%d/%d ratio=%.4f", trade_date, aligned, total_stocks, ratio)
-        return True
-
-
-def aggregate_ah_premium_monthly(trade_date: str, db_path: str = None) -> bool:
-    """将 ah_premium 日表数据聚合成月表 (月尾日写入当月均值)"""
-    month = trade_date[:7]
-    with get_conn(db_path) as conn:
-        rows = conn.execute(
-            "SELECT premium FROM ah_premium WHERE trade_date LIKE ? AND premium IS NOT NULL",
-            (month + "%",)
-        ).fetchall()
-        if not rows:
-            logger.info("aggregate_ah_premium_monthly %s: no daily data", month)
-            return False
-        vals = [float(r[0]) for r in rows if 0.5 < float(r[0]) < 3.0]
-        if len(vals) < 3:
-            logger.info("aggregate_ah_premium_monthly %s: insufficient valid data (%d)", month, len(vals))
-            return False
-        premium = round(float(np.median(vals)) * 100, 2)
-        conn.execute(
-            "INSERT OR REPLACE INTO ah_premium_monthly (trade_date, premium) VALUES (?, ?)",
-            (month, premium)
-        )
-        logger.info("ah_premium_monthly %s: %.2f (from %d daily rows)", month, premium, len(vals))
         return True
 
 

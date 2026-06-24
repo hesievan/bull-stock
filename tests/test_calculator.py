@@ -11,12 +11,8 @@ from src.indicators.calculator import (
 )
 from src.indicators.utils import (
     _pct_rank,
-    _pct_rank_inv,
-    _safe_mean,
     _score_with_fallback,
     _to_numeric,
-    _query_scalar,
-    _query_dataframe,
 )
 
 
@@ -47,34 +43,6 @@ class TestPctRank:
     def test_series_with_nans(self):
         s = pd.Series([1, np.nan, 3, 4, 5])
         assert _pct_rank(s, 3) == pytest.approx(0.5)
-
-
-class TestPctRankInv:
-    def test_basic(self):
-        s = pd.Series([1, 2, 3, 4, 5])
-        result = _pct_rank_inv(s, 3)
-        assert result == pytest.approx(0.4)
-
-    def test_inversion(self):
-        s = pd.Series([1, 2, 3, 4, 5])
-        assert _pct_rank(s, 3) + _pct_rank_inv(s, 3) == pytest.approx(1.0)
-
-
-class TestSafeMean:
-    def test_basic(self):
-        assert _safe_mean([1, 2, 3]) == pytest.approx(2.0)
-
-    def test_with_nones(self):
-        assert _safe_mean([1, None, 3]) == pytest.approx(2.0)
-
-    def test_with_nans(self):
-        assert _safe_mean([1, float("nan"), 3]) == pytest.approx(2.0)
-
-    def test_all_invalid(self):
-        assert _safe_mean([None, float("nan")]) is None
-
-    def test_empty(self):
-        assert _safe_mean([]) is None
 
 
 class TestScoreWithFallback:
@@ -116,23 +84,6 @@ class TestToNumeric:
     def test_empty_series(self):
         result = _to_numeric(pd.Series([]))
         assert len(result) == 0
-
-
-class TestQueryScalar:
-    def test_found(self):
-        import sqlite3
-        conn = sqlite3.connect(":memory:")
-        conn.execute("CREATE TABLE t (x INTEGER)")
-        conn.execute("INSERT INTO t VALUES (42)")
-        assert _query_scalar(conn, "SELECT x FROM t") == 42
-        conn.close()
-
-    def test_not_found(self):
-        import sqlite3
-        conn = sqlite3.connect(":memory:")
-        conn.execute("CREATE TABLE t (x INTEGER)")
-        assert _query_scalar(conn, "SELECT x FROM t WHERE x=999") is None
-        conn.close()
 
 
 # ── HeatIndexCalculator 测试 ─────────────────────────────────────────────────

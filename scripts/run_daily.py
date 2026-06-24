@@ -82,7 +82,6 @@ def run_daily(trade_date=None):
         fetch_bond_yield_history,
         _save,
     )
-    from src.indicators.calculator import calculate_heat_index
     from src.output.json_writer import (
         save_results_v2, build_feishu_notification, send_feishu_webhook
     )
@@ -148,6 +147,15 @@ def run_daily(trade_date=None):
 
     _run_step(step_status, "S26_circ_mv", _step26)
 
+    # ── Step 2.6b: 全市场总市值 (stock_market_cap, 供巴菲特指标使用) ──────────
+    logger.info("Step 2.6b: Computing daily_total_mv...")
+
+    def _step26b():
+        from src.data.database import compute_daily_total_mv
+        return compute_daily_total_mv(trade_date)
+
+    _run_step(step_status, "S26b_total_mv", _step26b)
+
     # ── Step 2.7: 涨跌家数比 (daily_updown, 预计算表) ────────────────────────
     logger.info("Step 2.7: Computing daily_updown...")
 
@@ -206,6 +214,29 @@ def run_daily(trade_date=None):
         return True
 
     _run_step(step_status, "S24_precompute_check", _step24)
+
+    # ── Step 2.4c: M2货币供应量 (月度, tushare cn_m) ──────────────────────
+    logger.info("Step 2.4c: Fetching M2 monthly data...")
+
+    def _step24c():
+        from src.data.fetcher import fetch_m2_history
+        import datetime
+        # 检查数据库是否已有最新M2 (当月或上月)
+        from src.data.database import read_dataframe
+        latest = read_dataframe(
+            "SELECT MAX(month) FROM m2_monthly",
+        )
+        if not latest.empty and latest.iloc[0, 0] is not None:
+            latest_m = latest.iloc[0, 0]
+            td_month = trade_date[:7]
+            # 若已包含本月或上月，说明数据已最新
+            if latest_m >= td_month or latest_m >= (datetime.date.today().replace(day=1) - datetime.timedelta(days=35)).strftime("%Y-%m"):
+                logger.info("M2 already up-to-date (latest=%s)", latest_m)
+                return True
+        fetch_m2_history(start="2020-01-01", end=trade_date)
+        return True
+
+    _run_step(step_status, "S24c_m2", _step24c)
 
     # ── Step 3: tushare 融资融券/北向/国债 ──────────────────────────────────
     logger.info("Step 3: Tushare margin/northbound/bond...")

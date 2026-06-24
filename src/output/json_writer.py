@@ -188,8 +188,8 @@ def save_results_v2(result_v2: Dict, output_dir: str = None):
         "level": get_heat_level(composite) if composite is not None else "unknown",
         "dimensions": result_v2["dimensions"],
         "indicators_v2": {
-            k: _round_score(v) if k != "qvix" else v
-            for k, v in result_v2["indicators"].items()
+            k: result_v2.get("indicator_raw", {}).get(k)
+            for k in result_v2["indicators"]
             if k != "qvix"
         },
         "qvix_display": result_v2["indicators"].get("qvix"),

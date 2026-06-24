@@ -10,7 +10,11 @@ data/*.sqlite
 .DS_Store
 Thumbs.db
 __pycache__/
-web/data/*.json
+# web/data/*.json  # 已移除 — JSON 数据文件由 CI 持久化到仓库/Release
 *.db-shm
 *.db-wal
 .env
+reports/
+data/backups/
+reasonix.toml
+report.md

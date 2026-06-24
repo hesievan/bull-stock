@@ -15,11 +15,6 @@ CONFIG_PATH = os.environ.get(
 def load_config(path: Optional[Union[str, Path]] = None) -> dict:
     p = Path(path) if path else Path(CONFIG_PATH)
     if not p.exists():
-        # fallback to default.yaml if env-specific config not found
-        default = BASE_DIR / "config" / "default.yaml"
-        if p != default and default.exists():
-            p = default
-        else:
-            raise FileNotFoundError(f"Config not found: {p}")
+        raise FileNotFoundError(f"Config not found: {p}")
     with open(p, "r", encoding="utf-8") as f:
         return yaml.safe_load(f)

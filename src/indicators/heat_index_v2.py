@@ -39,12 +39,7 @@ INDICATOR_WEIGHTS = {
 assert abs(sum(INDICATOR_WEIGHTS.values()) - 1.0) < 0.001, \
     f"Indicator weights must sum to 1.0, got {sum(INDICATOR_WEIGHTS.values())}"
 
-DIMENSION_WEIGHTS = {
-    "valuation": 0.40,   # 估值(↑)
-    "fund": 0.30,        # 资金(↑)
-    "sentiment": 0.20,   # 情绪(↓)
-    "structure": 0.10,   # 结构(↓)
-}
+DIMENSIONS = ["valuation", "fund", "sentiment", "structure"]
 
 # 背离检测参数
 DIVERGENCE_CONFIG = {
@@ -93,29 +88,39 @@ def _get_conn(db_path: str = None):
 # ═══════════════════════════════════════════════════════════════════════════
 
 def calc_pe(conn, trade_date: str) -> Optional[float]:
-    """大盘PE — index_daily_pe 中位数历史百分位反向赋分"""
+    """大盘PE — index_daily_pe 中位数历史百分位 (高PE=贵=高热度)"""
     try:
         td = trade_date
         # 当前值
         cur = conn.execute(
-            "SELECT pe_med FROM index_daily_pe WHERE trade_date<=? ORDER BY trade_date DESC LIMIT 1",
+            "SELECT pe_med, n_stocks FROM index_daily_pe WHERE trade_date<=? ORDER BY trade_date DESC LIMIT 1",
             (td,)
         ).fetchone()
         if not cur or cur[0] is None:
             return None
 
-        # 历史序列 (10年)
+        cur_pe = cur[0]
+        cur_n = cur[1] or 0
+
+        # 历史序列 (10年), 过滤口径不一致的数据 (n_stocks相差超过50%)
         hist = pd.read_sql(
-            "SELECT pe_med FROM index_daily_pe WHERE trade_date >= ? AND pe_med IS NOT NULL",
+            "SELECT pe_med, n_stocks FROM index_daily_pe WHERE trade_date >= ? AND pe_med IS NOT NULL",
             conn, params=[str(int(td[:4]) - 10) + td[4:]]
         )
         if hist.empty or len(hist) < 120:
             return None
 
-        pct = _pct_rank(hist["pe_med"], cur[0])
-        score = (1 - pct) * 100  # PE越高分越低
-        logger.info("大盘PE: %.2f, score=%.1f (n=%d)", cur[0], score, len(hist))
-        return max(0, min(100, score))
+        # 只保留与当前n_stocks相近的历史记录 (排除全市场混入)
+        if cur_n > 0:
+            hist = hist[hist["n_stocks"].between(cur_n * 0.5, cur_n * 1.5)]
+
+        if len(hist) < 60:
+            return None
+
+        pct = _pct_rank(hist["pe_med"], cur_pe)
+        score = pct * 100  # PE越高=越贵=热度越高
+        logger.info("大盘PE: %.2f, score=%.1f (n=%d, hist=%d)", cur_pe, score, cur_n, len(hist))
+        return max(0, min(100, score)), cur_pe
     except Exception as e:
         logger.warning("PE calc failed: %s", e)
         return None
@@ -174,31 +179,34 @@ def calc_erp_v2(conn, trade_date: str) -> Optional[float]:
         pct = _pct_rank(hist_vals, cur_erp)
         score = (1 - pct) * 100
         logger.info("ERP: %.4f, score=%.1f (n=%d)", cur_erp, score, len(hist_vals))
-        return max(0, min(100, score))
+        return max(0, min(100, score)), cur_erp
     except Exception as e:
         logger.warning("ERP calc failed: %s", e)
         return None
 
 
 def calc_buffett(conn, trade_date: str) -> Optional[float]:
-    """巴菲特指标 = A股总市值 / 年度GDP (反向: 越高=越贵=分越低)
+    """巴菲特指标 = A股总市值 / 年度GDP (高=贵=高热度)
 
     年度GDP = 最近4个季度GDP之和
+    使用预计算表 stock_market_cap 替代逐日 GROUP BY 以提升性能
     """
     try:
         td = trade_date
-        # 总市值 (stock_daily.total_mv 单位为万元, 转为元: ×10000)
+
+        # 总市值 — 优先用预计算表, 回退到实时计算
         mv_row = conn.execute(
-            "SELECT SUM(total_mv) * 10000 FROM stock_daily WHERE trade_date=? AND total_mv > 0",
+            "SELECT total_mv FROM stock_market_cap WHERE trade_date=?",
             (td,)
         ).fetchone()
         if not mv_row or mv_row[0] is None:
             mv_row = conn.execute(
-                "SELECT SUM(total_mv) * 10000 FROM stock_daily WHERE trade_date = (SELECT MAX(trade_date) FROM stock_daily WHERE total_mv > 0)",
+                "SELECT SUM(total_mv) FROM stock_daily WHERE trade_date=? AND total_mv > 0",
+                (td,)
             ).fetchone()
         if not mv_row or mv_row[0] is None:
             return None
-        total_mv = mv_row[0]  # 元
+        total_mv = mv_row[0] * 10000  # 万元→元
 
         # 找到当日所属年份，用前一年的年度GDP（巴菲特指标的常规做法）
         td_year = int(td[:4])
@@ -227,9 +235,10 @@ def calc_buffett(conn, trade_date: str) -> Optional[float]:
 
         buffett_ratio = total_mv / cur_annual_gdp
 
-        # 历史巴菲特指标
+        # 历史巴菲特指标 (使用 stock_market_cap 预计算表)
         mv_hist = pd.read_sql(
-            "SELECT trade_date, SUM(total_mv) * 10000 as tot_mv FROM stock_daily WHERE total_mv > 0 AND trade_date >= ? GROUP BY trade_date ORDER BY trade_date",
+            "SELECT trade_date, total_mv FROM stock_market_cap "
+            "WHERE trade_date >= ? AND total_mv > 0 ORDER BY trade_date",
             conn, params=[str(td_year - 10) + td[4:]]
         )
         if mv_hist.empty:
@@ -243,16 +252,16 @@ def calc_buffett(conn, trade_date: str) -> Optional[float]:
             while gdp_year not in annual_gdp and gdp_year > min(available_years):
                 gdp_year -= 1
             if gdp_year in annual_gdp and annual_gdp[gdp_year] > 0:
-                hist_ratios.append(m["tot_mv"] / (annual_gdp[gdp_year] * 1e8))
+                hist_ratios.append(m["total_mv"] * 10000 / (annual_gdp[gdp_year] * 1e8))
 
         if len(hist_ratios) < 60:
             return None
 
         pct = _pct_rank(hist_ratios, buffett_ratio)
-        score = (1 - pct) * 100
+        score = pct * 100  # 巴菲特指标越高=越贵=热度越高
         logger.info("巴菲特指标: %.4f (%s年GDP=%.0f亿), score=%.1f (n=%d)",
                      buffett_ratio, cur_year, cur_annual_gdp / 1e8, score, len(hist_ratios))
-        return max(0, min(100, score))
+        return max(0, min(100, score)), buffett_ratio
     except Exception as e:
         logger.warning("Buffett calc failed: %s", e)
         return None
@@ -300,13 +309,14 @@ def calc_margin_ratio_v2(conn, trade_date: str) -> Optional[float]:
             return None
 
         pct = _pct_rank(hist_ratios, cur_ratio)
-        # 杠杆上升=热度上升, 但>90%分位时转为减分
+        # 杠杆上升=热度上升; 极高分位(>90%)时线性递减, 避免突变
         if pct > 0.9:
-            score = (1 - pct) * 100
+            # pct=0.90→90分, pct=1.0→0分, 线性过渡
+            score = 900 * (1 - pct)
         else:
             score = pct * 100
         logger.info("两融余额市值比: %.6f, score=%.1f (n=%d)", cur_ratio, score, len(hist_ratios))
-        return max(0, min(100, score))
+        return max(0, min(100, score)), cur_ratio
     except Exception as e:
         logger.warning("Margin ratio calc failed: %s", e)
         return None
@@ -327,46 +337,50 @@ def calc_deposit_ratio(conn, trade_date: str) -> Optional[float]:
             return None
         m2 = m2_row[0] * 1e8  # 亿元→元
 
-        # 总市值 (stock_daily.total_mv 单位为万元, 转为元: ×10000)
+        # 总市值 — 优先用预计算表
         mv_row = conn.execute(
-            "SELECT SUM(total_mv) * 10000 FROM stock_daily WHERE trade_date=? AND total_mv > 0",
+            "SELECT total_mv FROM stock_market_cap WHERE trade_date=?",
             (td,)
         ).fetchone()
         if not mv_row or mv_row[0] is None:
+            mv_row = conn.execute(
+                "SELECT SUM(total_mv) FROM stock_daily WHERE trade_date=? AND total_mv > 0",
+                (td,)
+            ).fetchone()
+        if not mv_row or mv_row[0] is None:
             return None
-        total_mv = mv_row[0]  # 元
+        total_mv = mv_row[0] * 10000  # 万元→元
 
         if total_mv <= 0:
             return None
 
         cur_ratio = m2 / total_mv
 
-        # 历史序列 (月度)
+        # 历史序列 (月度, 使用 stock_market_cap 预计算表)
         m2_all = pd.read_sql(
             "SELECT month, m2_billion FROM m2_monthly WHERE m2_billion IS NOT NULL ORDER BY month",
             conn
         )
         mv_monthly = pd.read_sql("""
-            SELECT substr(trade_date, 1, 7) as month, AVG(daily_mv) as avg_total_mv FROM (
-                SELECT trade_date, SUM(total_mv) as daily_mv
-                FROM stock_daily WHERE total_mv > 0 AND trade_date >= '2010-01-01'
-                GROUP BY trade_date
-            ) GROUP BY month ORDER BY month
+            SELECT substr(trade_date, 1, 7) as month, AVG(total_mv) as avg_total_mv
+            FROM stock_market_cap
+            WHERE total_mv > 0 AND trade_date >= '2010-01-01'
+            GROUP BY month ORDER BY month
         """, conn)
 
         merged = m2_all.merge(mv_monthly, on="month", how="inner")
         if merged.empty or len(merged) < 60:
             return None
 
-        # m2_billion: 亿元, avg_total_mv: 万元
-        # 两者统一单位: M2(亿元)*10000 / total_mv(万元) = 无量纲倍数
+        # m2_billion: 亿元(×10000→万元), avg_total_mv: 万元
+        # 两者统一到万元
         merged["ratio"] = (merged["m2_billion"] * 10000) / merged["avg_total_mv"]
         hist_ratios = merged["ratio"].dropna()
 
         pct = _pct_rank(hist_ratios, cur_ratio)
         score = (1 - pct) * 100  # 存款市值比越低=资金搬家到股市=热度越高
         logger.info("存款市值比: %.2f, score=%.1f (n=%d)", cur_ratio, score, len(hist_ratios))
-        return max(0, min(100, score))
+        return max(0, min(100, score)), cur_ratio
     except Exception as e:
         logger.warning("Deposit ratio calc failed: %s", e)
         return None
@@ -425,7 +439,7 @@ def calc_turnover_m2(conn, trade_date: str) -> Optional[float]:
         pct = _pct_rank(hist_ratios, cur_ratio)
         score = pct * 100
         logger.info("成交额M2比: %.6f, score=%.1f (n=%d)", cur_ratio, score, len(hist_ratios))
-        return max(0, min(100, score))
+        return max(0, min(100, score)), cur_ratio
     except Exception as e:
         logger.warning("Turnover/M2 calc failed: %s", e)
         return None
@@ -470,7 +484,7 @@ def calc_turnover_v2(conn, trade_date: str) -> Optional[float]:
         pct = _pct_rank(hist_rates, cur_rate)
         score = pct * 100
         logger.info("换手率: %.4f%%, score=%.1f (n=%d)", cur_rate, score, len(hist_rates))
-        return max(0, min(100, score))
+        return max(0, min(100, score)), cur_rate
     except Exception as e:
         logger.warning("Turnover calc failed: %s", e)
         return None
@@ -514,36 +528,44 @@ def calc_new_high_v2(conn, trade_date: str) -> Optional[float]:
         ratio = new_high / len(merged)
         score = ratio * 100
         logger.info("创新高占比: %.4f (%d/%d), score=%.1f", ratio, new_high, len(merged), score)
-        return max(0, min(100, score))
+        return max(0, min(100, score)), ratio
     except Exception as e:
         logger.warning("New high calc failed: %s", e)
         return None
 
 
 def calc_ma_alignment_v2(conn, trade_date: str) -> Optional[float]:
-    """MA排列比 = MA20>MA60>MA120 多头排列占比"""
+    """MA排列比 = MA20>MA60>MA120 多头排列占比 (历史百分位赋分)"""
     try:
         td = trade_date
-        # 直接从预计算表读取 (值范围0-1, 转为0-100)
+        # 当前值
         row = conn.execute(
             "SELECT ma_alignment_ratio FROM daily_ma_alignment WHERE trade_date=?",
             (td,)
         ).fetchone()
-        if row and row[0] is not None:
-            score = float(row[0]) * 100  # 0-1 → 0-100
-            logger.info("MA排列比 (precomputed): %.2f%%", score)
-            return max(0, min(100, score))
+        if not row or row[0] is None:
+            row = conn.execute(
+                "SELECT ma_alignment_ratio FROM daily_ma_alignment WHERE trade_date<=? ORDER BY trade_date DESC LIMIT 1",
+                (td,)
+            ).fetchone()
+        if not row or row[0] is None:
+            return None
+        cur_val = float(row[0])
 
-        # fallback: 用最近日期
-        row = conn.execute(
-            "SELECT ma_alignment_ratio FROM daily_ma_alignment WHERE trade_date<=? ORDER BY trade_date DESC LIMIT 1",
-            (td,)
-        ).fetchone()
-        if row and row[0] is not None:
-            score = float(row[0]) * 100
-            logger.info("MA排列比 (最近): %.2f%%", score)
-            return max(0, min(100, score))
-        return None
+        # 历史序列 (10年)
+        hist = pd.read_sql(
+            "SELECT ma_alignment_ratio FROM daily_ma_alignment WHERE trade_date >= ? AND ma_alignment_ratio IS NOT NULL",
+            conn, params=[str(int(td[:4]) - 10) + td[4:]]
+        )
+        if hist.empty or len(hist) < 60:
+            score = cur_val * 100
+            logger.info("MA排列比 (fallback raw): %.2f%%", score)
+            return max(0, min(100, score)), cur_val
+
+        pct = _pct_rank(hist["ma_alignment_ratio"], cur_val)
+        score = pct * 100
+        logger.info("MA排列比: %.4f, pct=%.2f, score=%.1f (n=%d)", cur_val, pct, score, len(hist))
+        return max(0, min(100, score)), cur_val
     except Exception as e:
         logger.warning("MA alignment calc failed: %s", e)
         return None
@@ -576,18 +598,31 @@ def compute_index_v2(trade_date: str = None, db_path: str = None) -> dict:
 
     conn = _get_conn(db)
     try:
-        # 计算所有指标
-        scores = {
-            "pe": calc_pe(conn, td),
-            "erp": calc_erp_v2(conn, td),
-            "buffett": calc_buffett(conn, td),
-            "margin_ratio": calc_margin_ratio_v2(conn, td),
-            "deposit_ratio": calc_deposit_ratio(conn, td),
-            "turnover_m2": calc_turnover_m2(conn, td),
-            "turnover": calc_turnover_v2(conn, td),
-            "new_high": calc_new_high_v2(conn, td),
-            "ma_alignment": calc_ma_alignment_v2(conn, td),
-        }
+        # 计算所有指标 (每个函数返回 (分数, 原始值))
+        _raw = {}
+        def _unpack(k, v):
+            if v is None:
+                _raw[k] = None
+                return None
+            if isinstance(v, tuple):
+                _raw[k] = v[1]
+                return v[0]
+            _raw[k] = None
+            return v
+
+        scores = {}
+        for k, fn in [
+            ("pe", calc_pe),
+            ("erp", calc_erp_v2),
+            ("buffett", calc_buffett),
+            ("margin_ratio", calc_margin_ratio_v2),
+            ("deposit_ratio", calc_deposit_ratio),
+            ("turnover_m2", calc_turnover_m2),
+            ("turnover", calc_turnover_v2),
+            ("new_high", calc_new_high_v2),
+            ("ma_alignment", calc_ma_alignment_v2),
+        ]:
+            scores[k] = _unpack(k, fn(conn, td))
 
         qvix = calc_qvix_v2(conn, td)
 
@@ -604,7 +639,7 @@ def compute_index_v2(trade_date: str = None, db_path: str = None) -> dict:
 
         # 各维度分数计算
         dim_scores = {}
-        for dim_name in DIMENSION_WEIGHTS:
+        for dim_name in DIMENSIONS:
             ind_keys = [k for k, v in INDICATOR_DIMENSIONS.items() if v == dim_name]
             dim_vals = [scores[k] for k in ind_keys if scores[k] is not None]
             if dim_vals:
@@ -645,6 +680,7 @@ def compute_index_v2(trade_date: str = None, db_path: str = None) -> dict:
                 "ma_alignment": scores["ma_alignment"],
                 "qvix": qvix,
             },
+            "indicator_raw": _raw | {"margin_ratio_v2": _raw.get("margin_ratio")},
             "updated_at": date.today().strftime("%Y-%m-%d %H:%M:%S"),
         }
         return result
@@ -698,43 +734,41 @@ def _apply_new_high_divergence(conn, trade_date: str,
         lookback = DIVERGENCE_CONFIG["lookback_days"]
         prev_td = (pd.Timestamp(td) - pd.DateOffset(days=lookback)).strftime("%Y-%m-%d")
 
-        # 简化的新高占比变化
-        now_ratio = conn.execute(
-            "SELECT AVG(ratio) FROM ("
-            "  SELECT SUM(CASE WHEN close >= 0.98 * max_close THEN 1 ELSE 0 END) * 1.0 / COUNT(*) as ratio"
-            "  FROM ("
-            "    SELECT a.stock_code, a.close, MAX(b.close) as max_close"
-            "    FROM stock_daily a"
-            "    JOIN stock_daily b ON a.stock_code = b.stock_code"
-            "       AND b.trade_date <= a.trade_date"
-            "       AND b.trade_date >= date(a.trade_date, '-250 days')"
-            "    WHERE a.trade_date = ?"
-            "    GROUP BY a.stock_code"
-            "  )"
-            ")",
-            (td,)
-        ).fetchone()
-        prev_ratio = conn.execute(
-            "SELECT AVG(ratio) FROM ("
-            "  SELECT SUM(CASE WHEN close >= 0.98 * max_close THEN 1 ELSE 0 END) * 1.0 / COUNT(*) as ratio"
-            "  FROM ("
-            "    SELECT a.stock_code, a.close, MAX(b.close) as max_close"
-            "    FROM stock_daily a"
-            "    JOIN stock_daily b ON a.stock_code = b.stock_code"
-            "       AND b.trade_date <= a.trade_date"
-            "       AND b.trade_date >= date(a.trade_date, '-250 days')"
-            "    WHERE a.trade_date = ?"
-            "    GROUP BY a.stock_code"
-            "  )"
-            ")",
-            (prev_td,)
-        ).fetchone()
-
-        if not now_ratio or not prev_ratio or now_ratio[0] is None or prev_ratio[0] is None:
+        # 用 calc_new_high_v2 的同款高效查询代替自连接
+        today = pd.read_sql(
+            "SELECT stock_code, close FROM stock_daily WHERE trade_date=? AND close > 0",
+            conn, params=(td,)
+        )
+        if today.empty or len(today) < 100:
             return new_high_score
+        hist = pd.read_sql(
+            "SELECT stock_code, MAX(close) as max_close FROM stock_daily "
+            "WHERE trade_date <= ? AND trade_date >= date(?, '-250 days') AND close > 0 "
+            "GROUP BY stock_code",
+            conn, params=(td, td)
+        )
+        if hist.empty:
+            return new_high_score
+        merged = today.merge(hist, on="stock_code", how="inner").dropna()
+        now_val = (merged["close"] >= merged["max_close"] * 0.98).sum() / len(merged) * 100 if len(merged) > 0 else 0
 
-        now_val = float(now_ratio[0]) * 100
-        prev_val = float(prev_ratio[0]) * 100
+        # 对比日
+        prev_today = pd.read_sql(
+            "SELECT stock_code, close FROM stock_daily WHERE trade_date=? AND close > 0",
+            conn, params=(prev_td,)
+        )
+        if prev_today.empty or len(prev_today) < 100:
+            return new_high_score
+        prev_hist = pd.read_sql(
+            "SELECT stock_code, MAX(close) as max_close FROM stock_daily "
+            "WHERE trade_date <= ? AND trade_date >= date(?, '-250 days') AND close > 0 "
+            "GROUP BY stock_code",
+            conn, params=(prev_td, prev_td)
+        )
+        if prev_hist.empty:
+            return new_high_score
+        prev_merged = prev_today.merge(prev_hist, on="stock_code", how="inner").dropna()
+        prev_val = (prev_merged["close"] >= prev_merged["max_close"] * 0.98).sum() / len(prev_merged) * 100 if len(prev_merged) > 0 else 0
 
         # 指数涨跌
         idx = conn.execute(
