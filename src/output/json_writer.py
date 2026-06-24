@@ -234,6 +234,21 @@ def save_results_v2(result_v2: Dict, output_dir: str = None):
     history.sort(key=lambda x: x["trade_date"])
     _atomic_write_json(history_file, history)
 
+    # 更新 indicator_history.json (供前端9指标趋势图)
+    ind_hist_file = os.path.join(output_dir, "indicator_history.json")
+    ind_hist = {}
+    if os.path.exists(ind_hist_file):
+        try:
+            with open(ind_hist_file, "r", encoding="utf-8") as f:
+                ind_hist = json.load(f)
+        except Exception:
+            ind_hist = {}
+    ind_hist[trade_date] = {
+        k: _round_score(v) for k, v in result_v2["indicators"].items()
+        if k != "qvix" and v is not None
+    }
+    _atomic_write_json(ind_hist_file, ind_hist)
+
     logger.info("V2 Results saved: score=%.1f level=%s", composite, index_data["level"])
     return index_data
     """保存计算结果到 JSON 文件"""
