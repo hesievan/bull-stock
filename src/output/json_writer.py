@@ -243,10 +243,18 @@ def save_results_v2(result_v2: Dict, output_dir: str = None):
                 ind_hist = json.load(f)
         except Exception:
             ind_hist = {}
-    ind_hist[trade_date] = {
-        k: _round_score(v) for k, v in result_v2["indicators"].items()
-        if k != "qvix" and v is not None
-    }
+    # 存原始值（小数/倍数），与 backfill_indicator_history.py 格式一致
+    raw = result_v2.get("indicator_raw", {})
+    ind_hist[trade_date] = {}
+    for k, v in result_v2["indicators"].items():
+        if k == "qvix" or v is None:
+            continue
+        rk = k.replace("_v2", "")  # margin_ratio_v2 → margin_ratio
+        rv = raw.get(rk) if rk in raw else raw.get(k)
+        if rv is not None:
+            ind_hist[trade_date][k] = _round_score(rv)
+        else:
+            ind_hist[trade_date][k] = _round_score(v)
     _atomic_write_json(ind_hist_file, ind_hist)
 
     logger.info("V2 Results saved: score=%.1f level=%s", composite, index_data["level"])

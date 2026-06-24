@@ -35,7 +35,7 @@ def main():
         FROM margin_history m JOIN daily_circ_mv c ON m.trade_date=c.trade_date
         WHERE c.total_circ_mv>0 AND m.rzye>0 ORDER BY m.trade_date
     """, conn)
-    mg_d = dict(zip(mg["trade_date"], (mg["ratio"]*100).round(4)))  # %
+    mg_d = dict(zip(mg["trade_date"], (mg["ratio"]).round(6)))  # 小数
 
     # 4. 存款市值比 (M2/总市值, 倍数)
     logger.info("4/9 存款市值比...")
@@ -83,7 +83,7 @@ def main():
     # 7. MA排列比 (实际值: %)
     logger.info("7/9 MA排列比...")
     ma = pd.read_sql("SELECT trade_date, ma_alignment_ratio FROM daily_ma_alignment ORDER BY trade_date", conn)
-    ma_d = dict(zip(ma["trade_date"], (ma["ma_alignment_ratio"]*100).round(1)))
+    ma_d = dict(zip(ma["trade_date"], ma["ma_alignment_ratio"].round(4)))  # 小数
 
     # 8. 巴菲特指标 (总市值/年度GDP, 倍数)
     logger.info("8/9 巴菲特指标...")
@@ -109,13 +109,13 @@ def main():
     nh_d = {}
     try:
         nh = pd.read_sql("""
-            SELECT trade_date, SUM(CASE WHEN close>=max_250d*0.98 THEN 1 ELSE 0 END)*100.0/COUNT(*) as ratio
+            SELECT trade_date, SUM(CASE WHEN close>=max_250d*0.98 THEN 1 ELSE 0 END)*1.0/COUNT(*) as ratio
             FROM (SELECT trade_date, stock_code, close, MAX(close) OVER (
                 PARTITION BY stock_code ORDER BY trade_date ROWS BETWEEN 249 PRECEDING AND CURRENT ROW
             ) as max_250d FROM stock_daily WHERE close>0 AND trade_date>='2014-01-01')
             WHERE max_250d>0 AND trade_date>='2015-01-01' GROUP BY trade_date ORDER BY trade_date
         """, conn)
-        nh_d = dict(zip(nh["trade_date"], nh["ratio"].round(1)))
+        nh_d = dict(zip(nh["trade_date"], nh["ratio"].round(4)))  # 小数
         logger.info("  创新高占比: %d dates", len(nh_d))
     except Exception as e:
         logger.warning("创新高占比失败: %s", str(e)[:60])
