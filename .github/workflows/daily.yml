@@ -81,6 +81,11 @@ jobs:
           python scripts/fetch_tushare_history.py
 
       # ── 日常计算 ────────────────────────────────────────────────────────────
+      - name: Backfill precompute tables if empty
+        if: success()
+        run: |
+          python scripts/backfill_precompute.py || echo "Precompute backfill skipped"
+
       - name: Run daily update
         env:
           TUSHARE_TOKEN: ${{ secrets.TUSHARE_TOKEN }}
@@ -119,6 +124,21 @@ jobs:
               --latest=false
           fi
           echo "Seed database uploaded successfully"
+
+      # ── 持久化 JSON 数据到仓库 ──────────────────────────────────────────
+      - name: Commit JSON data back to repo
+        if: success()
+        run: |
+          if [ -z "$(git status web/data/ --porcelain)" ]; then
+            echo "No changes to JSON data, skipping commit"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add web/data/
+          git commit -m "chore: update heat index data for $(date -u '+%Y-%m-%d') [skip ci]"
+          git push
+          echo "JSON data committed and pushed"
 
       # ── 部署到 GitHub Pages ──────────────────────────────────────────────
       - name: Upload Pages artifact

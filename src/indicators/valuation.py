@@ -140,8 +140,14 @@ def calc_erp(calc) -> float | None:
             conn
         )
         if hist.empty or len(hist) < 60:
-            return None
+            # fallback: 从 index_daily_pe 和 bond_yield 实时计算历史 ERP
+            logger.info("ERP: daily_erp has insufficient history, computing from raw data")
+            hist = _compute_erp_history(conn, calc.trade_date)
+            if hist is None:
+                return None
         hist_erp = _to_numeric(hist['erp'], errors='coerce').dropna()
+        if len(hist_erp) < 60:
+            return None
 
         today = conn.execute(
             "SELECT erp FROM daily_erp WHERE trade_date=?",
@@ -149,7 +155,7 @@ def calc_erp(calc) -> float | None:
         ).fetchone()
         if not today or today[0] is None:
             pe_row = conn.execute(
-                "SELECT pe_med FROM index_daily_pe WHERE trade_date=?",
+                "SELECT pe_med FROM index_daily_pe WHERE trade_date<=? ORDER BY trade_date DESC LIMIT 1",
                 (calc.trade_date,)
             ).fetchone()
             bond_row = conn.execute(
@@ -174,6 +180,50 @@ def calc_erp(calc) -> float | None:
     except Exception as e:
         logger.warning("ERP calc failed: %s", e)
         return None
+
+
+def _compute_erp_history(conn, trade_date: str) -> pd.DataFrame | None:
+    """从 index_daily_pe + bond_yield 计算历史 ERP 序列"""
+    pe = pd.read_sql(
+        "SELECT trade_date, pe_med FROM index_daily_pe WHERE pe_med > 0 AND trade_date <= ? ORDER BY trade_date",
+        conn, params=[trade_date]
+    )
+    bond = pd.read_sql(
+        "SELECT trade_date, yield_rate FROM bond_yield WHERE curve_term=10 AND yield_rate IS NOT NULL AND trade_date <= ? ORDER BY trade_date",
+        conn, params=[trade_date]
+    )
+    if pe.empty or bond.empty or len(pe) < 60:
+        return None
+
+    # 为每个 PE 日期找最近的有效 bond yield
+    bond_dict = dict(zip(bond["trade_date"], bond["yield_rate"]))
+    bond_dates = sorted(bond_dict.keys())
+
+    results = []
+    for _, row in pe.iterrows():
+        td = row["trade_date"]
+        pe_med = row["pe_med"]
+        if pe_med <= 0:
+            continue
+
+        # 找最近 bond yield (<= td)
+        b_yield = None
+        for bd in reversed(bond_dates):
+            if bd <= td:
+                b_yield = bond_dict[bd]
+                break
+
+        if b_yield is None:
+            continue
+
+        ey_val = 1.0 / pe_med
+        erp_val = (ey_val - float(b_yield) / 100.0) * 100
+        results.append({"trade_date": td, "erp": erp_val})
+
+    if len(results) < 60:
+        return None
+
+    return pd.DataFrame(results)
 
 
 def calc_valuation(calc) -> float | None:

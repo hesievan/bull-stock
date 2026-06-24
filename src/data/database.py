@@ -24,7 +24,7 @@ DB_PATH = os.environ.get(
 )
 
 # ── 建表 SQL ──────────────────────────────────────────────────────────────────
-SCHEMA_VERSION = 3
+SCHEMA_VERSION = 4
 
 SCHEMA = """
 -- 指数日行情 (tushare index_daily)
@@ -278,12 +278,16 @@ def _migrate(conn, from_ver: int):
         for col in ("dim_macro", "composite_score_smoothed", "heat_level", "heat_level_smoothed"):
             if col not in cols:
                 conn.execute(f"ALTER TABLE heat_index ADD COLUMN {col} TEXT")
-    # 迁移: ah_premium 增加 n_stocks 列
-    ah_cols = {r[1] for r in conn.execute("PRAGMA table_info(ah_premium)").fetchall()}
-    if 'n_stocks' not in ah_cols:
-        conn.execute("ALTER TABLE ah_premium ADD COLUMN n_stocks INTEGER")
-    if 'created_at' not in ah_cols:
-        conn.execute("ALTER TABLE ah_premium ADD COLUMN created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    if from_ver < 4:
+        # 迁移: ah_premium 增加 n_stocks 列 (v3→v4)
+        try:
+            ah_cols = {r[1] for r in conn.execute("PRAGMA table_info(ah_premium)").fetchall()}
+            if 'n_stocks' not in ah_cols:
+                conn.execute("ALTER TABLE ah_premium ADD COLUMN n_stocks INTEGER")
+            if 'created_at' not in ah_cols:
+                conn.execute("ALTER TABLE ah_premium ADD COLUMN created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+        except Exception as e:
+            logger.warning("ah_premium migration skipped (table may not exist): %s", e)
     logger.info("Database migrated from v%d to v%d", from_ver, SCHEMA_VERSION)
 
 

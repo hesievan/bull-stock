@@ -65,7 +65,7 @@ def calc_ah_premium_index(calc) -> float | None:
                 "SELECT premium FROM ah_premium_monthly ORDER BY trade_date", conn
             )["premium"]
             hist = pd.to_numeric(hist, errors="coerce").dropna()
-            if len(hist) < 24:
+            if len(hist) < 12:
                 return None
             pct = (hist <= cur).sum() / len(hist)
             score = (1 - pct) * 100
@@ -73,12 +73,12 @@ def calc_ah_premium_index(calc) -> float | None:
                          cur, pct * 100, score, len(hist))
             return _score_with_fallback(score)
 
-        # fallback: compute from daily ah_premium (ratio form)
+        # fallback: compute from daily ah_premium
         daily = pd.read_sql(
             "SELECT trade_date, premium FROM ah_premium WHERE premium > 0.5 AND premium < 3.0 ORDER BY trade_date",
             conn
         )
-        if daily.empty or len(daily) < 60:
+        if daily.empty or len(daily) < 12:
             return None
         daily_hist = pd.to_numeric(daily["premium"], errors="coerce").dropna()
         latest_daily = daily_hist.iloc[-1]

@@ -60,6 +60,12 @@ jobs:
           # 拉取历史成分股 (用于 PE/PB 中位数)
           python scripts/fetch_hist_constituents.py || echo "Hist constituents fetch skipped"
 
+      - name: Backfill precompute tables
+        env:
+          TUSHARE_TOKEN: ${{ secrets.TUSHARE_TOKEN }}
+        run: |
+          python scripts/backfill_precompute.py || echo "Precompute backfill had warnings"
+
       - name: Compress and upload to Release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
