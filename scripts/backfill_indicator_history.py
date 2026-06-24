@@ -52,21 +52,22 @@ def main():
         m = td[:7]
         if m in month_ratio: dep_d[td] = month_ratio[m]
 
-    # 5. 成交额M2比 (实际值)
+    # 5. 成交额M2比 (实际值: 日总成交额(元)/M2(元))
     logger.info("5/9 成交额M2比...")
+    # amount(千元→元×1000), M2(亿元→元×1e8)
     amt_m = pd.read_sql("""
-        SELECT substr(trade_date,1,7) as m, AVG(amount) as avg_amt
-        FROM stock_daily WHERE amount>0 GROUP BY m ORDER BY m
+        SELECT m, AVG(daily_amt*1000) / (SELECT MAX(m2_billion)*1e8 FROM m2_monthly WHERE m2_monthly.month=m) as ratio
+        FROM (SELECT substr(trade_date,1,7) as m, SUM(amount) as daily_amt FROM stock_daily WHERE amount>0 GROUP BY trade_date)
+        GROUP BY m ORDER BY m
     """, conn)
-    merged2 = m2.merge(amt_m, left_on="month", right_on="m", how="inner")
-    merged2["ratio"] = merged2["avg_amt"] / (merged2["m2_billion"]*1e8)
-    tm2_map = dict(zip(merged2["month"], merged2["ratio"]))
+    # Handle potential division by zero
+    amt_m = amt_m.dropna(subset=['ratio'])
+    tm2_map = dict(zip(amt_m["m"], amt_m["ratio"]))
     tm2_d = {}
     for td in pd.read_sql("SELECT DISTINCT trade_date FROM stock_daily WHERE trade_date>='2010-01-01' ORDER BY trade_date", conn)["trade_date"]:
         m = td[:7]
-        if m in tm2_map: tm2_d[td] = tm2_map[m]
+        if m in tm2_map: tm2_d[td] = round(tm2_map[m], 6)
 
-    # 6. 换手率 (实际值: %)
     logger.info("6/9 换手率...")
     to = pd.read_sql("""
         SELECT trade_date, SUM(amount)/SUM(circ_mv)*10 as rate

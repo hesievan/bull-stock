@@ -384,14 +384,14 @@ def calc_turnover_m2(conn, trade_date: str) -> Optional[float]:
             return None
         m2 = m2_row[0] * 1e8  # 亿元→元
 
-        # 当日成交额 (stock_daily.amount 单位为元)
+        # 当日成交额 (stock_daily.amount 单位为千元, 转为元: ×1000)
         amt_row = conn.execute(
             "SELECT SUM(amount) FROM stock_daily WHERE trade_date=? AND amount > 0",
             (td,)
         ).fetchone()
         if not amt_row or amt_row[0] is None:
             return None
-        amount = amt_row[0]  # 元
+        amount = amt_row[0] * 1000  # 千元→元
 
         if m2 <= 0:
             return None
