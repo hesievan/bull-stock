@@ -15,10 +15,10 @@ import logging
 import sqlite3
 import pandas as pd
 import numpy as np
-from datetime import date, timedelta
-from typing import Dict, Optional
+from datetime import date
+from typing import Optional
 
-from src.data.database import DB_PATH, read_dataframe
+from src.data.database import DB_PATH
 
 logger = logging.getLogger(__name__)
 

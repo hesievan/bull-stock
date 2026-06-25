@@ -361,7 +361,6 @@ def build_feishu_notification(result: Dict, history: list = None) -> Optional[st
             dim_lines.append(f"  {label}  -- 数据暂缺")
 
     sub_indicators = result.get("indicators", {})
-    ind_raw = result.get("indicator_raw", {})
 
     lines = [
         f"📊 A股牛市热度指数 · {trade_date}",

@@ -6,19 +6,21 @@ V2 引擎历史基线重算脚本
 - 输出新 history.json（覆盖原文件）
 - 增量保存，支持中断续算
 """
-import sys, os, json, time, logging
+import json
+import logging
+import os
+import sys
+import time
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 import sqlite3
 from src.indicators.heat_index_v2 import (
     INDICATOR_WEIGHTS, INDICATOR_DIMENSIONS, DIMENSIONS,
-    DIVERGENCE_CONFIG, NEW_HIGH_THRESHOLD,
     calc_pe, calc_erp_v2, calc_buffett,
     calc_margin_ratio_v2, calc_deposit_ratio,
     calc_turnover_m2, calc_turnover_v2,
     calc_new_high_v2, calc_ma_alignment_v2,
-    calc_qvix_v2,
     _apply_sentiment_divergence, _apply_new_high_divergence,
 )
 from src.data.database import DB_PATH
