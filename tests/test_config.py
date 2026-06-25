@@ -28,8 +28,8 @@ class TestLoadConfig:
     def test_heat_levels_structure(self):
         config = load_config()
         levels = config["heat_levels"]
-        assert "cool" in levels
-        assert "extreme" in levels
+        for key in ("red", "orange", "yellow", "green"):
+            assert key in levels, f"missing heat level: {key}"
         for level in levels.values():
             assert "min" in level
             assert "max" in level
