@@ -7,7 +7,7 @@
 > **定位：仅提示离场 / 减仓，不发出进场或加仓信号。**
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-v3.14-blue" alt="version">
+  <img src="https://img.shields.io/badge/version-v3.15-blue" alt="version">
   <img src="https://img.shields.io/badge/python-3.10%2B-blue" alt="python">
   <img src="https://img.shields.io/badge/tests-70_passing-brightgreen" alt="tests">
   <img src="https://img.shields.io/badge/license-MIT-green" alt="license">
@@ -92,11 +92,9 @@
 - **情绪背离**: 高换手率 + 指数下跌 → 情绪得分扣减最多 20 分
 - **新高顶背离**: 指数涨 + 新高占比下降且 < 30% → 结构分扣减最多 15 分
 
-### V1 引擎（代码保留，非活跃）
-
-旧版 19 指标 / 6 维度保留在 `src/indicators/calculator.py` 中供参考，不参与每日流水线。
-
 ---
+
+
 
 ## 快速开始
 
@@ -149,15 +147,14 @@ cd web && python3 -m http.server 8080
 | S25 | S25_index_pe | 成分股 PE/PB 中位数(供 ERP) | 0.5–2s |
 | S26b | S26b_total_mv | 全市场总市值(供巴菲特指标) | 0.5–2s |
 | S26 | S26_circ_mv | 全市场流通市值(供融资余额比) | 0.5–2s |
-| S27–S30 | updown/limit/below_net/ma_alignment | 预计算表 | 各 0.5–3s |
+| S27–S30 | updown / limit / below_net / ma_alignment | 展示用预计算表（不计分） | 各 0.5–3s |
 | S24 | S24_precompute | 预计算表陈旧检测 | <0.1s |
 | S24c | S24c_m2 | M2 月度数据 | <0.3s |
-| S3 | tushare | 融资融券 + 北向 + 国债 | 1–3s |
-| S4 | ah_premium | AH 溢价指数 | 1–2s |
+| S3 | margin / bond_yield | 融资融券 + 国债收益率（akshare） | 0.1–0.5s |
 | **S5** | **S5_calc** | **V2 引擎：9 指标 + 维度加权合成** | **5–15s** |
 | **S55** | **S55_index_heat** | **六大指数牛市见顶预判** | **<0.1s** |
-| S6 | save | 保存 JSON | <0.1s |
-| S7 | sectors | 板块热度 | 1–2s |
+| S6 | save | 保存 JSON（含展示指标） | <0.1s |
+| S7 | sectors | 板块热度 | 1–7s |
 | S8 | final_save | 最终保存 | <0.1s |
 | S9 | notify | 飞书 / Bark 推送 | <0.5s |
 
@@ -169,8 +166,8 @@ cd web && python3 -m http.server 8080
 
 | 文件 | 说明 |
 |------|------|
-| `index.json` | 最新热度（综合 + 4 维度 + 9 指标原始值） |
-| `detail.json` | 含完整指标明细 |
+| `index.json` | 最新热度（综合分 + 4 维度分 + 9 指标原始值） |
+| `detail.json` | 含完整指标明细（含 9 指标百分位评分 + 原始值） |
 | `history.json` | 历史热度序列 |
 | `indicator_history.json` | 9 指标历史趋势 |
 | `index_heat.json` | 六大指数最新过热评分 |
@@ -240,10 +237,10 @@ bull-market-heat-index/
 │   │   └── sector_calculator.py     # 板块热度
 │   └── output/
 │       └── json_writer.py           # JSON 输出 + 飞书 / Bark 通知
-├── scripts/                         # 23 个工具脚本
-│   ├── run_daily.py                 # 每日流水线入口
+├── scripts/                         # 流水线 + 工具脚本
+│   ├── run_daily.py                 # ⭐ 每日流水线入口
+│   ├── gen_report.py                # 日报生成（MD / HTML / PNG）
 │   ├── api_server.py                # FastAPI REST API
-│   ├── ah_premium.py                # AH 溢价指数
 │   ├── backfill_index_heat_history.py # 指数热度历史批量回填
 │   ├── db_maintenance.py            # 数据库维护
 │   ├── db_compress.py               # 备份 / 恢复
@@ -271,7 +268,7 @@ bull-market-heat-index/
 |----|------|
 | 语言 | Python 3.10+ |
 | 数据存储 | SQLite（25 表，WAL 模式，~600MB） |
-| 数据源 | tushare pro + akshare |
+| 数据源 | tushare pro + akshare（国债收益率经 akshare） |
 | 核心库 | pandas, numpy, pyyaml |
 | API 服务 | FastAPI + uvicorn |
 | 前端 | Vanilla JS + ECharts（暗色 SPA，响应式） |
@@ -303,4 +300,4 @@ MIT
 
 ---
 
-*版本: v3.14 | 调整: 2026-06-25*
+*版本: v3.15 | 调整: 2026-06-25*
