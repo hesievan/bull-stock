@@ -30237,8 +30237,14 @@
     "new_high": 0.0659
   },
   "2026-06-25": {
+    "pe": 23.5,
+    "erp": 2.5,
+    "buffett": 1.0,
+    "margin_ratio_v2": 0.0,
     "deposit_ratio": 2.6,
-    "new_high": 0.2,
-    "ma_alignment": 0.0
+    "turnover_m2": 0.0,
+    "turnover": 3.4,
+    "new_high": 0.1,
+    "ma_alignment": 0.1
   }
 }
