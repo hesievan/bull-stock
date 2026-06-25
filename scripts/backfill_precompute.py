@@ -14,11 +14,13 @@
   daily_turnover    — 换手率 (加速 turnover 计算)
   qvix_daily        — QVIX 恐慌指数 (展示)
 """
-import sys, os, time, logging
+import logging
+import os
+import sys
+import time
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 import pandas as pd
-from datetime import date, timedelta
 
 from src.data.database import (
     get_conn, read_dataframe, DB_PATH,

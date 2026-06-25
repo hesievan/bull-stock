@@ -1,55 +1,55 @@
 {
   "trade_date": "2026-06-25",
-  "composite_score": 54.8,
+  "composite_score": 54.5,
   "level": "yellow",
   "dimensions": {
     "valuation": {
-      "score": null,
+      "score": 51.7,
       "label": "估值"
     },
     "fund": {
-      "score": 82.9,
+      "score": 44.1,
       "label": "资金"
     },
     "sentiment": {
-      "score": null,
+      "score": 97.1,
       "label": "情绪"
     },
     "structure": {
-      "score": 10.5,
+      "score": 14.3,
       "label": "结构"
     }
   },
   "indicators_v2": {
-    "pe": null,
-    "erp": null,
-    "buffett": null,
-    "margin_ratio_v2": null,
+    "pe": 23.52975,
+    "erp": 2.51483890712821,
+    "buffett": 0.9522091373280737,
+    "margin_ratio_v2": 0.02824079446415791,
     "deposit_ratio": 2.6447466699220827,
-    "turnover_m2": null,
-    "turnover": null,
-    "new_high": 0.20976229359462892,
-    "ma_alignment": 0.0
+    "turnover_m2": 0.010250732424545512,
+    "turnover": 3.3896121063677005,
+    "new_high": 0.06731990564325893,
+    "ma_alignment": 0.118829
   },
-  "qvix_display": 21.6,
+  "qvix_display": 17.18,
   "version": "v2",
   "updated_at": "2026-06-25 00:00:00",
-  "composite_score_smoothed": 54.5,
+  "composite_score_smoothed": 54.3,
   "level_smoothed": "yellow",
   "display_up_down_ratio": 0.2912,
   "display_limit_up_ratio": 0.0234,
   "display_limit_ratio": 3.3947,
   "display_below_net_rate": 0.0881,
   "indicators": {
-    "pe": null,
-    "erp": null,
-    "buffett": null,
-    "margin_ratio_v2": null,
-    "deposit_ratio": 82.89473684210526,
-    "turnover_m2": null,
-    "turnover": null,
-    "new_high": 20.97622935946289,
-    "ma_alignment": 0,
-    "qvix": 21.6
+    "pe": 46.605960264900666,
+    "erp": 9.350434422838227,
+    "buffett": 99.00373599003736,
+    "margin_ratio_v2": 3.706754530477796,
+    "deposit_ratio": 84.55882352941177,
+    "turnover_m2": 97.79411764705883,
+    "turnover": 96.42857142857143,
+    "new_high": 6.731990564325893,
+    "ma_alignment": 21.827201322860688,
+    "qvix": 17.18
   }
 }
