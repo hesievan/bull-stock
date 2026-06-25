@@ -6,8 +6,8 @@
     "close": 5020.1038,
     "pct_change": 1.5595,
     "tech_score": 76.1,
-    "val_score": 66.7,
-    "composite_score": 71.4,
+    "val_score": 70.5,
+    "composite_score": 73.3,
     "level": "red",
     "n_tech_indicators": 4,
     "n_val_indicators": 2,
@@ -16,11 +16,11 @@
       "momentum_20d": 67.4,
       "momentum_60d": 89.2,
       "momentum_120d": 70.4,
-      "volume": 0.7,
-      "pe": 88.7,
-      "pe_current": 14.56,
-      "pb": 44.6,
-      "pb_current": 1.45
+      "volume": 91.6,
+      "pe": 82.7,
+      "pe_current": 14.17,
+      "pb": 58.3,
+      "pb_current": 1.49
     }
   },
   {
@@ -30,8 +30,8 @@
     "close": 4371.9891,
     "pct_change": 2.8359,
     "tech_score": 92.6,
-    "val_score": 62.3,
-    "composite_score": 77.5,
+    "val_score": 48.3,
+    "composite_score": 70.4,
     "level": "red",
     "n_tech_indicators": 4,
     "n_val_indicators": 2,
@@ -40,11 +40,11 @@
       "momentum_20d": 85.1,
       "momentum_60d": 95.0,
       "momentum_120d": 92.5,
-      "volume": 0.7,
-      "pe": 54.5,
-      "pe_current": 48.25,
-      "pb": 70.2,
-      "pb_current": 6.32
+      "volume": 86.7,
+      "pe": 38.3,
+      "pe_current": 40.77,
+      "pb": 58.2,
+      "pb_current": 5.49
     }
   },
   {
@@ -119,7 +119,7 @@
       "momentum_20d": 71.8,
       "momentum_60d": 89.2,
       "momentum_120d": 88.0,
-      "volume": 0.7
+      "volume": 79.6
     }
   }
 ]
