@@ -609,7 +609,8 @@ def compute_index_v2(trade_date: str = None, db_path: str = None) -> dict:
                          "stock_daily", "daily_turnover", "qvix_daily"):
             try:
                 cnt = conn.execute(f"SELECT COUNT(*) FROM {tbl_name}").fetchone()[0]
-                dates = conn.execute(f"SELECT COUNT(DISTINCT trade_date) FROM {tbl_name}").fetchone()[0]
+                date_col = "month" if tbl_name == "m2_monthly" else "trade_date"
+                dates = conn.execute(f"SELECT COUNT(DISTINCT {date_col}) FROM {tbl_name}").fetchone()[0]
                 logger.info("DIAG: %s — %d rows, %d distinct dates", tbl_name, cnt, dates)
             except Exception as e:
                 logger.warning("DIAG: %s — ERROR: %s", tbl_name, e)

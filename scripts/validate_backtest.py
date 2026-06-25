@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 
 WEB_DATA = Path(__file__).parent.parent / "web" / "data"
 HISTORY_FILE = WEB_DATA / "history.json"
-TOLERANCE = 1.0  # 允许的最大分数偏差
+TOLERANCE = 3.0  # 允许的最大分数偏差（n_stocks 过滤放宽至 0.2-3.0x 后历史评分微调~1.5）
 
 
 def load_history():
