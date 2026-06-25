@@ -2,8 +2,8 @@
 数据获取模块 — tushare + akshare (无 baostock 依赖)
 
 数据源分工:
-  tushare(2000积分): 全市场日K线、PE/PB/市值、融资融券、北向资金、国债收益率、指数PE/PB、成分股、行业分类
-  akshare:           M2月度数据、AH股溢价(通过scripts/ah_premium.py)
+  tushare(2000积分): 全市场日K线、PE/PB/市值、融资融券、北向资金、指数PE/PB、成分股、行业分类
+  akshare:           M2月度数据、国债收益率、AH股溢价
 """
 import logging
 import time
@@ -223,24 +223,8 @@ def _fetch_bond_yield_akshare() -> pd.DataFrame:
 
 
 def fetch_bond_yield_history(start: str, end: str) -> pd.DataFrame:
-    try:
-        pro = _get_pro()
-        df = pro.yc_cb(start_date=start.replace("-", ""),
-                       end_date=end.replace("-", ""))
-        _ts_sleep()
-        if df is None or df.empty:
-            return pd.DataFrame()
-        df["trade_date"] = pd.to_datetime(df["trade_date"], format="%Y%m%d").dt.strftime("%Y-%m-%d")
-        df = df.rename(columns={"yield": "yield_rate"})
-        df = df[df["curve_term"] == 10]
-        return df[["trade_date", "curve_term", "yield_rate"]]
-    except Exception as e:
-        msg = str(e)[:80]
-        if "没有接口" in msg or "权限" in msg:
-            logger.warning("tushare yc_cb 无权限，回退 akshare bond_zh_us_rate")
-            return _fetch_bond_yield_akshare()
-        logger.error("fetch_bond_yield_history failed: %s", msg)
-        return pd.DataFrame()
+    """国债收益率 — 直接使用 akshare (tushare yc_cb 无权限)"""
+    return _fetch_bond_yield_akshare()
 
 
 # ── tushare: 全市场 PE/PB/市值 + K线 ────────────────────────────────────────

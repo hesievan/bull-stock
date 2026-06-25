@@ -25,9 +25,9 @@ ind = det.get('indicators', {})
 now_str = datetime.now().strftime('%Y-%m-%d %H:%M')
 td_clean = trade_date.replace('-', '')
 
-DIM_ORDER = ['valuation','macro','fund','sentiment','technical','structure']
-DIM_LABELS = {'valuation':'估值','macro':'宏观','fund':'资金','sentiment':'情绪','technical':'技术','structure':'结构'}
-DIM_WEIGHTS = {'valuation':'25%','macro':'15%','fund':'15%','sentiment':'20%','technical':'10%','structure':'15%'}
+DIM_ORDER = ['valuation','fund','sentiment','structure']
+DIM_LABELS = {'valuation':'估值','fund':'资金','sentiment':'情绪','structure':'结构'}
+DIM_WEIGHTS = {'valuation':'40%','fund':'30%','sentiment':'20%','structure':'10%'}
 LEVEL_EMOJI = {'red':'🔴','yellow':'🟡','green':'🟢'}
 LEVEL_CN = {'red':'红色预警','yellow':'黄色警惕','green':'绿色安全'}
 LEVEL_LABEL = {'red':'牛市过热','yellow':'中性偏热','green':'安全低估'}
@@ -38,7 +38,7 @@ level_cn = LEVEL_CN.get(level,'未知')
 level_label = LEVEL_LABEL.get(level,'')
 level_color = LEVEL_COLOR_HEX.get(level,'#888')
 level_bg = LEVEL_BG_HEX.get(level,'#0a0e17')
-DIM_COLORS = {'valuation':'#1890ff','macro':'#13c2c2','fund':'#52c41a','sentiment':'#faad14','technical':'#722ed1','structure':'#eb2f96'}
+DIM_COLORS = {'valuation':'#1890ff','fund':'#52c41a','sentiment':'#faad14','structure':'#eb2f96'}
 dim_scores = {k: v['score'] for k, v in idx['dimensions'].items()}
 prev_score, prev_date = None, None
 if len(hist) >= 2:
@@ -48,7 +48,6 @@ prev_dims = {}
 if len(hist) >= 2 and 'dimensions' in hist[-2]:
     for k, v in hist[-2]['dimensions'].items():
         prev_dims[k] = v.get('score') if isinstance(v, dict) else v
-sectors_sorted = sorted([s for s in sectors if s.get('composite_score') is not None], key=lambda x: x['composite_score'], reverse=True)
 hist_dates = [h['trade_date'][5:] for h in hist]
 hist_scores = [h['composite_score'] for h in hist]
 dim_hist = {k: [] for k in DIM_ORDER}
@@ -81,32 +80,34 @@ def dim_delta_str(cur, prev):
     return ' <span style="color:%s;font-weight:600;font-size:0.7em">%s%.1f</span>' % (c, a, abs(d))
 
 _hl = []
-vi = ind.get('valuation',{}); fi = ind.get('fund',{}); si = ind.get('sentiment',{})
-ti = ind.get('technical',{}); sti = ind.get('structure',{}); mi = ind.get('macro',{})
-if vi.get('PE_percentile') is not None: _hl.append(('PE历史分位','%.0f%%'%vi['PE_percentile'],'近10年'))
-if vi.get('PB_percentile') is not None: _hl.append(('PB历史分位','%.0f%%'%vi['PB_percentile'],'近10年'))
-if vi.get('below_net_rate') is not None: _hl.append(('破净率','%.1f%%'%vi['below_net_rate'],'全市场'))
-if mi.get('m1m2_scissors') is not None: _hl.append(('M1-M2剪刀差','%.1f'%mi['m1m2_scissors'],'月频'))
-if mi.get('m2_yoy') is not None: _hl.append(('M2同比','%.1f%%'%mi['m2_yoy'],'月频'))
-nbv = fi.get('northbound_cumflow', fi.get('northbound'))
-if nbv is not None: _hl.append(('北向资金','%.1f'%nbv,'变化率'))
-mr = fi.get('margin_ratio')
-if mr is not None: _hl.append(('融资余额','%.1f'%mr,'变化率'))
-if si.get('turnover') is not None: _hl.append(('换手率','%.2f%%'%si['turnover'],'全市场'))
-if si.get('up_down_ratio') is not None: _hl.append(('涨跌家数比','%.2f'%si['up_down_ratio'],'涨/跌'))
-if si.get('limit_up_ratio') is not None: _hl.append(('涨停占比','%.2f%%'%si['limit_up_ratio'],'全市场'))
-if si.get('limit_ratio') is not None: _hl.append(('涨跌停比','%.1f'%si['limit_ratio'],'涨停/跌停'))
-ma_val = ti.get('above_ma250_ratio', ti.get('ma_alignment'))
-if ma_val is not None: _hl.append(('MA排列比','%.1f%%'%ma_val,'MA20>60>120'))
-if ti.get('deviation_ma250') is not None: _hl.append(('均线偏离','%.1f%%'%ti['deviation_ma250'],'vsMA250'))
-if ti.get('momentum_60d') is not None: _hl.append(('60日动量','%.1f%%'%ti['momentum_60d'],'涨幅分位'))
-if sti.get('sector_divergence') is not None: _hl.append(('行业分化','%.1f分'%sti['sector_divergence'],'月频'))
-ah = sti.get('ah_premium_index', sti.get('ah_premium'))
-if ah is not None: _hl.append(('AH溢价','%.0f'%ah,'恒生HSAHP'))
+inds = det.get('indicators', {})
+# V2 指标评分 (百分位分数, 取自 detail.json indicators)
+for _k, _label, _fmt, _note in [
+    ('pe', '大盘PE', '%.1f', '分'), ('erp', 'ERP', '%.1f', '分'),
+    ('buffett', '巴菲特指标', '%.1f', '分'), ('margin_ratio_v2', '两融余额市值比', '%.1f', '分'),
+    ('deposit_ratio', '存款市值比', '%.1f', '分'), ('turnover_m2', '成交额M2比', '%.1f', '分'),
+    ('turnover', '换手率', '%.1f', '分'), ('new_high', '创新高占比', '%.1f', '分'),
+    ('ma_alignment', 'MA排列比', '%.1f', '分'),
+]:
+    v = inds.get(_k) if isinstance(inds, dict) else None
+    if v is not None: _hl.append((_label, _fmt % v, _note))
+# 展示指标 (原始值, 不参与V2计算)
+if idx.get('display_up_down_ratio') is not None:
+    _hl.append(('涨跌家数比','%.2f'%idx['display_up_down_ratio'],'涨/跌'))
+if idx.get('display_limit_up_ratio') is not None:
+    _hl.append(('涨停占比','%.2f%%'%(idx['display_limit_up_ratio']*100),'全市场'))
+if idx.get('display_limit_ratio') is not None:
+    _hl.append(('涨跌停比','%.1f'%idx['display_limit_ratio'],'涨停/跌停'))
+if idx.get('display_below_net_rate') is not None:
+    _hl.append(('破净率','%.1f%%'%(idx['display_below_net_rate']*100),'全市场'))
+# QVIX (展示不计分)
+qv = idx.get('qvix_display')
+if qv is not None: _hl.append(('QVIX恐慌指数','%.1f'%qv,'展示不计分'))
 
-n_ok = sum(1 for v in status['steps'].values() if v['status']=='OK')
-n_fail = sum(1 for v in status['steps'].values() if v['status']=='FAILED')
-n_skip = sum(1 for v in status['steps'].values() if v['status']=='SKIPPED')
+step_dicts = [v for v in status['steps'].values() if isinstance(v, dict)]
+n_ok = sum(1 for v in step_dicts if v.get('status')=='OK')
+n_fail = sum(1 for v in step_dicts if v.get('status')=='FAILED')
+n_skip = sum(1 for v in step_dicts if v.get('status')=='SKIPPED')
 
 # ── 1. MD ──
 md = []
@@ -164,16 +165,6 @@ for name, val, note in _hl:
 md.append('')
 md.append('---')
 md.append('')
-md.append('## 🔥 板块热度 TOP10')
-md.append('')
-md.append('| # | 行业 | 得分 | 龙头股 | 涨跌 |')
-md.append('|:--|:-----|-----:|:------:|-----:|')
-for i, s in enumerate(sectors_sorted[:10], 1):
-    ldr = s.get('leader',{})
-    md.append('| %d | %s | **%.0f** | %s | %s |' % (i, s.get('sector_name',''), s.get('composite_score',0), ldr.get('code','—') if ldr else '—', '%+.1f%%'%ldr.get('pct',0) if ldr else '—'))
-md.append('')
-md.append('---')
-md.append('')
 md.append('## 📈 历史走势 (共%d个交易日)' % len(hist))
 md.append('')
 md.append('| 日期 | 得分 | 状态 |')
@@ -200,6 +191,7 @@ md.append('')
 md.append('> %d✅ %d❌ %d⏭️' % (n_ok, n_fail, n_skip))
 md.append('')
 for sn, sv in status['steps'].items():
+    if not isinstance(sv, dict): continue
     ic = '✅' if sv['status']=='OK' else ('⏭️' if sv['status']=='SKIPPED' else '❌')
     md.append('- %s `%s` %s (%.1fs)' % (ic, sn, sv['status'], sv.get('elapsed',0)))
 md.append('')
@@ -225,13 +217,6 @@ for k in DIM_ORDER:
     else:
         dim_cards += '<div class="dim-card"><div class="dim-header"><span class="dim-name">%s</span><span class="dim-weight">%s</span></div><div class="dim-score" style="color:%s">%.0f<span class="dim-delta">%s</span></div><div class="dim-eval" style="color:%s">%s</div><div class="dim-bar"><div class="dim-bar-fill" style="width:%d%%;background:%s"></div></div></div>' % (DIM_LABELS[k],DIM_WEIGHTS[k],dc,s,d_html,dc,sl,int(pct),dc)
 
-sector_rows = ''
-for i, s in enumerate(sectors_sorted[:10], 1):
-    sc = s.get('composite_score',0); scol = score_color(sc); ldr = s.get('leader',{})
-    lc_code = ldr.get('code','—') if ldr else '—'; lp = ldr.get('pct',0) if ldr else 0
-    lc_str = ('%+.1f%%'%lp) if lc_code!='—' else '—'; lcol = '#ff4d4f' if lp>0 else '#52c41a'
-    sector_rows += '<tr><td class="rank">%d</td><td>%s</td><td style="color:%s;font-weight:700">%.0f</td><td><code>%s</code></td><td style="color:%s;font-weight:600">%s</td></tr>\n' % (i,s.get('sector_name',''),scol,sc,lc_code,lcol,lc_str)
-
 hl_html = ''.join(['<li><span class="hl-name">%s</span><span class="hl-val">%s</span><span class="hl-note">%s</span></li>\n' % (n,v,t) for n,v,t in _hl])
 
 delta_html = ''
@@ -240,7 +225,7 @@ if prev_score is not None:
     trend_label = '上升' if d>0 else ('下降' if d<0 else '持平')
     delta_html = '<div class="delta">较上一交易日 <span style="color:%s">%s %.1f (%s)</span></div>' % (dc,arrow,abs(d),trend_label)
 
-status_items = ''.join(['<div class="status-item">%s <code>%s</code> <span class="%s">%s</span> <span class="elapsed">%.1fs</span></div>' % ('✅' if v['status']=='OK' else ('⏭️' if v['status']=='SKIPPED' else '❌'),sn,v['status'].lower(),v['status'],v.get('elapsed',0)) for sn,v in status['steps'].items()])
+status_items = ''.join(['<div class="status-item">%s <code>%s</code> <span class="%s">%s</span> <span class="elapsed">%.1fs</span></div>' % ('✅' if v['status']=='OK' else ('⏭️' if v['status']=='SKIPPED' else '❌'),sn,v['status'].lower(),v['status'],v.get('elapsed',0)) for sn,v in status['steps'].items() if isinstance(v, dict)])
 
 dim_hist_js = {k: [round(v,1) if v is not None else None for v in dim_hist[k]] for k in dim_hist}
 
@@ -261,7 +246,6 @@ out = rep(out, '__SCORE_DASH__', str(score*4.4))
 out = rep(out, '__DELTA_HTML__', delta_html)
 out = rep(out, '__DIM_CARDS__', dim_cards)
 out = rep(out, '__HL_HTML__', hl_html)
-out = rep(out, '__SECTOR_ROWS__', sector_rows)
 out = rep(out, '__STATUS_ITEMS__', status_items)
 out = rep(out, '__N_OK__', str(n_ok))
 out = rep(out, '__N_FAIL__', str(n_fail))
@@ -352,26 +336,6 @@ try:
         draw.text((mx+col_w-70,my+8),note,fill=C['muted'],font=_f(10))
     y+=((len(_hl[:10])+1)//2)*36+16
 
-    # 板块热度 TOP10
-    _txt("🔥 板块热度 TOP10",PAD,y,C['bright'],16,True); y+=8
-    _rr([(PAD,y),(W-PAD,y+28)],r=4,fill=C['border'])
-    draw.text((PAD+12,y+8),"#",fill=C['dim'],font=_f(10)); draw.text((PAD+50,y+8),"行业",fill=C['dim'],font=_f(10))
-    draw.text((PAD+310,y+8),"得分",fill=C['dim'],font=_f(10)); draw.text((PAD+380,y+8),"龙头股",fill=C['dim'],font=_f(10))
-    draw.text((PAD+520,y+8),"涨跌幅",fill=C['dim'],font=_f(10)); y+=32
-    for i,s in enumerate(sectors_sorted[:10],1):
-        sc=s.get('composite_score',0); scol=score_color(sc); ldr=s.get('leader',{})
-        lcode=ldr.get('code','') if ldr else ''; lp=ldr.get('pct',0) if ldr else 0
-        ls2=('%+.1f%%'%lp) if lcode else ''; lcol=C['red'] if lp>0 else C['green']
-        bg=C['card'] if i%2==0 else C['bg']
-        _rr([(PAD,y),(W-PAD,y+24)],r=0,fill=bg)
-        rank_color = C['accent'] if i<=3 else C['dim']
-        draw.text((PAD+12,y+4),str(i),fill=rank_color,font=_f(12))
-        draw.text((PAD+50,y+4),s.get('sector_name','')[:16],fill=C['text'],font=_f(12))
-        draw.text((PAD+310,y+4),"%.0f"%sc,fill=scol,font=_f(12))
-        draw.text((PAD+380,y+4),lcode,fill=C['dim'],font=_f(11))
-        draw.text((PAD+520,y+4),ls2,fill=lcol,font=_f(12)); y+=24
-    y+=16
-
     # 历史参考
     _txt("📊 历史参考",PAD,y,C['bright'],14,True); y+=8
     refs=[("2015-06-12","牛市顶 (上证5178)","73.8",C['red']),("2021-02-18","牛市顶 (上证3731)","66.2",C['dim']),
@@ -388,7 +352,7 @@ try:
 
     # 运行状态
     draw.line([(PAD,y+10),(W-PAD,y+10)],fill=C['border'],width=1); y+=20
-    ft="⚙️ 运行状态: %d OK / %d FAILED / %d SKIPPED  ·  %d个板块"%(n_ok,n_fail,n_skip,len(sectors))
+    ft="⚙️ 运行状态: %d OK / %d FAILED / %d SKIPPED"%(n_ok,n_fail,n_skip)
     _txt_center(ft,y,C['muted'],10); y+=20
     wt="⚠️ 不构成投资建议，仅供参考  ·  v3.5"
     _txt_center(wt,y,C['muted'],10); y+=24

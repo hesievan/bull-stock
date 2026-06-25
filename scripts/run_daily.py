@@ -238,14 +238,13 @@ def run_daily(trade_date=None):
 
     _run_step(step_status, "S24c_m2", _step24c)
 
-    # ── Step 3: tushare 融资融券/北向/国债 ──────────────────────────────────
-    logger.info("Step 3: Tushare margin/northbound/bond...")
+    # ── Step 3: tushare 融资融券/国债 (akshare) ────────────────────────────
+    logger.info("Step 3: Tushare margin / bond_yield...")
 
     def _step3():
         any_fetched = False
         for label, table, fn in [
             ("margin",       "margin_history",    lambda: fetch_margin_history(trade_date, trade_date)),
-            ("northbound",   "northbound_history",lambda: fetch_northbound_history(trade_date, trade_date)),
             ("bond_yield",   "bond_yield",        lambda: fetch_bond_yield_history(trade_date, trade_date)),
         ]:
             already = read_dataframe(
@@ -261,20 +260,6 @@ def run_daily(trade_date=None):
         return any_fetched
 
     _run_step(step_status, "S3_tushare", _step3)
-
-    # ── Step 4: AH溢价 (akshare) ──────────────────────────────────────────
-    logger.info("Step 4: AH premium index (akshare)...")
-
-    def _step4():
-        from scripts.ah_premium import fetch_ah_premium_index
-        td, premium = fetch_ah_premium_index(trade_date)
-        if premium is None:
-            logger.warning("AH premium: 计算失败, 使用已有数据")
-            return False
-        logger.info("AH premium: %s -> %.4f", td, premium)
-        return True
-
-    _run_step(step_status, "S4_ah_premium", _step4)
 
     # ── Step 5: 计算热度指数 V2 (精简版9指标) ──────────────────────────────
     logger.info("Step 5: Calculating heat index v2...")
@@ -292,8 +277,10 @@ def run_daily(trade_date=None):
         logger.error("S5 FAILED -- writing fallback result for debug")
         result = {
             "trade_date": trade_date, "composite_score": None,
-            "dim_valuation": None, "dim_macro": None, "dim_fund": None,
-            "dim_sentiment": None, "dim_technical": None, "dim_structure": None,
+            "dimensions": {"valuation": {"score": None, "label": "估值"},
+                           "fund": {"score": None, "label": "资金"},
+                           "sentiment": {"score": None, "label": "情绪"},
+                           "structure": {"score": None, "label": "结构"}},
             "indicators": {},
         }
 
@@ -312,6 +299,31 @@ def run_daily(trade_date=None):
         return n_ok > 0
 
     _run_step(step_status, "S55_index_heat", _step55)
+
+    # ── 补充展示指标 (涨跌家数比/涨停占比/破净率, 不参与计算仅供展示) ──────
+    try:
+        import sqlite3 as _sqlite3
+        _conn = _sqlite3.connect(DB_PATH)
+        _row = _conn.execute(
+            "SELECT up_down_ratio FROM daily_updown WHERE trade_date=?",
+            (trade_date,)
+        ).fetchone()
+        if _row: result["display_up_down_ratio"] = round(_row[0], 4)
+        _row = _conn.execute(
+            "SELECT limit_up_ratio, limit_ratio FROM daily_limit WHERE trade_date=?",
+            (trade_date,)
+        ).fetchone()
+        if _row:
+            result["display_limit_up_ratio"] = round(_row[0], 4)
+            result["display_limit_ratio"] = round(_row[1], 4)
+        _row = _conn.execute(
+            "SELECT below_net_rate FROM daily_below_net WHERE trade_date=?",
+            (trade_date,)
+        ).fetchone()
+        if _row: result["display_below_net_rate"] = round(_row[0], 4)
+        _conn.close()
+    except Exception:
+        pass
 
     # ── Step 6: 保存结果 ────────────────────────────────────────────────────
     logger.info("Step 6: Saving results...")
