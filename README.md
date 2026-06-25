@@ -7,7 +7,7 @@
 > **定位：仅提示离场 / 减仓，不发出进场或加仓信号。**
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-v3.13-blue" alt="version">
+  <img src="https://img.shields.io/badge/version-v3.14-blue" alt="version">
   <img src="https://img.shields.io/badge/python-3.10%2B-blue" alt="python">
   <img src="https://img.shields.io/badge/tests-70_passing-brightgreen" alt="tests">
   <img src="https://img.shields.io/badge/license-MIT-green" alt="license">
@@ -173,6 +173,8 @@ cd web && python3 -m http.server 8080
 | `detail.json` | 含完整指标明细 |
 | `history.json` | 历史热度序列 |
 | `indicator_history.json` | 9 指标历史趋势 |
+| `index_heat.json` | 六大指数最新过热评分 |
+| `index_heat_history.json` | 六大指数历史评分时序 |
 | `sectors.json` | 板块热度排名 |
 | `run_status.json` | 各 Step 执行状态 |
 
@@ -181,6 +183,12 @@ cat web/data/index.json
 ```
 
 ### 前端页面
+
+仪表盘 SPA 包含三个标签页：
+
+- **概览**：综合热度仪表盘（仪表盘 + 历史走势 + 六大指数热度卡片，含评分折线图，按红/黄/绿分段着色）
+- **明细**：9 个核心指标历史趋势图（含牛熊均线参考线和极值标记线）
+- **记录**：近期每日热度得分明细表
 
 ```bash
 cd web && python3 -m http.server 8080
@@ -232,10 +240,11 @@ bull-market-heat-index/
 │   │   └── sector_calculator.py     # 板块热度
 │   └── output/
 │       └── json_writer.py           # JSON 输出 + 飞书 / Bark 通知
-├── scripts/                         # 22 个工具脚本
+├── scripts/                         # 23 个工具脚本
 │   ├── run_daily.py                 # 每日流水线入口
 │   ├── api_server.py                # FastAPI REST API
 │   ├── ah_premium.py                # AH 溢价指数
+│   ├── backfill_index_heat_history.py # 指数热度历史批量回填
 │   ├── db_maintenance.py            # 数据库维护
 │   ├── db_compress.py               # 备份 / 恢复
 │   └── ...                          # 回测 / 分析工具
@@ -294,4 +303,4 @@ MIT
 
 ---
 
-*版本: v3.13 | 调整: 2026-06-25*
+*版本: v3.14 | 调整: 2026-06-25*
