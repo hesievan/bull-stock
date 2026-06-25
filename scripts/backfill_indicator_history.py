@@ -6,8 +6,13 @@
 用法:
   python scripts/backfill_indicator_history.py
 """
-import sys, os, json, logging, sqlite3
-import pandas as pd, numpy as np
+import sys
+import os
+import json
+import logging
+import sqlite3
+
+import pandas as pd
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger(__name__)

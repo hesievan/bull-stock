@@ -259,6 +259,9 @@ def save_results_v2(result_v2: Dict, output_dir: str = None):
 
     logger.info("V2 Results saved: score=%.1f level=%s", composite, index_data["level"])
     return index_data
+
+
+def save_results(result: Dict, output_dir: str = None):
     """保存计算结果到 JSON 文件"""
     output_dir = output_dir or os.path.join(os.path.dirname(__file__), "..", "..", "web", "data")
     os.makedirs(output_dir, exist_ok=True)
