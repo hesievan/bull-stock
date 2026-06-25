@@ -99,70 +99,6 @@ def get_heat_level_cn(score: float) -> str:
     }.get(level, "未知")
 
 
-def build_data_quality_report(result: Dict) -> Dict:
-    """构建数据质量报告
-
-    根据每个维度的子指标可用性 + 新鲜度，输出质量评级和告警。
-    """
-    indicators = result.get("indicators", {})
-    freshness = result.get("freshness_scores", {})
-    result.get("effective_weights", {})
-
-    dim_labels = {
-        "valuation": "估值", "macro": "宏观", "fund": "资金",
-        "sentiment": "情绪", "technical": "技术", "structure": "结构",
-    }
-
-    report = {
-        "overall_quality": "good",
-        "dimensions": {},
-        "missing_indicators": [],
-        "stale_dimensions": [],
-    }
-
-    stale_count = 0
-    degraded_count = 0
-    for dim, sub_indicators in indicators.items():
-        total = len(sub_indicators)
-        available = sum(1 for v in sub_indicators.values() if v is not None)
-        ratio = available / total if total > 0 else 0
-
-        f = freshness.get(dim, 1.0)
-        is_stale = f < 0.8
-
-        status = "ok"
-        if ratio < 0.5 or is_stale:
-            status = "poor"
-            stale_count += 1
-        elif ratio < 0.8:
-            status = "degraded"
-            degraded_count += 1
-
-        report["dimensions"][dim] = {
-            "label": dim_labels.get(dim, dim),
-            "available": available,
-            "total": total,
-            "completeness": round(ratio, 2),
-            "freshness": round(f, 2),
-            "status": status,
-        }
-
-        if ratio < 1.0:
-            for k, v in sub_indicators.items():
-                if v is None:
-                    report["missing_indicators"].append(f"{dim}.{k}")
-
-        if is_stale:
-            report["stale_dimensions"].append(dim)
-
-    if stale_count > 0:
-        report["overall_quality"] = "poor"
-    elif degraded_count > 0:
-        report["overall_quality"] = "degraded"
-
-    return report
-
-
 def save_results_v2(result_v2: Dict, output_dir: str = None):
     """保存 V2 版计算结果到 JSON 文件（4维度 + 9指标 + QVIX展示）"""
     output_dir = output_dir or os.path.join(os.path.dirname(__file__), "..", "..", "web", "data")
@@ -213,6 +149,11 @@ def save_results_v2(result_v2: Dict, output_dir: str = None):
         except Exception:
             pass
 
+    # 补充展示指标 (不参与V2计算, 仅用于日报和前端展示)
+    for _k in ("display_up_down_ratio", "display_limit_up_ratio", "display_limit_ratio", "display_below_net_rate"):
+        if _k in result_v2:
+            index_data[_k] = result_v2[_k]
+
     _atomic_write_json(os.path.join(output_dir, "index.json"), index_data)
 
     detail_data = {**index_data, "indicators": result_v2["indicators"]}
@@ -258,116 +199,6 @@ def save_results_v2(result_v2: Dict, output_dir: str = None):
     _atomic_write_json(ind_hist_file, ind_hist)
 
     logger.info("V2 Results saved: score=%.1f level=%s", composite, index_data["level"])
-    return index_data
-
-
-def save_results(result: Dict, output_dir: str = None):
-    """保存计算结果到 JSON 文件"""
-    output_dir = output_dir or os.path.join(os.path.dirname(__file__), "..", "..", "web", "data")
-    os.makedirs(output_dir, exist_ok=True)
-
-    trade_date = result["trade_date"]
-
-    def _round_score(v):
-        """统一保留1位小数, None/NaN/Inf则保留None"""
-        if v is None:
-            return None
-        try:
-            f = float(v)
-            if np.isnan(f) or np.isinf(f):
-                return None
-            return round(f, 1)
-        except (TypeError, ValueError):
-            return None
-
-    index_data = {
-        "trade_date": trade_date,
-        "composite_score": _round_score(result["composite_score"]),
-        "level": get_heat_level(result["composite_score"]),
-        "dimensions": {
-            "valuation": {"score": _round_score(result["dim_valuation"]), "label": "估值"},
-            "macro": {"score": _round_score(result.get("dim_macro")), "label": "宏观"},
-            "fund": {"score": _round_score(result["dim_fund"]), "label": "资金"},
-            "sentiment": {"score": _round_score(result["dim_sentiment"]), "label": "情绪"},
-            "technical": {"score": _round_score(result["dim_technical"]), "label": "技术"},
-            "structure": {"score": _round_score(result["dim_structure"]), "label": "结构"},
-        },
-        "effective_weights": result.get("effective_weights", {}),
-        "data_quality": build_data_quality_report(result),
-        "updated_at": date.today().strftime("%Y-%m-%d %H:%M:%S"),
-    }
-
-    # 得分平滑: 3日移动平均
-    history_file = os.path.join(output_dir, "history.json")
-    if os.path.exists(history_file):
-        try:
-            with open(history_file, encoding="utf-8") as f:
-                history = json.load(f)
-            recent_scores = [h["composite_score"] for h in history[-2:]]
-            recent_scores.append(result["composite_score"])
-            valid_scores = [s for s in recent_scores if s is not None]
-            if valid_scores:
-                smoothed = sum(valid_scores) / len(valid_scores)
-                index_data["composite_score_smoothed"] = round(smoothed, 1)
-                index_data["level_smoothed"] = get_heat_level(smoothed)
-        except Exception:
-            pass
-
-    # 附加板块热度数据
-    sectors_file = os.path.join(output_dir, "sectors.json")
-    sectors_top5 = []
-    if os.path.exists(sectors_file):
-        try:
-            with open(sectors_file, "r", encoding="utf-8") as sf:
-                sectors_all = json.load(sf)
-            # 按 composite_score 降序取 TOP5
-            sorted_sectors = sorted(
-                [s for s in sectors_all if s.get("composite_score") is not None],
-                key=lambda x: x["composite_score"],
-                reverse=True,
-            )
-            for s in sorted_sectors[:5]:
-                sectors_top5.append({
-                    "industry": s.get("sector_name", s.get("industry", "")),
-                    "score": s.get("composite_score"),
-                    "avg_pct": s.get("avg_pct"),
-                    "up_ratio": s.get("up_ratio"),
-                    "leader": s.get("leader"),
-                })
-        except Exception as e:
-            logger.warning("Failed to load sectors.json: %s", e)
-
-    if sectors_top5:
-        index_data["sectors_top5"] = sectors_top5
-    _atomic_write_json(os.path.join(output_dir, "index.json"), index_data)
-
-    detail_data = {**index_data, "indicators": result["indicators"]}
-    _atomic_write_json(os.path.join(output_dir, "detail.json"), detail_data)
-
-    # 写入数据库
-    try:
-        from src.data.database import save_heat_index_to_db
-        result["composite_score_smoothed"] = index_data.get("composite_score_smoothed")
-        save_heat_index_to_db(result)
-    except Exception as e:
-        logger.warning("Failed to save heat index to DB: %s", e)
-
-    # 历史数据（去重追加）
-    history_file = os.path.join(output_dir, "history.json")
-    history = []
-    if os.path.exists(history_file):
-        try:
-            with open(history_file, "r", encoding="utf-8") as f:
-                history = json.load(f)
-        except (json.JSONDecodeError, FileNotFoundError, OSError) as e:
-            logger.warning("Failed to load history.json: %s", e)
-            history = []
-    history = [h for h in history if h.get("trade_date") != trade_date]
-    history.append(index_data)
-    history.sort(key=lambda x: x["trade_date"])
-    _atomic_write_json(history_file, history)
-
-    logger.info("Results saved: score=%.1f level=%s", result["composite_score"], index_data["level"])
     return index_data
 
 
@@ -517,11 +348,12 @@ def build_feishu_notification(result: Dict, history: list = None) -> Optional[st
     if not _should_notify(score, level, history or [], trade_date):
         return None
 
-    # 维度拆解行
+    # 维度拆解行 (V2 格式)
     dim_lines = []
-    dim_labels = {"valuation": "估值", "fund": "资金", "sentiment": "情绪", "technical": "技术", "structure": "结构"}
-    for key, label in dim_labels.items():
-        d = result.get("dim_" + key)
+    dims_v2 = result.get("dimensions", {})
+    for key in ("valuation", "fund", "sentiment", "structure"):
+        label = dims_v2.get(key, {}).get("label", key)
+        d = dims_v2.get(key, {}).get("score")
         if d is not None:
             bar = "█" * int(d / 10) + "░" * (10 - int(d / 10))
             dim_lines.append(f"  {label}  {bar}  {d:.0f}")
@@ -529,6 +361,7 @@ def build_feishu_notification(result: Dict, history: list = None) -> Optional[st
             dim_lines.append(f"  {label}  -- 数据暂缺")
 
     sub_indicators = result.get("indicators", {})
+    ind_raw = result.get("indicator_raw", {})
 
     lines = [
         f"📊 A股牛市热度指数 · {trade_date}",
@@ -564,23 +397,19 @@ def build_feishu_notification(result: Dict, history: list = None) -> Optional[st
             sec_lines.append(f"  {i}. {name}  {sc:.0f}分{ldr_str}")
         lines.extend(["", "🔥 板块热度 TOP5：", *sec_lines])
     highlights = []
-    vi = sub_indicators.get("valuation", {})
-    si = sub_indicators.get("sentiment", {})
-    ti = sub_indicators.get("technical", {})
-    fi = sub_indicators.get("fund", {})
-
-    if vi.get("PE_percentile") is not None and vi["PE_percentile"] > 80:
-        highlights.append(f"PE分位 {vi['PE_percentile']:.0f}% (偏高)")
-    if vi.get("below_net_rate") is not None and vi["below_net_rate"] < 20:
-        highlights.append("破净率极低")
-    if si.get("limit_up_ratio") is not None and si["limit_up_ratio"] > 80:
-        highlights.append("涨停占比偏高")
-    if si.get("volatility") is not None and si["volatility"] > 80:
-        highlights.append("波动率偏高")
-    if ti.get("deviation_ma250") is not None and ti["deviation_ma250"] > 80:
-        highlights.append("均线偏离度大")
-    if fi.get("margin_ratio") is not None and fi["margin_ratio"] > 80:
-        highlights.append("融资买入占比高")
+    # V2 评分指标(百分位分 >80 为偏高)
+    v2_highlights = [
+        ("pe", "大盘PE"), ("buffett", "巴菲特指标"), ("margin_ratio_v2", "两融余额占比"),
+        ("deposit_ratio", "存款市值比"), ("turnover_m2", "成交额M2比"), ("turnover", "换手率"),
+    ]
+    for _k, _label in v2_highlights:
+        _v = sub_indicators.get(_k)
+        if _v is not None and _v > 80:
+            highlights.append(f"{_label} {_v:.0f}分 (偏高)")
+    if sub_indicators.get("erp") is not None and sub_indicators["erp"] < 10:
+        highlights.append(f"ERP {sub_indicators['erp']:.0f}分 (极低)")
+    if sub_indicators.get("new_high") is not None and sub_indicators["new_high"] < 10:
+        highlights.append(f"创新高占比 {sub_indicators['new_high']:.0f}分 (极低)")
 
     if highlights:
         lines.extend(["", "⚠️ 关注指标：", *[f"  · {h}" for h in highlights]])
