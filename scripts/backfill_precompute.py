@@ -152,11 +152,10 @@ def backfill_precompute(db_path: str = None, force: bool = False):
         elapsed = time.time() - t0
         logger.info("  %s (%s): %d/%d done (%.1fs)", table, label, ok, len(need), elapsed)
 
-    # 回填 daily_erp
+    # 回填 daily_erp (V2 引擎依赖)
     _backfill_derived("daily_erp", _compute_daily_erp, all_dates, db, critical=True)
-    # 回填 daily_turnover
-    _backfill_derived("daily_turnover", _compute_daily_turnover, all_dates, db, critical=True)
-    # 回填 qvix_daily
+    # daily_turnover / qvix_daily 仅加速用，非 CI 关键路径
+    _backfill_derived("daily_turnover", _compute_daily_turnover, all_dates, db, critical=False)
     _backfill_derived("qvix_daily", _compute_qvix_daily, all_dates, db, critical=False)
 
     logger.info("Precompute backfill complete: %d dates processed", len(all_dates))
