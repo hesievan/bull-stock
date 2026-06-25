@@ -78,7 +78,6 @@ def run_daily(trade_date=None):
         fetch_all_index_incremental,
         fetch_daily_basic_to_stock_daily,
         fetch_margin_history,
-        fetch_northbound_history,
         fetch_bond_yield_history,
         _save,
     )
