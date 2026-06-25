@@ -114,8 +114,10 @@ def calc_pe(conn, trade_date: str) -> Optional[float]:
             return None
 
         # 只保留与当前n_stocks相近的历史记录 (排除全市场混入)
+        # 注意: 种子库可能由旧版代码(仅hs300, n≈300)构建, 新版使用hs300+zz500(n≈800)
+        # 放宽过滤范围避免历史数据被全部排除
         if cur_n > 0:
-            hist = hist[hist["n_stocks"].between(cur_n * 0.5, cur_n * 1.5)]
+            hist = hist[hist["n_stocks"].between(cur_n * 0.2, cur_n * 3.0)]
 
         if len(hist) < 60:
             return None
@@ -601,6 +603,33 @@ def compute_index_v2(trade_date: str = None, db_path: str = None) -> dict:
 
     conn = _get_conn(db)
     try:
+        # 诊断: 关键预计算表记录数
+        for tbl_name in ("index_daily_pe", "stock_market_cap", "daily_circ_mv",
+                         "daily_erp", "m2_monthly", "margin_history", "bond_yield",
+                         "stock_daily", "daily_turnover", "qvix_daily"):
+            try:
+                cnt = conn.execute(f"SELECT COUNT(*) FROM {tbl_name}").fetchone()[0]
+                dates = conn.execute(f"SELECT COUNT(DISTINCT trade_date) FROM {tbl_name}").fetchone()[0]
+                logger.info("DIAG: %s — %d rows, %d distinct dates", tbl_name, cnt, dates)
+            except Exception as e:
+                logger.warning("DIAG: %s — ERROR: %s", tbl_name, e)
+        # 诊断: n_stocks 分布
+        try:
+            n_dist = conn.execute(
+                "SELECT MIN(n_stocks), MAX(n_stocks), AVG(n_stocks), COUNT(*) "
+                "FROM index_daily_pe WHERE pe_med IS NOT NULL"
+            ).fetchone()
+            if n_dist:
+                logger.info("DIAG: index_daily_pe n_stocks — min=%s max=%s avg=%.0f count=%s",
+                            n_dist[0], n_dist[1], n_dist[2] if n_dist[2] else 0, n_dist[3])
+            cur_n = conn.execute(
+                "SELECT n_stocks FROM index_daily_pe ORDER BY trade_date DESC LIMIT 1"
+            ).fetchone()
+            if cur_n:
+                logger.info("DIAG: n_stocks (latest)=%s", cur_n[0])
+        except Exception as e:
+            logger.warning("DIAG: n_stocks query failed: %s", e)
+
         # 计算所有指标 (每个函数返回 (分数, 原始值))
         _raw = {}
         def _unpack(k, v):
