@@ -7,7 +7,7 @@
 > **定位：仅提示离场 / 减仓，不发出进场或加仓信号。**
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-v3.15-blue" alt="version">
+  <img src="https://img.shields.io/badge/version-v3.16-blue" alt="version">
   <img src="https://img.shields.io/badge/python-3.10%2B-blue" alt="python">
   <img src="https://img.shields.io/badge/tests-70_passing-brightgreen" alt="tests">
   <img src="https://img.shields.io/badge/license-MIT-green" alt="license">
@@ -51,6 +51,7 @@
 | 2024-02-05 | 熊底 | **23.5** 🟢 | 正确触发绿区 |
 | 2024-10-08 | 脉冲顶 | **49.1** 🟡 | 正确识别为脉冲，非真顶 |
 | 2026-06-24 | 震荡市 | **53.9** 🟡 | 黄色警惕 |
+| 2026-06-25 | 震荡市 | **54.6** 🟡 | 黄色警惕 |
 
 ### 指数牛市见顶预判
 
@@ -242,8 +243,9 @@ bull-market-heat-index/
 │   ├── gen_report.py                # 日报生成（MD / HTML / PNG）
 │   ├── api_server.py                # FastAPI REST API
 │   ├── backfill_index_heat_history.py # 指数热度历史批量回填
+│   ├── backfill_precompute.py       # V2 预计算表历史回填（CI 种子库构建）
 │   ├── db_maintenance.py            # 数据库维护
-│   ├── db_compress.py               # 备份 / 恢复
+│   ├── db_compress.py               # 备份 / 恢复 / 种子库压缩
 │   └── ...                          # 回测 / 分析工具
 ├── tests/                           # 70 个单元测试
 ├── config/                          # dev.yaml / prod.yaml
@@ -300,4 +302,4 @@ MIT
 
 ---
 
-*版本: v3.15 | 调整: 2026-06-25*
+*版本: v3.16 | 调整: 2026-06-25*
