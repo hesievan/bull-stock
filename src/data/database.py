@@ -24,7 +24,7 @@ DB_PATH = os.environ.get(
 )
 
 # ── 建表 SQL ──────────────────────────────────────────────────────────────────
-SCHEMA_VERSION = 4
+SCHEMA_VERSION = 5
 
 SCHEMA = """
 -- 指数日行情 (tushare index_daily)
@@ -297,6 +297,14 @@ def _migrate(conn, from_ver: int):
                 conn.execute("ALTER TABLE ah_premium ADD COLUMN created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
         except Exception as e:
             logger.warning("ah_premium migration skipped (table may not exist): %s", e)
+    if from_ver < 5:
+        # 迁移: index_daily_pe 增加 const_date 列 (v4→v5)
+        try:
+            pe_cols = {r[1] for r in conn.execute("PRAGMA table_info(index_daily_pe)").fetchall()}
+            if 'const_date' not in pe_cols:
+                conn.execute("ALTER TABLE index_daily_pe ADD COLUMN const_date TEXT")
+        except Exception as e:
+            logger.warning("index_daily_pe migration skipped (table may not exist): %s", e)
     logger.info("Database migrated from v%d to v%d", from_ver, SCHEMA_VERSION)
 
 

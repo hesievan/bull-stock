@@ -16,7 +16,7 @@ import json
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from pathlib import Path
-from src.indicators.calculator import calculate_heat_index
+from src.indicators.heat_index_v2 import compute_index_v2
 import logging
 
 logging.basicConfig(level=logging.WARNING)
@@ -52,7 +52,7 @@ def validate_recent(days=7):
             continue
 
         try:
-            result = calculate_heat_index(trade_date=td)
+            result = compute_index_v2(trade_date=td)
             new_score = result.get("composite_score")
             if new_score is None:
                 errors.append(f"{td}: new score is None")
