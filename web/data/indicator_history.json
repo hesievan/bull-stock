@@ -30125,13 +30125,15 @@
     "new_high": 0.0406
   },
   "2026-05-28": {
-    "pe": 25.88,
-    "erp": 2.1449,
-    "margin_ratio_v2": 0.027859,
-    "turnover": 2.81,
-    "ma_alignment": 0.3084,
-    "buffett": 0.9459,
-    "new_high": 0.0584
+    "pe": 25.9,
+    "erp": 2.1,
+    "buffett": 0.9,
+    "margin_ratio_v2": 0.0,
+    "deposit_ratio": 2.7,
+    "turnover_m2": 0.0,
+    "turnover": 2.8,
+    "new_high": 0.1,
+    "ma_alignment": 0.3
   },
   "2026-05-29": {
     "pe": 25.96,

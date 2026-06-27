@@ -1,13 +1,13 @@
 # A股牛市热度指数
 
-> 每日更新的量化工具，从 **4 个维度、9 个核心指标** 综合评估 A 股市场整体热度水平，
+> 每日更新的量化工具，从 **4 个维度、9 个核心指标 + CFFEX 股指期权恐慌指数** 综合评估 A 股市场整体热度水平，
 > 并对 **沪深 300 / 创业板 / 科创 50 / 北证 50 / 中证 A500 / 中证 1000** 六大核心指数
 > 单独输出牛市见顶预判信号。
 >
 > **定位：仅提示离场 / 减仓，不发出进场或加仓信号。**
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-v3.16-blue" alt="version">
+  <img src="https://img.shields.io/badge/version-v3.17-blue" alt="version">
   <img src="https://img.shields.io/badge/python-3.10%2B-blue" alt="python">
   <img src="https://img.shields.io/badge/tests-70_passing-brightgreen" alt="tests">
   <img src="https://img.shields.io/badge/license-MIT-green" alt="license">
@@ -79,7 +79,15 @@
 | **情绪** | 20% | 成交额 M2 比、换手率 | 市场活跃度 |
 | **结构** | 10% | 创新高占比、MA 排列比 | 内部结构健康度 |
 
-**展示不计分**: QVIX 恐慌指数
+**展示不计分**: 恐慌指数（CFFEX 股指期权隐含波动率）
+
+> 恐慌指数 (Panic Index) = **0.3 × 上证50隐波 + 0.4 × 沪深300隐波 + 0.3 × 中证1000隐波**
+> 数据源: [optbbs.com](http://1.optbbs.com/d/csv/d/k.csv) — 中金所 CFFEX 股指期权 QVIX
+> 计算: 取 HO (上证50) / IO (沪深300) / MO (中证1000) 三种股指期权的隐含波动率，加权合成
+> 集中度 = 中证1000隐波 - 上证50隐波（衡量小盘 vs 大盘的波动溢价）
+>
+> 历史极值参考: 2024-02 微盘危机恐慌指数 26.3（橙区），2024-10 政策脉冲 41.7（红区）
+> 正常区间: 绿 &lt;20 / 黄 20-25 / 橙 25-30 / 红 &gt;30
 
 ### 评分合成路径
 
@@ -151,8 +159,9 @@ cd web && python3 -m http.server 8080
 | S27–S30 | updown / limit / below_net / ma_alignment | 展示用预计算表（不计分） | 各 0.5–3s |
 | S24 | S24_precompute | 预计算表陈旧检测 | <0.1s |
 | S24c | S24c_m2 | M2 月度数据 | <0.3s |
+| S31 | S31_qvix | CFFEX 股指期权恐慌指数更新（optbbs） | 1–5s |
 | S3 | margin / bond_yield | 融资融券 + 国债收益率（akshare） | 0.1–0.5s |
-| **S5** | **S5_calc** | **V2 引擎：9 指标 + 维度加权合成** | **5–15s** |
+| **S5** | **S5_calc** | **V2 引擎：9 指标 + 恐慌指数 + 维度加权合成** | **5–15s** |
 | **S55** | **S55_index_heat** | **六大指数牛市见顶预判** | **<0.1s** |
 | S6 | save | 保存 JSON（含展示指标） | <0.1s |
 | S7 | sectors | 板块热度 | 1–7s |
@@ -168,7 +177,7 @@ cd web && python3 -m http.server 8080
 | 文件 | 说明 |
 |------|------|
 | `index.json` | 最新热度（综合分 + 4 维度分 + 9 指标原始值） |
-| `detail.json` | 含完整指标明细（含 9 指标百分位评分 + 原始值） |
+| `detail.json` | 含完整指标明细（9 指标百分位评分 + 原始值 + 恐慌指数成分分解） |
 | `history.json` | 历史热度序列 |
 | `indicator_history.json` | 9 指标历史趋势 |
 | `index_heat.json` | 六大指数最新过热评分 |
@@ -185,7 +194,7 @@ cat web/data/index.json
 仪表盘 SPA 包含三个标签页：
 
 - **概览**：综合热度仪表盘（仪表盘 + 历史走势 + 六大指数热度卡片，含评分折线图，按红/黄/绿分段着色）
-- **明细**：9 个核心指标历史趋势图（含牛熊均线参考线和极值标记线）
+- **明细**：9 个核心指标历史趋势图（含牛熊均线参考线和极值标记线）+ 恐慌指数卡片（含公式说明、三品种成分值、集中度）
 - **记录**：近期每日热度得分明细表
 
 ```bash
@@ -223,6 +232,7 @@ bull-market-heat-index/
 │   ├── data/
 │   │   ├── database.py              # SQLite 管理（25 表、迁移、CRUD）
 │   │   ├── fetcher.py               # tushare + akshare 数据获取
+│   │   ├── qvix_fetcher.py          # CFFEX 股指期权恐慌指数（optbbs CSV）⚠️ 新增
 │   │   └── freshness.py             # 数据新鲜度与权重衰减（V1）
 │   ├── indicators/
 │   │   ├── heat_index_v2.py         # ⭐ V2 引擎 — 每日流水线所用（4 维度 9 指标）
@@ -270,7 +280,7 @@ bull-market-heat-index/
 |----|------|
 | 语言 | Python 3.10+ |
 | 数据存储 | SQLite（25 表，WAL 模式，~600MB） |
-| 数据源 | tushare pro + akshare（国债收益率经 akshare） |
+| 数据源 | tushare pro + akshare（国债收益率经 akshare）+ optbbs.com（CFFEX QVIX） |
 | 核心库 | pandas, numpy, pyyaml |
 | API 服务 | FastAPI + uvicorn |
 | 前端 | Vanilla JS + ECharts（暗色 SPA，响应式） |
@@ -302,4 +312,4 @@ MIT
 
 ---
 
-*版本: v3.16 | 调整: 2026-06-25*
+*版本: v3.17 | 调整: 2026-06-26 | 新增: CFFEX 股指期权恐慌指数*

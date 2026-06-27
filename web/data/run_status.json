@@ -5,52 +5,52 @@
     "init_db": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.0010833740234375
+      "elapsed": 0.0019371509552001953
     },
     "S1_index": {
       "status": "OK",
       "detail": "",
-      "elapsed": 7.280688762664795
+      "elapsed": 2.0847861766815186
     },
     "S2_market": {
       "status": "OK",
       "detail": "",
-      "elapsed": 3.600689172744751
+      "elapsed": 0.9760370254516602
     },
     "S25_index_pe": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.024967670440673828
+      "elapsed": 0.013235092163085938
     },
     "S26_circ_mv": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.003648519515991211
+      "elapsed": 0.0013058185577392578
     },
     "S26b_total_mv": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.0037384033203125
+      "elapsed": 0.001508951187133789
     },
     "S27_updown": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.007406949996948242
+      "elapsed": 0.0025718212127685547
     },
     "S28_limit": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.007203340530395508
+      "elapsed": 0.0023827552795410156
     },
     "S29_below_net": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.007185935974121094
+      "elapsed": 0.0023517608642578125
     },
     "S30_ma_alignment": {
       "status": "OK",
       "detail": "",
-      "elapsed": 4.408972501754761
+      "elapsed": 2.1807830333709717
     },
     "precompute_staleness": [
       {
@@ -157,37 +157,37 @@
     "S24_precompute_check": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.007997989654541016
+      "elapsed": 0.009547948837280273
     },
     "S24c_m2": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.0013051033020019531
+      "elapsed": 0.0005357265472412109
     },
     "S3_margin": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.5141186714172363
+      "elapsed": 0.08710908889770508
     },
     "S3_bond_yield": {
       "status": "OK",
       "detail": "",
-      "elapsed": 3.763031005859375
+      "elapsed": 1.4416460990905762
     },
     "S3_tushare": {
       "status": "OK",
       "detail": "",
-      "elapsed": 4.298601388931274
+      "elapsed": 1.5457069873809814
     },
     "S5_calc": {
       "status": "OK",
       "detail": "",
-      "elapsed": 8.667844533920288
+      "elapsed": 7.143276929855347
     },
     "S55_index_heat": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.1019127368927002
+      "elapsed": 0.041177988052368164
     }
   },
   "n_ok": 17,
