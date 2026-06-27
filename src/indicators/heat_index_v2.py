@@ -581,7 +581,7 @@ def calc_qvix_v2(conn, trade_date: str) -> Optional[float]:
     try:
         td = trade_date
         row = conn.execute(
-            "SELECT qvix FROM qvix_daily WHERE trade_date<=? ORDER BY trade_date DESC LIMIT 1",
+            "SELECT COALESCE(panic_index, qvix) FROM qvix_daily WHERE trade_date<=? ORDER BY trade_date DESC LIMIT 1",
             (td,)
         ).fetchone()
         if row and row[0] is not None:
@@ -589,6 +589,27 @@ def calc_qvix_v2(conn, trade_date: str) -> Optional[float]:
         return None
     except Exception as e:
         logger.warning("QVIX calc failed: %s", e)
+        return None
+
+
+def calc_qvix_components_v2(conn, trade_date: str) -> Optional[dict]:
+    """获取 QVIX 各成分值 (qvix_50, qvix_300, qvix_1000, concentration) — 仅展示不计分"""
+    try:
+        row = conn.execute(
+            "SELECT qvix_50, qvix_300, qvix_1000, concentration FROM qvix_daily"
+            " WHERE trade_date<=? ORDER BY trade_date DESC LIMIT 1",
+            (trade_date,)
+        ).fetchone()
+        if row and any(v is not None for v in row):
+            return {
+                "qvix_50": float(row[0]) if row[0] is not None else None,
+                "qvix_300": float(row[1]) if row[1] is not None else None,
+                "qvix_1000": float(row[2]) if row[2] is not None else None,
+                "concentration": float(row[3]) if row[3] is not None else None,
+            }
+        return None
+    except Exception as e:
+        logger.warning("QVIX components calc failed: %s", e)
         return None
 
 
@@ -658,6 +679,7 @@ def compute_index_v2(trade_date: str = None, db_path: str = None) -> dict:
             scores[k] = _unpack(k, fn(conn, td))
 
         qvix = calc_qvix_v2(conn, td)
+        qvix_components = calc_qvix_components_v2(conn, td)
 
         # ── 背离惩罚 ────────────────────────────────────────────────────
         # 情绪背离: 高换手率 + 指数下跌
@@ -712,6 +734,7 @@ def compute_index_v2(trade_date: str = None, db_path: str = None) -> dict:
                 "new_high": scores["new_high"],
                 "ma_alignment": scores["ma_alignment"],
                 "qvix": qvix,
+                "qvix_components": qvix_components,
             },
             "indicator_raw": _raw | {"margin_ratio_v2": _raw.get("margin_ratio")},
             "updated_at": date.today().strftime("%Y-%m-%d %H:%M:%S"),

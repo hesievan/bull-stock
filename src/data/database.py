@@ -24,7 +24,7 @@ DB_PATH = os.environ.get(
 )
 
 # ── 建表 SQL ──────────────────────────────────────────────────────────────────
-SCHEMA_VERSION = 5
+SCHEMA_VERSION = 6
 
 SCHEMA = """
 -- 指数日行情 (tushare index_daily)
@@ -305,6 +305,16 @@ def _migrate(conn, from_ver: int):
                 conn.execute("ALTER TABLE index_daily_pe ADD COLUMN const_date TEXT")
         except Exception as e:
             logger.warning("index_daily_pe migration skipped (table may not exist): %s", e)
+    if from_ver < 6:
+        # 迁移 v6: qvix_daily 增加成分列 — 恐慌指数的三个子品种 + 集中度
+        try:
+            qvix_cols = {r[1] for r in conn.execute("PRAGMA table_info(qvix_daily)").fetchall()}
+            for col_name in ("qvix_50", "qvix_300", "qvix_1000", "panic_index", "concentration"):
+                if col_name not in qvix_cols:
+                    conn.execute(f"ALTER TABLE qvix_daily ADD COLUMN {col_name} REAL")
+            logger.info("qvix_daily migrated: added component columns")
+        except Exception as e:
+            logger.warning("qvix_daily migration skipped: %s", e)
     logger.info("Database migrated from v%d to v%d", from_ver, SCHEMA_VERSION)
 
 

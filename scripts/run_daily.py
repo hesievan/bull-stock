@@ -191,6 +191,52 @@ def run_daily(trade_date=None):
 
     _run_step(step_status, "S30_ma_alignment", _step30)
 
+    # ── Step 2.11: QVIX恐慌指数更新 ──────────────────────────────────────────
+    logger.info("Step 2.11: Updating QVIX panic index...")
+
+    def _step31():
+        from src.data.qvix_fetcher import fetch_panic_index
+        from src.data.database import DB_PATH as _DB
+        import sqlite3
+        import pandas as _pd
+        import math as _math
+        df = fetch_panic_index(timeout=60)
+        if df.empty:
+            return False
+        conn = sqlite3.connect(_DB)
+        try:
+            qvix_dates = df.index.sort_values()
+            target = _pd.Timestamp(trade_date)
+            if target in df.index:
+                row = df.loc[target]
+            else:
+                prev = qvix_dates[qvix_dates <= target]
+                if len(prev) == 0:
+                    logger.warning("QVIX step31 %s: no prior data", trade_date)
+                    return False
+                row = df.loc[prev[-1]]
+            def _v(x):
+                return None if (x is None or (isinstance(x, float) and _math.isnan(x))) else round(float(x), 4)
+            conn.execute("""
+                INSERT OR REPLACE INTO qvix_daily
+                    (trade_date, qvix, qvix_50, qvix_300, qvix_1000, panic_index, concentration)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            """, (
+                trade_date,
+                _v(row.get("panic_index")),
+                _v(row.get("qvix_50")),
+                _v(row.get("qvix_300")),
+                _v(row.get("qvix_1000")),
+                _v(row.get("panic_index")),
+                _v(row.get("concentration")),
+            ))
+            conn.commit()
+            return True
+        finally:
+            conn.close()
+
+    _run_step(step_status, "S31_qvix", _step31)
+
     # ── Step 2.4: 预计算表陈旧检测 ────────────────────────────────────────────
     logger.info("Step 2.4: Checking precompute table staleness...")
 

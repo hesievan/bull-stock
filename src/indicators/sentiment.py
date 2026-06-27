@@ -158,11 +158,11 @@ def calc_limit_ratio(calc) -> float | None:
 
 
 def calc_qvix(calc) -> float | None:
-    """50ETF期权隐含波动率 (QVIX) — 恐慌指标 (反向)"""
+    """QVIX恐慌指数 (CFFEX股指期权, 上证50/沪深300/中证1000加权) — 恐慌指标 (反向)"""
     try:
         conn = calc._conn()
         hist = pd.read_sql(
-            "SELECT trade_date, qvix FROM qvix_daily ORDER BY trade_date",
+            "SELECT trade_date, COALESCE(panic_index, qvix) AS qvix FROM qvix_daily ORDER BY trade_date",
             conn
         )
         if hist.empty or len(hist) < 60:
@@ -170,12 +170,12 @@ def calc_qvix(calc) -> float | None:
         hist_qvix = _to_numeric(hist["qvix"]).dropna()
 
         today = conn.execute(
-            "SELECT qvix FROM qvix_daily WHERE trade_date=?",
+            "SELECT COALESCE(panic_index, qvix) FROM qvix_daily WHERE trade_date=?",
             (calc.trade_date,)
         ).fetchone()
         if not today or today[0] is None:
             today = conn.execute(
-                "SELECT qvix FROM qvix_daily WHERE trade_date<=? ORDER BY trade_date DESC LIMIT 1",
+                "SELECT COALESCE(panic_index, qvix) FROM qvix_daily WHERE trade_date<=? ORDER BY trade_date DESC LIMIT 1",
                 (calc.trade_date,)
             ).fetchone()
             if not today or today[0] is None:

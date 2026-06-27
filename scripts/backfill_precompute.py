@@ -103,20 +103,61 @@ def _compute_daily_turnover(trade_date: str, db_path: str) -> bool:
         return True
 
 
-def _compute_qvix_daily(trade_date: str, db_path: str) -> bool:
-    """计算单日 QVIX 并写入 qvix_daily 表"""
+
+
+
+def _backfill_qvix_batch(db_path: str, force: bool):
+    """批量回填 QVIX 恐慌指数 — 一次性下载，逐日匹配写入"""
+    from src.data.qvix_fetcher import fetch_panic_index
+    try:
+        df = fetch_panic_index(timeout=60)
+    except Exception as e:
+        logger.warning("QVIX 数据获取失败，跳过回填: %s", e)
+        return
+    if df.empty:
+        logger.warning("QVIX 数据为空，跳过回填")
+        return
+
     with get_conn(db_path) as conn:
-        row = conn.execute(
-            "SELECT close FROM index_daily WHERE index_code='sz000016' AND trade_date=?",
-            (trade_date,)
-        ).fetchone()
-        if not row or row[0] is None:
-            return False
-        conn.execute(
-            "INSERT OR REPLACE INTO qvix_daily (trade_date, qvix) VALUES (?, ?)",
-            (trade_date, round(float(row[0]), 4))
-        )
-        return True
+        all_dates = _fetch_trade_dates(conn)
+        existing = set()
+        if not force:
+            rows = conn.execute("SELECT trade_date FROM qvix_daily").fetchall()
+            existing = {r[0] for r in rows}
+
+        qvix_dates = df.index.sort_values()
+        ok = 0
+        for td in all_dates:
+            if td in existing:
+                continue
+            target = pd.Timestamp(td)
+            if target in df.index:
+                row = df.loc[target]
+            else:
+                prev = qvix_dates[qvix_dates <= target]
+                if len(prev) == 0:
+                    continue
+                row = df.loc[prev[-1]]
+            try:
+                conn.execute("""
+                    INSERT OR REPLACE INTO qvix_daily
+                        (trade_date, qvix, qvix_50, qvix_300, qvix_1000, panic_index, concentration)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                """, (
+                    td,
+                    round(float(row["panic_index"]), 4),
+                    round(float(row["qvix_50"]), 4) if pd.notna(row["qvix_50"]) else None,
+                    round(float(row["qvix_300"]), 4) if pd.notna(row["qvix_300"]) else None,
+                    round(float(row["qvix_1000"]), 4) if pd.notna(row["qvix_1000"]) else None,
+                    round(float(row["panic_index"]), 4) if pd.notna(row["panic_index"]) else None,
+                    round(float(row["concentration"]), 4) if pd.notna(row["concentration"]) else None,
+                ))
+                ok += 1
+            except Exception as e:
+                logger.warning("QVIX batch %s error: %s", td, e)
+        logger.info("QVIX 恐慌指数: %d/%d done", ok, len(all_dates) - len(existing))
+        # 移除旧的旧版 sz000016 QVIX 记录（如果存在且已被覆盖）
+        conn.execute("DELETE FROM qvix_daily WHERE qvix IS NOT NULL AND panic_index IS NULL AND qvix_50 IS NULL")
 
 
 def backfill_precompute(db_path: str = None, force: bool = False):
@@ -154,9 +195,10 @@ def backfill_precompute(db_path: str = None, force: bool = False):
 
     # 回填 daily_erp (V2 引擎依赖)
     _backfill_derived("daily_erp", _compute_daily_erp, all_dates, db, critical=True)
-    # daily_turnover / qvix_daily 仅加速用，非 CI 关键路径
+    # daily_turnover 仅加速用，非 CI 关键路径
     _backfill_derived("daily_turnover", _compute_daily_turnover, all_dates, db, critical=False)
-    _backfill_derived("qvix_daily", _compute_qvix_daily, all_dates, db, critical=False)
+    # QVIX 恐慌指数 — 批量下载一次，避免每个日期都请求 HTTP
+    _backfill_qvix_batch(db, force)
 
     logger.info("Precompute backfill complete: %d dates processed", len(all_dates))
     return True

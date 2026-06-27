@@ -126,9 +126,10 @@ def save_results_v2(result_v2: Dict, output_dir: str = None):
         "indicators_v2": {
             k: result_v2.get("indicator_raw", {}).get(k)
             for k in result_v2["indicators"]
-            if k != "qvix"
+            if k not in ("qvix", "qvix_components")
         },
         "qvix_display": result_v2["indicators"].get("qvix"),
+        "qvix_components": result_v2["indicators"].get("qvix_components"),
         "version": "v2",
         "updated_at": date.today().strftime("%Y-%m-%d %H:%M:%S"),
     }
@@ -188,7 +189,7 @@ def save_results_v2(result_v2: Dict, output_dir: str = None):
     raw = result_v2.get("indicator_raw", {})
     ind_hist[trade_date] = {}
     for k, v in result_v2["indicators"].items():
-        if k == "qvix" or v is None:
+        if k in ("qvix", "qvix_components") or v is None:
             continue
         rk = k.replace("_v2", "")  # margin_ratio_v2 → margin_ratio
         rv = raw.get(rk) if rk in raw else raw.get(k)
