@@ -1,71 +1,54 @@
 [
   {
-    "sector_code": "A03畜牧业",
-    "sector_name": "畜牧业",
-    "n_stocks": 18,
-    "composite_score": 69.3,
-    "heat_label": "warm",
-    "dim_valuation": 95.4,
-    "dim_sentiment": 92.6,
-    "dim_technical": 11.1,
-    "avg_pct_change": 2.96,
-    "up_ratio": 88.9,
-    "leader": {
-      "code": "sh603477",
-      "pct": 9.99
-    },
-    "rank": 1
-  },
-  {
     "sector_code": "E49建筑安装业",
     "sector_name": "建筑装饰",
     "n_stocks": 5,
-    "composite_score": 63.2,
+    "composite_score": 63.7,
     "heat_label": "warm",
-    "dim_valuation": 94.5,
-    "dim_sentiment": 21.5,
+    "dim_valuation": 92.0,
+    "dim_sentiment": 26.0,
     "dim_technical": null,
-    "avg_pct_change": -2.89,
+    "avg_pct_change": -2.62,
     "up_ratio": 20.0,
     "leader": {
       "code": "sz000032",
-      "pct": 1.48
+      "pct": 0.38
     },
-    "rank": 2
+    "rank": 1
   },
   {
     "sector_code": "C39计算机、通信和其他电子设备制造业",
     "sector_name": "计算机通信电子",
     "n_stocks": 656,
-    "composite_score": 56.6,
+    "composite_score": 53.3,
     "heat_label": "warm",
-    "dim_valuation": 92.2,
-    "dim_sentiment": 41.9,
-    "dim_technical": 24.0,
-    "avg_pct_change": -2.4,
-    "up_ratio": 22.1,
+    "dim_valuation": 90.8,
+    "dim_sentiment": 30.6,
+    "dim_technical": 26.0,
+    "avg_pct_change": -1.88,
+    "up_ratio": 25.2,
     "leader": {
-      "code": "sz301191",
+      "code": "sh688432",
       "pct": 20.0
     },
-    "rank": 3
+    "rank": 2
   },
   {
-    "sector_code": "M73研究和试验发展",
-    "sector_name": "研究和试验",
-    "n_stocks": 31,
-    "composite_score": 54.4,
+    "sector_code": "A03畜牧业",
+    "sector_name": "畜牧业",
+    "n_stocks": 18,
+    "composite_score": 51.9,
     "heat_label": "warm",
-    "dim_valuation": 57.2,
-    "dim_sentiment": 85.5,
-    "dim_technical": 19.4,
-    "avg_pct_change": 1.21,
-    "up_ratio": 71.0,
+    "dim_valuation": 92.4,
+    "dim_sentiment": 44.1,
+    "dim_technical": 5.6,
+    "avg_pct_change": -2.22,
+    "up_ratio": 5.6,
     "leader": {
-      "code": "sh688238",
-      "pct": 9.11
+      "code": "sz300761",
+      "pct": 0.91
     },
-    "rank": 4
+    "rank": 3
   },
   {
     "sector_code": "E50建筑装饰、装修和其他建筑业",
@@ -73,847 +56,864 @@
     "n_stocks": 25,
     "composite_score": 49.4,
     "heat_label": "warm",
-    "dim_valuation": 89.5,
-    "dim_sentiment": 17.3,
-    "dim_technical": 28.0,
-    "avg_pct_change": -2.39,
-    "up_ratio": 16.0,
+    "dim_valuation": 87.2,
+    "dim_sentiment": 22.5,
+    "dim_technical": 26.0,
+    "avg_pct_change": -3.44,
+    "up_ratio": 12.0,
     "leader": {
-      "code": "sz002989",
-      "pct": 10.01
+      "code": "sh603137",
+      "pct": 9.98
     },
-    "rank": 5
-  },
-  {
-    "sector_code": "C27医药制造业",
-    "sector_name": "医药制造",
-    "n_stocks": 309,
-    "composite_score": 46.9,
-    "heat_label": "warm",
-    "dim_valuation": 51.1,
-    "dim_sentiment": 78.3,
-    "dim_technical": 10.0,
-    "avg_pct_change": 0.75,
-    "up_ratio": 66.7,
-    "leader": {
-      "code": "sh688197",
-      "pct": 14.67
-    },
-    "rank": 6
-  },
-  {
-    "sector_code": "N77生态保护和环境治理业",
-    "sector_name": "N77生态保护和环境治理业",
-    "n_stocks": 66,
-    "composite_score": 46.8,
-    "heat_label": "warm",
-    "dim_valuation": 68.8,
-    "dim_sentiment": 49.1,
-    "dim_technical": 15.0,
-    "avg_pct_change": -0.41,
-    "up_ratio": 42.4,
-    "leader": {
-      "code": "sh603903",
-      "pct": 10.04
-    },
-    "rank": 7
-  },
-  {
-    "sector_code": "B06煤炭开采和洗选业",
-    "sector_name": "煤炭开采",
-    "n_stocks": 25,
-    "composite_score": 45.2,
-    "heat_label": "warm",
-    "dim_valuation": 41.6,
-    "dim_sentiment": 77.2,
-    "dim_technical": 18.0,
-    "avg_pct_change": 3.58,
-    "up_ratio": 100.0,
-    "leader": {
-      "code": "sh601101",
-      "pct": 10.0
-    },
-    "rank": 8
-  },
-  {
-    "sector_code": "C26化学原料和化学制品制造业",
-    "sector_name": "化学原料",
-    "n_stocks": 352,
-    "composite_score": 44.0,
-    "heat_label": "warm",
-    "dim_valuation": 59.7,
-    "dim_sentiment": 47.0,
-    "dim_technical": 20.0,
-    "avg_pct_change": -0.89,
-    "up_ratio": 37.2,
-    "leader": {
-      "code": "sz300821",
-      "pct": 12.92
-    },
-    "rank": 9
-  },
-  {
-    "sector_code": "C30非金属矿物制品业",
-    "sector_name": "非金属矿物制品",
-    "n_stocks": 105,
-    "composite_score": 43.9,
-    "heat_label": "warm",
-    "dim_valuation": 62.9,
-    "dim_sentiment": 41.3,
-    "dim_technical": 21.0,
-    "avg_pct_change": -2.13,
-    "up_ratio": 29.5,
-    "leader": {
-      "code": "sh600172",
-      "pct": 10.02
-    },
-    "rank": 10
-  },
-  {
-    "sector_code": "C33金属制品业",
-    "sector_name": "金属制品",
-    "n_stocks": 97,
-    "composite_score": 43.8,
-    "heat_label": "warm",
-    "dim_valuation": 70.5,
-    "dim_sentiment": 32.9,
-    "dim_technical": 19.0,
-    "avg_pct_change": -2.05,
-    "up_ratio": 27.8,
-    "leader": {
-      "code": "sz002403",
-      "pct": 9.99
-    },
-    "rank": 11
-  },
-  {
-    "sector_code": "C34通用设备制造业",
-    "sector_name": "通用设备制造",
-    "n_stocks": 230,
-    "composite_score": 43.2,
-    "heat_label": "warm",
-    "dim_valuation": 56.1,
-    "dim_sentiment": 49.3,
-    "dim_technical": 20.0,
-    "avg_pct_change": -1.81,
-    "up_ratio": 25.7,
-    "leader": {
-      "code": "sz301317",
-      "pct": 20.0
-    },
-    "rank": 12
+    "rank": 4
   },
   {
     "sector_code": "G58多式联运和运输代理业",
     "sector_name": "道路运输",
     "n_stocks": 12,
-    "composite_score": 42.9,
+    "composite_score": 40.1,
     "heat_label": "warm",
-    "dim_valuation": 56.8,
-    "dim_sentiment": 54.8,
-    "dim_technical": 12.5,
-    "avg_pct_change": 0.03,
-    "up_ratio": 41.7,
+    "dim_valuation": 58.6,
+    "dim_sentiment": 39.0,
+    "dim_technical": 16.7,
+    "avg_pct_change": -1.57,
+    "up_ratio": 25.0,
     "leader": {
-      "code": "sh603871",
-      "pct": 4.14
+      "code": "sz001317",
+      "pct": 3.46
     },
-    "rank": 13
-  },
-  {
-    "sector_code": "J68保险业",
-    "sector_name": "保险业",
-    "n_stocks": 6,
-    "composite_score": 42.9,
-    "heat_label": "warm",
-    "dim_valuation": 20.5,
-    "dim_sentiment": 72.8,
-    "dim_technical": null,
-    "avg_pct_change": 0.94,
-    "up_ratio": 83.3,
-    "leader": {
-      "code": "sh601318",
-      "pct": 2.06
-    },
-    "rank": 14
+    "rank": 5
   },
   {
     "sector_code": "C40仪器仪表制造业",
     "sector_name": "C40仪器仪表制造业",
     "n_stocks": 83,
-    "composite_score": 41.5,
-    "heat_label": "warm",
-    "dim_valuation": 63.1,
-    "dim_sentiment": 33.9,
-    "dim_technical": 20.4,
-    "avg_pct_change": -2.97,
+    "composite_score": 36.7,
+    "heat_label": "cold",
+    "dim_valuation": 59.7,
+    "dim_sentiment": 23.3,
+    "dim_technical": 19.4,
+    "avg_pct_change": -2.71,
     "up_ratio": 14.5,
     "leader": {
-      "code": "sz002767",
-      "pct": 9.98
+      "code": "sh688622",
+      "pct": 4.92
     },
-    "rank": 15
+    "rank": 6
   },
   {
-    "sector_code": "B07石油和天然气开采业",
-    "sector_name": "石油天然气开采",
-    "n_stocks": 10,
-    "composite_score": 39.6,
+    "sector_code": "C30非金属矿物制品业",
+    "sector_name": "非金属矿物制品",
+    "n_stocks": 105,
+    "composite_score": 36.2,
     "heat_label": "cold",
-    "dim_valuation": 58.0,
-    "dim_sentiment": 49.7,
-    "dim_technical": 5.0,
-    "avg_pct_change": 1.37,
-    "up_ratio": 60.0,
-    "leader": {
-      "code": "sh600759",
-      "pct": 9.91
-    },
-    "rank": 16
-  },
-  {
-    "sector_code": "C29橡胶和塑料制品业",
-    "sector_name": "橡胶塑料",
-    "n_stocks": 124,
-    "composite_score": 38.0,
-    "heat_label": "cold",
-    "dim_valuation": 46.0,
-    "dim_sentiment": 47.2,
+    "dim_valuation": 59.7,
+    "dim_sentiment": 23.1,
     "dim_technical": 18.0,
-    "avg_pct_change": -1.51,
-    "up_ratio": 34.7,
+    "avg_pct_change": -2.43,
+    "up_ratio": 12.4,
     "leader": {
-      "code": "sz300716",
-      "pct": 19.07
+      "code": "sz002457",
+      "pct": 6.54
     },
-    "rank": 17
+    "rank": 7
+  },
+  {
+    "sector_code": "N77生态保护和环境治理业",
+    "sector_name": "N77生态保护和环境治理业",
+    "n_stocks": 66,
+    "composite_score": 35.0,
+    "heat_label": "cold",
+    "dim_valuation": 64.5,
+    "dim_sentiment": 15.5,
+    "dim_technical": 15.0,
+    "avg_pct_change": -1.95,
+    "up_ratio": 12.1,
+    "leader": {
+      "code": "sz002266",
+      "pct": 8.7
+    },
+    "rank": 8
   },
   {
     "sector_code": "C19皮革、毛皮、羽毛及其制品和制鞋业",
     "sector_name": "皮革制品",
     "n_stocks": 13,
-    "composite_score": 37.9,
+    "composite_score": 32.5,
     "heat_label": "cold",
-    "dim_valuation": 54.9,
-    "dim_sentiment": 37.7,
-    "dim_technical": 15.4,
-    "avg_pct_change": -1.39,
-    "up_ratio": 30.8,
+    "dim_valuation": 51.5,
+    "dim_sentiment": 20.6,
+    "dim_technical": 19.2,
+    "avg_pct_change": -3.27,
+    "up_ratio": 15.4,
     "leader": {
-      "code": "sh603557",
-      "pct": 5.9
+      "code": "sh603608",
+      "pct": 7.53
     },
-    "rank": 18
+    "rank": 9
   },
   {
-    "sector_code": "C32有色金属冶炼和压延加工业",
-    "sector_name": "有色金属冶炼",
-    "n_stocks": 87,
-    "composite_score": 37.0,
+    "sector_code": "M73研究和试验发展",
+    "sector_name": "研究和试验",
+    "n_stocks": 31,
+    "composite_score": 31.4,
     "heat_label": "cold",
-    "dim_valuation": 39.5,
-    "dim_sentiment": 49.5,
-    "dim_technical": 21.0,
-    "avg_pct_change": -2.33,
-    "up_ratio": 28.7,
+    "dim_valuation": 34.2,
+    "dim_sentiment": 42.9,
+    "dim_technical": 16.1,
+    "avg_pct_change": -4.0,
+    "up_ratio": 3.2,
     "leader": {
-      "code": "sh688231",
-      "pct": 7.62
+      "code": "sh688710",
+      "pct": 1.66
     },
-    "rank": 19
+    "rank": 10
   },
   {
-    "sector_code": "C25石油、煤炭及其他燃料加工业",
-    "sector_name": "石油加工炼焦",
-    "n_stocks": 17,
-    "composite_score": 35.1,
+    "sector_code": "C26化学原料和化学制品制造业",
+    "sector_name": "化学原料",
+    "n_stocks": 352,
+    "composite_score": 29.5,
     "heat_label": "cold",
-    "dim_valuation": 48.3,
-    "dim_sentiment": 49.7,
-    "dim_technical": 2.9,
-    "avg_pct_change": 0.6,
-    "up_ratio": 64.7,
+    "dim_valuation": 40.3,
+    "dim_sentiment": 26.7,
+    "dim_technical": 18.0,
+    "avg_pct_change": -2.91,
+    "up_ratio": 13.1,
     "leader": {
-      "code": "sz000059",
-      "pct": 4.91
+      "code": "sh605399",
+      "pct": 10.01
     },
-    "rank": 20
+    "rank": 11
   },
   {
-    "sector_code": "A04渔业",
-    "sector_name": "渔业",
-    "n_stocks": 6,
-    "composite_score": 34.3,
+    "sector_code": "B06煤炭开采和洗选业",
+    "sector_name": "煤炭开采",
+    "n_stocks": 25,
+    "composite_score": 28.3,
     "heat_label": "cold",
-    "dim_valuation": 41.1,
-    "dim_sentiment": 25.2,
-    "dim_technical": null,
-    "avg_pct_change": 0.24,
-    "up_ratio": 50.0,
+    "dim_valuation": 40.5,
+    "dim_sentiment": 24.4,
+    "dim_technical": 16.0,
+    "avg_pct_change": -3.41,
+    "up_ratio": 0.0,
     "leader": {
-      "code": "sz002069",
-      "pct": 1.62
+      "code": "sh601088",
+      "pct": -0.36
     },
-    "rank": 21
-  },
-  {
-    "sector_code": "C35专用设备制造业",
-    "sector_name": "专用设备制造",
-    "n_stocks": 358,
-    "composite_score": 34.1,
-    "heat_label": "cold",
-    "dim_valuation": 47.3,
-    "dim_sentiment": 35.2,
-    "dim_technical": 15.3,
-    "avg_pct_change": -1.8,
-    "up_ratio": 26.0,
-    "leader": {
-      "code": "sh688071",
-      "pct": 11.27
-    },
-    "rank": 22
-  },
-  {
-    "sector_code": "Q84卫生",
-    "sector_name": "Q84卫生",
-    "n_stocks": 19,
-    "composite_score": 33.2,
-    "heat_label": "cold",
-    "dim_valuation": 45.6,
-    "dim_sentiment": 47.4,
-    "dim_technical": 2.6,
-    "avg_pct_change": -0.05,
-    "up_ratio": 36.8,
-    "leader": {
-      "code": "sz301293",
-      "pct": 5.98
-    },
-    "rank": 23
+    "rank": 12
   },
   {
     "sector_code": "C42废弃资源综合利用业",
     "sector_name": "C42废弃资源综合利用业",
     "n_stocks": 20,
-    "composite_score": 32.8,
+    "composite_score": 28.2,
     "heat_label": "cold",
-    "dim_valuation": 37.6,
-    "dim_sentiment": 46.8,
-    "dim_technical": 12.5,
-    "avg_pct_change": -1.18,
-    "up_ratio": 40.0,
+    "dim_valuation": 33.2,
+    "dim_sentiment": 32.3,
+    "dim_technical": 17.5,
+    "avg_pct_change": -0.6,
+    "up_ratio": 35.0,
     "leader": {
-      "code": "sz301068",
-      "pct": 6.9
+      "code": "sz300103",
+      "pct": 9.14
     },
-    "rank": 24
+    "rank": 13
   },
   {
-    "sector_code": "C38电气机械和器材制造业",
-    "sector_name": "电气机械器材",
-    "n_stocks": 332,
-    "composite_score": 31.3,
+    "sector_code": "B07石油和天然气开采业",
+    "sector_name": "石油天然气开采",
+    "n_stocks": 10,
+    "composite_score": 27.6,
     "heat_label": "cold",
-    "dim_valuation": 52.5,
-    "dim_sentiment": 18.3,
-    "dim_technical": 16.0,
-    "avg_pct_change": -1.98,
-    "up_ratio": 21.1,
+    "dim_valuation": 52.1,
+    "dim_sentiment": 17.4,
+    "dim_technical": 5.0,
+    "avg_pct_change": -2.2,
+    "up_ratio": 20.0,
     "leader": {
-      "code": "sz300499",
-      "pct": 10.11
+      "code": "sh600938",
+      "pct": 0.46
     },
-    "rank": 25
+    "rank": 14
   },
   {
-    "sector_code": "J67资本市场服务",
-    "sector_name": "资本市场服务",
-    "n_stocks": 56,
-    "composite_score": 31.1,
+    "sector_code": "C29橡胶和塑料制品业",
+    "sector_name": "橡胶塑料",
+    "n_stocks": 123,
+    "composite_score": 25.6,
     "heat_label": "cold",
-    "dim_valuation": 27.8,
-    "dim_sentiment": 53.7,
-    "dim_technical": 13.0,
-    "avg_pct_change": -0.22,
-    "up_ratio": 57.1,
+    "dim_valuation": 38.0,
+    "dim_sentiment": 22.7,
+    "dim_technical": 12.0,
+    "avg_pct_change": -2.33,
+    "up_ratio": 16.3,
     "leader": {
-      "code": "sh601788",
-      "pct": 3.21
+      "code": "sz301237",
+      "pct": 14.63
     },
-    "rank": 26
+    "rank": 15
+  },
+  {
+    "sector_code": "C27医药制造业",
+    "sector_name": "医药制造",
+    "n_stocks": 309,
+    "composite_score": 25.4,
+    "heat_label": "cold",
+    "dim_valuation": 31.3,
+    "dim_sentiment": 33.0,
+    "dim_technical": 10.0,
+    "avg_pct_change": -3.82,
+    "up_ratio": 5.8,
+    "leader": {
+      "code": "sh688176",
+      "pct": 7.11
+    },
+    "rank": 16
+  },
+  {
+    "sector_code": "C34通用设备制造业",
+    "sector_name": "通用设备制造",
+    "n_stocks": 230,
+    "composite_score": 25.2,
+    "heat_label": "cold",
+    "dim_valuation": 31.7,
+    "dim_sentiment": 21.8,
+    "dim_technical": 20.0,
+    "avg_pct_change": -3.25,
+    "up_ratio": 8.7,
+    "leader": {
+      "code": "sh688605",
+      "pct": 15.22
+    },
+    "rank": 17
   },
   {
     "sector_code": "C21家具制造业",
     "sector_name": "家具制造",
     "n_stocks": 25,
-    "composite_score": 29.9,
+    "composite_score": 24.4,
     "heat_label": "cold",
-    "dim_valuation": 42.6,
-    "dim_sentiment": 34.7,
+    "dim_valuation": 37.8,
+    "dim_sentiment": 22.9,
     "dim_technical": 8.0,
-    "avg_pct_change": -1.09,
-    "up_ratio": 44.0,
-    "leader": {
-      "code": "sh603313",
-      "pct": 2.05
-    },
-    "rank": 27
-  },
-  {
-    "sector_code": "A01农业",
-    "sector_name": "农业",
-    "n_stocks": 8,
-    "composite_score": 29.1,
-    "heat_label": "cold",
-    "dim_valuation": 3.2,
-    "dim_sentiment": 63.6,
-    "dim_technical": null,
-    "avg_pct_change": -0.73,
-    "up_ratio": 62.5,
-    "leader": {
-      "code": "sh600598",
-      "pct": 1.76
-    },
-    "rank": 28
-  },
-  {
-    "sector_code": "G55水上运输业",
-    "sector_name": "G55水上运输业",
-    "n_stocks": 35,
-    "composite_score": 28.8,
-    "heat_label": "cold",
-    "dim_valuation": 27.8,
-    "dim_sentiment": 50.5,
-    "dim_technical": 8.6,
-    "avg_pct_change": 0.98,
-    "up_ratio": 74.3,
-    "leader": {
-      "code": "sh601872",
-      "pct": 4.0
-    },
-    "rank": 29
-  },
-  {
-    "sector_code": "G53铁路运输业",
-    "sector_name": "G53铁路运输业",
-    "n_stocks": 7,
-    "composite_score": 28.3,
-    "heat_label": "cold",
-    "dim_valuation": 3.4,
-    "dim_sentiment": 61.6,
-    "dim_technical": null,
-    "avg_pct_change": 1.42,
-    "up_ratio": 100.0,
-    "leader": {
-      "code": "sh600603",
-      "pct": 3.92
-    },
-    "rank": 30
-  },
-  {
-    "sector_code": "C28化学纤维制造业",
-    "sector_name": "化学纤维",
-    "n_stocks": 25,
-    "composite_score": 27.8,
-    "heat_label": "cold",
-    "dim_valuation": 25.9,
-    "dim_sentiment": 40.0,
-    "dim_technical": 18.0,
-    "avg_pct_change": -1.42,
+    "avg_pct_change": -1.43,
     "up_ratio": 28.0,
     "leader": {
-      "code": "sz002064",
-      "pct": 6.41
+      "code": "sh603313",
+      "pct": 7.36
     },
-    "rank": 31
+    "rank": 18
   },
   {
-    "sector_code": "D44电力、热力生产和供应业",
-    "sector_name": "电力生产供应",
-    "n_stocks": 93,
-    "composite_score": 27.8,
+    "sector_code": "C33金属制品业",
+    "sector_name": "金属制品",
+    "n_stocks": 97,
+    "composite_score": 24.1,
     "heat_label": "cold",
-    "dim_valuation": 35.0,
-    "dim_sentiment": 32.9,
-    "dim_technical": 13.0,
-    "avg_pct_change": -0.98,
-    "up_ratio": 26.9,
+    "dim_valuation": 34.2,
+    "dim_sentiment": 18.9,
+    "dim_technical": 16.0,
+    "avg_pct_change": -2.51,
+    "up_ratio": 17.5,
     "leader": {
-      "code": "sz000601",
-      "pct": 8.94
+      "code": "sz300985",
+      "pct": 14.43
     },
-    "rank": 32
+    "rank": 19
+  },
+  {
+    "sector_code": "C32有色金属冶炼和压延加工业",
+    "sector_name": "有色金属冶炼",
+    "n_stocks": 87,
+    "composite_score": 23.4,
+    "heat_label": "cold",
+    "dim_valuation": 31.7,
+    "dim_sentiment": 17.6,
+    "dim_technical": 18.0,
+    "avg_pct_change": -2.71,
+    "up_ratio": 13.8,
+    "leader": {
+      "code": "sh600206",
+      "pct": 10.0
+    },
+    "rank": 20
+  },
+  {
+    "sector_code": "Q84卫生",
+    "sector_name": "Q84卫生",
+    "n_stocks": 19,
+    "composite_score": 22.2,
+    "heat_label": "cold",
+    "dim_valuation": 43.3,
+    "dim_sentiment": 16.2,
+    "dim_technical": 0.0,
+    "avg_pct_change": -4.29,
+    "up_ratio": 0.0,
+    "leader": {
+      "code": "sh600568",
+      "pct": -0.42
+    },
+    "rank": 21
+  },
+  {
+    "sector_code": "C38电气机械和器材制造业",
+    "sector_name": "电气机械器材",
+    "n_stocks": 332,
+    "composite_score": 22.1,
+    "heat_label": "cold",
+    "dim_valuation": 41.4,
+    "dim_sentiment": 3.4,
+    "dim_technical": 15.0,
+    "avg_pct_change": -2.87,
+    "up_ratio": 9.6,
+    "leader": {
+      "code": "sz002137",
+      "pct": 10.01
+    },
+    "rank": 22
   },
   {
     "sector_code": "C20木材加工和木、竹、藤、棕、草制品业",
     "sector_name": "C20木材加工和木、竹、藤、棕、草制品业",
     "n_stocks": 13,
-    "composite_score": 27.7,
+    "composite_score": 21.4,
     "heat_label": "cold",
-    "dim_valuation": 40.3,
-    "dim_sentiment": 27.2,
-    "dim_technical": 11.5,
-    "avg_pct_change": -1.67,
-    "up_ratio": 38.5,
+    "dim_valuation": 31.9,
+    "dim_sentiment": 13.4,
+    "dim_technical": 15.4,
+    "avg_pct_change": -1.73,
+    "up_ratio": 23.1,
     "leader": {
-      "code": "sh601996",
-      "pct": 1.4
+      "code": "sh600076",
+      "pct": 4.8
     },
-    "rank": 33
+    "rank": 23
   },
   {
-    "sector_code": "S91综合",
-    "sector_name": "S91综合",
-    "n_stocks": 7,
-    "composite_score": 27.6,
+    "sector_code": "C35专用设备制造业",
+    "sector_name": "专用设备制造",
+    "n_stocks": 359,
+    "composite_score": 21.3,
     "heat_label": "cold",
-    "dim_valuation": 37.1,
-    "dim_sentiment": 14.9,
+    "dim_valuation": 29.0,
+    "dim_sentiment": 12.8,
+    "dim_technical": 19.4,
+    "avg_pct_change": -2.55,
+    "up_ratio": 15.9,
+    "leader": {
+      "code": "sz300276",
+      "pct": 10.97
+    },
+    "rank": 24
+  },
+  {
+    "sector_code": "A04渔业",
+    "sector_name": "渔业",
+    "n_stocks": 6,
+    "composite_score": 21.1,
+    "heat_label": "cold",
+    "dim_valuation": 36.3,
+    "dim_sentiment": 0.8,
     "dim_technical": null,
-    "avg_pct_change": -0.41,
-    "up_ratio": 28.6,
+    "avg_pct_change": -3.14,
+    "up_ratio": 0.0,
     "leader": {
-      "code": "sh600834",
-      "pct": 1.74
+      "code": "sh600467",
+      "pct": -1.92
     },
-    "rank": 34
-  },
-  {
-    "sector_code": "B09有色金属矿采选业",
-    "sector_name": "有色金属矿采选",
-    "n_stocks": 28,
-    "composite_score": 27.3,
-    "heat_label": "cold",
-    "dim_valuation": 10.8,
-    "dim_sentiment": 62.2,
-    "dim_technical": 14.3,
-    "avg_pct_change": -1.76,
-    "up_ratio": 32.1,
-    "leader": {
-      "code": "sz002192",
-      "pct": 3.07
-    },
-    "rank": 35
-  },
-  {
-    "sector_code": "C18纺织服装、服饰业",
-    "sector_name": "纺织服装",
-    "n_stocks": 41,
-    "composite_score": 26.4,
-    "heat_label": "cold",
-    "dim_valuation": 35.0,
-    "dim_sentiment": 25.4,
-    "dim_technical": 15.9,
-    "avg_pct_change": -0.98,
-    "up_ratio": 36.6,
-    "leader": {
-      "code": "sh601718",
-      "pct": 7.78
-    },
-    "rank": 36
-  },
-  {
-    "sector_code": "J66货币金融服务",
-    "sector_name": "货币金融服务",
-    "n_stocks": 45,
-    "composite_score": 24.6,
-    "heat_label": "cold",
-    "dim_valuation": 4.6,
-    "dim_sentiment": 68.2,
-    "dim_technical": 7.8,
-    "avg_pct_change": 2.1,
-    "up_ratio": 95.6,
-    "leader": {
-      "code": "sz002948",
-      "pct": 5.31
-    },
-    "rank": 37
+    "rank": 25
   },
   {
     "sector_code": "B11开采专业及辅助性活动",
     "sector_name": "开采辅助",
     "n_stocks": 14,
-    "composite_score": 24.4,
-    "heat_label": "cold",
-    "dim_valuation": 35.0,
-    "dim_sentiment": 27.5,
-    "dim_technical": 7.1,
-    "avg_pct_change": -0.46,
-    "up_ratio": 42.9,
-    "leader": {
-      "code": "sz002828",
-      "pct": 9.98
-    },
-    "rank": 38
-  },
-  {
-    "sector_code": "I63电信、广播电视和卫星传输服务",
-    "sector_name": "电信广播电视",
-    "n_stocks": 21,
-    "composite_score": 24.4,
-    "heat_label": "cold",
-    "dim_valuation": 39.5,
-    "dim_sentiment": 21.7,
-    "dim_technical": 7.1,
-    "avg_pct_change": -1.44,
-    "up_ratio": 28.6,
-    "leader": {
-      "code": "sh601728",
-      "pct": 2.58
-    },
-    "rank": 39
-  },
-  {
-    "sector_code": "G54道路运输业",
-    "sector_name": "G54道路运输业",
-    "n_stocks": 32,
-    "composite_score": 23.8,
-    "heat_label": "cold",
-    "dim_valuation": 31.4,
-    "dim_sentiment": 31.3,
-    "dim_technical": 6.3,
-    "avg_pct_change": 0.4,
-    "up_ratio": 56.2,
-    "leader": {
-      "code": "sh601107",
-      "pct": 6.14
-    },
-    "rank": 40
-  },
-  {
-    "sector_code": "C17纺织业",
-    "sector_name": "纺织业",
-    "n_stocks": 45,
-    "composite_score": 23.6,
-    "heat_label": "cold",
-    "dim_valuation": 23.8,
-    "dim_sentiment": 36.8,
-    "dim_technical": 10.2,
-    "avg_pct_change": -0.78,
-    "up_ratio": 33.3,
-    "leader": {
-      "code": "sz002042",
-      "pct": 9.97
-    },
-    "rank": 41
-  },
-  {
-    "sector_code": "G59装卸搬运和仓储业",
-    "sector_name": "G59装卸搬运和仓储业",
-    "n_stocks": 7,
-    "composite_score": 23.6,
-    "heat_label": "cold",
-    "dim_valuation": 11.2,
-    "dim_sentiment": 40.2,
-    "dim_technical": null,
-    "avg_pct_change": -0.41,
-    "up_ratio": 28.6,
-    "leader": {
-      "code": "sz300013",
-      "pct": 3.32
-    },
-    "rank": 42
-  },
-  {
-    "sector_code": "P83教育",
-    "sector_name": "P83教育",
-    "n_stocks": 13,
-    "composite_score": 23.1,
-    "heat_label": "cold",
-    "dim_valuation": 3.8,
-    "dim_sentiment": 64.2,
-    "dim_technical": 7.7,
-    "avg_pct_change": 0.87,
-    "up_ratio": 53.8,
-    "leader": {
-      "code": "sz300338",
-      "pct": 10.21
-    },
-    "rank": 43
-  },
-  {
-    "sector_code": "D46水的生产和供应业",
-    "sector_name": "水的生产供应",
-    "n_stocks": 21,
-    "composite_score": 22.8,
-    "heat_label": "cold",
-    "dim_valuation": 5.5,
-    "dim_sentiment": 64.0,
-    "dim_technical": 4.8,
-    "avg_pct_change": 0.95,
-    "up_ratio": 76.2,
-    "leader": {
-      "code": "sh601368",
-      "pct": 9.95
-    },
-    "rank": 44
-  },
-  {
-    "sector_code": "G56航空运输业",
-    "sector_name": "航空运输",
-    "n_stocks": 14,
-    "composite_score": 22.0,
-    "heat_label": "cold",
-    "dim_valuation": 3.2,
-    "dim_sentiment": 65.4,
-    "dim_technical": 3.6,
-    "avg_pct_change": 1.1,
-    "up_ratio": 85.7,
-    "leader": {
-      "code": "sh603885",
-      "pct": 2.59
-    },
-    "rank": 45
-  },
-  {
-    "sector_code": "K70房地产业",
-    "sector_name": "房地产业",
-    "n_stocks": 88,
-    "composite_score": 21.9,
-    "heat_label": "cold",
-    "dim_valuation": 19.4,
-    "dim_sentiment": 37.0,
-    "dim_technical": 10.0,
-    "avg_pct_change": 0.29,
-    "up_ratio": 45.5,
-    "leader": {
-      "code": "sh600246",
-      "pct": 10.02
-    },
-    "rank": 46
-  },
-  {
-    "sector_code": "E48土木工程建筑业",
-    "sector_name": "土木工程",
-    "n_stocks": 66,
-    "composite_score": 20.7,
-    "heat_label": "cold",
-    "dim_valuation": 16.2,
-    "dim_sentiment": 39.3,
-    "dim_technical": 8.0,
-    "avg_pct_change": -0.79,
-    "up_ratio": 45.5,
-    "leader": {
-      "code": "sh603815",
-      "pct": 10.09
-    },
-    "rank": 47
-  },
-  {
-    "sector_code": "C14食品制造业",
-    "sector_name": "食品制造",
-    "n_stocks": 72,
-    "composite_score": 20.3,
-    "heat_label": "cold",
-    "dim_valuation": 10.5,
-    "dim_sentiment": 47.7,
-    "dim_technical": 6.0,
-    "avg_pct_change": 0.79,
-    "up_ratio": 65.3,
-    "leader": {
-      "code": "sz002329",
-      "pct": 10.1
-    },
-    "rank": 48
-  },
-  {
-    "sector_code": "I65软件和信息技术服务业",
-    "sector_name": "软件信息技术",
-    "n_stocks": 335,
-    "composite_score": 20.1,
-    "heat_label": "cold",
-    "dim_valuation": 28.9,
-    "dim_sentiment": 15.6,
-    "dim_technical": 13.0,
-    "avg_pct_change": -2.04,
-    "up_ratio": 16.4,
-    "leader": {
-      "code": "sh688206",
-      "pct": 20.01
-    },
-    "rank": 49
-  },
-  {
-    "sector_code": "B08黑色金属矿采选业",
-    "sector_name": "黑色金属矿采选",
-    "n_stocks": 6,
     "composite_score": 19.8,
     "heat_label": "cold",
-    "dim_valuation": 12.7,
-    "dim_sentiment": 29.2,
-    "dim_technical": null,
-    "avg_pct_change": -1.48,
-    "up_ratio": 50.0,
+    "dim_valuation": 30.5,
+    "dim_sentiment": 18.1,
+    "dim_technical": 7.1,
+    "avg_pct_change": -3.21,
+    "up_ratio": 7.1,
     "leader": {
-      "code": "sz000923",
-      "pct": 0.93
+      "code": "sz002828",
+      "pct": 3.58
     },
-    "rank": 50
+    "rank": 26
   },
   {
-    "sector_code": "D45燃气生产和供应业",
-    "sector_name": "燃气生产供应",
-    "n_stocks": 30,
-    "composite_score": 19.0,
+    "sector_code": "S91综合",
+    "sector_name": "S91综合",
+    "n_stocks": 7,
+    "composite_score": 19.8,
     "heat_label": "cold",
-    "dim_valuation": 14.6,
-    "dim_sentiment": 33.7,
-    "dim_technical": 10.0,
-    "avg_pct_change": -0.33,
-    "up_ratio": 43.3,
+    "dim_valuation": 33.0,
+    "dim_sentiment": 2.1,
+    "dim_technical": null,
+    "avg_pct_change": -3.78,
+    "up_ratio": 0.0,
     "leader": {
-      "code": "sz000593",
-      "pct": 9.99
+      "code": "sh600805",
+      "pct": -2.38
     },
-    "rank": 51
+    "rank": 27
+  },
+  {
+    "sector_code": "C25石油、煤炭及其他燃料加工业",
+    "sector_name": "石油加工炼焦",
+    "n_stocks": 17,
+    "composite_score": 18.8,
+    "heat_label": "cold",
+    "dim_valuation": 43.3,
+    "dim_sentiment": 5.0,
+    "dim_technical": 0.0,
+    "avg_pct_change": -3.52,
+    "up_ratio": 0.0,
+    "leader": {
+      "code": "sz300839",
+      "pct": -0.58
+    },
+    "rank": 28
   },
   {
     "sector_code": "C23印刷和记录媒介复制业",
     "sector_name": "C23印刷和记录媒介复制业",
     "n_stocks": 13,
-    "composite_score": 18.9,
+    "composite_score": 18.5,
     "heat_label": "cold",
-    "dim_valuation": 42.0,
-    "dim_sentiment": 6.9,
+    "dim_valuation": 41.6,
+    "dim_sentiment": 6.3,
     "dim_technical": 0.0,
-    "avg_pct_change": -1.81,
+    "avg_pct_change": -1.64,
     "up_ratio": 15.4,
     "leader": {
-      "code": "sz001279",
-      "pct": 1.07
+      "code": "sz002951",
+      "pct": 10.01
+    },
+    "rank": 29
+  },
+  {
+    "sector_code": "C18纺织服装、服饰业",
+    "sector_name": "纺织服装",
+    "n_stocks": 41,
+    "composite_score": 18.2,
+    "heat_label": "cold",
+    "dim_valuation": 32.1,
+    "dim_sentiment": 3.4,
+    "dim_technical": 14.6,
+    "avg_pct_change": -3.14,
+    "up_ratio": 2.4,
+    "leader": {
+      "code": "sz300005",
+      "pct": 0.09
+    },
+    "rank": 30
+  },
+  {
+    "sector_code": "I63电信、广播电视和卫星传输服务",
+    "sector_name": "电信广播电视",
+    "n_stocks": 21,
+    "composite_score": 17.6,
+    "heat_label": "cold",
+    "dim_valuation": 38.7,
+    "dim_sentiment": 2.3,
+    "dim_technical": 4.8,
+    "avg_pct_change": -2.75,
+    "up_ratio": 4.8,
+    "leader": {
+      "code": "sh600941",
+      "pct": 0.48
+    },
+    "rank": 31
+  },
+  {
+    "sector_code": "J67资本市场服务",
+    "sector_name": "资本市场服务",
+    "n_stocks": 56,
+    "composite_score": 17.5,
+    "heat_label": "cold",
+    "dim_valuation": 20.6,
+    "dim_sentiment": 20.0,
+    "dim_technical": 11.0,
+    "avg_pct_change": -2.59,
+    "up_ratio": 3.6,
+    "leader": {
+      "code": "sh601162",
+      "pct": 1.65
+    },
+    "rank": 32
+  },
+  {
+    "sector_code": "J68保险业",
+    "sector_name": "保险业",
+    "n_stocks": 6,
+    "composite_score": 16.7,
+    "heat_label": "cold",
+    "dim_valuation": 11.8,
+    "dim_sentiment": 23.3,
+    "dim_technical": null,
+    "avg_pct_change": -2.31,
+    "up_ratio": 0.0,
+    "leader": {
+      "code": "sh601318",
+      "pct": -1.62
+    },
+    "rank": 33
+  },
+  {
+    "sector_code": "B09有色金属矿采选业",
+    "sector_name": "有色金属矿采选",
+    "n_stocks": 28,
+    "composite_score": 15.8,
+    "heat_label": "cold",
+    "dim_valuation": 8.4,
+    "dim_sentiment": 27.3,
+    "dim_technical": 14.3,
+    "avg_pct_change": -3.61,
+    "up_ratio": 10.7,
+    "leader": {
+      "code": "sz002192",
+      "pct": 3.39
+    },
+    "rank": 34
+  },
+  {
+    "sector_code": "D44电力、热力生产和供应业",
+    "sector_name": "电力生产供应",
+    "n_stocks": 93,
+    "composite_score": 15.6,
+    "heat_label": "cold",
+    "dim_valuation": 18.1,
+    "dim_sentiment": 16.0,
+    "dim_technical": 12.0,
+    "avg_pct_change": -3.29,
+    "up_ratio": 4.3,
+    "leader": {
+      "code": "sh600770",
+      "pct": 2.72
+    },
+    "rank": 35
+  },
+  {
+    "sector_code": "P83教育",
+    "sector_name": "P83教育",
+    "n_stocks": 13,
+    "composite_score": 14.9,
+    "heat_label": "cold",
+    "dim_valuation": 0.8,
+    "dim_sentiment": 41.0,
+    "dim_technical": 7.7,
+    "avg_pct_change": -2.97,
+    "up_ratio": 7.7,
+    "leader": {
+      "code": "sz002607",
+      "pct": 8.13
+    },
+    "rank": 36
+  },
+  {
+    "sector_code": "C28化学纤维制造业",
+    "sector_name": "化学纤维",
+    "n_stocks": 25,
+    "composite_score": 14.8,
+    "heat_label": "cold",
+    "dim_valuation": 13.4,
+    "dim_sentiment": 15.5,
+    "dim_technical": 16.0,
+    "avg_pct_change": -3.94,
+    "up_ratio": 0.0,
+    "leader": {
+      "code": "sh688722",
+      "pct": 0.0
+    },
+    "rank": 37
+  },
+  {
+    "sector_code": "I65软件和信息技术服务业",
+    "sector_name": "软件信息技术",
+    "n_stocks": 335,
+    "composite_score": 14.8,
+    "heat_label": "cold",
+    "dim_valuation": 25.8,
+    "dim_sentiment": 5.0,
+    "dim_technical": 10.0,
+    "avg_pct_change": -2.95,
+    "up_ratio": 9.9,
+    "leader": {
+      "code": "sz003004",
+      "pct": 10.0
+    },
+    "rank": 38
+  },
+  {
+    "sector_code": "G54道路运输业",
+    "sector_name": "G54道路运输业",
+    "n_stocks": 32,
+    "composite_score": 14.0,
+    "heat_label": "cold",
+    "dim_valuation": 26.9,
+    "dim_sentiment": 4.6,
+    "dim_technical": 6.3,
+    "avg_pct_change": -2.13,
+    "up_ratio": 12.5,
+    "leader": {
+      "code": "sh600350",
+      "pct": 0.91
+    },
+    "rank": 39
+  },
+  {
+    "sector_code": "I64互联网和相关服务",
+    "sector_name": "互联网相关",
+    "n_stocks": 60,
+    "composite_score": 13.9,
+    "heat_label": "cold",
+    "dim_valuation": 2.7,
+    "dim_sentiment": 35.9,
+    "dim_technical": 7.0,
+    "avg_pct_change": -1.26,
+    "up_ratio": 26.7,
+    "leader": {
+      "code": "sz300043",
+      "pct": 14.13
+    },
+    "rank": 40
+  },
+  {
+    "sector_code": "J66货币金融服务",
+    "sector_name": "货币金融服务",
+    "n_stocks": 45,
+    "composite_score": 12.3,
+    "heat_label": "cold",
+    "dim_valuation": 4.0,
+    "dim_sentiment": 27.9,
+    "dim_technical": 7.8,
+    "avg_pct_change": -0.54,
+    "up_ratio": 26.7,
+    "leader": {
+      "code": "sh601939",
+      "pct": 2.59
+    },
+    "rank": 41
+  },
+  {
+    "sector_code": "C14食品制造业",
+    "sector_name": "食品制造",
+    "n_stocks": 72,
+    "composite_score": 11.5,
+    "heat_label": "cold",
+    "dim_valuation": 5.7,
+    "dim_sentiment": 25.6,
+    "dim_technical": 5.0,
+    "avg_pct_change": -2.68,
+    "up_ratio": 8.3,
+    "leader": {
+      "code": "sz002329",
+      "pct": 6.12
+    },
+    "rank": 42
+  },
+  {
+    "sector_code": "D46水的生产和供应业",
+    "sector_name": "水的生产供应",
+    "n_stocks": 21,
+    "composite_score": 11.4,
+    "heat_label": "cold",
+    "dim_valuation": 4.0,
+    "dim_sentiment": 25.6,
+    "dim_technical": 7.1,
+    "avg_pct_change": -2.22,
+    "up_ratio": 14.3,
+    "leader": {
+      "code": "sh600283",
+      "pct": 4.39
+    },
+    "rank": 43
+  },
+  {
+    "sector_code": "K70房地产业",
+    "sector_name": "房地产业",
+    "n_stocks": 88,
+    "composite_score": 10.7,
+    "heat_label": "cold",
+    "dim_valuation": 11.8,
+    "dim_sentiment": 10.9,
+    "dim_technical": 9.0,
+    "avg_pct_change": -3.21,
+    "up_ratio": 8.0,
+    "leader": {
+      "code": "sh600094",
+      "pct": 10.03
+    },
+    "rank": 44
+  },
+  {
+    "sector_code": "C17纺织业",
+    "sector_name": "纺织业",
+    "n_stocks": 45,
+    "composite_score": 10.6,
+    "heat_label": "cold",
+    "dim_valuation": 14.1,
+    "dim_sentiment": 8.6,
+    "dim_technical": 8.0,
+    "avg_pct_change": -3.0,
+    "up_ratio": 6.7,
+    "leader": {
+      "code": "sz300163",
+      "pct": 2.13
+    },
+    "rank": 45
+  },
+  {
+    "sector_code": "B08黑色金属矿采选业",
+    "sector_name": "黑色金属矿采选",
+    "n_stocks": 6,
+    "composite_score": 10.4,
+    "heat_label": "cold",
+    "dim_valuation": 10.9,
+    "dim_sentiment": 9.8,
+    "dim_technical": null,
+    "avg_pct_change": -0.61,
+    "up_ratio": 16.7,
+    "leader": {
+      "code": "sh601121",
+      "pct": 10.03
+    },
+    "rank": 46
+  },
+  {
+    "sector_code": "A01农业",
+    "sector_name": "农业",
+    "n_stocks": 8,
+    "composite_score": 10.0,
+    "heat_label": "cold",
+    "dim_valuation": 2.3,
+    "dim_sentiment": 20.2,
+    "dim_technical": null,
+    "avg_pct_change": -3.45,
+    "up_ratio": 0.0,
+    "leader": {
+      "code": "sh601118",
+      "pct": -1.8
+    },
+    "rank": 47
+  },
+  {
+    "sector_code": "R87广播、电视、电影和录音制作业",
+    "sector_name": "文化艺术",
+    "n_stocks": 20,
+    "composite_score": 9.2,
+    "heat_label": "cold",
+    "dim_valuation": 1.7,
+    "dim_sentiment": 28.3,
+    "dim_technical": 0.0,
+    "avg_pct_change": -1.22,
+    "up_ratio": 20.0,
+    "leader": {
+      "code": "sz002739",
+      "pct": 5.99
+    },
+    "rank": 48
+  },
+  {
+    "sector_code": "D45燃气生产和供应业",
+    "sector_name": "燃气生产供应",
+    "n_stocks": 30,
+    "composite_score": 9.1,
+    "heat_label": "cold",
+    "dim_valuation": 7.1,
+    "dim_sentiment": 14.1,
+    "dim_technical": 6.7,
+    "avg_pct_change": -2.98,
+    "up_ratio": 3.3,
+    "leader": {
+      "code": "sz000593",
+      "pct": 6.45
+    },
+    "rank": 49
+  },
+  {
+    "sector_code": "E48土木工程建筑业",
+    "sector_name": "土木工程",
+    "n_stocks": 66,
+    "composite_score": 9.1,
+    "heat_label": "cold",
+    "dim_valuation": 10.5,
+    "dim_sentiment": 8.4,
+    "dim_technical": 8.0,
+    "avg_pct_change": -2.9,
+    "up_ratio": 9.1,
+    "leader": {
+      "code": "sh603815",
+      "pct": 5.07
+    },
+    "rank": 50
+  },
+  {
+    "sector_code": "G55水上运输业",
+    "sector_name": "G55水上运输业",
+    "n_stocks": 35,
+    "composite_score": 8.8,
+    "heat_label": "cold",
+    "dim_valuation": 10.9,
+    "dim_sentiment": 7.8,
+    "dim_technical": 7.1,
+    "avg_pct_change": -2.44,
+    "up_ratio": 8.6,
+    "leader": {
+      "code": "sh603209",
+      "pct": 2.69
+    },
+    "rank": 51
+  },
+  {
+    "sector_code": "G59装卸搬运和仓储业",
+    "sector_name": "G59装卸搬运和仓储业",
+    "n_stocks": 7,
+    "composite_score": 8.4,
+    "heat_label": "cold",
+    "dim_valuation": 8.6,
+    "dim_sentiment": 8.2,
+    "dim_technical": null,
+    "avg_pct_change": -2.75,
+    "up_ratio": 0.0,
+    "leader": {
+      "code": "sz300013",
+      "pct": -1.98
     },
     "rank": 52
   },
   {
-    "sector_code": "H61住宿业",
-    "sector_name": "H61住宿业",
-    "n_stocks": 5,
-    "composite_score": 17.9,
+    "sector_code": "C22造纸和纸制品业",
+    "sector_name": "造纸",
+    "n_stocks": 42,
+    "composite_score": 7.0,
     "heat_label": "cold",
-    "dim_valuation": 3.2,
-    "dim_sentiment": 37.4,
-    "dim_technical": null,
-    "avg_pct_change": 0.67,
-    "up_ratio": 80.0,
+    "dim_valuation": 2.9,
+    "dim_sentiment": 13.6,
+    "dim_technical": 6.0,
+    "avg_pct_change": -2.05,
+    "up_ratio": 21.4,
     "leader": {
-      "code": "sh600258",
-      "pct": 2.78
+      "code": "sh600793",
+      "pct": 9.99
     },
     "rank": 53
   },
   {
-    "sector_code": "C15酒、饮料和精制茶制造业",
-    "sector_name": "酒类饮料",
-    "n_stocks": 47,
-    "composite_score": 17.6,
+    "sector_code": "G53铁路运输业",
+    "sector_name": "G53铁路运输业",
+    "n_stocks": 7,
+    "composite_score": 6.9,
     "heat_label": "cold",
-    "dim_valuation": 4.0,
-    "dim_sentiment": 49.2,
-    "dim_technical": 4.3,
-    "avg_pct_change": 0.13,
-    "up_ratio": 55.3,
+    "dim_valuation": 2.3,
+    "dim_sentiment": 13.0,
+    "dim_technical": null,
+    "avg_pct_change": -2.24,
+    "up_ratio": 14.3,
     "leader": {
-      "code": "sh600084",
-      "pct": 8.02
+      "code": "sh601006",
+      "pct": 0.21
     },
     "rank": 54
   },
@@ -921,118 +921,118 @@
     "sector_code": "C36汽车制造业",
     "sector_name": "汽车制造",
     "n_stocks": 197,
-    "composite_score": 16.4,
+    "composite_score": 6.7,
     "heat_label": "cold",
-    "dim_valuation": 2.3,
-    "dim_sentiment": 43.6,
-    "dim_technical": 8.0,
-    "avg_pct_change": -1.65,
-    "up_ratio": 25.4,
+    "dim_valuation": 1.3,
+    "dim_sentiment": 11.5,
+    "dim_technical": 9.0,
+    "avg_pct_change": -2.6,
+    "up_ratio": 9.6,
     "leader": {
-      "code": "sh603211",
-      "pct": 9.99
+      "code": "sz300745",
+      "pct": 12.72
     },
     "rank": 55
-  },
-  {
-    "sector_code": "C13农副食品加工业",
-    "sector_name": "农副食品加工",
-    "n_stocks": 63,
-    "composite_score": 16.2,
-    "heat_label": "cold",
-    "dim_valuation": 5.1,
-    "dim_sentiment": 44.2,
-    "dim_technical": 3.0,
-    "avg_pct_change": 0.91,
-    "up_ratio": 65.1,
-    "leader": {
-      "code": "sz002726",
-      "pct": 9.7
-    },
-    "rank": 56
-  },
-  {
-    "sector_code": "A05农、林、牧、渔专业及辅助性活动",
-    "sector_name": "农林牧渔辅助",
-    "n_stocks": 7,
-    "composite_score": 14.5,
-    "heat_label": "cold",
-    "dim_valuation": 1.7,
-    "dim_sentiment": 31.5,
-    "dim_technical": null,
-    "avg_pct_change": 0.14,
-    "up_ratio": 57.1,
-    "leader": {
-      "code": "sz000998",
-      "pct": 1.29
-    },
-    "rank": 57
-  },
-  {
-    "sector_code": "C22造纸和纸制品业",
-    "sector_name": "造纸",
-    "n_stocks": 42,
-    "composite_score": 13.8,
-    "heat_label": "cold",
-    "dim_valuation": 8.0,
-    "dim_sentiment": 28.2,
-    "dim_technical": 7.1,
-    "avg_pct_change": -0.2,
-    "up_ratio": 31.0,
-    "leader": {
-      "code": "sz301296",
-      "pct": 11.22
-    },
-    "rank": 58
   },
   {
     "sector_code": "J69其他金融业",
     "sector_name": "其他金融",
     "n_stocks": 14,
-    "composite_score": 13.8,
+    "composite_score": 6.4,
+    "heat_label": "cold",
+    "dim_valuation": 0.0,
+    "dim_sentiment": 17.6,
+    "dim_technical": 3.6,
+    "avg_pct_change": -1.08,
+    "up_ratio": 21.4,
+    "leader": {
+      "code": "sh600120",
+      "pct": 9.91
+    },
+    "rank": 56
+  },
+  {
+    "sector_code": "C15酒、饮料和精制茶制造业",
+    "sector_name": "酒类饮料",
+    "n_stocks": 47,
+    "composite_score": 6.0,
     "heat_label": "cold",
     "dim_valuation": 1.1,
-    "dim_sentiment": 40.8,
-    "dim_technical": 3.6,
-    "avg_pct_change": -0.05,
-    "up_ratio": 57.1,
+    "dim_sentiment": 14.1,
+    "dim_technical": 4.3,
+    "avg_pct_change": -3.07,
+    "up_ratio": 4.3,
     "leader": {
-      "code": "sz002647",
+      "code": "sz000729",
       "pct": 1.74
+    },
+    "rank": 57
+  },
+  {
+    "sector_code": "M74专业技术服务业",
+    "sector_name": "M74专业技术服务业",
+    "n_stocks": 76,
+    "composite_score": 5.9,
+    "heat_label": "cold",
+    "dim_valuation": 0.2,
+    "dim_sentiment": 8.4,
+    "dim_technical": 11.0,
+    "avg_pct_change": -3.05,
+    "up_ratio": 7.9,
+    "leader": {
+      "code": "sz301038",
+      "pct": 7.15
+    },
+    "rank": 58
+  },
+  {
+    "sector_code": "C41其他制造业",
+    "sector_name": "C41其他制造业",
+    "n_stocks": 15,
+    "composite_score": 5.3,
+    "heat_label": "cold",
+    "dim_valuation": 5.3,
+    "dim_sentiment": 4.0,
+    "dim_technical": 6.7,
+    "avg_pct_change": -2.29,
+    "up_ratio": 6.7,
+    "leader": {
+      "code": "sz001206",
+      "pct": 10.02
     },
     "rank": 59
   },
   {
-    "sector_code": "C37铁路、船舶、航空航天和其他运输设备制造业",
-    "sector_name": "C37铁路、船舶、航空航天和其他运输设备制造业",
-    "n_stocks": 83,
-    "composite_score": 13.5,
+    "sector_code": "G56航空运输业",
+    "sector_name": "航空运输",
+    "n_stocks": 14,
+    "composite_score": 5.2,
     "heat_label": "cold",
-    "dim_valuation": 3.6,
-    "dim_sentiment": 29.3,
-    "dim_technical": 11.0,
-    "avg_pct_change": -1.29,
-    "up_ratio": 22.9,
+    "dim_valuation": 0.4,
+    "dim_sentiment": 13.2,
+    "dim_technical": 3.6,
+    "avg_pct_change": -2.36,
+    "up_ratio": 0.0,
     "leader": {
-      "code": "sz301345",
-      "pct": 11.69
+      "code": "sh600897",
+      "pct": -1.41
     },
     "rank": 60
   },
   {
-    "sector_code": "C24文教、工美、体育和娱乐用品制造业",
-    "sector_name": "C24文教、工美、体育和娱乐用品制造业",
-    "n_stocks": 23,
-    "composite_score": 13.0,
+    "sector_code": "C37铁路、船舶、航空航天和其他运输设备制造业",
+    "sector_name": "C37铁路、船舶、航空航天和其他运输设备制造业",
+    "n_stocks": 82,
+    "composite_score": 4.3,
     "heat_label": "cold",
-    "dim_valuation": 9.9,
-    "dim_sentiment": 25.7,
-    "dim_technical": 4.3,
-    "avg_pct_change": -1.13,
-    "up_ratio": 34.8,
+    "dim_valuation": 0.6,
+    "dim_sentiment": 4.6,
+    "dim_technical": 9.0,
+    "avg_pct_change": -3.15,
+    "up_ratio": 3.7,
     "leader": {
-      "code": "sz002301",
-      "pct": 3.34
+      "code": "sz003033",
+      "pct": 5.28
     },
     "rank": 61
   },
@@ -1040,67 +1040,67 @@
     "sector_code": "C31黑色金属冶炼和压延加工业",
     "sector_name": "黑色金属冶炼",
     "n_stocks": 31,
-    "composite_score": 12.2,
+    "composite_score": 3.5,
     "heat_label": "cold",
-    "dim_valuation": 10.3,
-    "dim_sentiment": 25.2,
+    "dim_valuation": 6.5,
+    "dim_sentiment": 1.5,
     "dim_technical": 1.6,
-    "avg_pct_change": -0.07,
-    "up_ratio": 45.2,
+    "avg_pct_change": -2.37,
+    "up_ratio": 3.2,
     "leader": {
-      "code": "sh600282",
-      "pct": 2.98
+      "code": "sh600010",
+      "pct": 1.36
     },
     "rank": 62
   },
   {
-    "sector_code": "I64互联网和相关服务",
-    "sector_name": "互联网相关",
-    "n_stocks": 60,
-    "composite_score": 11.8,
+    "sector_code": "C13农副食品加工业",
+    "sector_name": "农副食品加工",
+    "n_stocks": 63,
+    "composite_score": 3.0,
     "heat_label": "cold",
-    "dim_valuation": 3.0,
-    "dim_sentiment": 27.2,
-    "dim_technical": 8.0,
-    "avg_pct_change": -1.52,
-    "up_ratio": 25.0,
+    "dim_valuation": 3.6,
+    "dim_sentiment": 2.3,
+    "dim_technical": 3.0,
+    "avg_pct_change": -2.39,
+    "up_ratio": 3.2,
     "leader": {
-      "code": "sz002919",
-      "pct": 10.02
+      "code": "sz001313",
+      "pct": 2.41
     },
     "rank": 63
+  },
+  {
+    "sector_code": "C24文教、工美、体育和娱乐用品制造业",
+    "sector_name": "C24文教、工美、体育和娱乐用品制造业",
+    "n_stocks": 24,
+    "composite_score": 3.0,
+    "heat_label": "cold",
+    "dim_valuation": 2.5,
+    "dim_sentiment": 2.5,
+    "dim_technical": 4.2,
+    "avg_pct_change": -2.85,
+    "up_ratio": 8.3,
+    "leader": {
+      "code": "sz002292",
+      "pct": 5.27
+    },
+    "rank": 64
   },
   {
     "sector_code": "F51批发业",
     "sector_name": "批发业",
     "n_stocks": 91,
-    "composite_score": 11.3,
+    "composite_score": 2.9,
     "heat_label": "cold",
-    "dim_valuation": 3.0,
-    "dim_sentiment": 29.8,
+    "dim_valuation": 1.3,
+    "dim_sentiment": 3.8,
     "dim_technical": 4.0,
-    "avg_pct_change": -0.13,
-    "up_ratio": 46.2,
+    "avg_pct_change": -3.23,
+    "up_ratio": 7.7,
     "leader": {
       "code": "sz000078",
-      "pct": 10.07
-    },
-    "rank": 64
-  },
-  {
-    "sector_code": "R86新闻和出版业",
-    "sector_name": "R86新闻和出版业",
-    "n_stocks": 29,
-    "composite_score": 10.7,
-    "heat_label": "cold",
-    "dim_valuation": 3.2,
-    "dim_sentiment": 31.5,
-    "dim_technical": 0.0,
-    "avg_pct_change": 0.37,
-    "up_ratio": 55.2,
-    "leader": {
-      "code": "sh601900",
-      "pct": 5.48
+      "pct": 9.76
     },
     "rank": 65
   },
@@ -1108,101 +1108,101 @@
     "sector_code": "F52零售业",
     "sector_name": "零售业",
     "n_stocks": 92,
-    "composite_score": 10.3,
+    "composite_score": 2.4,
     "heat_label": "cold",
-    "dim_valuation": 1.5,
-    "dim_sentiment": 25.2,
-    "dim_technical": 7.0,
-    "avg_pct_change": -0.56,
-    "up_ratio": 41.3,
+    "dim_valuation": 0.2,
+    "dim_sentiment": 1.9,
+    "dim_technical": 6.0,
+    "avg_pct_change": -2.87,
+    "up_ratio": 6.5,
     "leader": {
-      "code": "sz300972",
-      "pct": 6.15
+      "code": "sz002803",
+      "pct": 4.05
     },
     "rank": 66
   },
   {
-    "sector_code": "M74专业技术服务业",
-    "sector_name": "M74专业技术服务业",
-    "n_stocks": 76,
-    "composite_score": 9.3,
+    "sector_code": "R86新闻和出版业",
+    "sector_name": "R86新闻和出版业",
+    "n_stocks": 29,
+    "composite_score": 2.4,
     "heat_label": "cold",
-    "dim_valuation": 1.1,
-    "dim_sentiment": 17.5,
-    "dim_technical": 12.0,
-    "avg_pct_change": -1.31,
-    "up_ratio": 22.4,
+    "dim_valuation": 1.9,
+    "dim_sentiment": 5.4,
+    "dim_technical": 0.0,
+    "avg_pct_change": -2.17,
+    "up_ratio": 6.9,
     "leader": {
-      "code": "sh688372",
-      "pct": 11.45
+      "code": "sz000719",
+      "pct": 1.17
     },
     "rank": 67
   },
   {
-    "sector_code": "N78公共设施管理业",
-    "sector_name": "N78公共设施管理业",
-    "n_stocks": 24,
-    "composite_score": 9.2,
+    "sector_code": "H61住宿业",
+    "sector_name": "H61住宿业",
+    "n_stocks": 5,
+    "composite_score": 1.9,
     "heat_label": "cold",
-    "dim_valuation": 2.3,
-    "dim_sentiment": 27.5,
-    "dim_technical": 0.0,
-    "avg_pct_change": 0.04,
-    "up_ratio": 50.0,
+    "dim_valuation": 0.8,
+    "dim_sentiment": 3.4,
+    "dim_technical": null,
+    "avg_pct_change": -2.75,
+    "up_ratio": 0.0,
     "leader": {
-      "code": "sz000826",
-      "pct": 7.65
+      "code": "sz000428",
+      "pct": -1.92
     },
     "rank": 68
-  },
-  {
-    "sector_code": "R87广播、电视、电影和录音制作业",
-    "sector_name": "文化艺术",
-    "n_stocks": 20,
-    "composite_score": 8.9,
-    "heat_label": "cold",
-    "dim_valuation": 1.9,
-    "dim_sentiment": 27.1,
-    "dim_technical": 0.0,
-    "avg_pct_change": -0.76,
-    "up_ratio": 30.0,
-    "leader": {
-      "code": "sz000892",
-      "pct": 9.94
-    },
-    "rank": 69
-  },
-  {
-    "sector_code": "C41其他制造业",
-    "sector_name": "C41其他制造业",
-    "n_stocks": 15,
-    "composite_score": 8.4,
-    "heat_label": "cold",
-    "dim_valuation": 7.6,
-    "dim_sentiment": 11.2,
-    "dim_technical": 6.7,
-    "avg_pct_change": -2.43,
-    "up_ratio": 20.0,
-    "leader": {
-      "code": "sh688708",
-      "pct": 2.95
-    },
-    "rank": 70
   },
   {
     "sector_code": "L72商务服务业",
     "sector_name": "商务服务",
     "n_stocks": 73,
-    "composite_score": 7.9,
+    "composite_score": 1.6,
     "heat_label": "cold",
     "dim_valuation": 0.6,
-    "dim_sentiment": 21.7,
-    "dim_technical": 4.0,
-    "avg_pct_change": -1.14,
-    "up_ratio": 30.1,
+    "dim_sentiment": 1.7,
+    "dim_technical": 3.0,
+    "avg_pct_change": -2.87,
+    "up_ratio": 6.8,
     "leader": {
-      "code": "sz002485",
-      "pct": 6.67
+      "code": "sh603373",
+      "pct": 1.2
+    },
+    "rank": 69
+  },
+  {
+    "sector_code": "N78公共设施管理业",
+    "sector_name": "N78公共设施管理业",
+    "n_stocks": 24,
+    "composite_score": 1.6,
+    "heat_label": "cold",
+    "dim_valuation": 1.7,
+    "dim_sentiment": 2.9,
+    "dim_technical": 0.0,
+    "avg_pct_change": -2.6,
+    "up_ratio": 8.3,
+    "leader": {
+      "code": "sz001230",
+      "pct": 9.97
+    },
+    "rank": 70
+  },
+  {
+    "sector_code": "A05农、林、牧、渔专业及辅助性活动",
+    "sector_name": "农林牧渔辅助",
+    "n_stocks": 7,
+    "composite_score": 1.2,
+    "heat_label": "cold",
+    "dim_valuation": 1.1,
+    "dim_sentiment": 1.3,
+    "dim_technical": null,
+    "avg_pct_change": -2.31,
+    "up_ratio": 0.0,
+    "leader": {
+      "code": "sz000998",
+      "pct": -1.4
     },
     "rank": 71
   }
