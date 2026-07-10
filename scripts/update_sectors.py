@@ -25,7 +25,7 @@ def main():
     parser.add_argument("--out", default="web/data/sectors.json")
     args = parser.parse_args()
 
-    from src.indicators.calculator import calculate_sector_heat
+    from src.indicators.sector_calculator import calculate_sector_heat
 
     trade_date = args.date or date.today().strftime("%Y-%m-%d")
     logger.info("Sector heat date=%s db=%s", trade_date, args.db)
