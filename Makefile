@@ -45,10 +45,10 @@ compare:  ## 历史对比 (make compare DATE=2015-06-12)
 	python scripts/compare_history.py $(DATE)
 
 status:  ## 查看数据状态
-	python scripts/data_manager.py status
+	python scripts/db_maintenance.py
 
-backfill:  ## 补充数据
-	python scripts/data_manager.py backfill
+backfill:  ## 补充历史数据 (tushare 全量回补)
+	python scripts/fetch_tushare_history.py
 
 analyze:  ## 热度分析 (归因+异常+预测)
 	python scripts/heat_analysis.py --all
