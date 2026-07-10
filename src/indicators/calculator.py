@@ -151,7 +151,7 @@ class HeatIndexCalculator:
         ''', conn)
         if df.empty:
             df = pd.read_sql(
-                "SELECT DISTINCT stock_code as con_code FROM index_constituents WHERE index_code IN ('hs300','zz500')",
+                "SELECT DISTINCT stock_code as con_code FROM index_constituents_hist WHERE index_code IN ('hs300','zz500')",
                 conn
             )
             self._hc_by_date = {self.trade_date: set(df['con_code'])}
