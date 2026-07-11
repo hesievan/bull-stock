@@ -22758,5 +22758,50 @@
     "display_limit_up_ratio": 0.0145,
     "display_limit_ratio": 0.8602,
     "display_below_net_rate": 0.0911
+  },
+  {
+    "trade_date": "2026-07-11",
+    "composite_score": 29.4,
+    "level": "green",
+    "dimensions": {
+      "valuation": {
+        "score": 31.9,
+        "label": "估值"
+      },
+      "fund": {
+        "score": 0.0,
+        "label": "资金"
+      },
+      "sentiment": {
+        "score": 92.4,
+        "label": "情绪"
+      },
+      "structure": {
+        "score": 1.8,
+        "label": "结构"
+      }
+    },
+    "indicators_v2": {
+      "pe": 24.006700000000002,
+      "erp": 2.425703796856711,
+      "buffett": null,
+      "margin_ratio_v2": 0.01443501279769935,
+      "deposit_ratio": null,
+      "turnover_m2": null,
+      "turnover": 3.34934236112221,
+      "new_high": 0.011592102879913059,
+      "ma_alignment": 0.035028
+    },
+    "qvix_display": null,
+    "qvix_components": {
+      "qvix_50": 18.97,
+      "qvix_300": 21.19,
+      "qvix_1000": null,
+      "concentration": null
+    },
+    "version": "v2",
+    "updated_at": "2026-07-11 00:00:00",
+    "composite_score_smoothed": 34.3,
+    "level_smoothed": "green"
   }
 ]
