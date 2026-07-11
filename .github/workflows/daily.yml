@@ -115,7 +115,7 @@ jobs:
 
       # ── 保存种子库到 Release (每周一次) ────────────────────────────────────
       - name: Update seed database in Release
-        if: success() && (github.event_name == 'workflow_dispatch' || (github.event_name == 'schedule' && endsWith(string(github.run_number), '0')))
+        if: success() && (github.event_name == 'workflow_dispatch' || (github.event_name == 'schedule' && endsWith(format('{0}', github.run_number), '0')))
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
