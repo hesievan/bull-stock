@@ -29,6 +29,7 @@ TARGET_INDICES = OrderedDict({
     "bj899050": "北证50",
     "sh000510": "中证A500",
     "sh000852": "中证1000",
+    "sh000922": "中证红利",
 })
 
 # 使用相对强弱评分替代绝对动量评分的指数（短历史 < 1000 交易日）
@@ -41,6 +42,7 @@ _INDEX_CODE_TO_TS = {
     "bj899050": "899050.BJ",
     "sh000510": "000510.SH",
     "sh000852": "000852.SH",
+    "sh000922": "000922.SH",
 }
 
 
@@ -212,6 +214,26 @@ def _calc_pb_score(index_df_pe: pd.DataFrame) -> Optional[float]:
     return score
 
 
+def _calc_pr_score(index_df_pe: pd.DataFrame) -> tuple[Optional[float], Optional[float]]:
+    """市赚率 PR = PE / ROE = PE² / PB (higher PR = more overheated).
+
+    ROE = PB / PE, so PR = PE / (PB/PE) = PE² / PB.
+    Returns (score_percentile, current_pr_value).
+    """
+    if index_df_pe.empty or len(index_df_pe) < 60:
+        return None, None
+    pe = pd.to_numeric(index_df_pe["pe_ttm"], errors="coerce")
+    pb = pd.to_numeric(index_df_pe["pb"], errors="coerce")
+    valid = pd.DataFrame({"pe": pe, "pb": pb}).dropna()
+    valid = valid[(valid["pe"] > 0) & (valid["pb"] > 0)]
+    if len(valid) < 60:
+        return None, None
+    pr = valid["pe"] ** 2 / valid["pb"]
+    current_pr = float(pr.iloc[-1])
+    score = _pct_rank(pr, current_pr) * 100
+    return score, current_pr
+
+
 def _analyze_single_index(ak_code: str, name: str, trade_date: str, db_path: str = None) -> dict:
     """Analyze a single index for overheating signals."""
     idx_df = _get_index_daily(ak_code, trade_date, db_path=db_path)
@@ -265,6 +287,14 @@ def _analyze_single_index(ak_code: str, name: str, trade_date: str, db_path: str
         val_scores.append(pb_score)
         detail["pb"] = round(pb_score, 1)
         detail["pb_current"] = float(pd.to_numeric(pe_df["pb"], errors="coerce").dropna().iloc[-1])
+
+    # 市赚率 PR = PE²/PB (仅沪深300, 展示用不参与评分)
+    if ak_code == "sh000300":
+        pr_score, pr_value = _calc_pr_score(pe_df)
+        if pr_score is not None:
+            detail["pr"] = round(pr_score, 1)
+            detail["pr_current"] = round(pr_value, 2)
+            logger.info("  %s: PR=%.2f percentile=%.1f", name, pr_value, pr_score)
 
     tech_avg = float(np.mean(tech_scores)) if tech_scores else None
     val_avg = float(np.mean(val_scores)) if val_scores else None
