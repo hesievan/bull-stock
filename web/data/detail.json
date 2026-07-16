@@ -1,35 +1,35 @@
 {
   "trade_date": "2026-07-15",
-  "composite_score": 46.8,
+  "composite_score": 45.2,
   "level": "yellow",
   "dimensions": {
     "valuation": {
-      "score": 53.2,
+      "score": 49.1,
       "label": "估值"
     },
     "fund": {
-      "score": 37.6,
+      "score": 37.5,
       "label": "资金"
     },
     "sentiment": {
-      "score": 70.4,
+      "score": 71.0,
       "label": "情绪"
     },
     "structure": {
-      "score": 1.5,
+      "score": 1.1,
       "label": "结构"
     }
   },
   "indicators_v2": {
-    "pe": 24.3433,
-    "erp": 2.367306487616716,
-    "buffett": 0.3738085074219005,
+    "pe": 23.3824,
+    "erp": 2.5365209525112906,
+    "buffett": 0.9050505407738271,
     "margin_ratio_v2": 0.028834275161814544,
     "deposit_ratio": 2.7874907513166716,
     "turnover_m2": 0.007315914245198836,
     "turnover": 2.573122771521887,
-    "new_high": 0.009592760180995474,
-    "ma_alignment": 0.026687
+    "new_high": 0.009954751131221719,
+    "ma_alignment": 0.025157
   },
   "qvix_display": null,
   "qvix_components": {
@@ -40,22 +40,22 @@
   },
   "version": "v2",
   "updated_at": "2026-07-15 00:00:00",
-  "composite_score_smoothed": 47.1,
+  "composite_score_smoothed": 45.6,
   "level_smoothed": "yellow",
   "display_up_down_ratio": 1.5972,
   "display_limit_up_ratio": 0.0185,
   "display_limit_ratio": 1.3421,
   "display_below_net_rate": 0.0844,
   "indicators": {
-    "pe": 55.899339933993396,
-    "erp": 13.702022286421789,
-    "buffett": 90.02061855670102,
-    "margin_ratio_v2": 1.494602823138702,
+    "pe": 45.43199669284829,
+    "erp": 9.00788709007887,
+    "buffett": 92.93096320793717,
+    "margin_ratio_v2": 1.31277349447797,
     "deposit_ratio": 73.72262773722628,
     "turnover_m2": 94.16058394160584,
-    "turnover": 46.61016949152542,
-    "new_high": 0.9592760180995474,
-    "ma_alignment": 2.020618556701031,
+    "turnover": 47.78761061946903,
+    "new_high": 0.9954751131221719,
+    "ma_alignment": 1.28099173553719,
     "qvix": null,
     "qvix_components": {
       "qvix_50": 18.97,

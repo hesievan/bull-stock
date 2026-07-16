@@ -338,7 +338,8 @@ def run_daily(trade_date=None):
         out_dir = os.path.join(os.path.dirname(__file__), "..", "web", "data")
         os.makedirs(out_dir, exist_ok=True)
         with open(os.path.join(out_dir, "index_heat.json"), "w", encoding="utf-8") as f:
-            json.dump(idx_results, f, ensure_ascii=False, indent=2)
+            clean = [r for r in idx_results if "error" not in r]
+            json.dump(clean, f, ensure_ascii=False, indent=2)
         n_ok = sum(1 for r in idx_results if "error" not in r)
         logger.info("Index heat: %d/%d computed", n_ok, len(idx_results))
         return n_ok > 0

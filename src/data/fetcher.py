@@ -103,20 +103,44 @@ def fetch_index_daily(ak_code: str, start: str, end: str) -> pd.DataFrame:
                              start_date=start.replace("-", ""),
                              end_date=end.replace("-", ""))
         _ts_sleep()
+        if df is not None and not df.empty:
+            df["trade_date"] = pd.to_datetime(df["trade_date"], format="%Y%m%d").dt.strftime("%Y-%m-%d")
+            df["index_code"] = ak_code
+            df.rename(columns={"pct_chg": "pct_change", "vol": "volume"}, inplace=True)
+            expected_cols = ["trade_date", "index_code", "open", "high", "low", "close", "volume", "amount", "pct_change"]
+            for col in expected_cols:
+                if col not in df.columns and col not in ("trade_date", "index_code"):
+                    df[col] = None
+                elif col in df.columns and col not in ("trade_date", "index_code"):
+                    df[col] = pd.to_numeric(df[col], errors="coerce")
+            return df[expected_cols]
+    except Exception as e:
+        logger.warning("fetch_index_daily tushare(%s) failed: %s", ak_code, str(e)[:80])
+
+    try:
+        import akshare as ak
+        logger.info("fetch_index_daily(%s): falling back to akshare stock_zh_index_daily_tx", ak_code)
+        df = ak.stock_zh_index_daily_tx(symbol=ak_code)
         if df is None or df.empty:
             return pd.DataFrame()
-        df["trade_date"] = pd.to_datetime(df["trade_date"], format="%Y%m%d").dt.strftime("%Y-%m-%d")
+        df = df.rename(columns={"date": "trade_date"})
+        df["trade_date"] = pd.to_datetime(df["trade_date"]).dt.strftime("%Y-%m-%d")
+        df = df[(df["trade_date"] >= start) & (df["trade_date"] <= end)].copy()
+        if df.empty:
+            return pd.DataFrame()
+        df = df.sort_values("trade_date").reset_index(drop=True)
         df["index_code"] = ak_code
-        df.rename(columns={"pct_chg": "pct_change", "vol": "volume"}, inplace=True)
+        df["pct_change"] = (df["close"] / df["close"].shift(1) - 1) * 100
+        df["volume"] = None
         expected_cols = ["trade_date", "index_code", "open", "high", "low", "close", "volume", "amount", "pct_change"]
         for col in expected_cols:
-            if col not in df.columns and col not in ("trade_date", "index_code"):
+            if col not in df.columns:
                 df[col] = None
-            elif col in df.columns and col not in ("trade_date", "index_code"):
+            elif col not in ("trade_date", "index_code"):
                 df[col] = pd.to_numeric(df[col], errors="coerce")
         return df[expected_cols]
     except Exception as e:
-        logger.error("fetch_index_daily(%s) failed: %s", ak_code, str(e)[:80])
+        logger.error("fetch_index_daily akshare(%s) failed: %s", ak_code, str(e)[:80])
         return pd.DataFrame()
 
 

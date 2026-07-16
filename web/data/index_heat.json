@@ -127,6 +127,21 @@
   {
     "index_code": "sh000922",
     "index_name": "中证红利",
-    "error": "no index_daily data"
+    "trade_date": "2026-07-15",
+    "close": 5378.84,
+    "pct_change": 1.3441356570890184,
+    "tech_score": 19.0,
+    "val_score": null,
+    "composite_score": 19.0,
+    "level": "green",
+    "n_tech_indicators": 4,
+    "n_val_indicators": 0,
+    "detail": {
+      "ma250_deviation": 14.9,
+      "momentum_20d": 26.8,
+      "momentum_60d": 12.3,
+      "momentum_120d": 22.0,
+      "volume": 69.0
+    }
   }
 ]
