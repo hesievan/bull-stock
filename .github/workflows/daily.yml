@@ -83,6 +83,8 @@ jobs:
       # ── 补充数据 ──────────────────────────────────────────────────────────
       - name: Fetch supplementary data (GDP, IPO, etc.)
         if: success()
+        env:
+          TUSHARE_TOKEN: ${{ secrets.TUSHARE_TOKEN }}
         run: |
           python scripts/fetch_gdp.py || echo "GDP fetch skipped"
 
