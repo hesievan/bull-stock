@@ -1,67 +1,67 @@
 {
-  "trade_date": "2026-07-16",
-  "generated_at": "2026-07-16 00:00:00",
+  "trade_date": "2026-07-17",
+  "generated_at": "2026-07-17 00:00:00",
   "steps": {
     "init_db": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.0011565685272216797
+      "elapsed": 0.0010890960693359375
     },
     "S1_index": {
       "status": "OK",
       "detail": "",
-      "elapsed": 21.84966015815735
+      "elapsed": 46.760961055755615
     },
     "S2_market": {
       "status": "OK",
       "detail": "",
-      "elapsed": 2.4251513481140137
+      "elapsed": 20.219186067581177
     },
     "S25_index_pe": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.026226520538330078
+      "elapsed": 0.025929927825927734
     },
     "S26_circ_mv": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.0048067569732666016
+      "elapsed": 0.0037925243377685547
     },
     "S26b_total_mv": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.003981351852416992
+      "elapsed": 0.003943443298339844
     },
     "S27_updown": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.0077648162841796875
+      "elapsed": 0.0076198577880859375
     },
     "S28_limit": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.00745701789855957
+      "elapsed": 0.0074005126953125
     },
     "S29_below_net": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.007355928421020508
+      "elapsed": 0.0076253414154052734
     },
     "S30_ma_alignment": {
       "status": "OK",
       "detail": "",
-      "elapsed": 4.551468372344971
+      "elapsed": 4.596429824829102
     },
     "S31_qvix": {
       "status": "OK",
       "detail": "",
-      "elapsed": 4.534167051315308
+      "elapsed": 6.730314493179321
     },
     "precompute_staleness": [
       {
         "table": "daily_updown",
         "desc": "涨跌家数比",
-        "latest_date": "2026-07-16",
+        "latest_date": "2026-07-17",
         "gap_days": 0,
         "max_gap_days": 5,
         "stale": false,
@@ -71,7 +71,7 @@
       {
         "table": "daily_limit",
         "desc": "涨停/跌停",
-        "latest_date": "2026-07-16",
+        "latest_date": "2026-07-17",
         "gap_days": 0,
         "max_gap_days": 5,
         "stale": false,
@@ -81,7 +81,7 @@
       {
         "table": "daily_below_net",
         "desc": "破净率",
-        "latest_date": "2026-07-16",
+        "latest_date": "2026-07-17",
         "gap_days": 0,
         "max_gap_days": 5,
         "stale": false,
@@ -91,7 +91,7 @@
       {
         "table": "daily_ma_alignment",
         "desc": "MA排列比",
-        "latest_date": "2026-07-16",
+        "latest_date": "2026-07-17",
         "gap_days": 0,
         "max_gap_days": 5,
         "stale": false,
@@ -102,7 +102,7 @@
         "table": "daily_erp",
         "desc": "股权风险溢价",
         "latest_date": "2026-07-15",
-        "gap_days": 1,
+        "gap_days": 2,
         "max_gap_days": 5,
         "stale": false,
         "has_fallback": true,
@@ -111,7 +111,7 @@
       {
         "table": "daily_circ_mv",
         "desc": "流通市值",
-        "latest_date": "2026-07-16",
+        "latest_date": "2026-07-17",
         "gap_days": 0,
         "max_gap_days": 5,
         "stale": false,
@@ -122,7 +122,7 @@
         "table": "daily_macro",
         "desc": "宏观(M1-M2)",
         "latest_date": "2026-06-10",
-        "gap_days": 36,
+        "gap_days": 37,
         "max_gap_days": 7,
         "stale": true,
         "has_fallback": false,
@@ -131,7 +131,7 @@
       {
         "table": "qvix_daily",
         "desc": "QVIX恐慌",
-        "latest_date": "2026-07-16",
+        "latest_date": "2026-07-17",
         "gap_days": 0,
         "max_gap_days": 5,
         "stale": false,
@@ -141,7 +141,7 @@
       {
         "table": "index_daily_pe",
         "desc": "指数PE中位数",
-        "latest_date": "2026-07-16",
+        "latest_date": "2026-07-17",
         "gap_days": 0,
         "max_gap_days": 5,
         "stale": false,
@@ -152,7 +152,7 @@
         "table": "ah_premium_monthly",
         "desc": "AH溢价(月)",
         "latest_date": "2026-06",
-        "gap_days": 16,
+        "gap_days": 17,
         "max_gap_days": 38,
         "stale": false,
         "has_fallback": true,
@@ -162,37 +162,37 @@
     "S24_precompute_check": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.007500171661376953
+      "elapsed": 0.00775909423828125
     },
     "S24c_m2": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.0010819435119628906
+      "elapsed": 0.0011186599731445312
     },
     "S3_margin": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.3335895538330078
+      "elapsed": 5.039136648178101
     },
     "S3_bond_yield": {
       "status": "OK",
       "detail": "",
-      "elapsed": 3.9553136825561523
+      "elapsed": 3.2014636993408203
     },
     "S3_tushare": {
       "status": "OK",
       "detail": "",
-      "elapsed": 4.3103015422821045
+      "elapsed": 8.262281894683838
     },
     "S5_calc": {
       "status": "OK",
       "detail": "",
-      "elapsed": 9.70512843132019
+      "elapsed": 8.975908994674683
     },
     "S55_index_heat": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.12166857719421387
+      "elapsed": 0.12477779388427734
     }
   },
   "n_ok": 18,
