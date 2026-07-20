@@ -58,7 +58,9 @@ def calc_northbound_cumflow(calc) -> float | None:
             return None
 
         nb2 = nb.copy()
-        nb2["north_net"] = _to_numeric(nb2["north_net"]).dropna()
+        # 先转数值（不 dropna），仅按列丢弃缺失行，避免索引错位导致 rolling 算错
+        nb2["north_net"] = _to_numeric(nb2["north_net"])
+        nb2 = nb2.dropna(subset=["north_net"])
         nb2["cum_20d"] = nb2["north_net"].rolling(20).sum()
         nb2["change_rate"] = nb2["cum_20d"].pct_change() * 100
         nb2["change_rate"] = nb2["change_rate"].replace([np.inf, -np.inf], np.nan)

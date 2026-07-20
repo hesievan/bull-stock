@@ -90,8 +90,12 @@ def _get_conn(db_path: str = None):
 # 各指标计算函数
 # ═══════════════════════════════════════════════════════════════════════════
 
-def calc_pe(conn, trade_date: str) -> Optional[float]:
-    """大盘PE — index_daily_pe 中位数历史百分位 (高PE=贵=高热度)"""
+def calc_pe(conn, trade_date: str) -> Optional[tuple]:
+    """大盘PE — index_daily_pe 中位数历史百分位 (高PE=贵=高热度)
+
+    返回: (score: float, cur_pe: float) 或 None（失败时）
+    注: 调度器 _unpack 会按 tuple 解包，故返回类型为 tuple 而非 float。
+    """
     try:
         td = trade_date
         # 当前值

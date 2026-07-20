@@ -177,8 +177,8 @@ def fetch_margin_history(start: str, end: str) -> pd.DataFrame:
                 _ts_sleep()
                 if df is not None and not df.empty:
                     dfs.append(df)
-            except Exception:
-                pass
+            except Exception as e:
+                logger.warning("fetch_margin_history month %s failed: %s", ds, str(e)[:80])
         if not dfs:
             return pd.DataFrame()
         result = pd.concat(dfs, ignore_index=True)
@@ -211,8 +211,8 @@ def fetch_northbound_history(start: str, end: str) -> pd.DataFrame:
                 _ts_sleep()
                 if df is not None and not df.empty:
                     dfs.append(df)
-            except Exception:
-                pass
+            except Exception as e:
+                logger.warning("fetch_northbound_history month %s failed: %s", ds, str(e)[:80])
         if not dfs:
             return pd.DataFrame()
         result = pd.concat(dfs, ignore_index=True)
@@ -249,7 +249,11 @@ def _fetch_bond_yield_akshare() -> pd.DataFrame:
 
 
 def fetch_bond_yield_history(start: str, end: str) -> pd.DataFrame:
-    """国债收益率 — 直接使用 akshare (tushare yc_cb 无权限)"""
+    """国债收益率 — 直接使用 akshare (tushare yc_cb 无权限)
+
+    注: start/end 为接口兼容签名；akshare 接口返回全量历史，
+    调用方按需自行按区间 slice（本函数不按区间过滤）。
+    """
     return _fetch_bond_yield_akshare()
 
 

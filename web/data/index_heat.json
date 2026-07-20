@@ -127,21 +127,21 @@
   {
     "index_code": "sh000922",
     "index_name": "中证红利",
-    "trade_date": "2026-07-20",
-    "close": 5450.51,
-    "pct_change": 3.1939808512612133,
-    "tech_score": 33.1,
+    "trade_date": "2026-07-17",
+    "close": 5281.81,
+    "pct_change": -0.737821528376803,
+    "tech_score": 19.8,
     "val_score": null,
-    "composite_score": 33.1,
+    "composite_score": 19.8,
     "level": "green",
     "n_tech_indicators": 4,
     "n_val_indicators": 0,
     "detail": {
-      "ma250_deviation": 21.2,
-      "momentum_20d": 61.0,
-      "momentum_60d": 15.0,
-      "momentum_120d": 35.4,
-      "volume": 93.0
+      "ma250_deviation": 11.1,
+      "momentum_20d": 39.9,
+      "momentum_60d": 9.4,
+      "momentum_120d": 18.6,
+      "volume": 85.1
     }
   }
 ]

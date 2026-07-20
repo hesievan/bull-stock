@@ -26,6 +26,9 @@ QVIX_COLUMNS = {
     "1000index":[0, 25, 26, 27, 28],    # 中证1000股指期权 MO
 }
 
+# optbbs CSV 当前列数；上游改结构时显式报错而非静默错配数据
+EXPECTED_QVIX_COLUMNS = 83
+
 # 恐慌指数权重
 PANIC_WEIGHTS = {
     "50index": 0.3,
@@ -48,6 +51,11 @@ def _download_csv(timeout: int = 60) -> pd.DataFrame:
 
 def _extract_qvix(df_raw: pd.DataFrame, cols: list[int]) -> pd.Series:
     """从原始 CSV 中提取单个品种的 QVIX close 序列"""
+    if len(df_raw.columns) < max(cols) + 1:
+        raise ValueError(
+            f"QVIX CSV 列数异常({len(df_raw.columns)})，期望≥{max(cols) + 1}，"
+            f"上游结构可能已变更，停止按硬编码列索引提取"
+        )
     s = df_raw.iloc[:, cols].copy()
     s.columns = ["date", "open", "high", "low", "close"]
     s["date"] = pd.to_datetime(s["date"], errors="coerce")

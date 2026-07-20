@@ -1,6 +1,9 @@
 """Shared utilities and constants for indicator calculations"""
+import logging
 import numpy as np
 import pandas as pd
+
+logger = logging.getLogger(__name__)
 
 _config_cache = None
 
@@ -10,9 +13,12 @@ def get_config():
     if _config_cache is None:
         try:
             from src.config import load_config
-            _config_cache = load_config()
-        except Exception:
-            _config_cache = {}
+            cfg = load_config()
+            _config_cache = cfg if cfg is not None else {}
+        except Exception as e:
+            # 加载失败不要缓存空 dict（否则会永久掩盖配置错误且无法自愈）
+            logger.warning("load_config failed, returning empty config this call: %s", e)
+            return {}
     return _config_cache
 
 

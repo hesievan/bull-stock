@@ -71,6 +71,8 @@ class HeatIndexCalculator:
                         "SELECT * FROM stock_daily WHERE trade_date=?",
                         params=(td_latest,), db_path=self.db_path
                     )
+                    # 用真实日期作 key 缓存，避免后续按原 td 取到回退数据却误以为当日数据
+                    self._cache[f"sd_{td_latest}"] = df
             self._cache[key] = df
         return self._cache[key]
 
@@ -157,7 +159,8 @@ class HeatIndexCalculator:
             self._hc_by_date = {self.trade_date: set(df['con_code'])}
             return
 
-        month_ends = df.groupby('trade_date')['con_code'].apply(set).to_dict()
+        # 统一以紧凑格式(去横线)作为 key，避免 SQL 返回的 YYYY-MM-DD 与查询时 replace 后的格式不一致
+        month_ends = {d.replace('-', ''): v for d, v in df.groupby('trade_date')['con_code'].apply(set).to_dict().items()}
         sorted_me = sorted(month_ends.keys())
         self._hc_by_date = {}
         all_trade_dates = pd.read_sql(

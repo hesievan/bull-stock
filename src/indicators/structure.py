@@ -26,7 +26,7 @@ def calc_new_high_ratio(calc) -> float | None:
 
         close_max_250d = (
             hist.groupby("stock_code")["close"]
-            .apply(lambda s: _to_numeric(s).rolling(250, min_periods=60).max().iloc[-1])
+            .apply(lambda s: _to_numeric(s).rolling(250, min_periods=60).max())
             .rename("close_max_250d")
         )
         merged = latest.merge(close_max_250d.reset_index(), on="stock_code", how="inner")

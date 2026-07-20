@@ -101,9 +101,8 @@ def _calc_macro_from_monthly(conn, trade_date: str, field: str) -> float | None:
             return None
 
         if field == "scissors":
-            # 剪刀差 = M1 - M2, 当 M1 不可用时, 使用 0
-            cur_val = 0.0
-            hist_vals = m2["m2_yoy"].values
+            # 剪刀差 = M1 - M2，需要 M1 数据；M1 不可用时无法计算，返回 None 而非用 0 冒充
+            return None
         elif field == "m2_yoy":
             cur_val = m2_yoy
             hist_vals = m2["m2_yoy"].values

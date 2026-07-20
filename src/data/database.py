@@ -24,7 +24,7 @@ DB_PATH = os.environ.get(
 )
 
 # ── 建表 SQL ──────────────────────────────────────────────────────────────────
-SCHEMA_VERSION = 6
+SCHEMA_VERSION = 7
 
 SCHEMA = """
 -- 指数日行情 (tushare index_daily)
@@ -286,7 +286,8 @@ def _migrate(conn, from_ver: int):
         cols = {r[1] for r in conn.execute("PRAGMA table_info(heat_index)").fetchall()}
         for col in ("dim_macro", "composite_score_smoothed", "heat_level", "heat_level_smoothed"):
             if col not in cols:
-                conn.execute(f"ALTER TABLE heat_index ADD COLUMN {col} TEXT")
+                # 这些列存数值(分数/等级)，必须用 REAL 而非 TEXT，否则后续数值比较/排序出错
+                conn.execute(f"ALTER TABLE heat_index ADD COLUMN {col} REAL")
     if from_ver < 4:
         # 迁移: ah_premium 增加 n_stocks 列 (v3→v4)
         try:
@@ -315,6 +316,46 @@ def _migrate(conn, from_ver: int):
             logger.info("qvix_daily migrated: added component columns")
         except Exception as e:
             logger.warning("qvix_daily migration skipped: %s", e)
+    if from_ver < 7:
+        # 迁移 v7: heat_index 列类型固化 — dim_macro / composite_score_smoothed 应为 REAL
+        # heat_level / heat_level_smoothed 应为 TEXT。旧版迁移可能用了默认 TEXT 类型。
+        try:
+            cols = {r[1]: r[2] for r in conn.execute("PRAGMA table_info(heat_index)").fetchall()}
+            needs_fix = any(
+                cols.get(c) != t
+                for c, t in [("dim_macro", "REAL"), ("composite_score_smoothed", "REAL"),
+                             ("heat_level", "TEXT"), ("heat_level_smoothed", "TEXT")]
+            )
+            if needs_fix:
+                conn.executescript("""
+                    CREATE TABLE heat_index_v7 (
+                        trade_date TEXT NOT NULL PRIMARY KEY,
+                        composite_score REAL NOT NULL,
+                        dim_valuation REAL,
+                        dim_fund REAL,
+                        dim_sentiment REAL,
+                        dim_technical REAL,
+                        dim_structure REAL,
+                        dim_macro REAL,
+                        composite_score_smoothed REAL,
+                        heat_level TEXT,
+                        heat_level_smoothed TEXT,
+                        detail_json TEXT,
+                        created_at TEXT DEFAULT (datetime('now'))
+                    );
+                    INSERT INTO heat_index_v7 SELECT
+                        trade_date, composite_score, dim_valuation, dim_fund,
+                        dim_sentiment, dim_technical, dim_structure,
+                        CAST(dim_macro AS REAL), CAST(composite_score_smoothed AS REAL),
+                        heat_level, heat_level_smoothed,
+                        detail_json, created_at
+                    FROM heat_index;
+                    DROP TABLE heat_index;
+                    ALTER TABLE heat_index_v7 RENAME TO heat_index;
+                """)
+                logger.info("heat_index columns migrated: dim_macro/composite_score_smoothed→REAL, heat_level→TEXT")
+        except Exception as e:
+            logger.warning("heat_index migration skipped: %s", e)
     logger.info("Database migrated from v%d to v%d", from_ver, SCHEMA_VERSION)
 
 
@@ -420,9 +461,16 @@ def save_dataframe(df: pd.DataFrame, table: str, db_path: str = None):
         return
     if table not in _ALLOWED_TABLES:
         raise ValueError(f"Table '{table}' not in allowlist")
+    # 校验列名合法（仅允许字母/数字/下划线），并加引号，避免注入或含空格列名导致 SQL 错误
+    import re
+    safe_cols = []
+    for c in df.columns:
+        if not isinstance(c, str) or not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", c):
+            raise ValueError(f"Invalid column name rejected: {c!r}")
+        safe_cols.append(f'"{c}"')
+    cols = ', '.join(safe_cols)
     with get_conn(db_path) as conn:
         df.to_sql('_tmp_upsert', conn, if_exists='replace', index=False)
-        cols = ', '.join(df.columns)
         pk = conn.execute(f"SELECT ltrim(sql, 'CREATE TABLE ') FROM sqlite_master WHERE type='table' AND name='{table}'").fetchone()
         if pk and 'PRIMARY KEY' in str(pk[0]).upper():
             conn.execute(f'INSERT OR REPLACE INTO {table} ({cols}) SELECT {cols} FROM _tmp_upsert')
@@ -484,7 +532,7 @@ def update_index_daily_pe(trade_date: str, db_path: str = None):
             "SELECT trade_date AS const_date, con_code FROM index_constituents_hist "
             "WHERE index_code IN ('hs300', 'zz500') "
             "AND trade_date = (SELECT MAX(trade_date) FROM index_constituents_hist WHERE trade_date <= ?)",
-            (trade_date.replace("-", ""),)
+            (trade_date,)
         ).fetchall()
         if not const:
             logger.warning("update_index_daily_pe %s: no constituents found", trade_date)

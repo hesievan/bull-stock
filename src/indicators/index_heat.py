@@ -94,10 +94,7 @@ def _get_index_daily(ak_code: str, trade_date: str, lookback_years: int = 10, db
 
 
 def _get_index_pe_history(ak_code: str, trade_date: str, db_path: str = None) -> pd.DataFrame:
-    """Get index PE/PB history."""
-    ts_code = _INDEX_CODE_TO_TS.get(ak_code)
-    if not ts_code:
-        return pd.DataFrame()
+    """Get index PE/PB history (按 index_code 查询, 不使用 ts_code)."""
     df = read_dataframe(
         "SELECT trade_date, pe_ttm, pb FROM index_pe_history "
         "WHERE index_code=? AND trade_date <= ? ORDER BY trade_date",
