@@ -30410,5 +30410,16 @@
     "turnover": 2.7,
     "new_high": 0.0,
     "ma_alignment": 0.0
+  },
+  "2026-07-23": {
+    "pe": 23.7,
+    "erp": 2.5,
+    "buffett": 0.4,
+    "margin_ratio_v2": 0.0,
+    "deposit_ratio": 2.9,
+    "turnover_m2": 0.0,
+    "turnover": 2.3,
+    "new_high": 0.0,
+    "ma_alignment": 0.0
   }
 }
