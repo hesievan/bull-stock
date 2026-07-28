@@ -1,18 +1,18 @@
 {
-  "trade_date": "2026-07-27",
-  "composite_score": 43.9,
+  "trade_date": "2026-07-28",
+  "composite_score": 40.0,
   "level": "yellow",
   "dimensions": {
     "valuation": {
-      "score": 48.1,
+      "score": 46.3,
       "label": "估值"
     },
     "fund": {
-      "score": 48.3,
+      "score": 38.2,
       "label": "资金"
     },
     "sentiment": {
-      "score": 51.1,
+      "score": 49.9,
       "label": "情绪"
     },
     "structure": {
@@ -21,15 +21,15 @@
     }
   },
   "indicators_v2": {
-    "pe": 23.414450000000002,
-    "erp": 2.5371669219221458,
-    "buffett": 0.3726744804918049,
-    "margin_ratio_v2": 0.027533122083048235,
-    "deposit_ratio": 2.795972924754504,
-    "turnover_m2": 0.0059058002539913255,
-    "turnover": 2.1394990625903563,
-    "new_high": 0.005069708491761723,
-    "ma_alignment": 0.016641
+    "pe": 23.24305,
+    "erp": 2.5672613510275113,
+    "buffett": 0.3655715358906705,
+    "margin_ratio_v2": 0.028191400243177914,
+    "deposit_ratio": 2.8502978347681283,
+    "turnover_m2": 0.005765672241662109,
+    "turnover": 2.1302454152717036,
+    "new_high": 0.005068790731354091,
+    "ma_alignment": 0.017151
   },
   "qvix_display": null,
   "qvix_components": {
@@ -39,23 +39,23 @@
     "concentration": null
   },
   "version": "v2",
-  "updated_at": "2026-07-27 00:00:00",
-  "composite_score_smoothed": 41.6,
+  "updated_at": "2026-07-28 00:00:00",
+  "composite_score_smoothed": 41.3,
   "level_smoothed": "yellow",
-  "display_up_down_ratio": 18.1643,
-  "display_limit_up_ratio": 0.0315,
-  "display_limit_ratio": 17.4,
-  "display_below_net_rate": 0.0899,
+  "display_up_down_ratio": 0.9401,
+  "display_limit_up_ratio": 0.0143,
+  "display_limit_ratio": 0.594,
+  "display_below_net_rate": 0.0876,
   "indicators": {
-    "pe": 45.804051260851594,
-    "erp": 9.09842845326716,
-    "buffett": 89.25619834710744,
-    "margin_ratio_v2": 22.800668151447656,
-    "deposit_ratio": 73.72262773722628,
-    "turnover_m2": 86.13138686131386,
-    "turnover": 16.101694915254235,
-    "new_high": 0.5069708491761723,
-    "ma_alignment": 0,
+    "pe": 43.61088211046991,
+    "erp": 8.412371134020614,
+    "buffett": 86.97981046559539,
+    "margin_ratio_v2": 10.75896580483734,
+    "deposit_ratio": 65.69343065693431,
+    "turnover_m2": 85.40145985401459,
+    "turnover": 14.40677966101695,
+    "new_high": 0.5068790731354091,
+    "ma_alignment": 0.16481252575195715,
     "qvix": null,
     "qvix_components": {
       "qvix_50": 18.97,
