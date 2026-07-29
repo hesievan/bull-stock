@@ -1,35 +1,35 @@
 {
-  "trade_date": "2026-07-28",
-  "composite_score": 40.0,
+  "trade_date": "2026-07-29",
+  "composite_score": 46.5,
   "level": "yellow",
   "dimensions": {
     "valuation": {
-      "score": 46.3,
+      "score": 49.4,
       "label": "估值"
     },
     "fund": {
-      "score": 38.2,
+      "score": 46.6,
       "label": "资金"
     },
     "sentiment": {
-      "score": 49.9,
+      "score": 63.5,
       "label": "情绪"
     },
     "structure": {
-      "score": 0.3,
+      "score": 0.4,
       "label": "结构"
     }
   },
   "indicators_v2": {
-    "pe": 23.24305,
-    "erp": 2.5672613510275113,
-    "buffett": 0.3655715358906705,
-    "margin_ratio_v2": 0.028191400243177914,
-    "deposit_ratio": 2.8502978347681283,
-    "turnover_m2": 0.005765672241662109,
-    "turnover": 2.1302454152717036,
-    "new_high": 0.005068790731354091,
-    "ma_alignment": 0.017151
+    "pe": 23.7461,
+    "erp": 2.4783178420877534,
+    "buffett": 0.36853166286396655,
+    "margin_ratio_v2": 0.02770077765766518,
+    "deposit_ratio": 2.827403618740511,
+    "turnover_m2": 0.006536416335935287,
+    "turnover": 2.3991760839777805,
+    "new_high": 0.0052498189717595945,
+    "ma_alignment": 0.020543
   },
   "qvix_display": null,
   "qvix_components": {
@@ -39,11 +39,11 @@
     "concentration": null
   },
   "version": "v2",
-  "updated_at": "2026-07-28 00:00:00",
-  "composite_score_smoothed": 41.3,
+  "updated_at": "2026-07-29 00:00:00",
+  "composite_score_smoothed": 44.3,
   "level_smoothed": "yellow",
-  "display_up_down_ratio": 0.9401,
-  "display_limit_up_ratio": 0.0143,
-  "display_limit_ratio": 0.594,
-  "display_below_net_rate": 0.0876
+  "display_up_down_ratio": 3.5004,
+  "display_limit_up_ratio": 0.0181,
+  "display_limit_ratio": 3.7037,
+  "display_below_net_rate": 0.0834
 }
