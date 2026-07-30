@@ -306,6 +306,24 @@ def run_daily(trade_date=None):
 
     _run_step(step_status, "S3_tushare", _step3)
 
+    # ── Step 3.5: 申万行业分类 ─────────────────────────────────────────────
+    logger.info("Step 3.5: Fetching Shenwan industry classification...")
+
+    def _step35():
+        from src.indicators.focus_industries import FOCUS_SW_CODES
+        from src.data.database import read_dataframe
+        existing = read_dataframe("SELECT COUNT(DISTINCT sw_code) as n FROM stock_shenwan")
+        if not existing.empty and existing.iloc[0]["n"] >= len(FOCUS_SW_CODES):
+            logger.info("Shenwan classification already loaded (%d industries)", existing.iloc[0]["n"])
+            return True
+        from src.data.fetcher import fetch_shenwan_industry
+        result = fetch_shenwan_industry()
+        if result is None or result.empty:
+            raise RuntimeError("Failed to fetch Shenwan industry data")
+        return True
+
+    _run_step(step_status, "S3_shenwan", _step35)
+
     # ── Step 5: 计算热度指数 V2 (精简版9指标) ──────────────────────────────
     logger.info("Step 5: Calculating heat index v2...")
 
@@ -409,6 +427,23 @@ def run_daily(trade_date=None):
         return None
 
     _run_step(step_status, "S7_sectors", _step7)
+
+    # ── Step 7.5: 重点行业热度 ──────────────────────────────────────────────
+    logger.info("Step 7.5: Computing focus industries (Shenwan top 6)...")
+
+    def _step75():
+        from src.indicators.focus_industries import compute_focus_industries
+        focus_results = compute_focus_industries(trade_date, DB_PATH)
+        if focus_results:
+            out_dir = os.path.join(os.path.dirname(__file__), "..", "web", "data")
+            os.makedirs(out_dir, exist_ok=True)
+            with open(os.path.join(out_dir, "focus_industries.json"), "w", encoding="utf-8") as _f:
+                json.dump(focus_results, _f, ensure_ascii=False, indent=2)
+            logger.info("Step 7.5: Wrote %d focus industries", len(focus_results) - 1)
+            return focus_results
+        return None
+
+    _run_step(step_status, "S75_focus", _step75)
 
     # ── Step 8: 最终保存 (含板块热度) ────────────────────────────────────────
     logger.info("Step 8: Saving final results (with sectors)...")

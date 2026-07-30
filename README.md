@@ -2,12 +2,13 @@
 
 > 每日更新的量化工具，从 **4 个维度、9 个核心指标 + CFFEX 股指期权恐慌指数** 综合评估 A 股市场整体热度水平，
 > 并对 **沪深 300 / 创业板 / 科创 50 / 北证 50 / 中证 A500 / 中证 1000 / 中证红利** 七大核心指数
-> 单独输出牛市见顶预判信号。
+> 单独输出牛市见顶预判信号，同时追踪 **银行 / 非银金融 / 食品饮料 / 医药生物 / 电力设备 / 电子**
+> 六大申万一级重点行业的板块热度。
 >
 > **定位：仅提示离场 / 减仓，不发出进场或加仓信号。**
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-v3.17-blue" alt="version">
+  <img src="https://img.shields.io/badge/version-v3.19-blue" alt="version">
   <img src="https://img.shields.io/badge/python-3.10%2B-blue" alt="python">
   <img src="https://img.shields.io/badge/tests-70_passing-brightgreen" alt="tests">
   <img src="https://img.shields.io/badge/license-MIT-green" alt="license">
@@ -23,6 +24,7 @@
 - [快速开始](#快速开始)
 - [每日流水线](#每日流水线)
 - [查看结果](#查看结果)
+- [重点行业监控](#重点行业监控)
 - [API 接口](#api-接口)
 - [项目结构](#项目结构)
 - [技术栈](#技术栈)
@@ -163,10 +165,12 @@ cd web && python3 -m http.server 8080
 | S24c | S24c_m2 | M2 月度数据 | <0.3s |
 | S31 | S31_qvix | CFFEX 股指期权恐慌指数更新（optbbs） | 1–5s |
 | S3 | margin / bond_yield | 融资融券 + 国债收益率（akshare） | 0.1–0.5s |
+| S35 | **S3_shenwan** | **申万行业分类拉取（首次）** | **1–5s** |
 | **S5** | **S5_calc** | **V2 引擎：9 指标 + 恐慌指数 + 维度加权合成** | **5–15s** |
 | **S55** | **S55_index_heat** | **七大指数牛市见顶预判** | **<0.1s** |
 | S6 | save | 保存 JSON（含展示指标） | <0.1s |
-| S7 | sectors | 板块热度 | 1–7s |
+| S7 | sectors | 板块热度（CSRC 行业分类） | 1–7s |
+| **S75** | **S75_focus** | **重点行业热度（申万一级 6 大行业）** | **1–3s** |
 | S8 | final_save | 最终保存 | <0.1s |
 | S9 | notify | 飞书 / Bark 推送 | <0.5s |
 
@@ -184,7 +188,8 @@ cd web && python3 -m http.server 8080
 | `indicator_history.json` | 9 指标历史趋势 |
 | `index_heat.json` | 七大指数最新过热评分 |
 | `index_heat_history.json` | 七大指数历史评分时序 |
-| `sectors.json` | 板块热度排名 |
+| `sectors.json` | 板块热度排名（CSRC 行业分类） |
+| `focus_industries.json` | **重点行业热度（申万一级 6 大行业，含指数行情 + PE/PB + 领涨领跌）** |
 | `run_status.json` | 各 Step 执行状态 |
 
 ```bash
@@ -195,7 +200,7 @@ cat web/data/index.json
 
 仪表盘 SPA 包含三个标签页：
 
-- **概览**：综合热度仪表盘（仪表盘 + 历史走势 + 七大指数热度卡片，含评分折线图，按红/黄/绿分段着色）
+- **概览**：综合热度仪表盘（仪表盘 + 历史走势 + 七大指数热度卡片 + **重点行业热度卡片**，含评分折线图，按红/黄/绿分段着色）
 - **明细**：9 个核心指标历史趋势图（含牛熊均线参考线和极值标记线）+ 恐慌指数卡片（含公式说明、三品种成分值、集中度）
 - **记录**：近期每日热度得分明细表
 
@@ -203,6 +208,40 @@ cat web/data/index.json
 cd web && python3 -m http.server 8080
 # 浏览器访问 http://127.0.0.1:8080/app.html
 ```
+
+---
+
+## 重点行业监控
+
+基于 **申万一级行业分类**，持续追踪六大核心行业的板块热度，每个行业展示：
+
+| 维度 | 数据 | 来源 |
+|------|------|------|
+| **行业指数** | 申万行业指数收盘价、涨跌幅 | akshare `index_hist_sw` |
+| **估值** | PE(TTM)、PB、股息率 | akshare `sw_index_first_info` |
+| **成分股热度** | 股票个数、平均涨跌、涨跌比、估值/换手率/涨跌比百分位合成分 | 自研 heat engine |
+| **领涨/领跌** | Top 3 个股及其涨跌幅 | 实时计算 |
+
+### 六大重点行业
+
+| 行业 | 申万代码 | 覆盖个股 | 指数代码 |
+|------|---------|---------|---------|
+| **银行** | 801780 | 42 只 | 801780.SI |
+| **非银金融** | 801790 | 79 只 | 801790.SI |
+| **食品饮料** | 801120 | 122 只 | 801120.SI |
+| **医药生物** | 801150 | 478 只 | 801150.SI |
+| **电力设备** | 801730 | 377 只 | 801730.SI |
+| **电子** | 801080 | 489 只 | 801080.SI |
+
+### 热度评分
+
+与大盘热度逻辑一致，使用历史百分位法，综合三个子维度：
+
+```
+score = avg(估值分(PE百分位), 情绪分(换手率百分位), 涨跌比分(上涨比例百分位))
+```
+
+输出文件: `web/data/focus_industries.json`
 
 ---
 
@@ -247,7 +286,8 @@ bull-market-heat-index/
 │   │   ├── technical.py             # V1 技术维度
 │   │   ├── structure.py             # V1 结构维度
 │   │   ├── index_heat.py            # 七大指数过热预判
-│   │   └── sector_calculator.py     # 板块热度
+│   │   ├── sector_calculator.py     # 板块热度（CSRC行业分类）
+│   │   └── focus_industries.py      # ⭐ 重点行业热度（申万一级6大行业）
 │   └── output/
 │       └── json_writer.py           # JSON 输出 + 飞书 / Bark 通知
 ├── scripts/                         # 流水线 + 工具脚本
@@ -314,4 +354,4 @@ MIT
 
 ---
 
-*版本: v3.18 | 调整: 2026-07-14 | 新增: 中证红利指数过热预判 + 沪深300市赚率指标*
+*版本: v3.19 | 调整: 2026-07-31 | 新增: 重点行业监控（申万一级6大行业 + 指数行情 + 前端展示）*

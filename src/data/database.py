@@ -24,7 +24,7 @@ DB_PATH = os.environ.get(
 )
 
 # ── 建表 SQL ──────────────────────────────────────────────────────────────────
-SCHEMA_VERSION = 7
+SCHEMA_VERSION = 8
 
 SCHEMA = """
 -- 指数日行情 (tushare index_daily)
@@ -250,6 +250,15 @@ CREATE TABLE IF NOT EXISTS daily_macro (
     scissors REAL
 );
 
+-- 申万行业分类 (tushare stock_basic.industry)
+CREATE TABLE IF NOT EXISTS stock_shenwan (
+    stock_code TEXT NOT NULL,
+    sw_code TEXT,               -- 申万一级行业代码
+    sw_name TEXT,               -- 申万一级行业名称
+    update_date TEXT,
+    PRIMARY KEY (stock_code)
+);
+
 -- GDP 季度数据 (Tushare cn_gdp)
 CREATE TABLE IF NOT EXISTS gdp_quarterly (
     quarter TEXT PRIMARY KEY,       -- e.g. "2024Q1"
@@ -356,6 +365,9 @@ def _migrate(conn, from_ver: int):
                 logger.info("heat_index columns migrated: dim_macro/composite_score_smoothed→REAL, heat_level→TEXT")
         except Exception as e:
             logger.warning("heat_index migration skipped: %s", e)
+    if from_ver < 8:
+        # 迁移 v8: 新建 stock_shenwan 表（SCHEMA 已包含建表 DDL，此处只打日志）
+        logger.info("v8 migration: stock_shenwan table added (populated by S3_shenwan step)")
     logger.info("Database migrated from v%d to v%d", from_ver, SCHEMA_VERSION)
 
 
@@ -452,6 +464,7 @@ _ALLOWED_TABLES = {
     "daily_updown", "daily_limit", "daily_ma_alignment",
     "daily_below_net", "daily_erp", "daily_macro", "daily_turnover", "qvix_daily",
     "stock_high_250d", "index_constituents_hist",
+    "stock_shenwan",
 }
 
 

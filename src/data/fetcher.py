@@ -373,3 +373,71 @@ def fetch_m2_history(start: str = "2008-01-01", end: str = None):
         logger.info("M2 data saved: %d rows from %s to %s", len(df), df["month"].min(), df["month"].max())
     except Exception as e:
         logger.error("fetch_m2_history (tushare) failed: %s", str(e)[:80])
+
+
+# ── 申万行业分类 ───────────────────────────────────────────────────────────────
+
+SHENWAN_FOCUS_INDUSTRIES = [
+    {"sw_code": "801780", "sw_name": "银行"},
+    {"sw_code": "801790", "sw_name": "非银金融"},
+    {"sw_code": "801120", "sw_name": "食品饮料"},
+    {"sw_code": "801150", "sw_name": "医药生物"},
+    {"sw_code": "801730", "sw_name": "电力设备"},
+    {"sw_code": "801080", "sw_name": "电子"},
+]
+
+
+def _normalize_stock_code(raw_code: str) -> str:
+    """将 6 位纯数字代码转为 akshare 格式 (sh/sz/bj 前缀)"""
+    code = str(raw_code).zfill(6)
+    if code.startswith("6"):
+        return "sh" + code
+    elif code.startswith("8") or code.startswith("4"):
+        return "bj" + code
+    else:
+        return "sz" + code
+
+
+def fetch_shenwan_industry() -> pd.DataFrame:
+    """从 akshare 拉取申万一级行业成分股映射，保存到 stock_shenwan 表"""
+    from src.data.database import save_dataframe as _sv
+    try:
+        import akshare as ak
+    except ImportError:
+        logger.error("akshare not installed, cannot fetch Shenwan industry")
+        return pd.DataFrame()
+
+    records = []
+    today_str = date.today().strftime("%Y-%m-%d")
+    for ind in SHENWAN_FOCUS_INDUSTRIES:
+        sw_code = ind["sw_code"]
+        sw_name = ind["sw_name"]
+        try:
+            df = ak.index_component_sw(symbol=sw_code)
+            if df is None or df.empty:
+                logger.warning("fetch_shenwan_industry: no data for %s(%s)", sw_name, sw_code)
+                continue
+            code_col = next((c for c in ['stock_code', '证券代码'] if c in df.columns), None)
+            if code_col is None:
+                logger.warning("fetch_shenwan_industry: no stock code column in %s", df.columns)
+                continue
+            codes = df[code_col].dropna().unique()
+            for c in codes:
+                records.append({
+                    "stock_code": _normalize_stock_code(str(c)),
+                    "sw_code": sw_code,
+                    "sw_name": sw_name,
+                    "update_date": today_str,
+                })
+            logger.info("fetch_shenwan_industry: %s(%s): %d stocks", sw_name, sw_code, len(codes))
+        except Exception as e:
+            logger.warning("fetch_shenwan_industry %s failed: %s", sw_name, str(e)[:80])
+
+    if not records:
+        logger.error("fetch_shenwan_industry: no records fetched")
+        return pd.DataFrame()
+
+    result = pd.DataFrame(records)
+    _sv(result, "stock_shenwan")
+    logger.info("fetch_shenwan_industry: saved %d records", len(result))
+    return result

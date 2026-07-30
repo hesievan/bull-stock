@@ -1,0 +1,405 @@
+[
+  {
+    "sw_code": "801780",
+    "sw_name": "银行",
+    "trade_date": "2026-07-30",
+    "n_stocks": 42,
+    "n_with_data": 42,
+    "avg_pct_change": 2.43,
+    "vs_market_pct": 4.24,
+    "up_count": 42,
+    "down_count": 0,
+    "up_ratio": 100.0,
+    "med_pe": 6.25,
+    "med_pb": 0.56,
+    "total_mv": 1604621250.92,
+    "avg_mv": 38205267.88,
+    "total_amount": 45997256.3,
+    "composite_score": 86.7,
+    "heat_label": "hot",
+    "score_valuation": 69.3,
+    "score_turnover": 95.0,
+    "score_up_ratio": 95.8,
+    "top_gainers": [
+      {
+        "stock_code": "sh600000",
+        "stock_name": "浦发银行",
+        "pct_change": 4.63
+      },
+      {
+        "stock_code": "sh601825",
+        "stock_name": "沪农商行",
+        "pct_change": 4.56
+      },
+      {
+        "stock_code": "sh600015",
+        "stock_name": "华夏银行",
+        "pct_change": 3.84
+      }
+    ],
+    "top_losers": [
+      {
+        "stock_code": "sz002948",
+        "stock_name": "青岛银行",
+        "pct_change": 0.68
+      },
+      {
+        "stock_code": "sh601838",
+        "stock_name": "成都银行",
+        "pct_change": 1.24
+      },
+      {
+        "stock_code": "sh601665",
+        "stock_name": "齐鲁银行",
+        "pct_change": 1.44
+      }
+    ],
+    "index_close": 4050.92,
+    "index_pct_change": 0.14,
+    "index_pe": 7.38,
+    "index_pe_ttm": 7.32,
+    "index_pb": 0.69,
+    "index_div_yield": 5.15,
+    "rank": 1
+  },
+  {
+    "sw_code": "801120",
+    "sw_name": "食品饮料",
+    "trade_date": "2026-07-30",
+    "n_stocks": 122,
+    "n_with_data": 122,
+    "avg_pct_change": 0.98,
+    "vs_market_pct": 2.79,
+    "up_count": 81,
+    "down_count": 37,
+    "up_ratio": 66.4,
+    "med_pe": 25.35,
+    "med_pb": 2.16,
+    "total_mv": 396039140.55,
+    "avg_mv": 3246222.46,
+    "total_amount": 53882158.67,
+    "composite_score": 60.0,
+    "heat_label": "warm",
+    "score_valuation": 11.3,
+    "score_turnover": 97.5,
+    "score_up_ratio": 71.1,
+    "top_gainers": [
+      {
+        "stock_code": "sh605388",
+        "stock_name": "均瑶健康",
+        "pct_change": 10.07
+      },
+      {
+        "stock_code": "sh603919",
+        "stock_name": "金徽酒",
+        "pct_change": 10.03
+      },
+      {
+        "stock_code": "sz002702",
+        "stock_name": "海欣食品",
+        "pct_change": 10.02
+      }
+    ],
+    "top_losers": [
+      {
+        "stock_code": "sz002515",
+        "stock_name": "金字火腿",
+        "pct_change": -9.91
+      },
+      {
+        "stock_code": "sh600186",
+        "stock_name": "莲花控股",
+        "pct_change": -7.27
+      },
+      {
+        "stock_code": "sz002329",
+        "stock_name": "皇氏集团",
+        "pct_change": -6.08
+      }
+    ],
+    "index_close": 14253.77,
+    "index_pct_change": 1.42,
+    "index_pe": 21.02,
+    "index_pe_ttm": 20.7,
+    "index_pb": 3.59,
+    "index_div_yield": 4.51,
+    "rank": 2
+  },
+  {
+    "sw_code": "801790",
+    "sw_name": "非银金融",
+    "trade_date": "2026-07-30",
+    "n_stocks": 79,
+    "n_with_data": 79,
+    "avg_pct_change": 0.45,
+    "vs_market_pct": 2.26,
+    "up_count": 55,
+    "down_count": 21,
+    "up_ratio": 69.6,
+    "med_pe": 18.34,
+    "med_pb": 1.23,
+    "total_mv": 708102078.06,
+    "avg_mv": 8963317.44,
+    "total_amount": 49765016.03,
+    "composite_score": 35.3,
+    "heat_label": "cold",
+    "score_valuation": 12.2,
+    "score_turnover": 26.9,
+    "score_up_ratio": 66.9,
+    "top_gainers": [
+      {
+        "stock_code": "sh601318",
+        "stock_name": "中国平安",
+        "pct_change": 2.76
+      },
+      {
+        "stock_code": "sh601601",
+        "stock_name": "中国太保",
+        "pct_change": 2.72
+      },
+      {
+        "stock_code": "sz300773",
+        "stock_name": "拉卡拉",
+        "pct_change": 2.39
+      }
+    ],
+    "top_losers": [
+      {
+        "stock_code": "sz000935",
+        "stock_name": "四川双马",
+        "pct_change": -4.89
+      },
+      {
+        "stock_code": "sh601688",
+        "stock_name": "华泰证券",
+        "pct_change": -2.28
+      },
+      {
+        "stock_code": "sz000776",
+        "stock_name": "广发证券",
+        "pct_change": -2.21
+      }
+    ],
+    "index_close": 1785.54,
+    "index_pct_change": 1.25,
+    "index_pe": 10.39,
+    "index_pe_ttm": 10.41,
+    "index_pb": 1.27,
+    "index_div_yield": 2.33,
+    "rank": 3
+  },
+  {
+    "sw_code": "801150",
+    "sw_name": "医药生物",
+    "trade_date": "2026-07-30",
+    "n_stocks": 478,
+    "n_with_data": 478,
+    "avg_pct_change": -1.71,
+    "vs_market_pct": 0.1,
+    "up_count": 142,
+    "down_count": 326,
+    "up_ratio": 29.7,
+    "med_pe": 35.8,
+    "med_pb": 2.16,
+    "total_mv": 641252750.56,
+    "avg_mv": 1341532.95,
+    "total_amount": 117753695.0,
+    "composite_score": 34.0,
+    "heat_label": "cold",
+    "score_valuation": 2.1,
+    "score_turnover": 65.1,
+    "score_up_ratio": 34.7,
+    "top_gainers": [
+      {
+        "stock_code": "sz300981",
+        "stock_name": "中红医疗",
+        "pct_change": 10.35
+      },
+      {
+        "stock_code": "sz000566",
+        "stock_name": "海南海药",
+        "pct_change": 9.98
+      },
+      {
+        "stock_code": "sh600513",
+        "stock_name": "联环药业",
+        "pct_change": 9.97
+      }
+    ],
+    "top_losers": [
+      {
+        "stock_code": "sz301520",
+        "stock_name": "万邦医药",
+        "pct_change": -13.2
+      },
+      {
+        "stock_code": "sh688806",
+        "stock_name": "sh688806",
+        "pct_change": -13.14
+      },
+      {
+        "stock_code": "sh688677",
+        "stock_name": "海泰新光",
+        "pct_change": -11.39
+      }
+    ],
+    "index_close": 7568.22,
+    "index_pct_change": 1.13,
+    "index_pe": 28.61,
+    "index_pe_ttm": 28.16,
+    "index_pb": 2.59,
+    "index_div_yield": 1.77,
+    "rank": 4
+  },
+  {
+    "sw_code": "801080",
+    "sw_name": "电子",
+    "trade_date": "2026-07-30",
+    "n_stocks": 489,
+    "n_with_data": 489,
+    "avg_pct_change": -6.03,
+    "vs_market_pct": -4.22,
+    "up_count": 27,
+    "down_count": 461,
+    "up_ratio": 5.5,
+    "med_pe": 67.43,
+    "med_pb": 3.65,
+    "total_mv": 1785510294.95,
+    "avg_mv": 3651350.3,
+    "total_amount": 673111457.15,
+    "composite_score": 25.6,
+    "heat_label": "cold",
+    "score_valuation": 19.7,
+    "score_turnover": 55.5,
+    "score_up_ratio": 1.7,
+    "top_gainers": [
+      {
+        "stock_code": "sh688260",
+        "stock_name": "昀冢科技",
+        "pct_change": 16.16
+      },
+      {
+        "stock_code": "sz001309",
+        "stock_name": "德明利",
+        "pct_change": 10.0
+      },
+      {
+        "stock_code": "sz002199",
+        "stock_name": "*ST东晶",
+        "pct_change": 6.35
+      }
+    ],
+    "top_losers": [
+      {
+        "stock_code": "sh688432",
+        "stock_name": "有研硅",
+        "pct_change": -19.93
+      },
+      {
+        "stock_code": "sz300458",
+        "stock_name": "全志科技",
+        "pct_change": -19.93
+      },
+      {
+        "stock_code": "sz301583",
+        "stock_name": "sz301583",
+        "pct_change": -18.44
+      }
+    ],
+    "index_close": 8237.29,
+    "index_pct_change": -1.13,
+    "index_pe": 83.23,
+    "index_pe_ttm": 67.17,
+    "index_pb": 7.58,
+    "index_div_yield": 0.53,
+    "rank": 5
+  },
+  {
+    "sw_code": "801730",
+    "sw_name": "电力设备",
+    "trade_date": "2026-07-30",
+    "n_stocks": 377,
+    "n_with_data": 377,
+    "avg_pct_change": -2.19,
+    "vs_market_pct": -0.38,
+    "up_count": 94,
+    "down_count": 278,
+    "up_ratio": 24.9,
+    "med_pe": 41.84,
+    "med_pb": 2.49,
+    "total_mv": 750388813.09,
+    "avg_mv": 1990421.25,
+    "total_amount": 167971839.79,
+    "composite_score": 14.3,
+    "heat_label": "cold",
+    "score_valuation": 8.0,
+    "score_turnover": 12.2,
+    "score_up_ratio": 22.6,
+    "top_gainers": [
+      {
+        "stock_code": "sz301668",
+        "stock_name": "昊创瑞通",
+        "pct_change": 20.0
+      },
+      {
+        "stock_code": "sh601616",
+        "stock_name": "广电电气",
+        "pct_change": 10.14
+      },
+      {
+        "stock_code": "sz002534",
+        "stock_name": "西子洁能",
+        "pct_change": 10.04
+      }
+    ],
+    "top_losers": [
+      {
+        "stock_code": "sh688663",
+        "stock_name": "新风光",
+        "pct_change": -16.97
+      },
+      {
+        "stock_code": "sh688147",
+        "stock_name": "微导纳米",
+        "pct_change": -15.19
+      },
+      {
+        "stock_code": "sz300751",
+        "stock_name": "迈为股份",
+        "pct_change": -11.64
+      }
+    ],
+    "index_close": 9167.17,
+    "index_pct_change": 1.22,
+    "index_pe": 30.82,
+    "index_pe_ttm": 28.2,
+    "index_pb": 3.08,
+    "index_div_yield": 1.37,
+    "rank": 6
+  },
+  {
+    "sw_code": "__market__",
+    "sw_name": "全市场",
+    "trade_date": "2026-07-30",
+    "n_stocks": 5528,
+    "n_with_data": 5528,
+    "avg_pct_change": -1.81,
+    "vs_market_pct": 0,
+    "up_count": 1768,
+    "down_count": 3760,
+    "up_ratio": 32.0,
+    "med_pe": null,
+    "med_pb": null,
+    "total_mv": null,
+    "avg_mv": null,
+    "total_amount": null,
+    "composite_score": null,
+    "heat_label": null,
+    "score_valuation": null,
+    "score_turnover": null,
+    "score_up_ratio": null,
+    "top_gainers": [],
+    "top_losers": [],
+    "rank": null
+  }
+]
