@@ -145,8 +145,41 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add web/data/
           git commit -m "chore: update heat index data for $(date -u '+%Y-%m-%d') [skip ci]"
-          git pull --rebase --autostash
-          git push
+
+          # 并发场景：定时运行与手动触发的运行可能同时生成同一天的 JSON。
+          # rebase 冲突时用 -X theirs 自动采用本次运行刚生成的数据
+          # （rebase 中 theirs = 被重放的本地提交）。最多重试 3 轮 push。
+          PUSHED=0
+          for attempt in 1 2 3; do
+            if [ -d .git/rebase-merge ] || [ -d .git/rebase-apply ]; then
+              # 上一轮留下了未完成的 rebase（偶发冲突），强制取用本地版本后续跑
+              git checkout --theirs -- web/data/ 2>/dev/null || true
+              git add web/data/
+              if ! GIT_EDITOR=true git rebase --continue; then
+                git rebase --abort 2>/dev/null || true
+                echo "Rebase failed on attempt $attempt, will retry"
+                sleep 5
+                continue
+              fi
+            else
+              if ! git pull --rebase --autostash -X theirs; then
+                echo "Rebase conflict on attempt $attempt, will resolve and retry"
+                sleep 5
+              fi
+            fi
+            if git push; then
+              PUSHED=1
+              break
+            fi
+            echo "Push failed on attempt $attempt, will pull latest and retry"
+            sleep 5
+          done
+
+          if [ "$PUSHED" -ne 1 ]; then
+            git rebase --abort 2>/dev/null || true
+            echo "Failed to commit and push JSON data after 3 attempts" >&2
+            exit 1
+          fi
           echo "JSON data committed and pushed"
 
       # ── 部署到 GitHub Pages ──────────────────────────────────────────────
