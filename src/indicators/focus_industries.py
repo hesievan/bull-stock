@@ -2,6 +2,7 @@
 重点行业热度 — 申万一级行业（6大核心行业）
 """
 import logging
+from concurrent.futures import ThreadPoolExecutor
 from datetime import date, timedelta
 import numpy as np
 import pandas as pd
@@ -76,19 +77,25 @@ def _fetch_index_data(trade_date: str) -> dict:
         return {}
 
     result = {}
-    # 行情数据：拉取最近 3 日计算涨跌幅
-    try:
-        for sw_code in FOCUS_SW_CODES:
+    # 行情数据：akshare index_hist_sw 无 start_date/批量接口(实测拉全量历史)，
+    # 用线程池并行拉取 6 个行业以降低总耗时 (串行 1-3s → ~0.5s)
+    def _fetch_one(sw_code: str):
+        try:
+            import akshare as ak
+        except ImportError:
+            logger.warning("akshare not available for index data")
+            return None
+        try:
             df = ak.index_hist_sw(symbol=sw_code, period="day")
             if df is None or df.empty:
-                continue
+                return None
             df = df.sort_values("日期")
             latest = df.iloc[-1]
             prev = df.iloc[-2] if len(df) >= 2 else latest
             close = float(latest["收盘"])
             prev_close = float(prev["收盘"])
             pct = round((close / prev_close - 1) * 100, 2) if prev_close > 0 else None
-            result[sw_code] = {
+            return {
                 "index_close": close,
                 "index_pct_change": pct,
                 "index_pe": None,
@@ -96,8 +103,15 @@ def _fetch_index_data(trade_date: str) -> dict:
                 "index_pb": None,
                 "index_div_yield": None,
             }
-    except Exception as e:
-        logger.warning("fetch index hist failed: %s", str(e)[:80])
+        except Exception as e:
+            logger.warning("fetch index hist failed for %s: %s", sw_code, str(e)[:80])
+            return None
+
+    with ThreadPoolExecutor(max_workers=6) as pool:
+        fetched = dict(zip(FOCUS_SW_CODES, pool.map(_fetch_one, FOCUS_SW_CODES)))
+    for sw_code, data in fetched.items():
+        if data is not None:
+            result[sw_code] = data
 
     # PE/PB 数据
     try:
