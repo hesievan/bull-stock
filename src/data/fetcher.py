@@ -164,15 +164,20 @@ def fetch_all_index_incremental(db_path=None):
 # ── tushare: 融资融券 ──────────────────────────────────────────────────────
 
 def fetch_margin_history(start: str, end: str) -> pd.DataFrame:
+    """拉取融资融券历史数据 — 沪深北三市合并
+
+    ISSUE-9 修复: 原只拉 sse, 现改为拉取全部 exchange=""(沪深北合并),
+    再按 trade_date 去重聚合。tushare margin 接口 exchange 为空时返回三市合并数据。
+    """
     try:
         pro = _get_pro()
         dfs = []
-        # 从 start 所在月初开始，以月为单位迭代
         start_m = pd.Timestamp(start).replace(day=1)
         for dt in pd.date_range(start_m, end, freq="MS"):
             ds = dt.strftime("%Y%m%d")
             try:
-                df = pro.margin(exchange="sse", start_date=ds,
+                # exchange="" 返回沪深北三市合并日汇总
+                df = pro.margin(start_date=ds,
                                 end_date=(dt + pd.offsets.MonthEnd(0)).strftime("%Y%m%d"))
                 _ts_sleep()
                 if df is not None and not df.empty:
@@ -218,9 +223,13 @@ def fetch_northbound_history(start: str, end: str) -> pd.DataFrame:
         result = pd.concat(dfs, ignore_index=True)
         result["trade_date"] = pd.to_datetime(result["trade_date"], format="%Y%m%d").dt.strftime("%Y-%m-%d")
         # 只保留 northbound_history 表已有的列
-        keep = {"trade_date", "hgt", "sgt", "north_net", "south_money"}
+        # BUG-3 修复: tushare moneyflow_hsgt 返回列名为 north_money(北向净流入), 非 north_net
+        keep = {"trade_date", "hgt", "sgt", "north_money", "south_money"}
         cols = [c for c in result.columns if c in keep]
-        return result[cols]
+        result = result[cols]
+        # BUG-3 修复: tushare 返回列名 north_money 映射到 DB 列 north_net
+        if "north_money" in result.columns:
+            result = result.rename(columns={"north_money": "north_net"})
     except Exception as e:
         logger.error("fetch_northbound_history failed: %s", str(e)[:80])
         return pd.DataFrame()
@@ -275,7 +284,7 @@ def fetch_daily_basic_to_stock_daily(trade_date: str, db_path: str = None) -> in
             "SELECT COUNT(*) FROM stock_daily WHERE trade_date=? AND total_mv IS NOT NULL AND total_mv > 0 AND amount IS NOT NULL AND amount > 0",
             (trade_date,)
         ).fetchone()[0]
-    if existing > 4000:
+    if existing > 7000:  # ISSUE-12 修复: A股超5000只, 原 4000 过低会错误跳过
         logger.info("daily_basic %s: already has %d rows with full data, skipping", trade_date, existing)
         return 0
 
@@ -388,8 +397,13 @@ SHENWAN_FOCUS_INDUSTRIES = [
 
 
 def _normalize_stock_code(raw_code: str) -> str:
-    """将 6 位纯数字代码转为 akshare 格式 (sh/sz/bj 前缀)"""
-    code = str(raw_code).zfill(6)
+    """将 6 位纯数字代码转为 akshare 格式 (sh/sz/bj 前缀)
+    BUG-4 修复: 处理 pandas 返回浮点数代码 (如 600000.0), 先转 int 再 zfill
+    """
+    try:
+        code = str(int(float(str(raw_code)))).zfill(6)
+    except (ValueError, TypeError):
+        code = str(raw_code).replace(".", "").zfill(6)
     if code.startswith("6"):
         return "sh" + code
     elif code.startswith("8") or code.startswith("4"):
@@ -440,4 +454,65 @@ def fetch_shenwan_industry() -> pd.DataFrame:
     result = pd.DataFrame(records)
     _sv(result, "stock_shenwan")
     logger.info("fetch_shenwan_industry: saved %d records", len(result))
+    return result
+
+
+# ── 证监会行业分类 ────────────────────────────────────────────────────────────
+
+def fetch_stock_industry(trade_date: str = None) -> pd.DataFrame:
+    """BUG-2 修复: 从 tushare stock_basic 拉取全市场行业分类, 保存到 stock_industry 表
+
+    列映射:
+      ts_code(600000.SH) → code(sh600000, 匹配 stock_daily.stock_code)
+      name               → code_name (股票名称)
+      industry           → industry (行业名称, tushare返回的是申万一级行业名)
+      list_date          → update_date
+    """
+    from src.data.database import save_dataframe as _sv
+    if not TUSHARE_TOKEN:
+        logger.warning("TUSHARE_TOKEN not set, skipping stock_industry fetch")
+        return pd.DataFrame()
+
+    try:
+        pro = _get_pro()
+    except Exception as e:
+        logger.error("Cannot get tushare pro for stock_industry: %s", str(e)[:80])
+        return pd.DataFrame()
+
+    try:
+        df = pro.stock_basic(
+            exchange='', list_status='L',
+            fields='ts_code,name,industry,list_date'
+        )
+        _ts_sleep()
+    except Exception as e:
+        logger.error("fetch_stock_industry tushare failed: %s", str(e)[:80])
+        return pd.DataFrame()
+
+    if df is None or df.empty:
+        logger.warning("fetch_stock_industry: stock_basic returned empty")
+        return pd.DataFrame()
+
+    # 转换代码格式: 600000.SH → sh600000
+    records = []
+    today_str = (trade_date or date.today().strftime("%Y-%m-%d"))
+    for _, row in df.iterrows():
+        code = ts_to_ak(str(row.get("ts_code", "")))
+        if not code or not code[2:].isdigit():
+            continue
+        records.append({
+            "code": code,                      # sh600000 格式, 匹配 stock_daily
+            "code_name": str(row.get("name", "")),
+            "industry": str(row.get("industry", "")),
+            "industry_classification": str(row.get("industry", "")),
+            "update_date": today_str,
+        })
+
+    if not records:
+        logger.error("fetch_stock_industry: no valid records after conversion")
+        return pd.DataFrame()
+
+    result = pd.DataFrame(records)
+    _sv(result, "stock_industry")
+    logger.info("fetch_stock_industry: saved %d records", len(result))
     return result

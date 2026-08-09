@@ -8,9 +8,9 @@
 > **定位：仅提示离场 / 减仓，不发出进场或加仓信号。**
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-v3.20-blue" alt="version">
+  <img src="https://img.shields.io/badge/version-v3.21-blue" alt="version">
   <img src="https://img.shields.io/badge/python-3.10%2B-blue" alt="python">
-  <img src="https://img.shields.io/badge/tests-112_passing-brightgreen" alt="tests">
+  <img src="https://img.shields.io/badge/tests-79_passing-brightgreen" alt="tests">
   <img src="https://img.shields.io/badge/license-MIT-green" alt="license">
 </p>
 
@@ -170,6 +170,7 @@ cd web && python3 -m http.server 8080
 | S31 | S31_qvix | CFFEX 股指期权恐慌指数更新（optbbs） | 1–5s |
 | S3 | margin / bond_yield | 融资融券 + 国债收益率（akshare） | 0.1–0.5s |
 | S35 | **S3_shenwan** | **申万行业分类拉取（首次）** | **1–5s** |
+| S36 | **S3_industry** | **证监会行业分类拉取（首次，供板块热度）** | **1–5s** |
 | **S5** | **S5_calc** | **V2 引擎：9 指标 + 恐慌指数 + 维度加权合成** | **5–15s** |
 | **S55** | **S55_index_heat** | **七大指数牛市见顶预判** | **<0.1s** |
 | S6 | save | 保存 JSON（含展示指标） | <0.1s |
@@ -275,17 +276,15 @@ bull-market-heat-index/
 ├── src/
 │   ├── config.py                    # YAML 配置加载
 │   ├── data/
-│   │   ├── database.py              # SQLite 管理（35 表、迁移、CRUD）
+│   │   ├── database.py              # SQLite 管理（36 表、迁移、CRUD）
 │   │   ├── fetcher.py               # tushare + akshare 数据获取
-│   │   ├── qvix_fetcher.py          # CFFEX 股指期权恐慌指数（optbbs CSV）⚠️ 新增
-│   │   └── freshness.py             # 数据新鲜度与权重衰减（V1）
+│   │   ├── qvix_fetcher.py          # CFFEX 股指期权恐慌指数（optbbs CSV）
 │   ├── indicators/
 │   │   ├── heat_index_v2.py         # ⭐ V2 引擎 — 每日流水线所用（4 维度 9 指标）
-│   │   ├── utils.py                 # 共享工具
-│   │   ├── v1/                      # V1 引擎归档（calculator + 6 维度子模块，回测脚本引用）
+│   │   ├── utils.py                 # 共享工具（统一百分位计算）
 │   │   ├── index_heat.py            # 七大指数过热预判
-│   │   ├── sector_calculator.py     # 板块热度（CSRC行业分类）
-│   │   └── focus_industries.py      # ⭐ 重点行业热度（申万一级6大行业）
+│   │   ├── sector_calculator.py     # 板块热度（CSRC 行业分类，当 stock_industry 为空时回退 stock_shenwan）
+│   │   └── focus_industries.py      # ⭐ 重点行业热度（申万一级 6 大行业）
 │   └── output/
 │       └── json_writer.py           # JSON 输出 + 飞书 / Bark 通知
 ├── scripts/                         # 流水线 + 工具脚本
@@ -294,10 +293,9 @@ bull-market-heat-index/
 │   ├── api_server.py                # FastAPI REST API
 │   ├── backfill_index_heat_history.py # 指数热度历史批量回填
 │   ├── backfill_precompute.py       # V2 预计算表历史回填（CI 种子库构建）
-│   ├── db_maintenance.py            # 数据库维护
-│   ├── db_compress.py               # 备份 / 恢复 / 种子库压缩
+│   ├── db_tools.py                   # 数据库综合工具（状态/压缩/备份/归档）
 │   └── ...                          # 回测 / 分析工具
-├── tests/                           # 112 个单元测试（V1 归档于 tests/v1/）
+├── tests/                           # 79 个单元测试
 ├── config/                          # dev.yaml / prod.yaml
 ├── web/                             # 前端 SPA（ECharts 暗色主题）
 │   ├── app.html                     # 主仪表盘
@@ -319,14 +317,14 @@ bull-market-heat-index/
 | 层 | 技术 |
 |----|------|
 | 语言 | Python 3.10+ |
-| 数据存储 | SQLite（35 表，WAL 模式，~1.7GB） |
-| 数据源 | tushare pro + akshare（国债收益率经 akshare）+ optbbs.com（CFFEX QVIX） |
-| 核心库 | pandas, numpy, pyyaml |
+| 数据存储 | SQLite（36 表，WAL 模式，~1.7GB） |
+| 数据源 | tushare pro + akshare + optbbs.com（CFFEX QVIX） |
+| 核心库 | pandas, numpy, pyyaml, requests |
 | API 服务 | FastAPI + uvicorn |
 | 前端 | Vanilla JS + ECharts（暗色 SPA，响应式） |
 | CI/CD | GitHub Actions（每日 16:30 北京时） |
 | 通知 | 飞书 Webhook + Bark（iOS 推送） |
-| 测试 | pytest（112 例） + ruff |
+| 测试 | pytest（79 例） |
 
 ---
 
@@ -352,4 +350,4 @@ MIT
 
 ---
 
-*版本: v3.20 | 调整: 2026-08-09 | 修复: M1–M5 基线重算（10年百分位/两融饱和/换手率窗口/维度加权/预计算表） | 新增: 重点行业监控（申万一级6大行业 + 指数行情并行拉取 + 前端展示）*
+*版本: v3.21 | 调整: 2026-08-09 | 修复: 14 项逻辑错误（数据库完整性/数据正确性/并发安全/百分位统一/空值处理/阈值修正）+ 轻量化清理（移除 V1 遗留 ~1,990 行, reports 精简 73%, 合并近义脚本）*

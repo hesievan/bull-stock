@@ -27,7 +27,7 @@ HOLDINGS = [
     ("隆基绿能", "sh601012", "601012.SH", "sh601012"),
 ]
 
-FEISHU_WEBHOOK = "https://www.feishu.cn/flow/api/trigger-webhook/18d944beda7772e52c8e326e34b40da0"
+FEISHU_WEBHOOK = os.environ.get("FEISHU_WEBHOOK", "")
 
 # Bark 推送配置
 import urllib.request as _urllib_request

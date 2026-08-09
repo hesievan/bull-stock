@@ -5,7 +5,7 @@
 容错原则:
   每个 Step 内部 try/except, 失败记录到 step_status, 不中断后续 Step。
 
-数据源: tushare(全市场K线/PE/PB/融资融券/北向/成分股/行业) + akshare(M2/AH溢价)
+数据源: tushare(全市场K线/PE/PB/融资融券/北向/成分股/行业分类) + akshare(M2/AH溢价)
 
 用法:
   python scripts/run_daily.py                  # 计算今日
@@ -342,6 +342,23 @@ def run_daily(trade_date=None):
         return True
 
     _run_step(step_status, "S3_shenwan", _step35)
+
+    # ── Step 3.6: 证监会行业分类 (BUG-2 修复: 填充 stock_industry 表) ──────
+    logger.info("Step 3.6: Fetching CSRC stock industry classification...")
+
+    def _step36():
+        from src.data.database import read_dataframe
+        existing = read_dataframe("SELECT COUNT(*) as n FROM stock_industry")
+        if not existing.empty and existing.iloc[0]["n"] > 1000:
+            logger.info("stock_industry already loaded (%d stocks)", existing.iloc[0]["n"])
+            return True
+        from src.data.fetcher import fetch_stock_industry
+        result = fetch_stock_industry(trade_date)
+        if result is None or result.empty:
+            raise RuntimeError("Failed to fetch stock industry data")
+        return True
+
+    _run_step(step_status, "S3_industry", _step36)
 
     # ── Step 5: 计算热度指数 V2 (精简版9指标) ──────────────────────────────
     logger.info("Step 5: Calculating heat index v2...")

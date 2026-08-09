@@ -24,7 +24,7 @@ DB_PATH = os.environ.get(
 )
 
 # ── 建表 SQL ──────────────────────────────────────────────────────────────────
-SCHEMA_VERSION = 8
+SCHEMA_VERSION = 9
 
 SCHEMA = """
 -- 指数日行情 (tushare index_daily)
@@ -52,9 +52,9 @@ CREATE TABLE IF NOT EXISTS stock_daily (
     PRIMARY KEY (trade_date, stock_code)
 );
 
--- 个股行业分类 (tushare stock_basic)
+-- 个股行业分类 (tushare stock_basic) — code 格式 sh600000, 匹配 stock_daily.stock_code
 CREATE TABLE IF NOT EXISTS stock_industry (
-    code TEXT NOT NULL,           -- akshare格式 sh.600000
+    code TEXT NOT NULL,           -- sh600000 格式, 匹配 stock_daily.stock_code
     code_name TEXT,               -- 股票名称
     industry TEXT,                -- 行业名称
     industry_classification TEXT, -- 证监会行业分类
@@ -273,6 +273,17 @@ CREATE TABLE IF NOT EXISTS stock_shenwan (
     PRIMARY KEY (stock_code)
 );
 
+-- QVIX 恐慌指数日度量 (ATR-25 + 认购溢价) — 指标: qvix_50/300/1000, panic_index, concentration
+CREATE TABLE IF NOT EXISTS qvix_daily (
+    trade_date TEXT NOT NULL PRIMARY KEY,
+    qvix REAL,                  -- QVIX 恐慌指数
+    qvix_50 REAL,               -- 上证50 子品种
+    qvix_300 REAL,              -- 沪深300 子品种
+    qvix_1000 REAL,             -- 中证1000 子品种
+    panic_index REAL,           -- 恐慌指数 (综合)
+    concentration REAL          -- 集中度
+);
+
 -- GDP 季度数据 (Tushare cn_gdp)
 CREATE TABLE IF NOT EXISTS gdp_quarterly (
     quarter TEXT PRIMARY KEY,       -- e.g. "2024Q1"
@@ -382,6 +393,24 @@ def _migrate(conn, from_ver: int):
     if from_ver < 8:
         # 迁移 v8: 新建 stock_shenwan 表（SCHEMA 已包含建表 DDL，此处只打日志）
         logger.info("v8 migration: stock_shenwan table added (populated by S3_shenwan step)")
+    if from_ver < 9:
+        # 迁移 v9: daily_circ_mv 去重 — 旧版无 PRIMARY KEY 导致大量重复行 (11173→2804)
+        try:
+            before = conn.execute("SELECT COUNT(*) FROM daily_circ_mv").fetchone()[0]
+            conn.executescript("""
+                CREATE TABLE daily_circ_mv_v9 (
+                    trade_date TEXT PRIMARY KEY,
+                    total_circ_mv REAL
+                );
+                INSERT OR REPLACE INTO daily_circ_mv_v9
+                    SELECT trade_date, MAX(total_circ_mv) FROM daily_circ_mv GROUP BY trade_date;
+                DROP TABLE daily_circ_mv;
+                ALTER TABLE daily_circ_mv_v9 RENAME TO daily_circ_mv;
+            """)
+            after = conn.execute("SELECT COUNT(*) FROM daily_circ_mv").fetchone()[0]
+            logger.info("v9 migration: daily_circ_mv dedup %d→%d rows", before, after)
+        except Exception as e:
+            logger.warning("daily_circ_mv dedup skipped: %s", e)
     logger.info("Database migrated from v%d to v%d", from_ver, SCHEMA_VERSION)
 
 
@@ -456,7 +485,8 @@ def check_precompute_staleness(trade_date: str = None, db_path: str = None) -> l
         gap = None
         if latest_dt:
             gap = (td - latest_dt).days
-        stale = gap is not None and gap > cfg["max_gap_days"]
+        # ISSUE-8 修复: 空表(完全缺失数据)应判定为 stale=True, 而非 False
+        stale = (latest_dt is None) or (gap is not None and gap > cfg["max_gap_days"])
         results.append({
             "table": cfg["table"],
             "desc": cfg["desc"],
@@ -499,13 +529,16 @@ def save_dataframe(df: pd.DataFrame, table: str, db_path: str = None):
         safe_cols.append(f'"{c}"')
     cols = ', '.join(safe_cols)
     with get_conn(db_path) as conn:
-        df.to_sql('_tmp_upsert', conn, if_exists='replace', index=False)
+        # ISSUE-10 修复: 固定临时表名并发冲突, 使用带时间戳的唯一表名
+        import uuid as _uuid
+        tmp_name = f"_tmp_upsert_{_uuid.uuid4().hex[:8]}"
+        df.to_sql(tmp_name, conn, if_exists='replace', index=False)
         pk = conn.execute(f"SELECT ltrim(sql, 'CREATE TABLE ') FROM sqlite_master WHERE type='table' AND name='{table}'").fetchone()
         if pk and 'PRIMARY KEY' in str(pk[0]).upper():
-            conn.execute(f'INSERT OR REPLACE INTO {table} ({cols}) SELECT {cols} FROM _tmp_upsert')
+            conn.execute(f'INSERT OR REPLACE INTO {table} ({cols}) SELECT {cols} FROM {tmp_name}')
         else:
-            conn.execute(f'INSERT INTO {table} ({cols}) SELECT {cols} FROM _tmp_upsert')
-        conn.execute('DROP TABLE _tmp_upsert')
+            conn.execute(f'INSERT INTO {table} ({cols}) SELECT {cols} FROM {tmp_name}')
+        conn.execute(f'DROP TABLE {tmp_name}')
     logger.info('Saved %d rows to %s', len(df), table)
 
 
@@ -530,6 +563,11 @@ def save_heat_index_to_db(result: dict, db_path: str = None):
     with get_conn(db_path) as conn:
         score = result.get("composite_score")
         smoothed = result.get("composite_score_smoothed")
+        # BUG-5 修复: composite_score 为 NOT NULL, 计算失败时跳过写入
+        if score is None:
+            logger.warning("save_heat_index_to_db: composite_score is None, skipping write for %s",
+                           result.get("trade_date"))
+            return
         conn.execute("""
             INSERT OR REPLACE INTO heat_index
                 (trade_date, composite_score, composite_score_smoothed,
@@ -758,7 +796,8 @@ def compute_daily_new_high(trade_date: str, db_path: str = None) -> bool:
             logger.warning("compute_daily_new_high %s: insufficient stocks (%d)", trade_date, len(target))
             return False
 
-        min_date = (pd.Timestamp(trade_date) - pd.DateOffset(days=250)).strftime("%Y-%m-%d")
+        # BUG-6 修复: 250个交易日 ≈ 365个日历日 (原 250 日历日仅约 178 交易日)
+        min_date = (pd.Timestamp(trade_date) - pd.DateOffset(days=365)).strftime("%Y-%m-%d")
         hist = pd.read_sql(
             "SELECT stock_code, MAX(close) as max_close FROM stock_daily "
             "WHERE trade_date BETWEEN ? AND ? AND close > 0 GROUP BY stock_code",

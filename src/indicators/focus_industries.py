@@ -8,6 +8,7 @@ import numpy as np
 import pandas as pd
 
 from src.data.database import get_conn, DB_PATH
+from src.indicators.utils import _pct_rank
 
 logger = logging.getLogger(__name__)
 
@@ -34,13 +35,8 @@ SW_NAME_MAP = {
 
 
 def _sp_rank(series, value):
-    """历史百分位 0-100"""
-    if series.empty or pd.isna(value):
-        return 50.0
-    s = series.dropna()
-    if len(s) < 10:
-        return 50.0
-    return float((s < value).sum()) / max(len(s), 1) * 100
+    """历史百分位 0-100 (ISSUE-7 统一: 使用 utils._pct_rank, 含自身的 <= 比较)"""
+    return _pct_rank(series, value, scale="0-100")
 
 
 def _get_hist_industry_data(conn, trade_date, sw_codes, lookback_days=365):

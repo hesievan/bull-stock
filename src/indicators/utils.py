@@ -34,14 +34,25 @@ def get_lookback_years():
     return get_config().get("data", {}).get("lookback_years", 10)
 
 
-def _pct_rank(series: pd.Series, value: float) -> float:
-    """历史分位 (0-1)"""
+def _pct_rank(series: pd.Series, value: float, scale: str = "0-1") -> float:
+    """统一百分位计算 (ISSUE-7 修复: 统一三处不同实现)
+
+    Args:
+        series: 历史数据序列
+        value: 当前要计算分位的值
+        scale: 返回值范围 "0-1" (默认, 0~1) 或 "0-100" (0~100)
+
+    使用含自身的 <= 比较, 确保值一定落在 [0, 1] 或 [0, 100] 内。
+    """
     if series.empty or pd.isna(value):
         return np.nan
     clean = series.dropna()
     if clean.empty:
         return np.nan
-    return (clean <= value).sum() / len(clean)
+    pct = (clean <= value).sum() / len(clean)
+    if scale == "0-100":
+        return pct * 100
+    return pct
 
 
 def _score_with_fallback(score, fallback_reason=""):

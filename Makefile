@@ -10,16 +10,16 @@ daily-date:  ## 运行指定日期 (make daily-date DATE=2026-06-15)
 	python scripts/run_daily.py $(DATE)
 
 backup:  ## 备份数据库
-	python scripts/db_compress.py backup
+	python scripts/db_tools.py backup
 
 restore:  ## 从最新备份恢复
-	python scripts/db_compress.py restore
+	python scripts/db_tools.py restore
 
 backups:  ## 列出所有备份
-	python scripts/db_compress.py list
+	python scripts/db_tools.py list
 
 size:  ## 显示数据库大小
-	python scripts/db_compress.py size
+	python scripts/db_tools.py size
 
 serve:  ## 启动本地API + 前端 (localhost:8000)
 	python scripts/api_server.py
@@ -45,7 +45,13 @@ compare:  ## 历史对比 (make compare DATE=2015-06-12)
 	python scripts/compare_history.py $(DATE)
 
 status:  ## 查看数据状态
-	python scripts/db_maintenance.py
+	python scripts/db_tools.py status
+
+vacuum:  ## 压缩数据库（VACUUM）
+	python scripts/db_tools.py vacuum
+
+archive:  ## 归档旧数据（make archive YEAR=2020）
+	python scripts/db_tools.py archive $(or $(YEAR),2020)
 
 backfill:  ## 补充历史数据 (tushare 全量回补)
 	python scripts/fetch_tushare_history.py

@@ -8,6 +8,8 @@ import logging
 import pandas as pd
 import numpy as np
 
+from src.indicators.utils import _pct_rank
+
 logger = logging.getLogger(__name__)
 
 SECTOR_NAME_MAP = {
@@ -39,11 +41,8 @@ def _sector_name(code):
 
 
 def _sp_rank(series, value):
-    """历史分位 0-1"""
-    if series.empty or pd.isna(value):
-        return 0.5
-    s = series.dropna()
-    return float((s < value).sum()) / max(len(s), 1)
+    """历史分位 0-1 (ISSUE-7 统一: 使用 utils._pct_rank, 含自身的 <= 比较)"""
+    return _pct_rank(series, value, scale="0-1")
 
 
 def _sp_combine(scores):
@@ -144,6 +143,12 @@ def calculate_sector_heat(trade_date: str, db_path: str) -> list:
         ind_map = pd.read_sql(
             "SELECT code, industry FROM stock_industry WHERE industry IS NOT NULL AND industry != ''", conn
         )
+        # BUG-2 fallback: 若 stock_industry 尚未填充(新数据库), 回退到 stock_shenwan
+        if ind_map.empty:
+            logger.warning("stock_industry is empty, falling back to stock_shenwan for sector calculation")
+            ind_map = pd.read_sql(
+                "SELECT stock_code AS code, sw_name AS industry FROM stock_shenwan WHERE sw_name IS NOT NULL", conn
+            )
 
         today = pd.read_sql(
             """SELECT stock_code, close, pct_change, peTTM, pbMRQ, turnover_rate

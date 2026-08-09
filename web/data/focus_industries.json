@@ -15,11 +15,11 @@
     "total_mv": 689899728.97,
     "avg_mv": 1446330.67,
     "total_amount": 185145052.93,
-    "composite_score": 75.0,
+    "composite_score": 74.8,
     "heat_label": "hot",
-    "score_valuation": 37.0,
-    "score_turnover": 92.6,
-    "score_up_ratio": 95.5,
+    "score_valuation": 35.7,
+    "score_turnover": 92.9,
+    "score_up_ratio": 95.8,
     "top_gainers": [
       {
         "stock_code": "sz300363",
@@ -78,11 +78,11 @@
     "total_mv": 2090745644.57,
     "avg_mv": 4275553.47,
     "total_amount": 757304185.88,
-    "composite_score": 72.4,
+    "composite_score": 73.7,
     "heat_label": "hot",
-    "score_valuation": 62.6,
-    "score_turnover": 69.5,
-    "score_up_ratio": 85.2,
+    "score_valuation": 63.9,
+    "score_turnover": 71.4,
+    "score_up_ratio": 85.8,
     "top_gainers": [
       {
         "stock_code": "sh688419",
@@ -95,8 +95,8 @@
         "pct_change": 20.0
       },
       {
-        "stock_code": "sh688020",
-        "stock_name": "方邦股份",
+        "stock_code": "sz300916",
+        "stock_name": "朗特智能",
         "pct_change": 20.0
       }
     ],
@@ -141,11 +141,11 @@
     "total_mv": 381936991.25,
     "avg_mv": 3130631.08,
     "total_amount": 30104133.9,
-    "composite_score": 34.0,
+    "composite_score": 34.4,
     "heat_label": "cold",
-    "score_valuation": 9.9,
-    "score_turnover": 53.9,
-    "score_up_ratio": 38.3,
+    "score_valuation": 10.1,
+    "score_turnover": 53.4,
+    "score_up_ratio": 39.7,
     "top_gainers": [
       {
         "stock_code": "sh603102",
@@ -204,11 +204,11 @@
     "total_mv": 1498448772.35,
     "avg_mv": 35677351.72,
     "total_amount": 26727339.87,
-    "composite_score": 28.7,
+    "composite_score": 30.1,
     "heat_label": "cold",
-    "score_valuation": 28.4,
-    "score_turnover": 53.1,
-    "score_up_ratio": 4.5,
+    "score_valuation": 28.6,
+    "score_turnover": 52.5,
+    "score_up_ratio": 9.2,
     "top_gainers": [
       {
         "stock_code": "sh600016",
@@ -267,11 +267,11 @@
     "total_mv": 790629792.79,
     "avg_mv": 2097161.25,
     "total_amount": 183005666.81,
-    "composite_score": 27.8,
+    "composite_score": 28.3,
     "heat_label": "cold",
-    "score_valuation": 21.8,
-    "score_turnover": 4.1,
-    "score_up_ratio": 57.6,
+    "score_valuation": 22.3,
+    "score_turnover": 4.6,
+    "score_up_ratio": 58.2,
     "top_gainers": [
       {
         "stock_code": "sz301217",
@@ -330,11 +330,11 @@
     "total_mv": 694306718.6,
     "avg_mv": 8788692.64,
     "total_amount": 35417044.19,
-    "composite_score": 21.5,
+    "composite_score": 21.2,
     "heat_label": "cold",
-    "score_valuation": 23.0,
-    "score_turnover": 7.8,
-    "score_up_ratio": 33.7,
+    "score_valuation": 21.4,
+    "score_turnover": 7.6,
+    "score_up_ratio": 34.7,
     "top_gainers": [
       {
         "stock_code": "sh600909",

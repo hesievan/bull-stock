@@ -5,6 +5,7 @@
 """
 import json
 import os
+import sys
 from datetime import datetime
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), '..', 'web', 'data')
@@ -12,11 +13,40 @@ OUTPUT_DIR = os.path.join(os.path.dirname(__file__), '..', 'reports')
 TEMPLATE_PATH = os.path.join(os.path.dirname(__file__), '..', 'web', 'report_template.html')
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-with open(os.path.join(DATA_DIR, 'index.json')) as f: idx = json.load(f)
-with open(os.path.join(DATA_DIR, 'detail.json')) as f: det = json.load(f)
-with open(os.path.join(DATA_DIR, 'sectors.json')) as f: sectors = json.load(f)
-with open(os.path.join(DATA_DIR, 'history.json')) as f: hist = json.load(f)
-with open(os.path.join(DATA_DIR, 'run_status.json')) as f: status = json.load(f)
+# ISSUE-13 修复: 添加文件存在检查和友好的错误处理
+_required_files = {
+    "index.json": "综合热度指数数据",
+    "detail.json": "详细指标数据",
+    "sectors.json": "板块热度数据",
+    "history.json": "历史数据",
+    "run_status.json": "运行状态",
+}
+
+_missing = []
+for fname, desc in _required_files.items():
+    fpath = os.path.join(DATA_DIR, fname)
+    if not os.path.exists(fpath):
+        _missing.append(f"{fname} ({desc})")
+
+if _missing:
+    print(f"ERROR: Missing required data files in {DATA_DIR}:")
+    for m in _missing:
+        print(f"  - {m}")
+    print("Run 'python scripts/run_daily.py' first to generate the data files.")
+    sys.exit(1)
+
+try:
+    with open(os.path.join(DATA_DIR, 'index.json')) as f: idx = json.load(f)
+    with open(os.path.join(DATA_DIR, 'detail.json')) as f: det = json.load(f)
+    with open(os.path.join(DATA_DIR, 'sectors.json')) as f: sectors = json.load(f)
+    with open(os.path.join(DATA_DIR, 'history.json')) as f: hist = json.load(f)
+    with open(os.path.join(DATA_DIR, 'run_status.json')) as f: status = json.load(f)
+except json.JSONDecodeError as e:
+    print(f"ERROR: Invalid JSON in data files: {e}")
+    sys.exit(1)
+except IOError as e:
+    print(f"ERROR: Cannot read data files: {e}")
+    sys.exit(1)
 
 trade_date = idx['trade_date']
 score = idx['composite_score']

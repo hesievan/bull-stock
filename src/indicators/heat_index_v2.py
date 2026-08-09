@@ -352,14 +352,18 @@ def calc_margin_ratio_v2(conn, trade_date: str) -> Optional[float]:
 
         cur_ratio = (rzye + rqye) / total_circ
 
-        # 历史序列 (daily_circ_mv.total_circ_mv 万元→元 ×10000)
+        # 历史序列 (10年窗口; daily_circ_mv.total_circ_mv 万元→元 ×10000)
+        # GROUP BY 防止 daily_circ_mv 表历史重复行导致 JOIN 膨胀
         hist = pd.read_sql("""
-            SELECT m.trade_date, (m.rzye + m.rqye) / (c.total_circ_mv * 10000) as ratio
+            SELECT m.trade_date, AVG((m.rzye + m.rqye)) / (c.total_circ_mv * 10000) as ratio
             FROM margin_history m
-            JOIN daily_circ_mv c ON m.trade_date = c.trade_date AND c.total_circ_mv > 0
-            WHERE m.trade_date >= ? AND m.rzye > 0 AND c.total_circ_mv > 0
+            JOIN (SELECT trade_date, MAX(total_circ_mv) as total_circ_mv FROM daily_circ_mv
+                  WHERE total_circ_mv > 0 GROUP BY trade_date) c
+              ON m.trade_date = c.trade_date
+            WHERE m.trade_date >= ? AND m.rzye > 0
+            GROUP BY m.trade_date
             ORDER BY m.trade_date
-        """, conn, params=[str(int(td[:4]) - 5) + td[4:]])
+        """, conn, params=[str(int(td[:4]) - 10) + td[4:]])
 
         if hist.empty or len(hist) < 60:
             return None
