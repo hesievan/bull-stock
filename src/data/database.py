@@ -224,6 +224,14 @@ CREATE TABLE IF NOT EXISTS daily_ma_alignment (
     ma_alignment_ratio REAL
 );
 
+-- 250日新高占比预计算表 (由 stock_daily 汇总, 用于 new_high 指标; F8修复:
+-- 逐日实时计算 O(n×250) 在10年回测/CI种子库构建中耗时小时级, 故预计算)
+CREATE TABLE IF NOT EXISTS daily_new_high (
+    trade_date TEXT PRIMARY KEY,
+    new_high_ratio REAL,     -- 当日250日新高占比 (0~1)
+    n_stocks INTEGER         -- 参与计算的股票数
+);
+
 -- 历史成分股截面 (月末, 用于 PE/PB 中位数计算)
 CREATE TABLE IF NOT EXISTS index_constituents_hist (
     index_code TEXT NOT NULL,
@@ -396,6 +404,7 @@ STALENESS_CONFIG = [
     {"table": "daily_limit",        "step": "S28", "fallback": True,  "max_gap_days": 5, "desc": "涨停/跌停"},
     {"table": "daily_below_net",    "step": "S29", "fallback": True,  "max_gap_days": 5, "desc": "破净率"},
     {"table": "daily_ma_alignment", "step": "S30", "fallback": False, "max_gap_days": 5, "desc": "MA排列比"},
+    {"table": "daily_new_high",     "step": "S30b", "fallback": True,  "max_gap_days": 5, "desc": "创新高占比"},
     {"table": "daily_erp",          "step": "-",   "fallback": True,  "max_gap_days": 5, "desc": "股权风险溢价"},
     {"table": "daily_circ_mv",      "step": "S26", "fallback": False, "max_gap_days": 5, "desc": "流通市值"},
     {"table": "daily_macro",        "step": "-",   "fallback": False, "max_gap_days": 7, "desc": "宏观(M1-M2)"},
@@ -463,7 +472,7 @@ _ALLOWED_TABLES = {
     "daily_circ_mv", "index_daily_pe", "ah_premium_monthly",
     "daily_updown", "daily_limit", "daily_ma_alignment",
     "daily_below_net", "daily_erp", "daily_macro", "daily_turnover", "qvix_daily",
-    "stock_high_250d", "index_constituents_hist",
+    "daily_new_high", "stock_high_250d", "index_constituents_hist",
     "stock_shenwan",
 }
 
@@ -728,6 +737,42 @@ def compute_daily_ma_alignment(trade_date: str, db_path: str = None) -> bool:
             (trade_date, ratio)
         )
         logger.info("daily_ma_alignment %s: aligned=%d/%d ratio=%.4f", trade_date, aligned, total_stocks, ratio)
+        return True
+
+
+def compute_daily_new_high(trade_date: str, db_path: str = None) -> bool:
+    """计算 250日新高占比并写入 daily_new_high (F8修复预计算表)"""
+    with get_conn(db_path) as conn:
+        target = pd.read_sql(
+            "SELECT stock_code, close FROM stock_daily WHERE trade_date=? AND close > 0",
+            conn, params=[trade_date]
+        )
+        if target.empty or len(target) < 100:
+            logger.warning("compute_daily_new_high %s: insufficient stocks (%d)", trade_date, len(target))
+            return False
+
+        min_date = (pd.Timestamp(trade_date) - pd.DateOffset(days=250)).strftime("%Y-%m-%d")
+        hist = pd.read_sql(
+            "SELECT stock_code, MAX(close) as max_close FROM stock_daily "
+            "WHERE trade_date BETWEEN ? AND ? AND close > 0 GROUP BY stock_code",
+            conn, params=(min_date, trade_date)
+        )
+        if hist.empty:
+            return False
+
+        merged = target.merge(hist, on="stock_code", how="inner").dropna()
+        if len(merged) < 100:
+            return False
+
+        # 阈值与 heat_index_v2.NEW_HIGH_THRESHOLD(0.98) 保持一致 (2%容差)
+        new_high = int((merged["close"] >= merged["max_close"] * 0.98).sum())
+        ratio = round(new_high / len(merged), 6)
+
+        conn.execute(
+            "INSERT OR REPLACE INTO daily_new_high (trade_date, new_high_ratio, n_stocks) VALUES (?, ?, ?)",
+            (trade_date, ratio, len(merged))
+        )
+        logger.info("daily_new_high %s: new_high=%d/%d ratio=%.4f", trade_date, new_high, len(merged), ratio)
         return True
 
 

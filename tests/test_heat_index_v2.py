@@ -11,6 +11,7 @@ import pytest
 from src.data.database import init_database
 from src.indicators.heat_index_v2 import (
     NEW_HIGH_THRESHOLD,
+    _apply_new_high_divergence,
     calc_erp_v2,
     calc_margin_ratio_v2,
     calc_ma_alignment_v2,
@@ -237,3 +238,121 @@ class TestOtherIndicatorsSmoke:
 
     def test_turnover_insufficient_data_none(self, v2_db):
         assert calc_turnover_v2(v2_db, "2026-08-06") is None
+
+
+# ── F1/F8: 新高占比预计算表 + 10年百分位 + 背离去重 ─────────────────────────
+
+class TestNewHighPercentileScoring:
+    def _seed_history(self, v2_db, ratios, td):
+        """种 daily_new_high 历史序列 + 当前日"""
+        for i, d in enumerate(_dates("2016-09-01", len(ratios))):
+            v2_db.execute(
+                "INSERT INTO daily_new_high (trade_date, new_high_ratio, n_stocks) VALUES (?, ?, 500)",
+                (d, ratios[i]),
+            )
+        v2_db.execute(
+            "INSERT INTO daily_new_high (trade_date, new_high_ratio, n_stocks) VALUES (?, ?, 500)",
+            (td, ratios[-1]),
+        )
+        v2_db.commit()
+
+    def test_high_ratio_scores_high(self, v2_db):
+        """当前=历史最高 ratio → 高分 (>90)"""
+        td = "2026-08-06"
+        ratios = [round(0.05 + i * 0.009, 4) for i in range(100)]  # 0.05 → 0.941 递增
+        self._seed_history(v2_db, ratios, td)
+        res = calc_new_high_v2(v2_db, td)
+        assert res is not None
+        score, cur_ratio = res
+        # 100条历史全<cur + 当前行(=cur 不计数) → pct=100/101≈0.99 → 99分
+        assert score >= 90.0
+        assert cur_ratio == pytest.approx(ratios[-1])
+
+    def test_low_ratio_scores_low(self, v2_db):
+        """当前=历史最低 ratio → 低分 (<10)"""
+        td = "2026-08-06"
+        ratios = [round(0.9 - i * 0.008, 4) for i in range(100)]  # 0.9 → 0.108 递减
+        v2_db.executemany(
+            "INSERT INTO daily_new_high (trade_date, new_high_ratio, n_stocks) VALUES (?, ?, 500)",
+            [(d, ratios[i]) for i, d in enumerate(_dates("2016-09-01", 100))],
+        )
+        v2_db.execute(
+            "INSERT INTO daily_new_high (trade_date, new_high_ratio, n_stocks) VALUES (?, ?, 500)",
+            (td, ratios[-1]),
+        )
+        v2_db.commit()
+        res = calc_new_high_v2(v2_db, td)
+        assert res is not None
+        score, cur_ratio = res
+        assert score <= 10.0
+        assert cur_ratio == pytest.approx(ratios[-1])
+
+    def test_insufficient_history_returns_none(self, v2_db):
+        """历史不足 60 条 → 返回 None (宁缺毋滥, 与 PE/ERP 一致)"""
+        td = "2026-08-06"
+        for i, d in enumerate(_dates("2026-05-01", 30)):
+            v2_db.execute(
+                "INSERT INTO daily_new_high (trade_date, new_high_ratio, n_stocks) VALUES (?, 0.5, 500)",
+                (d,),
+            )
+        v2_db.execute(
+            "INSERT INTO daily_new_high (trade_date, new_high_ratio, n_stocks) VALUES (?, 0.6, 500)",
+            (td,),
+        )
+        v2_db.commit()
+        assert calc_new_high_v2(v2_db, td) is None
+
+
+class TestNewHighDivergencePrecompute:
+    def _seed_index(self, v2_db, td, prev_close, cur_close):
+        """指数: prev 日与当前日 (不含 prev 日当天 → 用 <= 取最近)"""
+        v2_db.execute(
+            "INSERT INTO index_daily (trade_date, index_code, close) VALUES (?, 'sh000001', ?)",
+            (prev_close[0], prev_close[1]),
+        )
+        v2_db.execute(
+            "INSERT INTO index_daily (trade_date, index_code, close) VALUES (?, 'sh000001', ?)",
+            (td, cur_close),
+        )
+        v2_db.commit()
+
+    def test_divergence_penalty_applied(self, v2_db):
+        """指数涨>3% + 新高占比下降>5% + 当前<30% → 扣 15 分"""
+        td = "2026-08-06"
+        prev_td = "2026-07-17"  # td - 20 天
+        # 新高占比: 20 天前 0.30 (30%) → 当前 0.20 (20%) → 下降 10% > 5%
+        v2_db.execute(
+            "INSERT INTO daily_new_high (trade_date, new_high_ratio, n_stocks) VALUES (?, 0.30, 500)",
+            (prev_td,),
+        )
+        v2_db.execute(
+            "INSERT INTO daily_new_high (trade_date, new_high_ratio, n_stocks) VALUES (?, 0.20, 500)",
+            (td,),
+        )
+        # 指数: 20 天前 100 → 当前 105 (+5% > 3%)
+        self._seed_index(v2_db, td, ("2026-07-17", 100.0), 105.0)
+        v2_db.commit()
+
+        out = _apply_new_high_divergence(v2_db, td, new_high_score=50.0)
+        assert out == pytest.approx(35.0)  # 50 - 15
+
+    def test_no_penalty_when_no_table_data(self, v2_db):
+        """无预计算表数据 → 安全返回原分 (不崩溃, 不误扣)"""
+        td = "2026-08-06"
+        assert _apply_new_high_divergence(v2_db, td, new_high_score=50.0) == 50.0
+
+    def test_no_penalty_when_index_falling(self, v2_db):
+        """指数跌 → 非顶背离 → 不扣分"""
+        td = "2026-08-06"
+        v2_db.execute(
+            "INSERT INTO daily_new_high (trade_date, new_high_ratio, n_stocks) VALUES (?, 0.30, 500)",
+            ("2026-07-17",),
+        )
+        v2_db.execute(
+            "INSERT INTO daily_new_high (trade_date, new_high_ratio, n_stocks) VALUES (?, 0.20, 500)",
+            (td,),
+        )
+        self._seed_index(v2_db, td, ("2026-07-17", 100.0), 98.0)  # 指数 -2%
+        v2_db.commit()
+        out = _apply_new_high_divergence(v2_db, td, new_high_score=50.0)
+        assert out == pytest.approx(50.0)

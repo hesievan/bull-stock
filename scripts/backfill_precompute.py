@@ -11,6 +11,7 @@
   daily_limit       — 涨停/跌停统计 (展示)
   daily_below_net   — 破净率 (展示)
   daily_ma_alignment — 均线排列比 (用于 ma_alignment)
+  daily_new_high    — 250日新高占比 (用于 new_high, 加速 calc_new_high_v2)
   daily_turnover    — 换手率 (加速 turnover 计算)
   qvix_daily        — QVIX 恐慌指数 (展示)
 """
@@ -28,6 +29,7 @@ from src.data.database import (
     compute_daily_circ_mv, compute_daily_total_mv,
     compute_daily_updown, compute_daily_limit,
     compute_daily_below_net, compute_daily_ma_alignment,
+    compute_daily_new_high,
 )
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
@@ -41,6 +43,7 @@ TASKS = [
     ("daily_limit",       compute_daily_limit,       "涨停统计",          False),
     ("daily_below_net",   compute_daily_below_net,   "破净率",            False),
     ("daily_ma_alignment", compute_daily_ma_alignment, "均线排列比",      True),
+    ("daily_new_high",     compute_daily_new_high,     "创新高占比",      True),
 ]
 
 

@@ -191,6 +191,15 @@ def run_daily(trade_date=None):
 
     _run_step(step_status, "S30_ma_alignment", _step30)
 
+    # ── Step 2.10b: 250日新高占比 (daily_new_high, 预计算表) ────────────────
+    logger.info("Step 2.10b: Computing daily_new_high...")
+
+    def _step30b():
+        from src.data.database import compute_daily_new_high
+        return compute_daily_new_high(trade_date)
+
+    _run_step(step_status, "S30b_new_high", _step30b)
+
     # ── Step 2.11: QVIX恐慌指数更新 ──────────────────────────────────────────
     logger.info("Step 2.11: Updating QVIX panic index...")
 

@@ -510,44 +510,57 @@ def calc_turnover_v2(conn, trade_date: str) -> Optional[float]:
 
 
 def calc_new_high_v2(conn, trade_date: str) -> Optional[float]:
-    """创新高占比 = 250日新高股票占比"""
+    """创新高占比 = 250日新高股票占比 (10年历史百分位赋分)"""
     try:
         td = trade_date
-        # 当日所有股票收盘价
-        today = pd.read_sql(
-            "SELECT stock_code, close FROM stock_daily WHERE trade_date=? AND close > 0",
-            conn, params=(td,)
-        )
-        if today.empty or len(today) < 100:
-            # fallback: 最近日期
+        # 当前值: 优先预计算表 daily_new_high, 无则保留 stock_daily 直接查询兜底
+        row = conn.execute(
+            "SELECT new_high_ratio FROM daily_new_high WHERE trade_date=?",
+            (td,)
+        ).fetchone()
+        if not row or row[0] is None:
             today = pd.read_sql(
-                "SELECT stock_code, close FROM stock_daily WHERE trade_date = (SELECT MAX(trade_date) FROM stock_daily WHERE close > 0) AND close > 0",
-                conn
+                "SELECT stock_code, close FROM stock_daily WHERE trade_date=? AND close > 0",
+                conn, params=(td,)
             )
-        if today.empty or len(today) < 100:
+            if today.empty or len(today) < 100:
+                today = pd.read_sql(
+                    "SELECT stock_code, close FROM stock_daily WHERE trade_date = (SELECT MAX(trade_date) FROM stock_daily WHERE close > 0) AND close > 0",
+                    conn
+                )
+            if today.empty or len(today) < 100:
+                return None
+
+            hist = pd.read_sql("""
+                SELECT stock_code, MAX(close) as max_close
+                FROM stock_daily
+                WHERE trade_date <= ? AND trade_date >= date(?, '-250 days')
+                  AND close > 0
+                GROUP BY stock_code
+            """, conn, params=(td, td))
+            if hist.empty:
+                return None
+            merged = today.merge(hist, on="stock_code", how="inner").dropna()
+            if len(merged) < 100:
+                return None
+            cur_ratio = (merged["close"] >= merged["max_close"] * NEW_HIGH_THRESHOLD).sum() / len(merged)
+        else:
+            cur_ratio = row[0]
+
+        # 历史序列 (10年, 预计算表)
+        hist = pd.read_sql(
+            "SELECT new_high_ratio FROM daily_new_high WHERE trade_date >= ? AND new_high_ratio IS NOT NULL",
+            conn, params=[str(int(td[:4]) - 10) + td[4:]]
+        )
+        if hist.empty or len(hist) < 60:
+            # 历史不足时宁缺毋滥 (与 PE/ERP 行为一致), 不返回绝对分
+            logger.warning("New high: insufficient historical data (%d records)", len(hist))
             return None
 
-        # 250日最高价
-        hist = pd.read_sql("""
-            SELECT stock_code, MAX(close) as max_close
-            FROM stock_daily
-            WHERE trade_date <= ? AND trade_date >= date(?, '-250 days')
-              AND close > 0
-            GROUP BY stock_code
-        """, conn, params=(td, td))
-
-        if hist.empty:
-            return None
-
-        merged = today.merge(hist, on="stock_code", how="inner").dropna()
-        if len(merged) < 100:
-            return None
-
-        new_high = (merged["close"] >= merged["max_close"] * NEW_HIGH_THRESHOLD).sum()
-        ratio = new_high / len(merged)
-        score = ratio * 100
-        logger.info("创新高占比: %.4f (%d/%d), score=%.1f", ratio, new_high, len(merged), score)
-        return max(0, min(100, score)), ratio
+        pct = _pct_rank(hist["new_high_ratio"].dropna(), cur_ratio)
+        score = pct * 100
+        logger.info("创新高占比: %.4f, pct=%.2f, score=%.1f (n=%d)", cur_ratio, pct, score, len(hist))
+        return max(0, min(100, score)), cur_ratio
     except Exception as e:
         logger.warning("New high calc failed: %s", e)
         return None
@@ -808,41 +821,19 @@ def _apply_new_high_divergence(conn, trade_date: str,
         lookback = DIVERGENCE_CONFIG["lookback_days"]
         prev_td = (pd.Timestamp(td) - pd.DateOffset(days=lookback)).strftime("%Y-%m-%d")
 
-        # 用 calc_new_high_v2 的同款高效查询代替自连接
-        today = pd.read_sql(
-            "SELECT stock_code, close FROM stock_daily WHERE trade_date=? AND close > 0",
-            conn, params=(td,)
-        )
-        if today.empty or len(today) < 100:
+        # F8修复: 改用预计算表 daily_new_high, 替代原 4 次全量 stock_daily 查询
+        now_row = conn.execute(
+            "SELECT new_high_ratio FROM daily_new_high WHERE trade_date=?",
+            (td,)
+        ).fetchone()
+        prev_row = conn.execute(
+            "SELECT new_high_ratio FROM daily_new_high WHERE trade_date<=? ORDER BY trade_date DESC LIMIT 1",
+            (prev_td,)
+        ).fetchone()
+        if not now_row or not prev_row or now_row[0] is None or prev_row[0] is None:
             return new_high_score
-        hist = pd.read_sql(
-            "SELECT stock_code, MAX(close) as max_close FROM stock_daily "
-            "WHERE trade_date <= ? AND trade_date >= date(?, '-250 days') AND close > 0 "
-            "GROUP BY stock_code",
-            conn, params=(td, td)
-        )
-        if hist.empty:
-            return new_high_score
-        merged = today.merge(hist, on="stock_code", how="inner").dropna()
-        now_val = (merged["close"] >= merged["max_close"] * NEW_HIGH_THRESHOLD).sum() / len(merged) * 100 if len(merged) > 0 else 0
-
-        # 对比日
-        prev_today = pd.read_sql(
-            "SELECT stock_code, close FROM stock_daily WHERE trade_date=? AND close > 0",
-            conn, params=(prev_td,)
-        )
-        if prev_today.empty or len(prev_today) < 100:
-            return new_high_score
-        prev_hist = pd.read_sql(
-            "SELECT stock_code, MAX(close) as max_close FROM stock_daily "
-            "WHERE trade_date <= ? AND trade_date >= date(?, '-250 days') AND close > 0 "
-            "GROUP BY stock_code",
-            conn, params=(prev_td, prev_td)
-        )
-        if prev_hist.empty:
-            return new_high_score
-        prev_merged = prev_today.merge(prev_hist, on="stock_code", how="inner").dropna()
-        prev_val = (prev_merged["close"] >= prev_merged["max_close"] * NEW_HIGH_THRESHOLD).sum() / len(prev_merged) * 100 if len(prev_merged) > 0 else 0
+        now_val = now_row[0] * 100
+        prev_val = prev_row[0] * 100
 
         # 指数涨跌
         idx = conn.execute(
