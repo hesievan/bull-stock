@@ -20,11 +20,12 @@ from datetime import date
 from typing import Optional
 
 from src.data.database import DB_PATH
+from src.config import load_config
 
 logger = logging.getLogger(__name__)
 
-# ── 指标权重配置 ─────────────────────────────────────────────────────────────
-INDICATOR_WEIGHTS = {
+# ── 指标权重配置 (内置默认值, 可被 config/*.yaml 的 v2_engine 覆盖) ─────────────
+DEFAULT_WEIGHTS = {
     "pe": 0.14,                # 大盘PE
     "erp": 0.13,               # ERP 股权风险溢价
     "buffett": 0.13,           # 巴菲特指标
@@ -36,6 +37,29 @@ INDICATOR_WEIGHTS = {
     "ma_alignment": 0.04,      # MA排列比
 }
 
+# 背离检测参数 (内置默认值, 可被 v2_engine.divergence 覆盖)
+DEFAULT_DIVERGENCE = {
+    "turnover_threshold": 70,       # 换手率超过此值才触发背离检查
+    "decline_threshold": -1.5,      # 指数跌幅超过此值(%)触发惩罚
+    "penalty_factor": 0.2,          # 每次背离扣除的分数（×100=20分，匹配README文档"最多20分"）
+    "lookback_days": 20,            # 背离检测的回看天数
+    "new_high_penalty": 15,         # 顶背离时扣除的结构分
+}
+
+
+def _load_v2_config() -> dict:
+    """加载 config/*.yaml 的 v2_engine 配置块; 缺失/异常时返回空 dict 走默认值"""
+    try:
+        return load_config().get("v2_engine", {}) or {}
+    except Exception:
+        logger.warning("v2_engine config missing, using built-in defaults")
+        return {}
+
+
+_cfg = _load_v2_config()
+
+INDICATOR_WEIGHTS = _cfg.get("weights") or DEFAULT_WEIGHTS
+
 # 验证权重总和为1.0
 assert abs(sum(INDICATOR_WEIGHTS.values()) - 1.0) < 0.001, \
     f"Indicator weights must sum to 1.0, got {sum(INDICATOR_WEIGHTS.values())}"
@@ -43,16 +67,22 @@ assert abs(sum(INDICATOR_WEIGHTS.values()) - 1.0) < 0.001, \
 DIMENSIONS = ["valuation", "fund", "sentiment", "structure"]
 
 # 新高占比判定: 收盘价达到250日最高价的此比例即视为"新高"（2%容差，过滤盘中冲高回落噪声）
-NEW_HIGH_THRESHOLD = 0.98
+NEW_HIGH_THRESHOLD = (_cfg.get("new_high") or {}).get("threshold", 0.98)
 
-# 背离检测参数
-DIVERGENCE_CONFIG = {
-    "turnover_threshold": 70,       # 换手率超过此值才触发背离检查
-    "decline_threshold": -1.5,      # 指数跌幅超过此值(%)触发惩罚
-    "penalty_factor": 0.2,          # 每次背离扣除的分数（×100=20分，匹配README文档"最多20分"）
-    "lookback_days": 20,            # 背离检测的回看天数
-    "new_high_penalty": 15,         # 顶背离时扣除的结构分
-}
+DIVERGENCE_CONFIG = {**DEFAULT_DIVERGENCE, **(_cfg.get("divergence") or {})}
+
+# F3: 换手率历史百分位窗口 (年)
+TURNOVER_WINDOW_YEARS = (_cfg.get("turnover") or {}).get("percentile_window_years", 10)
+
+# F5: PE 历史序列 n_stocks 口径过滤 (比例范围 + 绝对下限)
+_pe_cfg = _cfg.get("pe") or {}
+PE_N_STOCKS_RATIO = tuple(_pe_cfg.get("n_stocks_filter_ratio", [0.5, 1.5]))
+PE_N_STOCKS_MIN = int(_pe_cfg.get("n_stocks_filter_min", 450))
+
+# F4: 两融高分位平滑饱和参数
+_margin_cfg = _cfg.get("margin") or {}
+SATURATION_CUTOFF = float(_margin_cfg.get("saturation_cutoff", 0.85))
+SATURATION_HEADROOM = float(_margin_cfg.get("saturation_headroom", 0.15))
 
 # 各指标所属维度
 INDICATOR_DIMENSIONS = {
@@ -123,10 +153,10 @@ def calc_pe(conn, trade_date: str) -> Optional[tuple]:
         # 才启用绝对下限450, 避免早期hs300-only(n≈300)数据混入; 早期日期(2015)不触发下限,
         # 防止过滤范围坍缩(cur_n=300时 hi=450 与下限450重合导致hist为空)
         if cur_n > 0:
-            lo = cur_n * 0.5
-            hi = cur_n * 1.5
+            lo = cur_n * PE_N_STOCKS_RATIO[0]
+            hi = cur_n * PE_N_STOCKS_RATIO[1]
             if cur_n >= 600:
-                lo = max(lo, 450)
+                lo = max(lo, PE_N_STOCKS_MIN)
             hist = hist[hist["n_stocks"].between(lo, hi)]
 
         if len(hist) < 60:
@@ -327,8 +357,6 @@ def calc_margin_ratio_v2(conn, trade_date: str) -> Optional[float]:
         # 杠杆上升=热度上升。F4修复: 高分位用平滑饱和函数保持单调递增,
         # 原线性递减(900*(1-pct))导致 pct=0.95 时分数骤降至45, 反直觉且与"顶部预警"设计矛盾
         # 0.85→85, 0.90→~94, 0.95→~98, 0.99→~99: 单调递增且平滑收敛
-        SATURATION_CUTOFF = 0.85
-        SATURATION_HEADROOM = 0.15
         if pct <= SATURATION_CUTOFF:
             score = pct * 100
         else:
@@ -468,7 +496,7 @@ def calc_turnover_v2(conn, trade_date: str) -> Optional[float]:
     """换手率 = 成交额 / 流通市值 (10年窗口百分位, F3修复)"""
     try:
         td = trade_date
-        ten_years_ago = (pd.Timestamp(td) - pd.DateOffset(years=10)).strftime("%Y-%m-%d")
+        ten_years_ago = (pd.Timestamp(td) - pd.DateOffset(years=TURNOVER_WINDOW_YEARS)).strftime("%Y-%m-%d")
 
         # 历史窗口: 查预计算表 daily_turnover (口径与当日值一致: Σamount/Σcirc_mv×10)
         hist = pd.read_sql(
