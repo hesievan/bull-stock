@@ -24,7 +24,7 @@ HOLDINGS = [
     ("吉祥航空", "sh603885", "603885.SH", "sh603885"),
     ("上海机场", "sh600009", "600009.SH", "sh600009"),
     ("平安银行", "sz000001", "000001.SZ", "sz000001"),
-    ("汤臣倍健", "sz300146", "300146.SZ", "sz300146"),
+    ("隆基绿能", "sh601012", "601012.SH", "sh601012"),
 ]
 
 FEISHU_WEBHOOK = "https://www.feishu.cn/flow/api/trigger-webhook/18d944beda7772e52c8e326e34b40da0"
@@ -121,13 +121,13 @@ def build_report():
 
             # 均线
             ma = {}
-            for p in [5, 20, 60, 200]:
+            for p in [5, 20, 60, 120, 200]:
                 ma[p] = round(float(close_arr[-p:].mean()), 2) if n >= p else None
 
             # 趋势
-            if ma[5] and ma[20] and ma[60]:
-                above = sum(1 for p in [5, 20, 60, 200] if close > ma[p])
-                if above == 4:
+            if ma[5] and ma[20] and ma[60] and ma[120]:
+                above = sum(1 for p in [5, 20, 60, 120, 200] if close > ma[p])
+                if above == 5:
                     trend, te = "上升趋势", "🟢"
                 elif above == 0:
                     trend, te = "下降趋势", "🔴"
@@ -164,7 +164,7 @@ def build_report():
 
             # 均线
             ma_parts = []
-            for p in [5, 20, 60, 200]:
+            for p in [5, 20, 60, 120, 200]:
                 v = ma.get(p)
                 if v:
                     pos = "↑" if close > v else "↓"
@@ -174,6 +174,20 @@ def build_report():
 
             if bias20 is not None:
                 lines.append(f"  MA20偏离: {bias20:+.1f}%")
+
+            # 买入/卖出信号 (基于 MA120)
+            signal_parts = []
+            if ma.get(120):
+                ma120 = ma[120]
+                buy_threshold = ma120 * 0.80
+                sell_threshold = ma120 * 1.30
+                if close < buy_threshold:
+                    signal_parts.append(f"🟢 **买入信号**: 价格 {close:.2f} < MA120×80% ({buy_threshold:.2f})")
+                elif close > sell_threshold:
+                    signal_parts.append(f"🔴 **卖出信号**: 价格 {close:.2f} > MA120×130% ({sell_threshold:.2f})")
+            if signal_parts:
+                for s in signal_parts:
+                    lines.append(f"  {s}")
 
             # 成交
             parts = [f"成交 {amount/1e4:.2f}亿", f"量 {vol:.0f}万手"]
