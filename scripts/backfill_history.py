@@ -19,7 +19,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 from src.data.database import DB_PATH
-from src.indicators.calculator import calculate_heat_index
+from src.indicators.v1.calculator import calculate_heat_index
 
 # ── 获取全部交易日 ──────────────────────────────────────────────────────────
 import sqlite3

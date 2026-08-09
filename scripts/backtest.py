@@ -10,7 +10,7 @@ import time
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 os.environ.setdefault("TUSHARE_TOKEN", "473bc93a521c11cac2f5136b08bccbcb819d220fcee5d8f04b389577")
 
-from src.indicators.calculator import calculate_heat_index
+from src.indicators.v1.calculator import calculate_heat_index
 import logging
 logging.basicConfig(level=logging.WARNING)
 

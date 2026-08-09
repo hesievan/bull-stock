@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 import sqlite3
 import pandas as pd
-from src.indicators.calculator import calculate_heat_index
+from src.indicators.v1.calculator import calculate_heat_index
 from src.data.database import DB_PATH
 
 # ── 获取采样日期 ──────────────────────────────────────────────────────────

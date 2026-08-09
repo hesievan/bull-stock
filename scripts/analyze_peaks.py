@@ -2,7 +2,7 @@ import sys
 import json
 import logging
 sys.path.insert(0, '.')
-from src.indicators.calculator import calculate_heat_index
+from src.indicators.v1.calculator import calculate_heat_index
 logging.basicConfig(level=logging.WARNING)
 
 dates = [

@@ -23,12 +23,12 @@ import numpy as np
 from src.data.database import read_dataframe, DB_PATH
 from src.indicators.utils import (get_weights, get_lookback_years)
 from src.data.freshness import get_effective_weights
-from src.indicators.valuation import calc_valuation, calc_valuation_composite, calc_below_net_rate, calc_erp
-from src.indicators.macro import calc_macro, calc_m1m2_scissors, calc_m2_yoy
-from src.indicators.fund import calc_fund, calc_northbound_cumflow, calc_margin_ratio
-from src.indicators.sentiment import calc_sentiment, calc_turnover, calc_up_down_ratio, calc_limit_up_ratio, calc_limit_ratio, calc_qvix
-from src.indicators.technical import calc_technical, calc_ma_alignment, calc_deviation_ma250, calc_momentum_60d, calc_momentum_20d, calc_momentum_120d
-from src.indicators.structure import calc_structure, calc_new_high_ratio, calc_ah_premium_index
+from src.indicators.v1.valuation import calc_valuation, calc_valuation_composite, calc_below_net_rate, calc_erp
+from src.indicators.v1.macro import calc_macro, calc_m1m2_scissors, calc_m2_yoy
+from src.indicators.v1.fund import calc_fund, calc_northbound_cumflow, calc_margin_ratio
+from src.indicators.v1.sentiment import calc_sentiment, calc_turnover, calc_up_down_ratio, calc_limit_up_ratio, calc_limit_ratio, calc_qvix
+from src.indicators.v1.technical import calc_technical, calc_ma_alignment, calc_deviation_ma250, calc_momentum_60d, calc_momentum_20d, calc_momentum_120d
+from src.indicators.v1.structure import calc_structure, calc_new_high_ratio, calc_ah_premium_index
 
 logger = logging.getLogger(__name__)
 
@@ -192,11 +192,11 @@ class HeatIndexCalculator:
         return calc_valuation_composite(self)
 
     def _calc_pe_percentile(self) -> Optional[float]:
-        from src.indicators.valuation import calc_pe_percentile
+        from src.indicators.v1.valuation import calc_pe_percentile
         return calc_pe_percentile(self)
 
     def _calc_pb_percentile(self) -> Optional[float]:
-        from src.indicators.valuation import calc_pb_percentile
+        from src.indicators.v1.valuation import calc_pb_percentile
         return calc_pb_percentile(self)
 
     def _calc_below_net_rate(self) -> Optional[float]:

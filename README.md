@@ -10,7 +10,7 @@
 <p align="center">
   <img src="https://img.shields.io/badge/version-v3.19-blue" alt="version">
   <img src="https://img.shields.io/badge/python-3.10%2B-blue" alt="python">
-  <img src="https://img.shields.io/badge/tests-92_passing-brightgreen" alt="tests">
+  <img src="https://img.shields.io/badge/tests-112_passing-brightgreen" alt="tests">
   <img src="https://img.shields.io/badge/license-MIT-green" alt="license">
 </p>
 
@@ -279,14 +279,8 @@ bull-market-heat-index/
 │   │   └── freshness.py             # 数据新鲜度与权重衰减（V1）
 │   ├── indicators/
 │   │   ├── heat_index_v2.py         # ⭐ V2 引擎 — 每日流水线所用（4 维度 9 指标）
-│   │   ├── calculator.py            # V1 引擎（19 指标 / 6 维度，保留供参考）
 │   │   ├── utils.py                 # 共享工具
-│   │   ├── valuation.py             # V1 估值维度
-│   │   ├── macro.py                 # V1 宏观维度
-│   │   ├── fund.py                  # V1 资金维度
-│   │   ├── sentiment.py             # V1 情绪维度
-│   │   ├── technical.py             # V1 技术维度
-│   │   ├── structure.py             # V1 结构维度
+│   │   ├── v1/                      # V1 引擎归档（calculator + 6 维度子模块，回测脚本引用）
 │   │   ├── index_heat.py            # 七大指数过热预判
 │   │   ├── sector_calculator.py     # 板块热度（CSRC行业分类）
 │   │   └── focus_industries.py      # ⭐ 重点行业热度（申万一级6大行业）
@@ -301,7 +295,7 @@ bull-market-heat-index/
 │   ├── db_maintenance.py            # 数据库维护
 │   ├── db_compress.py               # 备份 / 恢复 / 种子库压缩
 │   └── ...                          # 回测 / 分析工具
-├── tests/                           # 92 个单元测试
+├── tests/                           # 112 个单元测试（V1 归档于 tests/v1/）
 ├── config/                          # dev.yaml / prod.yaml
 ├── web/                             # 前端 SPA（ECharts 暗色主题）
 │   ├── app.html                     # 主仪表盘
@@ -330,7 +324,7 @@ bull-market-heat-index/
 | 前端 | Vanilla JS + ECharts（暗色 SPA，响应式） |
 | CI/CD | GitHub Actions（每日 16:30 北京时） |
 | 通知 | 飞书 Webhook + Bark（iOS 推送） |
-| 测试 | pytest（92 例） + ruff |
+| 测试 | pytest（112 例） + ruff |
 
 ---
 

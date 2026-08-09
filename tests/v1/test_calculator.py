@@ -5,7 +5,7 @@ import pandas as pd
 from unittest.mock import patch, MagicMock
 from datetime import date, timedelta
 
-from src.indicators.calculator import (
+from src.indicators.v1.calculator import (
     HeatIndexCalculator,
     calculate_heat_index,
 )
