@@ -8,7 +8,7 @@
 > **定位：仅提示离场 / 减仓，不发出进场或加仓信号。**
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-v3.19-blue" alt="version">
+  <img src="https://img.shields.io/badge/version-v3.20-blue" alt="version">
   <img src="https://img.shields.io/badge/python-3.10%2B-blue" alt="python">
   <img src="https://img.shields.io/badge/tests-112_passing-brightgreen" alt="tests">
   <img src="https://img.shields.io/badge/license-MIT-green" alt="license">
@@ -55,7 +55,7 @@
 | 2026-06-24 | 震荡市 | **74.1** 🔴 | 两融市值比处 10 年 99.6% 分位（杠杆极值），修复后正确预警 |
 | 2026-06-25 | 震荡市 | **73.4** 🔴 | 同上 |
 
-> 2026-08 修复（F2/F4/F5/F6/F1/F8）：新高占比改 10 年历史百分位、两融高分位饱和、PE 成分过滤收紧、换手率背离单指标扣分。修复后 2026-06 震荡市因两融市值比处于 10 年 99.6% 分位而翻红（旧实现在该极值日将两融分塌陷至 6 分，属 bug）。
+> 2026-08 修复（M1–M5 基线重算，F1–F10/F15）：新高占比改 10 年历史百分位、两融高分位饱和（85% 分位起收敛）、PE 成分过滤收紧、换手率改 10 年窗口（daily_turnover 预计算表口径统一）、MA 排列回退收敛、维度分改按指标权重加权（F10）、巴菲特指标增加 GDP 缺失年份降级日志（F9）。修复后 2026-06 震荡市因两融市值比处于 10 年 99.6% 分位而翻红（旧实现在该极值日将两融分塌陷至 6 分，属 bug）。
 
 ### 指数牛市见顶预判
 
@@ -163,6 +163,8 @@ cd web && python3 -m http.server 8080
 | S26b | S26b_total_mv | 全市场总市值(供巴菲特指标) | 0.5–2s |
 | S26 | S26_circ_mv | 全市场流通市值(供融资余额比) | 0.5–2s |
 | S27–S30 | updown / limit / below_net / ma_alignment | 展示用预计算表（不计分） | 各 0.5–3s |
+| S30b | S30b_new_high | 250 日新高占比预计算表（供结构分） | 0.5–3s |
+| S30c | S30c_turnover | 换手率预计算表（10 年窗口，供情绪分） | 0.5–3s |
 | S24 | S24_precompute | 预计算表陈旧检测 | <0.1s |
 | S24c | S24c_m2 | M2 月度数据 | <0.3s |
 | S31 | S31_qvix | CFFEX 股指期权恐慌指数更新（optbbs） | 1–5s |
@@ -172,7 +174,7 @@ cd web && python3 -m http.server 8080
 | **S55** | **S55_index_heat** | **七大指数牛市见顶预判** | **<0.1s** |
 | S6 | save | 保存 JSON（含展示指标） | <0.1s |
 | S7 | sectors | 板块热度（CSRC 行业分类） | 1–7s |
-| **S75** | **S75_focus** | **重点行业热度（申万一级 6 大行业）** | **1–3s** |
+| **S75** | **S75_focus** | **重点行业热度（申万一级 6 大行业，指数行情并行拉取）** | **0.5–1s** |
 | S8 | final_save | 最终保存 | <0.1s |
 | S9 | notify | 飞书 / Bark 推送 | <0.5s |
 
@@ -273,7 +275,7 @@ bull-market-heat-index/
 ├── src/
 │   ├── config.py                    # YAML 配置加载
 │   ├── data/
-│   │   ├── database.py              # SQLite 管理（25 表、迁移、CRUD）
+│   │   ├── database.py              # SQLite 管理（35 表、迁移、CRUD）
 │   │   ├── fetcher.py               # tushare + akshare 数据获取
 │   │   ├── qvix_fetcher.py          # CFFEX 股指期权恐慌指数（optbbs CSV）⚠️ 新增
 │   │   └── freshness.py             # 数据新鲜度与权重衰减（V1）
@@ -302,7 +304,7 @@ bull-market-heat-index/
 │   ├── echarts.min.js               # 本地 ECharts
 │   └── data/                        # JSON 输出
 ├── reports/                         # 日报 / 回测报告
-├── data/                            # SQLite 数据库（~600MB，gitignore）
+├── data/                            # SQLite 数据库（~1.7GB，gitignore）
 ├── logs/                            # 运行日志
 ├── .github/workflows/               # CI/CD 流水线
 ├── requirements.txt                 # 生产依赖
@@ -317,7 +319,7 @@ bull-market-heat-index/
 | 层 | 技术 |
 |----|------|
 | 语言 | Python 3.10+ |
-| 数据存储 | SQLite（25 表，WAL 模式，~600MB） |
+| 数据存储 | SQLite（35 表，WAL 模式，~1.7GB） |
 | 数据源 | tushare pro + akshare（国债收益率经 akshare）+ optbbs.com（CFFEX QVIX） |
 | 核心库 | pandas, numpy, pyyaml |
 | API 服务 | FastAPI + uvicorn |
@@ -350,4 +352,4 @@ MIT
 
 ---
 
-*版本: v3.19 | 调整: 2026-07-31 | 新增: 重点行业监控（申万一级6大行业 + 指数行情 + 前端展示）*
+*版本: v3.20 | 调整: 2026-08-09 | 修复: M1–M5 基线重算（10年百分位/两融饱和/换手率窗口/维度加权/预计算表） | 新增: 重点行业监控（申万一级6大行业 + 指数行情并行拉取 + 前端展示）*

@@ -19,3 +19,4 @@ data/backups/
 reasonix.toml
 report.md
 .omo/
+.playwright-mcp/
