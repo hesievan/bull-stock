@@ -12,6 +12,7 @@
 展示(不计分): QVIX恐慌指数
 """
 import logging
+import math
 import sqlite3
 import pandas as pd
 import numpy as np
@@ -118,10 +119,15 @@ def calc_pe(conn, trade_date: str) -> Optional[tuple]:
             return None
 
         # 只保留与当前n_stocks相近的历史记录 (排除全市场混入)
-        # 注意: 种子库可能由旧版代码(仅hs300, n≈300)构建, 新版使用hs300+zz500(n≈800)
-        # 放宽过滤范围避免历史数据被全部排除
+        # F5修复: 过滤范围从 ±80%/×3 收紧到 ±50%; 现代成分口径(cur_n>=600, hs300+zz500)
+        # 才启用绝对下限450, 避免早期hs300-only(n≈300)数据混入; 早期日期(2015)不触发下限,
+        # 防止过滤范围坍缩(cur_n=300时 hi=450 与下限450重合导致hist为空)
         if cur_n > 0:
-            hist = hist[hist["n_stocks"].between(cur_n * 0.2, cur_n * 3.0)]
+            lo = cur_n * 0.5
+            hi = cur_n * 1.5
+            if cur_n >= 600:
+                lo = max(lo, 450)
+            hist = hist[hist["n_stocks"].between(lo, hi)]
 
         if len(hist) < 60:
             return None
@@ -318,13 +324,17 @@ def calc_margin_ratio_v2(conn, trade_date: str) -> Optional[float]:
             return None
 
         pct = _pct_rank(hist_ratios, cur_ratio)
-        # 杠杆上升=热度上升; 极高分位(>90%)时线性递减, 避免突变
-        if pct > 0.9:
-            # pct=0.90→90分, pct=1.0→0分, 线性过渡
-            score = 900 * (1 - pct)
-        else:
+        # 杠杆上升=热度上升。F4修复: 高分位用平滑饱和函数保持单调递增,
+        # 原线性递减(900*(1-pct))导致 pct=0.95 时分数骤降至45, 反直觉且与"顶部预警"设计矛盾
+        # 0.85→85, 0.90→~94, 0.95→~98, 0.99→~99: 单调递增且平滑收敛
+        SATURATION_CUTOFF = 0.85
+        SATURATION_HEADROOM = 0.15
+        if pct <= SATURATION_CUTOFF:
             score = pct * 100
-        logger.info("两融余额市值比: %.6f, score=%.1f (n=%d)", cur_ratio, score, len(hist_ratios))
+        else:
+            adjusted = SATURATION_CUTOFF + SATURATION_HEADROOM * (1 - math.exp(-(pct - SATURATION_CUTOFF) * 20))
+            score = adjusted * 100
+        logger.info("两融余额市值比: %.6f, pct=%.2f, score=%.1f (n=%d)", cur_ratio, pct, score, len(hist_ratios))
         return max(0, min(100, score)), cur_ratio
     except Exception as e:
         logger.warning("Margin ratio calc failed: %s", e)
@@ -567,9 +577,11 @@ def calc_ma_alignment_v2(conn, trade_date: str) -> Optional[float]:
             conn, params=[str(int(td[:4]) - 10) + td[4:]]
         )
         if hist.empty or len(hist) < 60:
-            score = cur_val * 100
-            logger.info("MA排列比 (fallback raw): %.2f%%", score)
-            return max(0, min(100, score)), cur_val
+            # F6修复: 历史不足时收敛到[20,80], 原实现 cur_val*100 会给出异常高分
+            logger.warning("MA alignment: insufficient historical data (%d records), using clamped fallback",
+                           len(hist))
+            score = max(20, min(cur_val * 100, 80))
+            return score, cur_val
 
         pct = _pct_rank(hist["ma_alignment_ratio"], cur_val)
         score = pct * 100
@@ -776,7 +788,9 @@ def _apply_sentiment_divergence(conn, trade_date: str,
             penalty = DIVERGENCE_CONFIG["penalty_factor"]
             logger.info("情绪背离惩罚: 换手率=%.1f, 指数%.1f%%, 减%.1f分",
                         turnover_score, pct_change, penalty)
-            for key in ("turnover_m2", "turnover"):
+            # F2修复(方案B): 只扣触发背离的换手率指标, 惩罚总额=20分(匹配README"最多20分")
+            # 原实现对 turnover_m2 和 turnover 各扣20分=总40分, 惩罚翻倍导致信号失真
+            for key in ("turnover",):
                 if sentiment_scores.get(key) is not None:
                     sentiment_scores[key] = max(0, sentiment_scores[key] - penalty * 100)
     except Exception as e:
