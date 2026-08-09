@@ -465,21 +465,21 @@ def calc_turnover_m2(conn, trade_date: str) -> Optional[float]:
 
 
 def calc_turnover_v2(conn, trade_date: str) -> Optional[float]:
-    """换手率 = 成交额 / 流通市值 (近6个月窗口百分位)"""
+    """换手率 = 成交额 / 流通市值 (10年窗口百分位, F3修复)"""
     try:
         td = trade_date
-        six_mo_ago = (pd.Timestamp(td) - pd.DateOffset(months=6)).strftime("%Y-%m-%d")
+        ten_years_ago = (pd.Timestamp(td) - pd.DateOffset(years=10)).strftime("%Y-%m-%d")
 
-        # 历史窗口
+        # 历史窗口: 查预计算表 daily_turnover (口径与当日值一致: Σamount/Σcirc_mv×10)
         hist = pd.read_sql(
-            "SELECT trade_date, SUM(amount) as amt, SUM(circ_mv) as mv "
-            "FROM stock_daily WHERE trade_date >= ? AND trade_date < ? AND amount > 0 AND circ_mv > 0 "
-            "GROUP BY trade_date ORDER BY trade_date",
-            conn, params=(six_mo_ago, td)
+            "SELECT trade_date, turnover_rate FROM daily_turnover "
+            "WHERE trade_date >= ? AND trade_date <= ? AND turnover_rate IS NOT NULL "
+            "ORDER BY trade_date",
+            conn, params=(ten_years_ago, td)
         )
-        if hist.empty or len(hist) < 20:
+        if hist.empty or len(hist) < 60:
             return None
-        hist_rates = (hist["amt"] / hist["mv"] * 10).dropna()
+        hist_rates = hist["turnover_rate"].dropna()
 
         # 当日
         today = pd.read_sql(

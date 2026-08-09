@@ -232,6 +232,12 @@ CREATE TABLE IF NOT EXISTS daily_new_high (
     n_stocks INTEGER         -- 参与计算的股票数
 );
 
+-- 换手率预计算表 (F3: turnover 指标 10 年窗口加速, 口径=Σamount/Σcirc_mv×10)
+CREATE TABLE IF NOT EXISTS daily_turnover (
+    trade_date TEXT PRIMARY KEY,
+    turnover_rate REAL       -- 全市场换手率(%)
+);
+
 -- 历史成分股截面 (月末, 用于 PE/PB 中位数计算)
 CREATE TABLE IF NOT EXISTS index_constituents_hist (
     index_code TEXT NOT NULL,
@@ -405,6 +411,7 @@ STALENESS_CONFIG = [
     {"table": "daily_below_net",    "step": "S29", "fallback": True,  "max_gap_days": 5, "desc": "破净率"},
     {"table": "daily_ma_alignment", "step": "S30", "fallback": False, "max_gap_days": 5, "desc": "MA排列比"},
     {"table": "daily_new_high",     "step": "S30b", "fallback": True,  "max_gap_days": 5, "desc": "创新高占比"},
+    {"table": "daily_turnover",     "step": "S30c", "fallback": True,  "max_gap_days": 5, "desc": "换手率(10年窗口)"},
     {"table": "daily_erp",          "step": "-",   "fallback": True,  "max_gap_days": 5, "desc": "股权风险溢价"},
     {"table": "daily_circ_mv",      "step": "S26", "fallback": False, "max_gap_days": 5, "desc": "流通市值"},
     {"table": "daily_macro",        "step": "-",   "fallback": False, "max_gap_days": 7, "desc": "宏观(M1-M2)"},

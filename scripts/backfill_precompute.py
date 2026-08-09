@@ -90,11 +90,15 @@ def _compute_daily_erp(trade_date: str, db_path: str) -> bool:
 
 
 def _compute_daily_turnover(trade_date: str, db_path: str) -> bool:
-    """计算单日换手率并写入 daily_turnover 表"""
+    """计算单日换手率并写入 daily_turnover 表
+
+    口径 = 成交额/流通市值×10, 与 calc_turnover_v2 当日值一致 (F3 修复:
+    旧口径 Σ(turnover_rate×circ_mv/100)/1e8 与之偏差 7%~21%, 以现公式为准回填)
+    """
     with get_conn(db_path) as conn:
         df = pd.read_sql(
-            "SELECT SUM(turnover_rate * circ_mv / 100.0) / 1e8 as turnover_rate "
-            "FROM stock_daily WHERE trade_date=? AND turnover_rate>0 AND circ_mv>0",
+            "SELECT SUM(amount) / NULLIF(SUM(circ_mv), 0) * 10.0 as turnover_rate "
+            "FROM stock_daily WHERE trade_date=? AND amount>0 AND circ_mv>0",
             conn, params=[trade_date]
         )
         if df.empty or df.iloc[0, 0] is None:

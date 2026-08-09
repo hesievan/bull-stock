@@ -200,6 +200,16 @@ def run_daily(trade_date=None):
 
     _run_step(step_status, "S30b_new_high", _step30b)
 
+    # ── Step 2.10c: 换手率 (daily_turnover, 预计算表, F3 10年窗口) ──────────
+    logger.info("Step 2.10c: Computing daily_turnover...")
+
+    def _step30c():
+        from scripts.backfill_precompute import _compute_daily_turnover
+        from src.data.database import DB_PATH as _DB
+        return _compute_daily_turnover(trade_date, _DB)
+
+    _run_step(step_status, "S30c_turnover", _step30c)
+
     # ── Step 2.11: QVIX恐慌指数更新 ──────────────────────────────────────────
     logger.info("Step 2.11: Updating QVIX panic index...")
 

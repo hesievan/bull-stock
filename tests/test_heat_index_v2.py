@@ -356,3 +356,86 @@ class TestNewHighDivergencePrecompute:
         v2_db.commit()
         out = _apply_new_high_divergence(v2_db, td, new_high_score=50.0)
         assert out == pytest.approx(50.0)
+
+
+# ── F3: 换手率 10 年窗口 (daily_turnover 预计算表) ───────────────────────────
+
+class TestTurnover10yWindow:
+    def _seed_history(self, v2_db, rates, td):
+        """种 daily_turnover 历史序列 (跨年日期, 验证 10 年窗口)"""
+        for i, d in enumerate(_dates("2016-09-01", len(rates), step_days=30)):
+            v2_db.execute(
+                "INSERT INTO daily_turnover (trade_date, turnover_rate) VALUES (?, ?)",
+                (d, rates[i]),
+            )
+        v2_db.execute(
+            "INSERT INTO daily_turnover (trade_date, turnover_rate) VALUES (?, ?)",
+            (td, rates[-1]),
+        )
+        v2_db.commit()
+
+    def _seed_today(self, v2_db, td, amount, circ_mv):
+        """当日成交额/流通市值 (cur_rate 实时计算, 修复前后一致)"""
+        v2_db.execute(
+            "INSERT INTO stock_daily (trade_date, stock_code, amount, circ_mv) VALUES (?, '000001.SZ', ?, ?)",
+            (td, amount, circ_mv),
+        )
+        v2_db.commit()
+
+    def test_high_turnover_scores_high_on_10y_window(self, v2_db):
+        """10 年窗口: 当日换手高于全部历史 → 高分 (旧 6 月窗口在牛市中会漂移)"""
+        td = "2026-08-06"
+        rates = [round(0.1 + i * 0.008, 4) for i in range(100)]  # 0.1 → 0.892 递增, 跨 ~8 年
+        self._seed_history(v2_db, rates, td)
+        self._seed_today(v2_db, td, amount=3_000_000.0, circ_mv=3_000_000.0)  # cur=10.0 > 全部历史
+        res = calc_turnover_v2(v2_db, td)
+        assert res is not None
+        score, cur_rate = res
+        assert score >= 90.0
+        assert cur_rate == pytest.approx(10.0)
+
+    def test_low_turnover_scores_low_on_10y_window(self, v2_db):
+        """当日换手低于全部历史 → 低分"""
+        td = "2026-08-06"
+        rates = [round(0.9 - i * 0.008, 4) for i in range(100)]  # 0.9 → 0.108 递减
+        self._seed_history(v2_db, rates, td)
+        self._seed_today(v2_db, td, amount=100.0, circ_mv=3_000_000.0)  # cur≈0.0003 → 最低
+        res = calc_turnover_v2(v2_db, td)
+        assert res is not None
+        score, cur_rate = res
+        assert score <= 10.0
+
+    def test_insufficient_history_returns_none(self, v2_db):
+        """历史不足 60 条 → 返回 None (F3 阈值 60, 原为 20)"""
+        td = "2026-08-06"
+        for i, d in enumerate(_dates("2026-05-01", 30, step_days=1)):
+            v2_db.execute(
+                "INSERT INTO daily_turnover (trade_date, turnover_rate) VALUES (?, 0.5)",
+                (d,),
+            )
+        v2_db.execute(
+            "INSERT INTO daily_turnover (trade_date, turnover_rate) VALUES (?, 0.6)",
+            (td,),
+        )
+        self._seed_today(v2_db, td, amount=1_000.0, circ_mv=1_000.0)
+        v2_db.commit()
+        assert calc_turnover_v2(v2_db, td) is None
+
+    def test_daily_value_matches_live_formula(self, v2_db):
+        """cur_rate = Σamount/Σcirc_mv×10, 与修复前实时口径完全一致 (当日值不跳变)"""
+        td = "2026-08-06"
+        rates = [0.5 + i * 0.001 for i in range(100)]
+        self._seed_history(v2_db, rates, td)
+        # 三只股票: Σamount=6.0e6, Σcirc_mv=1.2e8 → cur = 6e6/1.2e8*10 = 0.5
+        for i, code in enumerate(["000001.SZ", "000002.SZ", "000003.SZ"]):
+            v2_db.execute(
+                "INSERT INTO stock_daily (trade_date, stock_code, amount, circ_mv) VALUES (?, ?, ?, ?)",
+                (td, code, 2_000_000.0, 40_000_000.0),
+            )
+        v2_db.commit()
+        res = calc_turnover_v2(v2_db, td)
+        assert res is not None
+        score, cur_rate = res
+        assert cur_rate == pytest.approx(0.5)
+        # 与直接公式比对
+        assert cur_rate == pytest.approx(6_000_000.0 / 120_000_000.0 * 10)
