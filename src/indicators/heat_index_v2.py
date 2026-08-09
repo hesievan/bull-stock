@@ -275,17 +275,22 @@ def calc_buffett(conn, trade_date: str) -> Optional[float]:
             cur_year -= 1
         if cur_year not in annual_gdp:
             logger.warning(
-                "Buffett index: no GDP data for year %d or earlier. Available years: %s. Return None.",
+                "Buffett index: no GDP data for year %d or earlier. "
+                "Available years: %s. Return None.",
                 td_year - 1, available_years)
             return None
         if (td_year - 1 - cur_year) > 0:
-            logger.info("Buffett index: using GDP from year %d (latest available, %d year(s) behind)",
-                        cur_year, td_year - 1 - cur_year)
+            logger.info(
+                "Buffett index: using GDP from year %d (latest available, "
+                "%d year(s) behind)",
+                cur_year, td_year - 1 - cur_year)
         cur_annual_gdp = annual_gdp[cur_year] * 1e8  # 亿元→元
 
         if cur_annual_gdp <= 0:
-            logger.warning("Buffett index: GDP for year %d is non-positive (%.2f), return None",
-                           cur_year, cur_annual_gdp)
+            logger.warning(
+                "Buffett index: GDP for year %d is non-positive (%.2f), "
+                "return None",
+                cur_year, cur_annual_gdp)
             return None
 
         buffett_ratio = total_mv / cur_annual_gdp
@@ -769,7 +774,8 @@ def compute_index_v2(trade_date: str = None, db_path: str = None) -> dict:
                 continue
             w = sum(INDICATOR_WEIGHTS[k] for k, _ in available)
             if w > 0:
-                dim_scores[dim_name] = sum(v * INDICATOR_WEIGHTS[k] for k, v in available) / w
+                dim_scores[dim_name] = (
+                    sum(v * INDICATOR_WEIGHTS[k] for k, v in available) / w)
             else:
                 dim_scores[dim_name] = None
 
