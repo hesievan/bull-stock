@@ -250,6 +250,7 @@ def calc_buffett(conn, trade_date: str) -> Optional[float]:
                 (td,)
             ).fetchone()
         if not mv_row or mv_row[0] is None:
+            logger.warning("Buffett index: no market cap data for %s, return None", td)
             return None
         total_mv = mv_row[0] * 10000  # 万元→元
 
@@ -260,6 +261,7 @@ def calc_buffett(conn, trade_date: str) -> Optional[float]:
             conn
         )
         if gdp_all.empty:
+            logger.warning("Buffett index: gdp_quarterly table empty, return None")
             return None
 
         # 计算每年的年度GDP
@@ -272,10 +274,18 @@ def calc_buffett(conn, trade_date: str) -> Optional[float]:
         while cur_year not in annual_gdp and cur_year > min(available_years):
             cur_year -= 1
         if cur_year not in annual_gdp:
+            logger.warning(
+                "Buffett index: no GDP data for year %d or earlier. Available years: %s. Return None.",
+                td_year - 1, available_years)
             return None
+        if (td_year - 1 - cur_year) > 0:
+            logger.info("Buffett index: using GDP from year %d (latest available, %d year(s) behind)",
+                        cur_year, td_year - 1 - cur_year)
         cur_annual_gdp = annual_gdp[cur_year] * 1e8  # 亿元→元
 
         if cur_annual_gdp <= 0:
+            logger.warning("Buffett index: GDP for year %d is non-positive (%.2f), return None",
+                           cur_year, cur_annual_gdp)
             return None
 
         buffett_ratio = total_mv / cur_annual_gdp
@@ -749,13 +759,17 @@ def compute_index_v2(trade_date: str = None, db_path: str = None) -> dict:
         # 新高顶背离: 指数涨 + 新高占比下降
         scores["new_high"] = _apply_new_high_divergence(conn, td, scores["new_high"])
 
-        # 各维度分数计算
+        # 各维度分数计算 (按指标权重加权, 与综合分口径一致)
         dim_scores = {}
         for dim_name in DIMENSIONS:
             ind_keys = [k for k, v in INDICATOR_DIMENSIONS.items() if v == dim_name]
-            dim_vals = [scores[k] for k in ind_keys if scores[k] is not None]
-            if dim_vals:
-                dim_scores[dim_name] = sum(dim_vals) / len(dim_vals)
+            available = [(k, scores[k]) for k in ind_keys if scores[k] is not None]
+            if not available:
+                dim_scores[dim_name] = None
+                continue
+            w = sum(INDICATOR_WEIGHTS[k] for k, _ in available)
+            if w > 0:
+                dim_scores[dim_name] = sum(v * INDICATOR_WEIGHTS[k] for k, v in available) / w
             else:
                 dim_scores[dim_name] = None
 

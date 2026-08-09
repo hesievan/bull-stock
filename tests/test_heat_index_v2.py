@@ -578,6 +578,26 @@ class TestBuffettCalc:
         score, _ = res
         assert score >= 90.0
 
+    def test_missing_gdp_warns(self, v2_db, caplog):
+        """GDP 表为空 → 返回 None 且产生 warning 日志 (F9 回归)"""
+        import logging
+        td = "2026-08-06"
+        self._seed_mv(v2_db, td)
+        with caplog.at_level(logging.WARNING, logger="src.indicators.heat_index_v2"):
+            assert calc_buffett(v2_db, td) is None
+        assert any("gdp" in r.message.lower() for r in caplog.records)
+
+    def test_stale_gdp_year_logs_info(self, v2_db, caplog):
+        """GDP 延迟 1 年 (无 2025) → 使用 2024 年度 GDP 并输出 info 日志 (F9 回归)"""
+        import logging
+        td = "2026-08-06"
+        self._seed_gdp(v2_db, range(2015, 2025))
+        self._seed_mv(v2_db, td)
+        with caplog.at_level(logging.INFO, logger="src.indicators.heat_index_v2"):
+            res = calc_buffett(v2_db, td)
+        assert res is not None
+        assert any("using GDP from year 2024" in r.message for r in caplog.records)
+
 
 # ── compute_index_v2 端到端: 加权合成 + 维度聚合 ──────────────────────────────
 
@@ -650,7 +670,7 @@ class TestComputeIndexV2EndToEnd:
         conn.close()
 
     def test_all_indicators_weighted_sum(self, tmp_path):
-        """全部 9 指标有分 → composite=Σ(w_i·score_i), 维度分=维度内均值"""
+        """全部 9 指标有分 → composite=Σ(w_i·score_i), 维度分按指标权重加权 (F10)"""
         db_path = str(tmp_path / "e2e.db")
         init_database(db_path)
         self._full_seed(db_path)
@@ -672,18 +692,31 @@ class TestComputeIndexV2EndToEnd:
         # 综合分 = 指标加权和 (权重总和=1.0)
         expected = sum(ind[rk] * INDICATOR_WEIGHTS[result_to_weight[rk]] for rk in result_to_weight)
         assert res["composite_score"] == pytest.approx(round(expected, 1), abs=0.1)
-        # 估值维度 = (PE + ERP + 巴菲特) / 3
-        val = (ind["pe"] + ind["erp"] + ind["buffett"]) / 3
+
+        # 维度分 = 维度内指标按权重加权 (F10: 与综合分口径一致)
+        def _dim_weighted(keys):
+            w = sum(INDICATOR_WEIGHTS[result_to_weight[k]] for k in keys)
+            return sum(ind[k] * INDICATOR_WEIGHTS[result_to_weight[k]] for k in keys) / w
+
+        val = _dim_weighted(["pe", "erp", "buffett"])
         assert res["dimensions"]["valuation"]["score"] == pytest.approx(round(val, 1), abs=0.1)
-        # 资金维度 = (两融 + 存款) / 2
-        fund = (ind["margin_ratio_v2"] + ind["deposit_ratio"]) / 2
+        fund = _dim_weighted(["margin_ratio_v2", "deposit_ratio"])
         assert res["dimensions"]["fund"]["score"] == pytest.approx(round(fund, 1), abs=0.1)
-        # 情绪维度 = (成交额M2比 + 换手率) / 2
-        sent = (ind["turnover_m2"] + ind["turnover"]) / 2
+        sent = _dim_weighted(["turnover_m2", "turnover"])
         assert res["dimensions"]["sentiment"]["score"] == pytest.approx(round(sent, 1), abs=0.1)
-        # 结构维度 = (新高占比 + MA排列) / 2
-        struct = (ind["new_high"] + ind["ma_alignment"]) / 2
+        struct = _dim_weighted(["new_high", "ma_alignment"])
         assert res["dimensions"]["structure"]["score"] == pytest.approx(round(struct, 1), abs=0.1)
+
+        # F10 关键不变量: Σ(维度分 × 维度权重占比) ≈ 综合分
+        # 维度权重 = 维度内指标权重之和
+        dim_weights = {
+            "valuation": sum(INDICATOR_WEIGHTS[result_to_weight[k]] for k in ("pe", "erp", "buffett")),
+            "fund": sum(INDICATOR_WEIGHTS[result_to_weight[k]] for k in ("margin_ratio_v2", "deposit_ratio")),
+            "sentiment": sum(INDICATOR_WEIGHTS[result_to_weight[k]] for k in ("turnover_m2", "turnover")),
+            "structure": sum(INDICATOR_WEIGHTS[result_to_weight[k]] for k in ("new_high", "ma_alignment")),
+        }
+        recon = sum(res["dimensions"][d]["score"] * w for d, w in dim_weights.items())
+        assert res["composite_score"] == pytest.approx(recon, abs=0.2)
 
     def test_partial_data_renormalizes_weights(self, tmp_path):
         """仅 PE 有数据 → 综合分 = PE 分 (权重重归一化, 不因缺失指标而失真)"""
