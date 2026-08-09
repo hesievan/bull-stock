@@ -1,7 +1,8 @@
 """V2 引擎单元测试 — heat_index_v2 核心指标
 
-覆盖: calc_pe / calc_margin_ratio_v2 / calc_ma_alignment_v2 / _apply_sentiment_divergence
-及其余 V2 函数。每个测试使用临时 SQLite 库, 不触碰生产数据。
+覆盖: calc_pe / calc_erp_v2 / calc_buffett / calc_margin_ratio_v2 / calc_ma_alignment_v2
+calc_new_high_v2 / calc_turnover_v2 / 背离函数 / compute_index_v2 端到端。
+每个测试使用临时 SQLite 库, 不触碰生产数据。
 """
 import math
 import sqlite3
@@ -10,14 +11,17 @@ import pytest
 
 from src.data.database import init_database
 from src.indicators.heat_index_v2 import (
+    INDICATOR_WEIGHTS,
     NEW_HIGH_THRESHOLD,
     _apply_new_high_divergence,
+    calc_buffett,
     calc_erp_v2,
     calc_margin_ratio_v2,
     calc_ma_alignment_v2,
     calc_new_high_v2,
     calc_pe,
     calc_turnover_v2,
+    compute_index_v2,
     _apply_sentiment_divergence,
     _pct_rank,
 )
@@ -41,6 +45,18 @@ def _dates(start: str, n: int, step_days: int = 1):
     for _ in range(n):
         out.append(d.isoformat())
         d += timedelta(days=step_days)
+    return out
+
+
+def _months(start: str, n: int):
+    """生成连续月份列表 YYYY-MM (m2_monthly 主键为月份, 不能用 step_days=30 凑)"""
+    y, m = map(int, start.split("-"))
+    out = []
+    for _ in range(n):
+        out.append(f"{y:04d}-{m:02d}")
+        m += 1
+        if m == 13:
+            y, m = y + 1, 1
     return out
 
 
@@ -439,3 +455,256 @@ class TestTurnover10yWindow:
         assert cur_rate == pytest.approx(0.5)
         # 与直接公式比对
         assert cur_rate == pytest.approx(6_000_000.0 / 120_000_000.0 * 10)
+
+
+# ── calc_pe 方向性: 高PE→高分, 低PE→低分 (百分位正确性) ────────────────────────
+
+class TestPeDirection:
+    """calc_pe 历史百分位方向性 — 高PE(贵)高分, 低PE(便宜)低分"""
+
+    def _seed(self, v2_db, cur_pe):
+        td = "2026-08-06"
+        for i, d in enumerate(_dates("2016-09-01", 120)):
+            v2_db.execute(
+                "INSERT INTO index_daily_pe (trade_date, pe_med, n_stocks) VALUES (?, ?, 722)",
+                (d, round(5.0 + i * 0.03, 4)),  # 5.0 → 8.57 递增
+            )
+        v2_db.execute("INSERT INTO index_daily_pe (trade_date, pe_med, n_stocks) VALUES (?, ?, 722)",
+                      (td, cur_pe))
+        v2_db.commit()
+
+    def test_high_pe_scores_high(self, v2_db):
+        """当前 PE 高于全部 10 年历史 → 高分 (>95)"""
+        self._seed(v2_db, 10.0)
+        res = calc_pe(v2_db, "2026-08-06")
+        assert res is not None
+        score, cur_pe = res
+        assert cur_pe == pytest.approx(10.0)
+        assert score >= 95.0
+
+    def test_low_pe_scores_low(self, v2_db):
+        """当前 PE 低于全部 10 年历史 → 低分 (<5)"""
+        self._seed(v2_db, 4.0)
+        res = calc_pe(v2_db, "2026-08-06")
+        assert res is not None
+        score, cur_pe = res
+        assert cur_pe == pytest.approx(4.0)
+        assert score <= 5.0
+
+
+# ── calc_erp_v2 反向评分: 高ERP=便宜=低分 ─────────────────────────────────────
+
+class TestErpReverseScoring:
+    """ERP 股权风险溢价反向评分 — 高ERP(便宜)低分, 低ERP(贵)高分"""
+
+    def _seed(self, v2_db, cur_erp):
+        td = "2026-08-06"
+        for i, d in enumerate(_dates("2016-09-01", 120)):
+            v2_db.execute(
+                "INSERT INTO daily_erp (trade_date, erp) VALUES (?, ?)",
+                (d, round(1.0 + i * 0.03, 4)),  # 1.0 → 4.57 递增
+            )
+        v2_db.execute("INSERT INTO daily_erp (trade_date, erp) VALUES (?, ?)",
+                      (td, cur_erp))
+        v2_db.commit()
+
+    def test_high_erp_scores_low(self, v2_db):
+        """当前 ERP 历史最高 (股便宜) → 低热度分 (<5), 验证反向"""
+        self._seed(v2_db, 5.0)
+        res = calc_erp_v2(v2_db, "2026-08-06")
+        assert res is not None
+        score, cur_erp = res
+        assert cur_erp == pytest.approx(5.0)
+        assert score <= 5.0
+
+    def test_low_erp_scores_high(self, v2_db):
+        """当前 ERP 历史最低 (股昂贵) → 高热度分 (>95)"""
+        self._seed(v2_db, 0.5)
+        res = calc_erp_v2(v2_db, "2026-08-06")
+        assert res is not None
+        score, cur_erp = res
+        assert cur_erp == pytest.approx(0.5)
+        assert score >= 95.0
+
+
+# ── calc_buffett: GDP 年份回退 + 方向性 ──────────────────────────────────────
+
+class TestBuffettCalc:
+    """巴菲特指标 — GDP 年度缺失回退 + 高市值→高分"""
+
+    def _seed_gdp(self, v2_db, years):
+        for y in years:
+            for q in range(1, 5):
+                v2_db.execute(
+                    "INSERT INTO gdp_quarterly (quarter, gdp) VALUES (?, 1e6)",
+                    (f"{y}Q{q}",),
+                )
+        v2_db.commit()
+
+    def _seed_mv(self, v2_db, td):
+        for i, d in enumerate(_dates("2016-09-01", 70, step_days=30)):
+            v2_db.execute(
+                "INSERT INTO stock_market_cap (trade_date, total_mv) VALUES (?, ?)",
+                (d, 1e8 + i * 1e7),  # 递增
+            )
+        v2_db.execute("INSERT INTO stock_market_cap (trade_date, total_mv) VALUES (?, 1e9)",
+                      (td,))  # 当前 = 历史最高
+        v2_db.commit()
+
+    def test_gdp_year_fallback(self, v2_db):
+        """td=2026 但 GDP 只到 2024 → 回退用 2024 年度 GDP, 不返回 None"""
+        td = "2026-08-06"
+        self._seed_gdp(v2_db, range(2015, 2025))  # 2015-2024, 无 2025
+        self._seed_mv(v2_db, td)
+        res = calc_buffett(v2_db, td)
+        assert res is not None
+        score, ratio = res
+        assert 0 <= score <= 100
+        assert score >= 90.0  # 当前市值最高 → 高分
+
+    def test_no_gdp_returns_none(self, v2_db):
+        """无 GDP 数据 → 返回 None (不崩溃)"""
+        td = "2026-08-06"
+        self._seed_mv(v2_db, td)
+        assert calc_buffett(v2_db, td) is None
+
+    def test_high_mv_scores_high(self, v2_db):
+        """GDP 齐全时, 当前市值最高 → 高分 (>90)"""
+        td = "2026-08-06"
+        self._seed_gdp(v2_db, range(2015, 2026))
+        self._seed_mv(v2_db, td)
+        res = calc_buffett(v2_db, td)
+        assert res is not None
+        score, _ = res
+        assert score >= 90.0
+
+
+# ── compute_index_v2 端到端: 加权合成 + 维度聚合 ──────────────────────────────
+
+class TestComputeIndexV2EndToEnd:
+    """compute_index_v2 — 全 9 指标种子数据 → 综合分=加权和, 维度分=维度内均值"""
+
+    TD = "2026-08-06"
+
+    def _full_seed(self, db_path):
+        """种满 9 个指标所需的全部预计算表"""
+        conn = sqlite3.connect(db_path)
+        td = self.TD
+        # 1. PE: 125 条历史 (n=722) + 当前
+        for i, d in enumerate(_dates("2016-09-01", 125)):
+            conn.execute(
+                "INSERT INTO index_daily_pe (trade_date, pe_med, n_stocks) VALUES (?, ?, 722)",
+                (d, round(5.0 + i * 0.03, 4)),
+            )
+        conn.execute("INSERT INTO index_daily_pe (trade_date, pe_med, n_stocks) VALUES (?, 10.0, 722)",
+                     (td,))
+        # 2. ERP: 125 条历史 + 当前 (高ERP → 低分, 反向)
+        for i, d in enumerate(_dates("2016-09-01", 125)):
+            conn.execute("INSERT INTO daily_erp (trade_date, erp) VALUES (?, ?)",
+                         (d, round(1.0 + i * 0.03, 4)),
+                         )
+        conn.execute("INSERT INTO daily_erp (trade_date, erp) VALUES (?, 5.0)", (td,))
+        # 3. GDP (2015-2025) + 总市值 (70 个月递增)
+        for y in range(2015, 2026):
+            for q in range(1, 5):
+                conn.execute("INSERT INTO gdp_quarterly (quarter, gdp) VALUES (?, 1e6)",
+                             (f"{y}Q{q}",))
+        for i, d in enumerate(_dates("2016-09-01", 70, step_days=30)):
+            conn.execute("INSERT INTO stock_market_cap (trade_date, total_mv) VALUES (?, ?)",
+                         (d, 1e8 + i * 1e7))
+        conn.execute("INSERT INTO stock_market_cap (trade_date, total_mv) VALUES (?, 1e9)", (td,))
+        # 4. 两融: 65 条 5 年窗口 + 当前 (高杠杆 → 高分)
+        for i, d in enumerate(_dates("2021-08-10", 65, step_days=30)):
+            conn.execute("INSERT INTO daily_circ_mv (trade_date, total_circ_mv) VALUES (?, 1e8)", (d,))
+            conn.execute("INSERT INTO margin_history (trade_date, rzye, rqye) VALUES (?, ?, 0)",
+                         (d, 1e11 + i * 1e9))
+        conn.execute("INSERT INTO daily_circ_mv (trade_date, total_circ_mv) VALUES (?, 1e8)", (td,))
+        conn.execute("INSERT INTO margin_history (trade_date, rzye, rqye) VALUES (?, 2e11, 0)", (td,))
+        # 5. M2 (70 个月) + 成交额 (70 个月) + 当日
+        for m in _months("2016-01", 70):
+            conn.execute("INSERT INTO m2_monthly (month, m2_billion) VALUES (?, 2e5)", (m,))
+        for i, d in enumerate(_dates("2016-09-01", 70, step_days=30)):
+            conn.execute("INSERT INTO stock_daily (trade_date, stock_code, amount, circ_mv) "
+                         "VALUES (?, '000001.SZ', ?, 1e8)",
+                         (d, 1e5 + i * 1e3))
+        conn.execute("INSERT INTO stock_daily (trade_date, stock_code, amount, circ_mv) "
+                     "VALUES (?, '000001.SZ', 1e6, 1e8)", (td,))
+        # 6. 换手率历史 (70 条, 10 年窗口)
+        for i, d in enumerate(_dates("2016-09-01", 70, step_days=30)):
+            conn.execute("INSERT INTO daily_turnover (trade_date, turnover_rate) VALUES (?, ?)",
+                         (d, round(0.2 + i * 0.004, 4)))
+        # 7. 新高占比 (70 条) + 当前 (最高 → 高分)
+        for i, d in enumerate(_dates("2016-09-01", 70, step_days=30)):
+            conn.execute("INSERT INTO daily_new_high (trade_date, new_high_ratio, n_stocks) "
+                         "VALUES (?, ?, 500)",
+                         (d, round(0.05 + i * 0.009, 4)))
+        conn.execute("INSERT INTO daily_new_high (trade_date, new_high_ratio, n_stocks) "
+                     "VALUES (?, 0.7, 500)", (td,))
+        # 8. MA 排列 (70 条) + 当前 (最高 → 高分)
+        for i, d in enumerate(_dates("2016-09-01", 70, step_days=30)):
+            conn.execute("INSERT INTO daily_ma_alignment (trade_date, ma_alignment_ratio) VALUES (?, ?)",
+                         (d, round(0.1 + i * 0.008, 4)))
+        conn.execute("INSERT INTO daily_ma_alignment (trade_date, ma_alignment_ratio) VALUES (?, 0.9)",
+                     (td,))
+        conn.commit()
+        conn.close()
+
+    def test_all_indicators_weighted_sum(self, tmp_path):
+        """全部 9 指标有分 → composite=Σ(w_i·score_i), 维度分=维度内均值"""
+        db_path = str(tmp_path / "e2e.db")
+        init_database(db_path)
+        self._full_seed(db_path)
+
+        res = compute_index_v2(trade_date=self.TD, db_path=db_path)
+        assert res["trade_date"] == self.TD
+
+        ind = res["indicators"]
+        # result 键→权重键映射 (两融在 result 中名为 margin_ratio_v2, 权重表用 margin_ratio)
+        result_to_weight = {
+            "pe": "pe", "erp": "erp", "buffett": "buffett",
+            "margin_ratio_v2": "margin_ratio", "deposit_ratio": "deposit_ratio",
+            "turnover_m2": "turnover_m2", "turnover": "turnover",
+            "new_high": "new_high", "ma_alignment": "ma_alignment",
+        }
+        # 全部 9 指标均有分数
+        for rk in result_to_weight:
+            assert ind[rk] is not None, f"{rk} 无分数"
+        # 综合分 = 指标加权和 (权重总和=1.0)
+        expected = sum(ind[rk] * INDICATOR_WEIGHTS[result_to_weight[rk]] for rk in result_to_weight)
+        assert res["composite_score"] == pytest.approx(round(expected, 1), abs=0.1)
+        # 估值维度 = (PE + ERP + 巴菲特) / 3
+        val = (ind["pe"] + ind["erp"] + ind["buffett"]) / 3
+        assert res["dimensions"]["valuation"]["score"] == pytest.approx(round(val, 1), abs=0.1)
+        # 资金维度 = (两融 + 存款) / 2
+        fund = (ind["margin_ratio_v2"] + ind["deposit_ratio"]) / 2
+        assert res["dimensions"]["fund"]["score"] == pytest.approx(round(fund, 1), abs=0.1)
+        # 情绪维度 = (成交额M2比 + 换手率) / 2
+        sent = (ind["turnover_m2"] + ind["turnover"]) / 2
+        assert res["dimensions"]["sentiment"]["score"] == pytest.approx(round(sent, 1), abs=0.1)
+        # 结构维度 = (新高占比 + MA排列) / 2
+        struct = (ind["new_high"] + ind["ma_alignment"]) / 2
+        assert res["dimensions"]["structure"]["score"] == pytest.approx(round(struct, 1), abs=0.1)
+
+    def test_partial_data_renormalizes_weights(self, tmp_path):
+        """仅 PE 有数据 → 综合分 = PE 分 (权重重归一化, 不因缺失指标而失真)"""
+        db_path = str(tmp_path / "pe_only.db")
+        init_database(db_path)
+        conn = sqlite3.connect(db_path)
+        for i, d in enumerate(_dates("2016-09-01", 125)):
+            conn.execute(
+                "INSERT INTO index_daily_pe (trade_date, pe_med, n_stocks) VALUES (?, ?, 722)",
+                (d, round(5.0 + i * 0.03, 4)),
+            )
+        conn.execute("INSERT INTO index_daily_pe (trade_date, pe_med, n_stocks) VALUES (?, 10.0, 722)",
+                     (self.TD,))
+        conn.commit()
+        conn.close()
+
+        res = compute_index_v2(trade_date=self.TD, db_path=db_path)
+        assert res["indicators"]["pe"] is not None
+        # 其余指标无数据 → None
+        for k in ("erp", "buffett", "margin_ratio_v2", "deposit_ratio",
+                  "turnover_m2", "turnover", "new_high", "ma_alignment"):
+            assert res["indicators"][k] is None, f"{k} 应无数据"
+        # 仅 PE 有效 → 综合分=PE 分 (total_weight 归一化)
+        assert res["composite_score"] == pytest.approx(round(res["indicators"]["pe"], 1), abs=0.1)
