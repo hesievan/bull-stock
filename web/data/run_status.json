@@ -1,77 +1,87 @@
 {
-  "trade_date": "2026-08-07",
-  "generated_at": "2026-08-09 00:00:00",
+  "trade_date": "2026-08-10",
+  "generated_at": "2026-08-10 00:00:00",
   "steps": {
     "init_db": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.008064031600952148
+      "elapsed": 0.0012514591217041016
     },
     "S1_index": {
       "status": "OK",
       "detail": "",
-      "elapsed": 7.712802171707153
+      "elapsed": 24.288694381713867
     },
     "S2_market": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.5993010997772217
+      "elapsed": 7.343433380126953
     },
     "S25_index_pe": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.013885021209716797
+      "elapsed": 0.024827003479003906
     },
     "S26_circ_mv": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.0016639232635498047
+      "elapsed": 0.003434896469116211
     },
     "S26b_total_mv": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.0018792152404785156
+      "elapsed": 0.0035097599029541016
     },
     "S27_updown": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.0033969879150390625
+      "elapsed": 0.007410526275634766
     },
     "S28_limit": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.002930164337158203
+      "elapsed": 0.007232189178466797
     },
     "S29_below_net": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.0029251575469970703
+      "elapsed": 0.007269144058227539
     },
     "S30_ma_alignment": {
       "status": "OK",
       "detail": "",
-      "elapsed": 1.8677630424499512
+      "elapsed": 4.478392601013184
     },
     "S30b_new_high": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.5353469848632812
+      "elapsed": 1.0874204635620117
     },
     "S30c_turnover": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.0038950443267822266
+      "elapsed": 0.006395578384399414
     },
     "S31_qvix": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.8195428848266602
+      "elapsed": 3.778482675552368
+    },
+    "S31b_seal_rate": {
+      "status": "OK",
+      "detail": "",
+      "elapsed": 0.018305540084838867
+    },
+    "S31c_index_pe": {
+      "status": "OK",
+      "detail": "",
+      "elapsed": 0.4472527503967285
     },
     "precompute_staleness": [
       {
         "table": "daily_updown",
         "desc": "涨跌家数比",
-        "latest_date": "2026-08-07",
+        "latest_date": "2026-08-10",
         "gap_days": 0,
         "max_gap_days": 5,
         "stale": false,
@@ -81,7 +91,7 @@
       {
         "table": "daily_limit",
         "desc": "涨停/跌停",
-        "latest_date": "2026-08-07",
+        "latest_date": "2026-08-10",
         "gap_days": 0,
         "max_gap_days": 5,
         "stale": false,
@@ -91,7 +101,7 @@
       {
         "table": "daily_below_net",
         "desc": "破净率",
-        "latest_date": "2026-08-07",
+        "latest_date": "2026-08-10",
         "gap_days": 0,
         "max_gap_days": 5,
         "stale": false,
@@ -101,7 +111,7 @@
       {
         "table": "daily_ma_alignment",
         "desc": "MA排列比",
-        "latest_date": "2026-08-07",
+        "latest_date": "2026-08-10",
         "gap_days": 0,
         "max_gap_days": 5,
         "stale": false,
@@ -111,7 +121,7 @@
       {
         "table": "daily_new_high",
         "desc": "创新高占比",
-        "latest_date": "2026-08-07",
+        "latest_date": "2026-08-10",
         "gap_days": 0,
         "max_gap_days": 5,
         "stale": false,
@@ -121,7 +131,7 @@
       {
         "table": "daily_turnover",
         "desc": "换手率(10年窗口)",
-        "latest_date": "2026-08-07",
+        "latest_date": "2026-08-10",
         "gap_days": 0,
         "max_gap_days": 5,
         "stale": false,
@@ -130,18 +140,28 @@
       },
       {
         "table": "daily_erp",
-        "desc": "股权风险溢价",
-        "latest_date": "2026-06-26",
-        "gap_days": 42,
+        "desc": "股权风险溢价(已弃用)",
+        "latest_date": "2026-08-07",
+        "gap_days": 3,
         "max_gap_days": 5,
-        "stale": true,
+        "stale": false,
         "has_fallback": true,
         "step": "-"
       },
       {
+        "table": "daily_seal_rate",
+        "desc": "涨停封板率",
+        "latest_date": "2026-08-10",
+        "gap_days": 0,
+        "max_gap_days": 5,
+        "stale": false,
+        "has_fallback": true,
+        "step": "S31b"
+      },
+      {
         "table": "daily_circ_mv",
         "desc": "流通市值",
-        "latest_date": "2026-08-07",
+        "latest_date": "2026-08-10",
         "gap_days": 0,
         "max_gap_days": 5,
         "stale": false,
@@ -152,7 +172,7 @@
         "table": "daily_macro",
         "desc": "宏观(M1-M2)",
         "latest_date": "2026-06-10",
-        "gap_days": 58,
+        "gap_days": 61,
         "max_gap_days": 7,
         "stale": true,
         "has_fallback": false,
@@ -161,7 +181,7 @@
       {
         "table": "qvix_daily",
         "desc": "QVIX恐慌",
-        "latest_date": "2026-08-07",
+        "latest_date": "2026-08-10",
         "gap_days": 0,
         "max_gap_days": 5,
         "stale": false,
@@ -171,7 +191,7 @@
       {
         "table": "index_daily_pe",
         "desc": "指数PE中位数",
-        "latest_date": "2026-08-07",
+        "latest_date": "2026-08-10",
         "gap_days": 0,
         "max_gap_days": 5,
         "stale": false,
@@ -182,9 +202,9 @@
         "table": "ah_premium_monthly",
         "desc": "AH溢价(月)",
         "latest_date": "2026-06",
-        "gap_days": 38,
+        "gap_days": 41,
         "max_gap_days": 38,
-        "stale": false,
+        "stale": true,
         "has_fallback": true,
         "step": "S4"
       }
@@ -192,50 +212,50 @@
     "S24_precompute_check": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.010252952575683594
+      "elapsed": 0.009398460388183594
     },
     "S24c_m2": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.000637054443359375
+      "elapsed": 0.0010645389556884766
     },
     "S3_margin": {
-      "status": "SKIPPED",
-      "detail": "already in db",
-      "elapsed": 0
+      "status": "OK",
+      "detail": "",
+      "elapsed": 0.45072078704833984
     },
     "S3_bond_yield": {
-      "status": "SKIPPED",
-      "detail": "already in db",
-      "elapsed": 0
+      "status": "OK",
+      "detail": "",
+      "elapsed": 5.055222511291504
     },
     "S3_tushare": {
-      "status": "SKIPPED",
-      "detail": "no data needed",
-      "elapsed": 0.0012989044189453125
+      "status": "OK",
+      "detail": "",
+      "elapsed": 5.52614426612854
     },
     "S3_shenwan": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.005059003829956055
+      "elapsed": 0.005168437957763672
     },
     "S3_industry": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.0013930797576904297
+      "elapsed": 0.0010597705841064453
     },
     "S5_calc": {
       "status": "OK",
       "detail": "",
-      "elapsed": 5.0675787925720215
+      "elapsed": 7.009932041168213
     },
     "S55_index_heat": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.059207916259765625
+      "elapsed": 0.1213679313659668
     }
   },
-  "n_ok": 19,
+  "n_ok": 24,
   "n_failed": 0,
-  "n_skipped": 3
+  "n_skipped": 0
 }

@@ -30542,5 +30542,15 @@
     "turnover": 2.7,
     "new_high": 0.0,
     "ma_alignment": 0.0
+  },
+  "2026-08-10": {
+    "pe": 24.1,
+    "buffett": 0.4,
+    "margin_ratio_v2": 0.0,
+    "seal_rate": 0.8,
+    "turnover_m2": 0.0,
+    "turnover": 2.5,
+    "new_high": 0.0,
+    "ma_alignment": 0.0
   }
 }
