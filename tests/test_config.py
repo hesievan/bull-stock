@@ -12,7 +12,7 @@ class TestLoadConfig:
     def test_load_default(self):
         config = load_config()
         assert "heat_levels" in config
-        assert "dimension_weights" in config
+        assert "v2_engine" in config
 
     def test_load_custom_path(self, tmp_path):
         config_file = tmp_path / "test.yaml"
@@ -55,7 +55,7 @@ class TestV2EngineConfig:
             weights = v2["weights"]
             assert abs(sum(weights.values()) - 1.0) < 0.001, f"{env} weights must sum to 1.0"
             assert set(weights) == {
-                "pe", "erp", "buffett", "margin_ratio", "deposit_ratio",
+                "pe", "buffett", "margin_ratio", "seal_rate",
                 "turnover_m2", "turnover", "new_high", "ma_alignment",
             }
 
@@ -85,10 +85,9 @@ class TestV2EngineConfig:
             "v2_engine:\n"
             "  weights:\n"
             "    pe: 0.20\n"
-            "    erp: 0.10\n"
             "    buffett: 0.10\n"
             "    margin_ratio: 0.15\n"
-            "    deposit_ratio: 0.15\n"
+            "    seal_rate: 0.25\n"
             "    turnover_m2: 0.10\n"
             "    turnover: 0.10\n"
             "    new_high: 0.06\n"

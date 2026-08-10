@@ -24,7 +24,7 @@ DB_PATH = os.environ.get(
 )
 
 # ── 建表 SQL ──────────────────────────────────────────────────────────────────
-SCHEMA_VERSION = 9
+SCHEMA_VERSION = 10
 
 SCHEMA = """
 -- 指数日行情 (tushare index_daily)
@@ -291,6 +291,14 @@ CREATE TABLE IF NOT EXISTS gdp_quarterly (
     gdp_yoy REAL,                  -- GDP 同比 (%)
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- 涨停封板率 (tushare limit_list 聚合, P0-1)
+CREATE TABLE IF NOT EXISTS daily_seal_rate (
+    trade_date TEXT PRIMARY KEY,
+    seal_rate REAL,                -- 封板率 = sealed_count / limit_up_count
+    limit_up_count INTEGER,        -- 触板涨停数 (limit=='U')
+    sealed_count INTEGER           -- 封板成功数 (open_times==0)
+);
 """
 
 
@@ -411,6 +419,10 @@ def _migrate(conn, from_ver: int):
             logger.info("v9 migration: daily_circ_mv dedup %d→%d rows", before, after)
         except Exception as e:
             logger.warning("daily_circ_mv dedup skipped: %s", e)
+    if from_ver < 10:
+        # v10: 新增 daily_seal_rate 表 (涨停封板率, P0-1)
+        # 表已由 SCHEMA 的 CREATE TABLE IF NOT EXISTS 自动创建, 此处仅记录
+        logger.info("v10 migration: daily_seal_rate table added (涨停封板率)")
     logger.info("Database migrated from v%d to v%d", from_ver, SCHEMA_VERSION)
 
 
@@ -441,7 +453,8 @@ STALENESS_CONFIG = [
     {"table": "daily_ma_alignment", "step": "S30", "fallback": False, "max_gap_days": 5, "desc": "MA排列比"},
     {"table": "daily_new_high",     "step": "S30b", "fallback": True,  "max_gap_days": 5, "desc": "创新高占比"},
     {"table": "daily_turnover",     "step": "S30c", "fallback": True,  "max_gap_days": 5, "desc": "换手率(10年窗口)"},
-    {"table": "daily_erp",          "step": "-",   "fallback": True,  "max_gap_days": 5, "desc": "股权风险溢价"},
+    {"table": "daily_erp",          "step": "-",   "fallback": True,  "max_gap_days": 5, "desc": "股权风险溢价(已弃用)"},
+    {"table": "daily_seal_rate",    "step": "S31b", "fallback": True,  "max_gap_days": 5, "desc": "涨停封板率"},
     {"table": "daily_circ_mv",      "step": "S26", "fallback": False, "max_gap_days": 5, "desc": "流通市值"},
     {"table": "daily_macro",        "step": "-",   "fallback": False, "max_gap_days": 7, "desc": "宏观(M1-M2)"},
     {"table": "qvix_daily",         "step": "manual", "fallback": False, "max_gap_days": 5, "desc": "QVIX恐慌"},
@@ -510,7 +523,7 @@ _ALLOWED_TABLES = {
     "daily_updown", "daily_limit", "daily_ma_alignment",
     "daily_below_net", "daily_erp", "daily_macro", "daily_turnover", "qvix_daily",
     "daily_new_high", "stock_high_250d", "index_constituents_hist",
-    "stock_shenwan",
+    "stock_shenwan", "daily_seal_rate",
 }
 
 

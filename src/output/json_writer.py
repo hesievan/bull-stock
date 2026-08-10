@@ -400,14 +400,12 @@ def build_feishu_notification(result: Dict, history: list = None) -> Optional[st
     # V2 评分指标(百分位分 >80 为偏高)
     v2_highlights = [
         ("pe", "大盘PE"), ("buffett", "巴菲特指标"), ("margin_ratio_v2", "两融余额占比"),
-        ("deposit_ratio", "存款市值比"), ("turnover_m2", "成交额M2比"), ("turnover", "换手率"),
+        ("seal_rate", "涨停封板率"), ("turnover_m2", "成交额M2比"), ("turnover", "换手率"),
     ]
     for _k, _label in v2_highlights:
         _v = sub_indicators.get(_k)
         if _v is not None and _v > 80:
             highlights.append(f"{_label} {_v:.0f}分 (偏高)")
-    if sub_indicators.get("erp") is not None and sub_indicators["erp"] < 10:
-        highlights.append(f"ERP {sub_indicators['erp']:.0f}分 (极低)")
     if sub_indicators.get("new_high") is not None and sub_indicators["new_high"] < 10:
         highlights.append(f"创新高占比 {sub_indicators['new_high']:.0f}分 (极低)")
 

@@ -1,6 +1,6 @@
 """V2 引擎单元测试 — heat_index_v2 核心指标
 
-覆盖: calc_pe / calc_erp_v2 / calc_buffett / calc_margin_ratio_v2 / calc_ma_alignment_v2
+覆盖: calc_pe / calc_seal_rate_v2 / calc_buffett / calc_margin_ratio_v2 / calc_ma_alignment_v2
 calc_new_high_v2 / calc_turnover_v2 / 背离函数 / compute_index_v2 端到端。
 每个测试使用临时 SQLite 库, 不触碰生产数据。
 """
@@ -15,7 +15,7 @@ from src.indicators.heat_index_v2 import (
     NEW_HIGH_THRESHOLD,
     _apply_new_high_divergence,
     calc_buffett,
-    calc_erp_v2,
+    calc_seal_rate_v2,
     calc_margin_ratio_v2,
     calc_ma_alignment_v2,
     calc_new_high_v2,
@@ -64,7 +64,7 @@ def _months(start: str, n: int):
 
 class TestPctRank:
     def test_mid_value(self):
-        assert _pct_rank([1, 2, 3, 4, 5], 3) == pytest.approx(0.4)
+        assert _pct_rank([1, 2, 3, 4, 5], 3) == pytest.approx(0.6)
 
     def test_empty_returns_half(self):
         assert _pct_rank([], 5) == 0.5
@@ -246,8 +246,8 @@ class TestMaAlignmentFallback:
 # ── 其他 V2 指标冒烟测试 ─────────────────────────────────────────────────────
 
 class TestOtherIndicatorsSmoke:
-    def test_erp_missing_data_returns_none(self, v2_db):
-        assert calc_erp_v2(v2_db, "2026-08-06") is None
+    def test_seal_rate_missing_data_returns_none(self, v2_db):
+        assert calc_seal_rate_v2(v2_db, "2026-08-06") is None
 
     def test_new_high_insufficient_data_none(self, v2_db):
         assert calc_new_high_v2(v2_db, "2026-08-06") is None
@@ -492,39 +492,43 @@ class TestPeDirection:
         assert score <= 5.0
 
 
-# ── calc_erp_v2 反向评分: 高ERP=便宜=低分 ─────────────────────────────────────
+# ── calc_seal_rate_v2 正向评分: 高封板率=追涨强=高分 ───────────────────────────
 
-class TestErpReverseScoring:
-    """ERP 股权风险溢价反向评分 — 高ERP(便宜)低分, 低ERP(贵)高分"""
+class TestSealRateScoring:
+    """涨停封板率正向评分 — 高封板率(追涨强)高分, 低封板率(追涨弱)低分"""
 
-    def _seed(self, v2_db, cur_erp):
+    def _seed(self, v2_db, cur_rate):
         td = "2026-08-06"
         for i, d in enumerate(_dates("2016-09-01", 120)):
             v2_db.execute(
-                "INSERT INTO daily_erp (trade_date, erp) VALUES (?, ?)",
-                (d, round(1.0 + i * 0.03, 4)),  # 1.0 → 4.57 递增
+                "INSERT INTO daily_seal_rate (trade_date, seal_rate, limit_up_count, sealed_count) "
+                "VALUES (?, ?, 100, 50)",
+                (d, round(0.3 + i * 0.005, 4)),  # 0.3 → 0.895 递增
             )
-        v2_db.execute("INSERT INTO daily_erp (trade_date, erp) VALUES (?, ?)",
-                      (td, cur_erp))
+        v2_db.execute(
+            "INSERT INTO daily_seal_rate (trade_date, seal_rate, limit_up_count, sealed_count) "
+            "VALUES (?, ?, 100, ?)",
+            (td, cur_rate, int(cur_rate * 100)),
+        )
         v2_db.commit()
 
-    def test_high_erp_scores_low(self, v2_db):
-        """当前 ERP 历史最高 (股便宜) → 低热度分 (<5), 验证反向"""
-        self._seed(v2_db, 5.0)
-        res = calc_erp_v2(v2_db, "2026-08-06")
+    def test_high_seal_rate_scores_high(self, v2_db):
+        """当前封板率历史最高 (追涨情绪强) → 高热度分 (>95)"""
+        self._seed(v2_db, 0.95)
+        res = calc_seal_rate_v2(v2_db, "2026-08-06")
         assert res is not None
-        score, cur_erp = res
-        assert cur_erp == pytest.approx(5.0)
-        assert score <= 5.0
-
-    def test_low_erp_scores_high(self, v2_db):
-        """当前 ERP 历史最低 (股昂贵) → 高热度分 (>95)"""
-        self._seed(v2_db, 0.5)
-        res = calc_erp_v2(v2_db, "2026-08-06")
-        assert res is not None
-        score, cur_erp = res
-        assert cur_erp == pytest.approx(0.5)
+        score, cur_rate = res
+        assert cur_rate == pytest.approx(0.95)
         assert score >= 95.0
+
+    def test_low_seal_rate_scores_low(self, v2_db):
+        """当前封板率历史最低 (追涨情绪弱) → 低热度分 (<5)"""
+        self._seed(v2_db, 0.10)
+        res = calc_seal_rate_v2(v2_db, "2026-08-06")
+        assert res is not None
+        score, cur_rate = res
+        assert cur_rate == pytest.approx(0.10)
+        assert score <= 5.0
 
 
 # ── calc_buffett: GDP 年份回退 + 方向性 ──────────────────────────────────────
@@ -602,7 +606,7 @@ class TestBuffettCalc:
 # ── compute_index_v2 端到端: 加权合成 + 维度聚合 ──────────────────────────────
 
 class TestComputeIndexV2EndToEnd:
-    """compute_index_v2 — 全 9 指标种子数据 → 综合分=加权和, 维度分=维度内均值"""
+    """compute_index_v2 — 全 8 指标种子数据 → 综合分=加权和, 维度分=维度内均值"""
 
     TD = "2026-08-06"
 
@@ -618,12 +622,14 @@ class TestComputeIndexV2EndToEnd:
             )
         conn.execute("INSERT INTO index_daily_pe (trade_date, pe_med, n_stocks) VALUES (?, 10.0, 722)",
                      (td,))
-        # 2. ERP: 125 条历史 + 当前 (高ERP → 低分, 反向)
+        # 2. 涨停封板率: 125 条历史 + 当前 (高封板率 → 高分, 正向)
         for i, d in enumerate(_dates("2016-09-01", 125)):
-            conn.execute("INSERT INTO daily_erp (trade_date, erp) VALUES (?, ?)",
-                         (d, round(1.0 + i * 0.03, 4)),
+            conn.execute("INSERT INTO daily_seal_rate (trade_date, seal_rate, limit_up_count, sealed_count) "
+                         "VALUES (?, ?, 100, 50)",
+                         (d, round(0.3 + i * 0.004, 4)),
                          )
-        conn.execute("INSERT INTO daily_erp (trade_date, erp) VALUES (?, 5.0)", (td,))
+        conn.execute("INSERT INTO daily_seal_rate (trade_date, seal_rate, limit_up_count, sealed_count) "
+                     "VALUES (?, 0.85, 100, 85)", (td,))
         # 3. GDP (2015-2025) + 总市值 (70 个月递增)
         for y in range(2015, 2026):
             for q in range(1, 5):
@@ -681,12 +687,12 @@ class TestComputeIndexV2EndToEnd:
         ind = res["indicators"]
         # result 键→权重键映射 (两融在 result 中名为 margin_ratio_v2, 权重表用 margin_ratio)
         result_to_weight = {
-            "pe": "pe", "erp": "erp", "buffett": "buffett",
-            "margin_ratio_v2": "margin_ratio", "deposit_ratio": "deposit_ratio",
+            "pe": "pe", "buffett": "buffett",
+            "margin_ratio_v2": "margin_ratio", "seal_rate": "seal_rate",
             "turnover_m2": "turnover_m2", "turnover": "turnover",
             "new_high": "new_high", "ma_alignment": "ma_alignment",
         }
-        # 全部 9 指标均有分数
+        # 全部 8 指标均有分数
         for rk in result_to_weight:
             assert ind[rk] is not None, f"{rk} 无分数"
         # 综合分 = 指标加权和 (权重总和=1.0)
@@ -698,11 +704,11 @@ class TestComputeIndexV2EndToEnd:
             w = sum(INDICATOR_WEIGHTS[result_to_weight[k]] for k in keys)
             return sum(ind[k] * INDICATOR_WEIGHTS[result_to_weight[k]] for k in keys) / w
 
-        val = _dim_weighted(["pe", "erp", "buffett"])
+        val = _dim_weighted(["pe", "buffett"])
         assert res["dimensions"]["valuation"]["score"] == pytest.approx(round(val, 1), abs=0.1)
-        fund = _dim_weighted(["margin_ratio_v2", "deposit_ratio"])
+        fund = _dim_weighted(["margin_ratio_v2"])
         assert res["dimensions"]["fund"]["score"] == pytest.approx(round(fund, 1), abs=0.1)
-        sent = _dim_weighted(["turnover_m2", "turnover"])
+        sent = _dim_weighted(["seal_rate", "turnover_m2", "turnover"])
         assert res["dimensions"]["sentiment"]["score"] == pytest.approx(round(sent, 1), abs=0.1)
         struct = _dim_weighted(["new_high", "ma_alignment"])
         assert res["dimensions"]["structure"]["score"] == pytest.approx(round(struct, 1), abs=0.1)
@@ -710,9 +716,9 @@ class TestComputeIndexV2EndToEnd:
         # F10 关键不变量: Σ(维度分 × 维度权重占比) ≈ 综合分
         # 维度权重 = 维度内指标权重之和
         dim_weights = {
-            "valuation": sum(INDICATOR_WEIGHTS[result_to_weight[k]] for k in ("pe", "erp", "buffett")),
-            "fund": sum(INDICATOR_WEIGHTS[result_to_weight[k]] for k in ("margin_ratio_v2", "deposit_ratio")),
-            "sentiment": sum(INDICATOR_WEIGHTS[result_to_weight[k]] for k in ("turnover_m2", "turnover")),
+            "valuation": sum(INDICATOR_WEIGHTS[result_to_weight[k]] for k in ("pe", "buffett")),
+            "fund": sum(INDICATOR_WEIGHTS[result_to_weight[k]] for k in ("margin_ratio_v2",)),
+            "sentiment": sum(INDICATOR_WEIGHTS[result_to_weight[k]] for k in ("seal_rate", "turnover_m2", "turnover")),
             "structure": sum(INDICATOR_WEIGHTS[result_to_weight[k]] for k in ("new_high", "ma_alignment")),
         }
         recon = sum(res["dimensions"][d]["score"] * w for d, w in dim_weights.items())
@@ -736,7 +742,7 @@ class TestComputeIndexV2EndToEnd:
         res = compute_index_v2(trade_date=self.TD, db_path=db_path)
         assert res["indicators"]["pe"] is not None
         # 其余指标无数据 → None
-        for k in ("erp", "buffett", "margin_ratio_v2", "deposit_ratio",
+        for k in ("buffett", "margin_ratio_v2", "seal_rate",
                   "turnover_m2", "turnover", "new_high", "ma_alignment"):
             assert res["indicators"][k] is None, f"{k} 应无数据"
         # 仅 PE 有效 → 综合分=PE 分 (total_weight 归一化)

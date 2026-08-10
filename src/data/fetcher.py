@@ -516,3 +516,180 @@ def fetch_stock_industry(trade_date: str = None) -> pd.DataFrame:
     _sv(result, "stock_industry")
     logger.info("fetch_stock_industry: saved %d records", len(result))
     return result
+
+
+# ── 涨停封板率 (P0-1: 本地计算, 无需 tushare API) ────────────────────────────────
+
+def _get_limit_factor(code: str) -> float:
+    """根据股票代码返回涨跌停幅度。ST 股 (5%) 无法从代码识别, 不纳入。"""
+    c = str(code).replace("sh", "").replace("sz", "").replace("bj", "")
+    if c.startswith("300") or c.startswith("301") or c.startswith("688"):
+        return 0.20
+    if c.startswith("8") or c.startswith("4") or c.startswith("920"):
+        return 0.30
+    return 0.10
+
+
+def fetch_limit_list(trade_date: str, db_path: str = None) -> bool:
+    """从 stock_daily 本地计算涨停封板率, 写入 daily_seal_rate 表。
+
+    封板率 = 收盘涨停数 / 盘中触板数
+    - 触板: 最高价 >= 涨停价 (盘中触及涨停)
+    - 涨停: 收盘价 >= 涨停价 (收盘封住涨停)
+    - 涨停价 = round(pre_close * (1 + limit_factor), 2)
+
+    limit_factor 基于 stock_code:
+    - 300/301/688 (创业板/科创板): 20%
+    - 8/4/920 (北交所): 30%
+    - 其他 (主板): 10%
+
+    注意: ST 股 (5%限制) 无法从代码识别, 不纳入计算。
+    方法论对所有日期一致, V2 百分位排名不受绝对值偏差影响。
+
+    Returns True if data saved successfully.
+    """
+    from src.data.database import get_conn, DB_PATH as _db_path
+    import sqlite3
+
+    conn = sqlite3.connect(db_path or _db_path)
+    try:
+        # 获取前一交易日
+        prev_row = conn.execute(
+            "SELECT MAX(trade_date) FROM stock_daily WHERE trade_date < ?",
+            (trade_date,),
+        ).fetchone()
+        prev_date = prev_row[0] if prev_row else None
+        if not prev_date:
+            logger.warning("fetch_limit_list %s: no previous trade date found", trade_date)
+            return False
+
+        # JOIN 当日与前日数据
+        df = pd.read_sql(
+            "SELECT a.stock_code, a.high, a.close, b.close AS pre_close "
+            "FROM stock_daily a "
+            "INNER JOIN stock_daily b ON a.stock_code = b.stock_code AND b.trade_date = ? "
+            "WHERE a.trade_date = ? AND a.amount > 0",
+            conn, params=[prev_date, trade_date],
+        )
+    finally:
+        conn.close()
+
+    if df.empty:
+        logger.warning("fetch_limit_list %s: no data after join", trade_date)
+        return False
+
+    # 计算涨停价
+    df["limit_factor"] = df["stock_code"].apply(_get_limit_factor)
+    df["up_limit"] = (df["pre_close"] * (1 + df["limit_factor"])).round(2)
+
+    # 触板: 最高价 >= 涨停价 - 0.01 (容差)
+    touched = df["high"] >= df["up_limit"] - 0.01
+    # 涨停: 收盘价 == 涨停价 (容差 0.01)
+    closed_limit = (df["close"] - df["up_limit"]).abs() <= 0.01
+
+    touched_count = int(touched.sum())
+    closed_count = int(closed_limit.sum())
+
+    if touched_count == 0:
+        logger.warning("fetch_limit_list %s: no limit touches", trade_date)
+        return False
+
+    seal_rate = round(closed_count / touched_count, 6)
+
+    with get_conn(db_path) as conn:
+        conn.execute(
+            "INSERT OR REPLACE INTO daily_seal_rate "
+            "(trade_date, seal_rate, limit_up_count, sealed_count) VALUES (?, ?, ?, ?)",
+            (trade_date, seal_rate, touched_count, closed_count),
+        )
+    logger.info(
+        "daily_seal_rate %s: seal_rate=%.4f (%d 涨停 / %d 触板)",
+        trade_date, seal_rate, closed_count, touched_count,
+    )
+    return True
+
+
+# ── 指数估值 (P0-2: tushare index_dailybasic → index_pe_history) ────────────────
+
+# 与 backfill_index_heat_history.py 的 INDEX_CODE_TO_TS 保持一致
+_INDEX_PE_TARGETS = {
+    "sh000300": "000300.SH",
+    "sz399006": "399006.SZ",
+    "sh000688": "000688.SH",
+    "bj899050": "899050.BJ",
+    "sh000510": "000510.SH",
+    "sh000852": "000852.SH",
+    "sh000922": "000922.SH",
+}
+
+
+def fetch_index_dailybasic(trade_date: str, db_path: str = None) -> bool:
+    """抓取当日指数估值数据 (PE/PB/市值), 写入 index_pe_history 表。
+
+    tushare index_dailybasic 一次调用返回当日全市场指数数据,
+    筛选 7 个目标指数后映射为 ak_code 格式保存。
+
+    Returns True if data saved successfully.
+    """
+    if not TUSHARE_TOKEN:
+        logger.warning("TUSHARE_TOKEN not set, skipping index_dailybasic fetch")
+        return False
+
+    ds = trade_date.replace("-", "")
+    try:
+        pro = _get_pro()
+    except Exception as e:
+        logger.error("Cannot get tushare pro for index_dailybasic: %s", str(e)[:80])
+        return False
+
+    try:
+        df = _retry(lambda: pro.index_dailybasic(trade_date=ds))
+        _ts_sleep()
+    except Exception as e:
+        logger.error("fetch_index_dailybasic tushare failed: %s", str(e)[:80])
+        return False
+
+    if df is None or df.empty:
+        logger.warning("index_dailybasic %s: no data returned", trade_date)
+        return False
+
+    # 反向映射: ts_code → ak_code
+    ts_to_ak_map = {ts: ak for ak, ts in _INDEX_PE_TARGETS.items()}
+
+    records = []
+    for _, row in df.iterrows():
+        ts_code = str(row.get("ts_code", ""))
+        ak_code = ts_to_ak_map.get(ts_code)
+        if not ak_code:
+            continue
+        # tushare total_mv 单位为万元, 转换为亿元
+        total_mv = row.get("total_mv")
+        if total_mv is not None and not (isinstance(total_mv, float) and np.isnan(total_mv)):
+            total_mv = round(float(total_mv) / 10000, 4)
+        records.append({
+            "trade_date": trade_date,
+            "index_code": ak_code,
+            "pe_ttm": _safe_float(row.get("pe_ttm_a") or row.get("pe")),
+            "pb": _safe_float(row.get("pb")),
+            "total_mv": total_mv,
+        })
+
+    if not records:
+        logger.warning("index_dailybasic %s: no target indices matched", trade_date)
+        return False
+
+    result = pd.DataFrame(records)
+    _save(result, "index_pe_history")
+    logger.info("index_pe_history %s: saved %d indices", trade_date, len(result))
+    return True
+
+
+def _safe_float(v):
+    """安全转 float, NaN/None → None"""
+    if v is None:
+        return None
+    try:
+        f = float(v)
+        return None if np.isnan(f) else round(f, 6)
+    except (ValueError, TypeError):
+        return None

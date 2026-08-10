@@ -22,18 +22,6 @@ def get_config():
     return _config_cache
 
 
-def get_weights():
-    return get_config().get("dimension_weights", {})
-
-
-def get_divergence():
-    return get_config().get("divergence_penalty", {})
-
-
-def get_lookback_years():
-    return get_config().get("data", {}).get("lookback_years", 10)
-
-
 def _pct_rank(series: pd.Series, value: float, scale: str = "0-1") -> float:
     """统一百分位计算 (ISSUE-7 修复: 统一三处不同实现)
 

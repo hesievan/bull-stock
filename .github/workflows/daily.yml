@@ -90,6 +90,8 @@ jobs:
 
       - name: Backfill precompute tables if empty
         if: success()
+        env:
+          TUSHARE_TOKEN: ${{ secrets.TUSHARE_TOKEN }}
         run: |
           python scripts/backfill_precompute.py || echo "Precompute backfill skipped"
 

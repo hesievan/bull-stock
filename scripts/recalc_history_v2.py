@@ -17,8 +17,8 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 import sqlite3
 from src.indicators.heat_index_v2 import (
     INDICATOR_WEIGHTS, INDICATOR_DIMENSIONS, DIMENSIONS,
-    calc_pe, calc_erp_v2, calc_buffett,
-    calc_margin_ratio_v2, calc_deposit_ratio,
+    calc_pe, calc_seal_rate_v2, calc_buffett,
+    calc_margin_ratio_v2,
     calc_turnover_m2, calc_turnover_v2,
     calc_new_high_v2, calc_ma_alignment_v2,
     _apply_sentiment_divergence, _apply_new_high_divergence,
@@ -57,10 +57,9 @@ def compute_v2_for_date(conn, td):
     scores = {}
     for k, fn in [
         ("pe", calc_pe),
-        ("erp", calc_erp_v2),
         ("buffett", calc_buffett),
         ("margin_ratio", calc_margin_ratio_v2),
-        ("deposit_ratio", calc_deposit_ratio),
+        ("seal_rate", calc_seal_rate_v2),
         ("turnover_m2", calc_turnover_m2),
         ("turnover", calc_turnover_v2),
         ("new_high", calc_new_high_v2),

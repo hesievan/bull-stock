@@ -3,10 +3,11 @@
 预计算表批量回填 — 为 V2 引擎提供 10 年历史数据，确保百分位计算有足够样本。
 
 回填的表:
-  index_daily_pe    — 成分股 PE/PB 中位数 (用于 PE/ERP/巴菲特)
+  index_daily_pe    — 成分股 PE/PB 中位数 (用于 PE/巴菲特)
   daily_circ_mv     — 全市场流通市值 (用于 margin_ratio)
-  daily_total_mv    — 全市场总市值 (用于 deposit_ratio/巴菲特)
-  daily_erp         — 股权风险溢价 (用于 ERP 计算加速)
+  daily_total_mv    — 全市场总市值 (用于 巴菲特)
+  daily_erp         — 股权风险溢价 (已弃用, V2 不再依赖, 保留历史兼容)
+  daily_seal_rate   — 涨停封板率 (用于 seal_rate, 需通过 fetch_limit_list 回填)
   daily_updown      — 涨跌家数比 (展示)
   daily_limit       — 涨停/跌停统计 (展示)
   daily_below_net   — 破净率 (展示)
@@ -167,6 +168,49 @@ def _backfill_qvix_batch(db_path: str, force: bool):
         conn.execute("DELETE FROM qvix_daily WHERE qvix IS NOT NULL AND panic_index IS NULL AND qvix_50 IS NULL")
 
 
+def _backfill_seal_rate_batch(db_path: str, all_dates: list, force: bool):
+    """批量回填涨停封板率 — 本地计算, 无需 API 调用。
+
+    从 stock_daily 的 OHLC 数据计算封板率:
+    - 涨停价 = round(pre_close * (1 + limit_factor), 2)
+    - 触板: high >= 涨停价
+    - 涨停: close >= 涨停价
+    - 封板率 = 涨停数 / 触板数
+
+    非关键路径: 失败不影响其他表回填。
+    """
+    from src.data.fetcher import fetch_limit_list
+
+    existing = set()
+    if not force:
+        existing = _existing_dates("daily_seal_rate", db_path)
+    need = [d for d in all_dates if d not in existing]
+    if not need:
+        logger.info("  daily_seal_rate: up-to-date (%d rows)", len(existing))
+        return
+
+    ok = 0
+    skip = 0
+    fail = 0
+    t0 = time.time()
+    for i, td in enumerate(need):
+        try:
+            if fetch_limit_list(td, db_path):
+                ok += 1
+            else:
+                skip += 1
+        except Exception as e:
+            logger.warning("  daily_seal_rate %s error: %s", td, str(e)[:60])
+            fail += 1
+        if (i + 1) % 200 == 0:
+            elapsed = time.time() - t0
+            logger.info("  daily_seal_rate: %d/%d (%.1f%%) ok=%d skip=%d fail=%d",
+                        i + 1, len(need), (i + 1) / len(need) * 100, ok, skip, fail)
+    elapsed = time.time() - t0
+    logger.info("  daily_seal_rate (涨停封板率): %d/%d done, skip=%d, fail=%d (%.1fs)",
+                ok, len(need), skip, fail, elapsed)
+
+
 def backfill_precompute(db_path: str = None, force: bool = False):
     """回填所有预计算表"""
     db = db_path or DB_PATH
@@ -200,12 +244,14 @@ def backfill_precompute(db_path: str = None, force: bool = False):
         elapsed = time.time() - t0
         logger.info("  %s (%s): %d/%d done (%.1fs)", table, label, ok, len(need), elapsed)
 
-    # 回填 daily_erp (V2 引擎依赖)
-    _backfill_derived("daily_erp", _compute_daily_erp, all_dates, db, critical=True)
+    # 回填 daily_erp (已弃用, V2 引擎不再依赖, 保留仅为历史兼容)
+    _backfill_derived("daily_erp", _compute_daily_erp, all_dates, db, critical=False)
     # daily_turnover 仅加速用，非 CI 关键路径
     _backfill_derived("daily_turnover", _compute_daily_turnover, all_dates, db, critical=False)
     # QVIX 恐慌指数 — 批量下载一次，避免每个日期都请求 HTTP
     _backfill_qvix_batch(db, force)
+    # 涨停封板率 — 逐日调用 tushare limit_list (需要 TUSHARE_TOKEN)
+    _backfill_seal_rate_batch(db, all_dates, force)
 
     logger.info("Precompute backfill complete: %d dates processed", len(all_dates))
     return True

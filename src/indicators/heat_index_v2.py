@@ -1,13 +1,16 @@
 """
 牛市热度指数 V2 — 精简版计算引擎
 
-9 个核心指标 + QVIX 仅展示不计分
+8 个核心指标 + QVIX 仅展示不计分
+
+P0-1 去同源加权: 剔除与 PE/Buffett 共线的 ERP、存款市值比,
+腾出权重接入「涨停封板率」(市场追涨情绪的独立信号)。
 
 指标:
-   估值(40%):  大盘PE(14%), ERP(13%), 巴菲特指标(13%)
-   资金(30%):  两融余额市值比(15%), 存款市值比(15%)
-   情绪(20%):  成交额M2比(10%), 换手率(10%)
-   结构(10%):  创新高占比(6%), MA排列比(4%)
+   估值(28%):  大盘PE(14%), 巴菲特指标(14%)
+   资金(15%):  两融余额市值比(15%)
+   情绪(42%):  涨停封板率(15%), 成交额M2比(15%), 换手率(12%)
+   结构(15%):  创新高占比(10%), MA排列比(5%)
 
 展示(不计分): QVIX恐慌指数
 """
@@ -21,20 +24,20 @@ from typing import Optional
 
 from src.data.database import DB_PATH
 from src.config import load_config
+from src.indicators.utils import _pct_rank as _utils_pct_rank
 
 logger = logging.getLogger(__name__)
 
 # ── 指标权重配置 (内置默认值, 可被 config/*.yaml 的 v2_engine 覆盖) ─────────────
 DEFAULT_WEIGHTS = {
     "pe": 0.14,                # 大盘PE
-    "erp": 0.13,               # ERP 股权风险溢价
-    "buffett": 0.13,           # 巴菲特指标
+    "buffett": 0.14,           # 巴菲特指标
     "margin_ratio": 0.15,      # 两融余额市值比
-    "deposit_ratio": 0.15,     # 存款市值比
-    "turnover_m2": 0.10,       # 成交额M2比
-    "turnover": 0.10,          # 换手率
-    "new_high": 0.06,          # 创新高占比
-    "ma_alignment": 0.04,      # MA排列比
+    "seal_rate": 0.15,         # 涨停封板率 (回测调权: 28%→15%, 区分度3.1偏低)
+    "turnover_m2": 0.15,       # 成交额M2比 (回测调权: 10%→15%, 区分度21.0最高)
+    "turnover": 0.12,          # 换手率 (回测调权: 10%→12%, 区分度21.0)
+    "new_high": 0.10,          # 创新高占比 (回测调权: 6%→10%, 区分度19.4)
+    "ma_alignment": 0.05,      # MA排列比 (回测调权: 4%→5%, 区分度15.1)
 }
 
 # 背离检测参数 (内置默认值, 可被 v2_engine.divergence 覆盖)
@@ -87,10 +90,9 @@ SATURATION_HEADROOM = float(_margin_cfg.get("saturation_headroom", 0.15))
 # 各指标所属维度
 INDICATOR_DIMENSIONS = {
     "pe": "valuation",
-    "erp": "valuation",
     "buffett": "valuation",
     "margin_ratio": "fund",
-    "deposit_ratio": "fund",
+    "seal_rate": "sentiment",
     "turnover_m2": "sentiment",
     "turnover": "sentiment",
     "new_high": "structure",
@@ -99,11 +101,16 @@ INDICATOR_DIMENSIONS = {
 
 
 def _pct_rank(series, value) -> float:
-    """百分位排名 (0~1)"""
-    clean = [x for x in series if x is not None and not (isinstance(x, float) and np.isnan(x))]
-    if not clean or value is None:
+    """百分位排名 (0~1) — 含自身的 <= 比较 (P1-3: 与 utils._pct_rank 口径统一)
+
+    委托 utils._pct_rank 计算, 仅在空序列/NaN 时回退到 0.5 (防御性,
+    正常流程各 calc_* 会在调用前保证序列非空)。
+    """
+    s = series if isinstance(series, pd.Series) else pd.Series(series)
+    r = _utils_pct_rank(s, value)
+    if r is None or (isinstance(r, float) and np.isnan(r)):
         return 0.5
-    return sum(1 for x in clean if x < value) / len(clean)
+    return float(r)
 
 
 def _to_numeric(s) -> pd.Series:
@@ -171,62 +178,49 @@ def calc_pe(conn, trade_date: str) -> Optional[tuple]:
         return None
 
 
-def calc_erp_v2(conn, trade_date: str) -> Optional[float]:
-    """ERP 股权风险溢价 = 1/PE - 10Y国债 (反向: 高ERP=便宜=低分)"""
+def calc_seal_rate_v2(conn, trade_date: str) -> Optional[float]:
+    """涨停封板率 = 封板数 / 触板数 (高封板率=追涨情绪强=高热度)
+
+    数据来自 daily_seal_rate 预计算表 (tushare limit_list 聚合):
+      触板涨停数 = 当日触及涨停的个股数 (limit=='U')
+      封板成功数 = 其中 open_times==0 (全天未开板) 的个股数
+      seal_rate = 封板成功数 / 触板涨停数
+
+    方向: 封板率越高 → 追涨情绪越强 → 热度越高 (与 PE 同向)。
+    P0-1: 替代与 PE/Buffett 共线的 ERP, 提供独立的市场情绪信号。
+    """
     try:
         td = trade_date
-        # 当前ERP (从 daily_erp 或实时计算)
+        # 当前值
         row = conn.execute(
-            "SELECT erp FROM daily_erp WHERE trade_date=?",
+            "SELECT seal_rate FROM daily_seal_rate WHERE trade_date=?",
             (td,)
         ).fetchone()
-        if row and row[0] is not None:
-            cur_erp = row[0]
-        else:
-            # 实时计算
-            pe_row = conn.execute(
-                "SELECT pe_med FROM index_daily_pe WHERE trade_date<=? ORDER BY trade_date DESC LIMIT 1",
-                (td,)
-            ).fetchone()
-            bond_row = conn.execute(
-                "SELECT yield_rate FROM bond_yield WHERE curve_term=10 AND trade_date<=? ORDER BY trade_date DESC LIMIT 1",
-                (td,)
-            ).fetchone()
-            if not pe_row or not bond_row or pe_row[0] is None or bond_row[0] is None:
-                return None
-            cur_erp = (1.0 / pe_row[0] - bond_row[0] / 100.0) * 100
-
-        # 历史序列 (从 daily_erp 或实时构建)
-        hist = pd.read_sql(
-            "SELECT erp FROM daily_erp WHERE trade_date >= ? AND erp IS NOT NULL",
-            conn, params=[str(int(td[:4]) - 10) + td[4:]]
-        )
-        if hist.empty or len(hist) < 120:
-            # fallback: 从 index_daily_pe + bond_yield 构建
-            pe_hist = pd.read_sql(
-                "SELECT p.trade_date, p.pe_med, b.yield_rate "
-                "FROM index_daily_pe p "
-                "LEFT JOIN bond_yield b ON b.curve_term=10 AND b.trade_date = ("
-                "  SELECT MAX(b2.trade_date) FROM bond_yield b2 WHERE b2.curve_term=10 AND b2.trade_date <= p.trade_date"
-                ") WHERE p.pe_med > 0 AND p.trade_date >= ?",
-                conn, params=[str(int(td[:4]) - 10) + td[4:]]
-            )
-            if pe_hist.empty or len(pe_hist) < 120:
-                return None
-            pe_hist["erp"] = (1.0 / pe_hist["pe_med"] - pe_hist["yield_rate"] / 100.0) * 100
-            hist_vals = pe_hist["erp"].dropna()
-        else:
-            hist_vals = hist["erp"].dropna()
-
-        if len(hist_vals) < 120:
+        if not row or row[0] is None:
+            return None
+        cur = float(row[0])
+        if not (0 <= cur <= 1):
             return None
 
-        pct = _pct_rank(hist_vals, cur_erp)
-        score = (1 - pct) * 100
-        logger.info("ERP: %.4f, score=%.1f (n=%d)", cur_erp, score, len(hist_vals))
-        return max(0, min(100, score)), cur_erp
+        # 历史序列 (10年窗口)
+        hist = pd.read_sql(
+            "SELECT seal_rate FROM daily_seal_rate "
+            "WHERE trade_date >= ? AND seal_rate IS NOT NULL "
+            "ORDER BY trade_date",
+            conn, params=[str(int(td[:4]) - 10) + td[4:]]
+        )
+        if hist.empty or len(hist) < 60:
+            return None
+        hist_vals = hist["seal_rate"].dropna()
+        if len(hist_vals) < 60:
+            return None
+
+        pct = _pct_rank(hist_vals, cur)
+        score = pct * 100  # 封板率越高=热度越高
+        logger.info("涨停封板率: %.4f, pct=%.2f, score=%.1f (n=%d)", cur, pct, score, len(hist_vals))
+        return max(0, min(100, score)), cur
     except Exception as e:
-        logger.warning("ERP calc failed: %s", e)
+        logger.warning("Seal rate calc failed: %s", e)
         return None
 
 
@@ -385,70 +379,6 @@ def calc_margin_ratio_v2(conn, trade_date: str) -> Optional[float]:
         return max(0, min(100, score)), cur_ratio
     except Exception as e:
         logger.warning("Margin ratio calc failed: %s", e)
-        return None
-
-
-def calc_deposit_ratio(conn, trade_date: str) -> Optional[float]:
-    """存款市值比 = M2 / A股总市值 (反向: 比值越低=资金流入股市=热度越高)"""
-    try:
-        td = trade_date
-        td_month = td[:7]
-
-        # M2 (m2_billion 单位为亿元, 转为元: ×1e8)
-        m2_row = conn.execute(
-            "SELECT m2_billion FROM m2_monthly WHERE month<=? ORDER BY month DESC LIMIT 1",
-            (td_month,)
-        ).fetchone()
-        if not m2_row or m2_row[0] is None:
-            return None
-        m2 = m2_row[0] * 1e8  # 亿元→元
-
-        # 总市值 — 优先用预计算表
-        mv_row = conn.execute(
-            "SELECT total_mv FROM stock_market_cap WHERE trade_date=?",
-            (td,)
-        ).fetchone()
-        if not mv_row or mv_row[0] is None:
-            mv_row = conn.execute(
-                "SELECT SUM(total_mv) FROM stock_daily WHERE trade_date=? AND total_mv > 0",
-                (td,)
-            ).fetchone()
-        if not mv_row or mv_row[0] is None:
-            return None
-        total_mv = mv_row[0] * 10000  # 万元→元
-
-        if total_mv <= 0:
-            return None
-
-        cur_ratio = m2 / total_mv
-
-        # 历史序列 (月度, 使用 stock_market_cap 预计算表)
-        m2_all = pd.read_sql(
-            "SELECT month, m2_billion FROM m2_monthly WHERE m2_billion IS NOT NULL ORDER BY month",
-            conn
-        )
-        mv_monthly = pd.read_sql("""
-            SELECT substr(trade_date, 1, 7) as month, AVG(total_mv) as avg_total_mv
-            FROM stock_market_cap
-            WHERE total_mv > 0 AND trade_date >= '2010-01-01'
-            GROUP BY month ORDER BY month
-        """, conn)
-
-        merged = m2_all.merge(mv_monthly, on="month", how="inner")
-        if merged.empty or len(merged) < 60:
-            return None
-
-        # m2_billion: 亿元(×10000→万元), avg_total_mv: 万元
-        # 两者统一到万元
-        merged["ratio"] = (merged["m2_billion"] * 10000) / merged["avg_total_mv"]
-        hist_ratios = merged["ratio"].dropna()
-
-        pct = _pct_rank(hist_ratios, cur_ratio)
-        score = (1 - pct) * 100  # 存款市值比越低=资金搬家到股市=热度越高
-        logger.info("存款市值比: %.2f, score=%.1f (n=%d)", cur_ratio, score, len(hist_ratios))
-        return max(0, min(100, score)), cur_ratio
-    except Exception as e:
-        logger.warning("Deposit ratio calc failed: %s", e)
         return None
 
 
@@ -702,7 +632,7 @@ def compute_index_v2(trade_date: str = None, db_path: str = None) -> dict:
     try:
         # 诊断: 关键预计算表记录数
         for tbl_name in ("index_daily_pe", "stock_market_cap", "daily_circ_mv",
-                         "daily_erp", "m2_monthly", "margin_history", "bond_yield",
+                         "daily_seal_rate", "m2_monthly", "margin_history", "bond_yield",
                          "stock_daily", "daily_turnover", "qvix_daily"):
             try:
                 cnt = conn.execute(f"SELECT COUNT(*) FROM {tbl_name}").fetchone()[0]
@@ -743,10 +673,9 @@ def compute_index_v2(trade_date: str = None, db_path: str = None) -> dict:
         scores = {}
         for k, fn in [
             ("pe", calc_pe),
-            ("erp", calc_erp_v2),
             ("buffett", calc_buffett),
             ("margin_ratio", calc_margin_ratio_v2),
-            ("deposit_ratio", calc_deposit_ratio),
+            ("seal_rate", calc_seal_rate_v2),
             ("turnover_m2", calc_turnover_m2),
             ("turnover", calc_turnover_v2),
             ("new_high", calc_new_high_v2),
@@ -806,10 +735,9 @@ def compute_index_v2(trade_date: str = None, db_path: str = None) -> dict:
             },
             "indicators": {
                 "pe": scores["pe"],
-                "erp": scores["erp"],
                 "buffett": scores["buffett"],
                 "margin_ratio_v2": scores["margin_ratio"],
-                "deposit_ratio": scores["deposit_ratio"],
+                "seal_rate": scores["seal_rate"],
                 "turnover_m2": scores["turnover_m2"],
                 "turnover": scores["turnover"],
                 "new_high": scores["new_high"],

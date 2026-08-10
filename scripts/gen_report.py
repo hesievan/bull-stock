@@ -113,9 +113,9 @@ _hl = []
 inds = det.get('indicators', {})
 # V2 指标评分 (百分位分数, 取自 detail.json indicators)
 for _k, _label, _fmt, _note in [
-    ('pe', '大盘PE', '%.1f', '分'), ('erp', 'ERP', '%.1f', '分'),
+    ('pe', '大盘PE', '%.1f', '分'),
     ('buffett', '巴菲特指标', '%.1f', '分'), ('margin_ratio_v2', '两融余额市值比', '%.1f', '分'),
-    ('deposit_ratio', '存款市值比', '%.1f', '分'), ('turnover_m2', '成交额M2比', '%.1f', '分'),
+    ('seal_rate', '涨停封板率', '%.1f', '分'), ('turnover_m2', '成交额M2比', '%.1f', '分'),
     ('turnover', '换手率', '%.1f', '分'), ('new_high', '创新高占比', '%.1f', '分'),
     ('ma_alignment', 'MA排列比', '%.1f', '分'),
 ]:

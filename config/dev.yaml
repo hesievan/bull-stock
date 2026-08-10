@@ -4,14 +4,13 @@
 v2_engine:
   weights:
     pe: 0.14
-    erp: 0.13
-    buffett: 0.13
+    buffett: 0.14
     margin_ratio: 0.15
-    deposit_ratio: 0.15
-    turnover_m2: 0.10
-    turnover: 0.10
-    new_high: 0.06
-    ma_alignment: 0.04
+    seal_rate: 0.15
+    turnover_m2: 0.15
+    turnover: 0.12
+    new_high: 0.10
+    ma_alignment: 0.05
   divergence:
     turnover_threshold: 70
     decline_threshold: -1.5
@@ -36,19 +35,8 @@ heat_levels:
   yellow: { min: 40, max: 54,  label: "黄色警惕", color: "#d29922" }
   green:  { min: 0,  max: 39,  label: "绿色安全", color: "#3fb950" }
 
-# 维度权重
-dimension_weights:
-  valuation:  0.25
-  macro:      0.15
-  capital:    0.15
-  sentiment:  0.20
-  technical:  0.10
-  structure:  0.15
-
 # 数据参数
 data:
-  lookback_years: 10
-  min_history_days: 250
   db_path: "data/heat_index_dev.db"
   request_delay: 1.0
   max_retries: 3

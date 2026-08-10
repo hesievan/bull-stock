@@ -256,6 +256,24 @@ def run_daily(trade_date=None):
 
     _run_step(step_status, "S31_qvix", _step31)
 
+    # ── Step 3.1b: 涨停封板率 (tushare limit_list, P0-1) ────────────────────
+    logger.info("Step 3.1b: Fetching limit_list (seal rate)...")
+
+    def _step31b():
+        from src.data.fetcher import fetch_limit_list
+        return fetch_limit_list(trade_date)
+
+    _run_step(step_status, "S31b_seal_rate", _step31b)
+
+    # ── Step 3.1c: 指数估值 (tushare index_dailybasic, P0-2) ────────────────
+    logger.info("Step 3.1c: Fetching index_dailybasic (index PE/PB)...")
+
+    def _step31c():
+        from src.data.fetcher import fetch_index_dailybasic
+        return fetch_index_dailybasic(trade_date)
+
+    _run_step(step_status, "S31c_index_pe", _step31c)
+
     # ── Step 2.4: 预计算表陈旧检测 ────────────────────────────────────────────
     logger.info("Step 2.4: Checking precompute table staleness...")
 
@@ -360,7 +378,7 @@ def run_daily(trade_date=None):
 
     _run_step(step_status, "S3_industry", _step36)
 
-    # ── Step 5: 计算热度指数 V2 (精简版9指标) ──────────────────────────────
+    # ── Step 5: 计算热度指数 V2 (8指标) ───────────────────────────────────
     logger.info("Step 5: Calculating heat index v2...")
 
     def _step5():
