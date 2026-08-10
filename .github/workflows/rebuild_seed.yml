@@ -73,8 +73,8 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "Compressing database..."
-          python scripts/db_compress.py compress
-          python scripts/db_compress.py size
+          python scripts/db_tools.py compress
+          python scripts/db_tools.py size
           
           echo "Uploading to Release..."
           if gh release view seed-db 2>/dev/null; then

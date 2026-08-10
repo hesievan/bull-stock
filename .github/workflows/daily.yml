@@ -66,7 +66,7 @@ jobs:
           if gh release view seed-db --json assets -q '.assets[].name' 2>/dev/null | grep -q 'heat_index.db.gz'; then
             echo "Downloading seed database from Release..."
             gh release download seed-db --pattern 'heat_index.db.gz' -D data/ --clobber
-            python scripts/db_compress.py decompress
+            python scripts/db_tools.py decompress
           else
             echo "No seed database found in Release. Will run full backfill."
             echo "SEED_MISSING=true" >> $GITHUB_ENV
@@ -124,7 +124,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "Uploading seed database to Release..."
-          python scripts/db_compress.py compress
+          python scripts/db_tools.py compress
           if gh release view seed-db 2>/dev/null; then
             gh release upload seed-db data/heat_index.db.gz --clobber
           else
