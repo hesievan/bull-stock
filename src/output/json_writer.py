@@ -193,10 +193,15 @@ def save_results_v2(result_v2: Dict, output_dir: str = None):
             continue
         rk = k.replace("_v2", "")  # margin_ratio_v2 → margin_ratio
         rv = raw.get(rk) if rk in raw else raw.get(k)
+        # 保留原始值精度 (round 6 位), 不能用 _round_score(1位小数),
+        # 否则 turnover_m2(~0.005)/new_high(~0.015)/margin_ratio_v2(~0.026)/ma_alignment(~0.046)
+        # 等小数值会被截断为 0.0, 导致前端趋势图/牛熊均值失真。
+        # raw 缺失时不回退到分数(score), 避免分数泄漏进原始值历史。
         if rv is not None:
-            ind_hist[trade_date][k] = _round_score(rv)
-        else:
-            ind_hist[trade_date][k] = _round_score(v)
+            try:
+                ind_hist[trade_date][k] = round(float(rv), 6)
+            except (TypeError, ValueError):
+                ind_hist[trade_date][k] = rv
     _atomic_write_json(ind_hist_file, ind_hist)
 
     logger.info("V2 Results saved: score=%.1f level=%s", composite, index_data["level"])
