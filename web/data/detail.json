@@ -1,34 +1,34 @@
 {
   "trade_date": "2026-08-11",
-  "composite_score": 63.8,
-  "level": "orange",
+  "composite_score": 71.0,
+  "level": "red",
   "dimensions": {
     "valuation": {
-      "score": 53.7,
+      "score": 71.9,
       "label": "估值"
     },
     "fund": {
-      "score": 97.6,
+      "score": 98.3,
       "label": "资金"
     },
     "sentiment": {
-      "score": 94.1,
+      "score": 82.2,
       "label": "情绪"
     },
     "structure": {
-      "score": 15.3,
+      "score": 10.3,
       "label": "结构"
     }
   },
   "indicators_v2": {
-    "pe": 24.0698,
-    "buffett": null,
-    "margin_ratio_v2": 0.02638040496907117,
-    "seal_rate": null,
-    "turnover_m2": null,
-    "turnover": 2.5157136637173974,
-    "new_high": 0.017154207295052366,
-    "ma_alignment": 0.046002
+    "pe": 23.7339,
+    "buffett": 0.3819826286727812,
+    "margin_ratio_v2": 0.026562328749264213,
+    "seal_rate": 0.705882,
+    "turnover_m2": 0.006547582321465232,
+    "turnover": 2.3303967826684673,
+    "new_high": 0.010832,
+    "ma_alignment": 0.052596
   },
   "qvix_display": null,
   "qvix_components": {
@@ -39,17 +39,21 @@
   },
   "version": "v2",
   "updated_at": "2026-08-11 00:00:00",
-  "composite_score_smoothed": 68.3,
+  "composite_score_smoothed": 73.1,
   "level_smoothed": "red",
+  "display_up_down_ratio": 0.4276,
+  "display_limit_up_ratio": 0.0132,
+  "display_limit_ratio": 18.25,
+  "display_below_net_rate": 0.0773,
   "indicators": {
-    "pe": 53.73812474184222,
-    "buffett": null,
-    "margin_ratio_v2": 97.56667592473475,
-    "seal_rate": null,
-    "turnover_m2": null,
-    "turnover": 94.05695418902187,
-    "new_high": 20.066061106523534,
-    "ma_alignment": 5.780346820809249,
+    "pe": 49.62840627580512,
+    "buffett": 94.21965317919076,
+    "margin_ratio_v2": 98.28353839374951,
+    "seal_rate": 67.02434997936443,
+    "turnover_m2": 89.85507246376811,
+    "turnover": 91.66666666666666,
+    "new_high": 11.803549319026,
+    "ma_alignment": 7.346264960792406,
     "qvix": null,
     "qvix_components": {
       "qvix_50": 18.97,
