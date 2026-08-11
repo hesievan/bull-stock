@@ -23,43 +23,43 @@
     "top_gainers": [
       {
         "stock_code": "sz301080",
-        "stock_name": "百普赛斯",
+        "stock_name": "",
         "pct_change": 20.0
       },
       {
         "stock_code": "sh688073",
-        "stock_name": "毕得医药",
+        "stock_name": "",
         "pct_change": 20.0
       },
       {
         "stock_code": "sh688137",
-        "stock_name": "近岸蛋白",
+        "stock_name": "",
         "pct_change": 17.51
       }
     ],
     "top_losers": [
       {
         "stock_code": "sz300246",
-        "stock_name": "宝莱特",
+        "stock_name": "",
         "pct_change": -19.99
       },
       {
         "stock_code": "sz301188",
-        "stock_name": "力诺药包",
+        "stock_name": "",
         "pct_change": -8.88
       },
       {
         "stock_code": "sh688301",
-        "stock_name": "奕瑞科技",
+        "stock_name": "",
         "pct_change": -6.06
       }
     ],
-    "index_close": 8171.9,
-    "index_pct_change": 1.4,
-    "index_pe": 31.09,
-    "index_pe_ttm": 30.39,
-    "index_pb": 2.81,
-    "index_div_yield": 1.65,
+    "index_close": null,
+    "index_pct_change": null,
+    "index_pe": null,
+    "index_pe_ttm": null,
+    "index_pb": null,
+    "index_div_yield": null,
     "rank": 1
   },
   {
@@ -86,43 +86,43 @@
     "top_gainers": [
       {
         "stock_code": "sz300892",
-        "stock_name": "品渥食品",
+        "stock_name": "",
         "pct_change": 10.61
       },
       {
         "stock_code": "sz002329",
-        "stock_name": "皇氏集团",
+        "stock_name": "",
         "pct_change": 10.16
       },
       {
         "stock_code": "sz002626",
-        "stock_name": "金达威",
+        "stock_name": "",
         "pct_change": 10.03
       }
     ],
     "top_losers": [
       {
         "stock_code": "sz002515",
-        "stock_name": "金字火腿",
+        "stock_name": "",
         "pct_change": -4.78
       },
       {
         "stock_code": "sh603777",
-        "stock_name": "来伊份",
+        "stock_name": "",
         "pct_change": -0.89
       },
       {
         "stock_code": "sh603262",
-        "stock_name": "技源集团",
+        "stock_name": "",
         "pct_change": -0.61
       }
     ],
-    "index_close": 14487.07,
-    "index_pct_change": 2.51,
-    "index_pe": 20.72,
-    "index_pe_ttm": 20.39,
-    "index_pb": 3.55,
-    "index_div_yield": 4.57,
+    "index_close": null,
+    "index_pct_change": null,
+    "index_pe": null,
+    "index_pe_ttm": null,
+    "index_pb": null,
+    "index_div_yield": null,
     "rank": 2
   },
   {
@@ -149,43 +149,43 @@
     "top_gainers": [
       {
         "stock_code": "sz301051",
-        "stock_name": "信濠光电",
+        "stock_name": "",
         "pct_change": 19.98
       },
       {
         "stock_code": "sh688130",
-        "stock_name": "晶华微",
+        "stock_name": "",
         "pct_change": 17.36
       },
       {
         "stock_code": "sz301328",
-        "stock_name": "维峰电子",
+        "stock_name": "",
         "pct_change": 13.28
       }
     ],
     "top_losers": [
       {
         "stock_code": "sh600363",
-        "stock_name": "联创光电",
+        "stock_name": "",
         "pct_change": -10.0
       },
       {
         "stock_code": "sh688693",
-        "stock_name": "锴威特",
+        "stock_name": "",
         "pct_change": -8.76
       },
       {
         "stock_code": "sh688167",
-        "stock_name": "炬光科技",
+        "stock_name": "",
         "pct_change": -8.16
       }
     ],
-    "index_close": 8931.97,
-    "index_pct_change": -0.49,
-    "index_pe": 93.63,
-    "index_pe_ttm": 75.19,
-    "index_pb": 8.54,
-    "index_div_yield": 0.44,
+    "index_close": null,
+    "index_pct_change": null,
+    "index_pe": null,
+    "index_pe_ttm": null,
+    "index_pb": null,
+    "index_div_yield": null,
     "rank": 3
   },
   {
@@ -212,43 +212,43 @@
     "top_gainers": [
       {
         "stock_code": "sz002966",
-        "stock_name": "苏州银行",
+        "stock_name": "",
         "pct_change": 2.08
       },
       {
         "stock_code": "sh601963",
-        "stock_name": "重庆银行",
+        "stock_name": "",
         "pct_change": 1.95
       },
       {
         "stock_code": "sz002948",
-        "stock_name": "青岛银行",
+        "stock_name": "",
         "pct_change": 1.93
       }
     ],
     "top_losers": [
       {
         "stock_code": "sh601825",
-        "stock_name": "沪农商行",
+        "stock_name": "",
         "pct_change": -0.6
       },
       {
         "stock_code": "sh601288",
-        "stock_name": "农业银行",
+        "stock_name": "",
         "pct_change": -0.15
       },
       {
         "stock_code": "sh601328",
-        "stock_name": "交通银行",
+        "stock_name": "",
         "pct_change": -0.14
       }
     ],
-    "index_close": 3960.45,
-    "index_pct_change": 0.45,
-    "index_pe": 6.91,
-    "index_pe_ttm": 6.86,
-    "index_pb": 0.65,
-    "index_div_yield": 5.49,
+    "index_close": null,
+    "index_pct_change": null,
+    "index_pe": null,
+    "index_pe_ttm": null,
+    "index_pb": null,
+    "index_div_yield": null,
     "rank": 4
   },
   {
@@ -275,43 +275,43 @@
     "top_gainers": [
       {
         "stock_code": "sz300062",
-        "stock_name": "中能电气",
+        "stock_name": "",
         "pct_change": 15.43
       },
       {
         "stock_code": "sh600192",
-        "stock_name": "长城电工",
+        "stock_name": "",
         "pct_change": 10.04
       },
       {
         "stock_code": "sz002951",
-        "stock_name": "金时科技",
+        "stock_name": "",
         "pct_change": 10.03
       }
     ],
     "top_losers": [
       {
         "stock_code": "sz301232",
-        "stock_name": "飞沃科技",
+        "stock_name": "",
         "pct_change": -5.69
       },
       {
         "stock_code": "sz300283",
-        "stock_name": "温州宏丰",
+        "stock_name": "",
         "pct_change": -5.5
       },
       {
         "stock_code": "sz300776",
-        "stock_name": "帝尔激光",
+        "stock_name": "",
         "pct_change": -5.41
       }
     ],
-    "index_close": 9579.34,
-    "index_pct_change": 0.71,
-    "index_pe": 32.64,
-    "index_pe_ttm": 29.87,
-    "index_pb": 3.26,
-    "index_div_yield": 1.3,
+    "index_close": null,
+    "index_pct_change": null,
+    "index_pe": null,
+    "index_pe_ttm": null,
+    "index_pb": null,
+    "index_div_yield": null,
     "rank": 5
   },
   {
@@ -338,43 +338,43 @@
     "top_gainers": [
       {
         "stock_code": "sz002647",
-        "stock_name": "仁东控股",
+        "stock_name": "",
         "pct_change": 9.96
       },
       {
         "stock_code": "sz000935",
-        "stock_name": "四川双马",
+        "stock_name": "",
         "pct_change": 3.43
       },
       {
         "stock_code": "sz001236",
-        "stock_name": "弘业期货",
+        "stock_name": "",
         "pct_change": 2.66
       }
     ],
     "top_losers": [
       {
         "stock_code": "sh601628",
-        "stock_name": "中国人寿",
+        "stock_name": "",
         "pct_change": -2.26
       },
       {
         "stock_code": "sh601601",
-        "stock_name": "中国太保",
+        "stock_name": "",
         "pct_change": -1.68
       },
       {
         "stock_code": "sh601336",
-        "stock_name": "新华保险",
+        "stock_name": "",
         "pct_change": -0.99
       }
     ],
-    "index_close": 1765.22,
-    "index_pct_change": 0.18,
-    "index_pe": 10.15,
-    "index_pe_ttm": 10.18,
-    "index_pb": 1.24,
-    "index_div_yield": 2.39,
+    "index_close": null,
+    "index_pct_change": null,
+    "index_pe": null,
+    "index_pe_ttm": null,
+    "index_pb": null,
+    "index_div_yield": null,
     "rank": 6
   },
   {
