@@ -103,6 +103,13 @@ jobs:
           cd ${{ github.workspace }}
           python scripts/run_daily.py
 
+      # ── 重算全量指标历史 (覆盖 V1 遗留数据, 确保 seal_rate 等全量可用) ──
+      - name: Regenerate full indicator history
+        if: success()
+        run: |
+          cd ${{ github.workspace }}
+          python scripts/backfill_indicator_history.py || echo "Warning: indicator history regen failed"
+
       - name: Validate backtest
         if: success()
         run: |
