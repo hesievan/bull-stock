@@ -70,7 +70,8 @@ class TestInitDatabase:
             table_names = {t[0] for t in tables}
             assert "stock_daily" in table_names
             assert "index_daily" in table_names
-            assert "heat_index" in table_names
+            assert "stock_market_cap" in table_names
+            assert "daily_seal_rate" in table_names
             assert "metadata" in table_names
 
     def test_schema_version(self, tmp_db):

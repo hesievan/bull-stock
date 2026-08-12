@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 回填所有历史日期的 V2 指标原始值
-生成 web/data/indicator_history.json 供前端绘制8指标真实值趋势图
+生成 web/data/indicator_history.json 供前端绘制11指标真实值趋势图
 
 用法:
   python scripts/backfill_indicator_history.py
@@ -11,6 +11,7 @@ import os
 import json
 import logging
 import sqlite3
+import bisect as _bisect
 
 import pandas as pd
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -40,7 +41,17 @@ def main():
         FROM margin_history m JOIN daily_circ_mv c ON m.trade_date=c.trade_date
         WHERE c.total_circ_mv>0 AND m.rzye>0 ORDER BY m.trade_date
     """, conn)
-    mg_d = dict(zip(mg["trade_date"], (mg["ratio"]).round(6)))  # 小数
+    mg_exact = dict(zip(mg["trade_date"], (mg["ratio"]).round(6)))
+    # 按最近交易日回填 (margin_history 截止日可能早于最新交易日)
+    import bisect as _bisect
+    _mg_dates = sorted(mg_exact.keys())
+    _circ_dates = list(pd.read_sql(
+        "SELECT trade_date FROM daily_circ_mv WHERE total_circ_mv>0 ORDER BY trade_date", conn)["trade_date"])
+    mg_d = {}
+    for td in _circ_dates:
+        i = _bisect.bisect_right(_mg_dates, td) - 1
+        if i >= 0:
+            mg_d[td] = mg_exact[_mg_dates[i]]  # 小数
 
     # 4. 成交额M2比 (实际值: 日总成交额(元)/M2(元))
     logger.info("4/8 成交额M2比...")
@@ -53,10 +64,14 @@ def main():
     # Handle potential division by zero
     amt_m = amt_m.dropna(subset=['ratio'])
     tm2_map = dict(zip(amt_m["m"], amt_m["ratio"]))
+    # M2 按月回填到最近可用月份 (m2_monthly 缺最新月时, 用上一可用月)
+    _m2_months_sorted = sorted(tm2_map.keys())
     tm2_d = {}
     for td in pd.read_sql("SELECT DISTINCT trade_date FROM stock_daily WHERE trade_date>='2010-01-01' ORDER BY trade_date", conn)["trade_date"]:
         m = td[:7]
-        if m in tm2_map: tm2_d[td] = round(tm2_map[m], 6)
+        i = _bisect.bisect_right(_m2_months_sorted, m) - 1
+        if i >= 0:
+            tm2_d[td] = round(tm2_map[_m2_months_sorted[i]], 6)
 
     logger.info("5/8 换手率...")
     to = pd.read_sql("""
@@ -106,10 +121,52 @@ def main():
     except Exception as e:
         logger.warning("创新高占比失败: %s", str(e)[:60])
 
+    # 9. 北向净流入占比 (实际值: north_net×1000/amount)
+    logger.info("9/11 北向净流入占比...")
+    nb_amt = pd.read_sql("""
+        SELECT n.trade_date, n.north_net * 1000.0 / a.amount AS ratio
+        FROM (SELECT trade_date, north_net FROM northbound_history WHERE north_net IS NOT NULL) n
+        JOIN (SELECT trade_date, SUM(amount) AS amount FROM stock_daily
+              WHERE amount>0 GROUP BY trade_date) a
+          ON n.trade_date = a.trade_date
+        WHERE a.amount > 0 ORDER BY n.trade_date
+    """, conn)
+    nb_d = dict(zip(nb_amt["trade_date"], nb_amt["ratio"].round(6)))
+
+    # 10. 国债期限利差 (实际值: 10Y−2Y, 单位 %)
+    logger.info("10/11 国债期限利差...")
+    ys = pd.read_sql("""
+        SELECT trade_date,
+               MAX(CASE WHEN curve_term=10.0 THEN yield_rate END) AS y10,
+               MAX(CASE WHEN curve_term=2.0 THEN yield_rate END) AS y2
+        FROM bond_yield WHERE curve_term IN (2.0, 10.0)
+        GROUP BY trade_date ORDER BY trade_date
+    """, conn)
+    ys["spread"] = ys["y10"] - ys["y2"]
+    ys_d = {r["trade_date"]: round(float(r["spread"]), 4)
+            for _, r in ys.iterrows() if pd.notna(r["spread"])}
+
+    # 11. M1-M2剪刀差 (实际值: M1同比−M2同比, 单位 百分点)
+    logger.info("11/11 M1-M2剪刀差...")
+    mm = pd.read_sql("""
+        SELECT a.month, a.m1_yoy - b.m2_yoy AS spread
+        FROM m1_monthly a JOIN m2_monthly b ON a.month = b.month
+        WHERE a.m1_yoy IS NOT NULL AND b.m2_yoy IS NOT NULL
+        ORDER BY a.month
+    """, conn)
+    tdates = pd.read_sql(
+        "SELECT DISTINCT trade_date FROM stock_daily WHERE trade_date>='2008-01-01' ORDER BY trade_date",
+        conn)
+    tdates["month"] = tdates["trade_date"].str[:7]
+    mm_merged = tdates.merge(mm, on="month", how="left").sort_values("trade_date")
+    mm_merged["spread"] = mm_merged["spread"].ffill()
+    m1m2_d = {r["trade_date"]: round(float(r["spread"]), 4)
+              for _, r in mm_merged.iterrows() if pd.notna(r["spread"])}
+
     conn.close()
 
     # 合并输出
-    all_dates = sorted(set(pe_d)|set(sr_d)|set(mg_d)|set(tm2_d)|set(to_d)|set(ma_d)|set(bf_d)|set(nh_d))
+    all_dates = sorted(set(pe_d)|set(sr_d)|set(mg_d)|set(tm2_d)|set(to_d)|set(ma_d)|set(bf_d)|set(nh_d)|set(nb_d)|set(ys_d)|set(m1m2_d))
     result = {}
     for td in all_dates:
         entry = {}
@@ -121,6 +178,9 @@ def main():
         if td in ma_d: entry["ma_alignment"] = ma_d[td]
         if td in bf_d: entry["buffett"] = bf_d[td]
         if td in nh_d: entry["new_high"] = nh_d[td]
+        if td in nb_d: entry["north_ratio"] = nb_d[td]
+        if td in ys_d: entry["yield_spread"] = ys_d[td]
+        if td in m1m2_d: entry["m1_m2_spread"] = m1m2_d[td]
         if entry: result[td] = entry
 
     out_path = os.path.join(DATA_DIR, "indicator_history.json")
@@ -129,7 +189,7 @@ def main():
     logger.info("Done: %d dates, %d KB", len(result), os.path.getsize(out_path)//1024)
 
     # 统计各指标覆盖
-    for k in ["pe","seal_rate","buffett","margin_ratio_v2","turnover_m2","turnover","new_high","ma_alignment"]:
+    for k in ["pe","seal_rate","buffett","margin_ratio_v2","north_ratio","yield_spread","m1_m2_spread","turnover_m2","turnover","new_high","ma_alignment"]:
         cnt = sum(1 for v in result.values() if k in v)
         logger.info("  %s: %d dates", k, cnt)
 

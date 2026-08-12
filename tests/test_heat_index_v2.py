@@ -12,6 +12,7 @@ import pytest
 from src.data.database import init_database
 from src.indicators.heat_index_v2 import (
     INDICATOR_WEIGHTS,
+    INDICATOR_DIMENSIONS,
     NEW_HIGH_THRESHOLD,
     _apply_new_high_divergence,
     calc_buffett,
@@ -21,6 +22,9 @@ from src.indicators.heat_index_v2 import (
     calc_new_high_v2,
     calc_pe,
     calc_turnover_v2,
+    calc_north_ratio_v2,
+    calc_yield_spread_v2,
+    calc_m1_m2_spread_v2,
     compute_index_v2,
     _apply_sentiment_divergence,
     _pct_rank,
@@ -606,12 +610,12 @@ class TestBuffettCalc:
 # ── compute_index_v2 端到端: 加权合成 + 维度聚合 ──────────────────────────────
 
 class TestComputeIndexV2EndToEnd:
-    """compute_index_v2 — 全 8 指标种子数据 → 综合分=加权和, 维度分=维度内均值"""
+    """compute_index_v2 — 全 11 指标种子数据 → 综合分=加权和, 维度分=维度内均值"""
 
     TD = "2026-08-06"
 
     def _full_seed(self, db_path):
-        """种满 9 个指标所需的全部预计算表"""
+        """种满 11 个指标所需的全部预计算表"""
         conn = sqlite3.connect(db_path)
         td = self.TD
         # 1. PE: 125 条历史 (n=722) + 当前
@@ -646,9 +650,11 @@ class TestComputeIndexV2EndToEnd:
                          (d, 1e11 + i * 1e9))
         conn.execute("INSERT INTO daily_circ_mv (trade_date, total_circ_mv) VALUES (?, 1e8)", (td,))
         conn.execute("INSERT INTO margin_history (trade_date, rzye, rqye) VALUES (?, 2e11, 0)", (td,))
-        # 5. M2 (70 个月) + 成交额 (70 个月) + 当日
+        # 5. M2 (70 个月, 含 m2_yoy) + M1 (70 个月, 含 m1_yoy) + 成交额 + 当日
         for m in _months("2016-01", 70):
-            conn.execute("INSERT INTO m2_monthly (month, m2_billion) VALUES (?, 2e5)", (m,))
+            conn.execute("INSERT INTO m2_monthly (month, m2_billion, m2_yoy) VALUES (?, 2e5, 8.0)", (m,))
+        for m in _months("2016-01", 70):
+            conn.execute("INSERT INTO m1_monthly (month, m1_billion, m1_yoy) VALUES (?, 5e4, 4.0)", (m,))
         for i, d in enumerate(_dates("2016-09-01", 70, step_days=30)):
             conn.execute("INSERT INTO stock_daily (trade_date, stock_code, amount, circ_mv) "
                          "VALUES (?, '000001.SZ', ?, 1e8)",
@@ -672,11 +678,23 @@ class TestComputeIndexV2EndToEnd:
                          (d, round(0.1 + i * 0.008, 4)))
         conn.execute("INSERT INTO daily_ma_alignment (trade_date, ma_alignment_ratio) VALUES (?, 0.9)",
                      (td,))
+        # 9. 北向净流入 (与 stock_daily 同日, 用于 north_ratio 历史窗口)
+        for i, d in enumerate(_dates("2016-09-01", 70, step_days=30)):
+            conn.execute("INSERT INTO northbound_history (trade_date, north_net) VALUES (?, ?)",
+                         (d, 500.0 + i * 10.0))
+        conn.execute("INSERT INTO northbound_history (trade_date, north_net) VALUES (?, 4000.0)", (td,))
+        # 10. 国债收益率 2Y/10Y (与 stock_daily 同日, 用于期限利差)
+        for i, d in enumerate(_dates("2016-09-01", 70, step_days=30)):
+            conn.execute("INSERT INTO bond_yield (trade_date, curve_term, yield_rate) VALUES (?, 2.0, 2.5)", (d,))
+            conn.execute("INSERT INTO bond_yield (trade_date, curve_term, yield_rate) VALUES (?, 10.0, ?)",
+                         (d, round(2.8 + i * 0.005, 4)))
+        conn.execute("INSERT INTO bond_yield (trade_date, curve_term, yield_rate) VALUES (?, 2.0, 2.5)", (td,))
+        conn.execute("INSERT INTO bond_yield (trade_date, curve_term, yield_rate) VALUES (?, 10.0, 2.95)", (td,))
         conn.commit()
         conn.close()
 
     def test_all_indicators_weighted_sum(self, tmp_path):
-        """全部 9 指标有分 → composite=Σ(w_i·score_i), 维度分按指标权重加权 (F10)"""
+        """全部 11 指标有分 → composite=Σ(w_i·score_i), 维度分按指标权重加权 (F10)"""
         db_path = str(tmp_path / "e2e.db")
         init_database(db_path)
         self._full_seed(db_path)
@@ -688,11 +706,12 @@ class TestComputeIndexV2EndToEnd:
         # result 键→权重键映射 (两融在 result 中名为 margin_ratio_v2, 权重表用 margin_ratio)
         result_to_weight = {
             "pe": "pe", "buffett": "buffett",
-            "margin_ratio_v2": "margin_ratio", "seal_rate": "seal_rate",
-            "turnover_m2": "turnover_m2", "turnover": "turnover",
+            "margin_ratio_v2": "margin_ratio", "north_ratio": "north_ratio",
+            "yield_spread": "yield_spread", "m1_m2_spread": "m1_m2_spread",
+            "seal_rate": "seal_rate", "turnover_m2": "turnover_m2", "turnover": "turnover",
             "new_high": "new_high", "ma_alignment": "ma_alignment",
         }
-        # 全部 8 指标均有分数
+        # 全部 11 指标均有分数
         for rk in result_to_weight:
             assert ind[rk] is not None, f"{rk} 无分数"
         # 综合分 = 指标加权和 (权重总和=1.0)
@@ -706,7 +725,7 @@ class TestComputeIndexV2EndToEnd:
 
         val = _dim_weighted(["pe", "buffett"])
         assert res["dimensions"]["valuation"]["score"] == pytest.approx(round(val, 1), abs=0.1)
-        fund = _dim_weighted(["margin_ratio_v2"])
+        fund = _dim_weighted(["margin_ratio_v2", "north_ratio", "yield_spread", "m1_m2_spread"])
         assert res["dimensions"]["fund"]["score"] == pytest.approx(round(fund, 1), abs=0.1)
         sent = _dim_weighted(["seal_rate", "turnover_m2", "turnover"])
         assert res["dimensions"]["sentiment"]["score"] == pytest.approx(round(sent, 1), abs=0.1)
@@ -717,7 +736,7 @@ class TestComputeIndexV2EndToEnd:
         # 维度权重 = 维度内指标权重之和
         dim_weights = {
             "valuation": sum(INDICATOR_WEIGHTS[result_to_weight[k]] for k in ("pe", "buffett")),
-            "fund": sum(INDICATOR_WEIGHTS[result_to_weight[k]] for k in ("margin_ratio_v2",)),
+            "fund": sum(INDICATOR_WEIGHTS[result_to_weight[k]] for k in ("margin_ratio_v2", "north_ratio", "yield_spread", "m1_m2_spread")),
             "sentiment": sum(INDICATOR_WEIGHTS[result_to_weight[k]] for k in ("seal_rate", "turnover_m2", "turnover")),
             "structure": sum(INDICATOR_WEIGHTS[result_to_weight[k]] for k in ("new_high", "ma_alignment")),
         }
@@ -742,8 +761,79 @@ class TestComputeIndexV2EndToEnd:
         res = compute_index_v2(trade_date=self.TD, db_path=db_path)
         assert res["indicators"]["pe"] is not None
         # 其余指标无数据 → None
-        for k in ("buffett", "margin_ratio_v2", "seal_rate",
-                  "turnover_m2", "turnover", "new_high", "ma_alignment"):
+        for k in ("buffett", "margin_ratio_v2", "north_ratio", "yield_spread",
+                  "m1_m2_spread", "seal_rate", "turnover_m2", "turnover",
+                  "new_high", "ma_alignment"):
             assert res["indicators"][k] is None, f"{k} 应无数据"
         # 仅 PE 有效 → 综合分=PE 分 (total_weight 归一化)
         assert res["composite_score"] == pytest.approx(round(res["indicators"]["pe"], 1), abs=0.1)
+
+
+# ── 资金维度 3 个新指标: 单指标计算 + 方向校验 ──────────────────────────────
+
+class TestNewFundIndicators:
+    """north_ratio / yield_spread / m1_m2_spread 计算正确性与方向性"""
+
+    TD = "2026-08-06"
+
+    def test_calc_north_ratio_v2(self, v2_db):
+        """北向净流入比 = north_net(百万元)×1000 / 成交额(千元); 返回 (score, 原始比)"""
+        for i, d in enumerate(_dates("2016-09-01", 70, step_days=30)):
+            v2_db.execute("INSERT INTO stock_daily (trade_date, stock_code, amount, circ_mv) "
+                          "VALUES (?, '000001.SZ', ?, 1e8)", (d, 1e5 + i * 1e3))
+            v2_db.execute("INSERT INTO northbound_history (trade_date, north_net) VALUES (?, ?)",
+                          (d, 500.0 + i * 10.0))
+        v2_db.execute("INSERT INTO stock_daily (trade_date, stock_code, amount, circ_mv) "
+                      "VALUES (?, '000001.SZ', 1e6, 1e8)", (self.TD,))
+        v2_db.execute("INSERT INTO northbound_history (trade_date, north_net) VALUES (?, 4000.0)",
+                      (self.TD,))
+        v2_db.commit()
+
+        r = calc_north_ratio_v2(v2_db, self.TD)
+        assert r is not None
+        score, raw = r
+        assert 0 <= score <= 100
+        # 原始比 = 4000 百万元 × 1000 / 1e6 千元 = 4.0
+        assert raw == pytest.approx(4.0, abs=1e-6)
+
+    def test_calc_yield_spread_v2_direction_flipped(self, v2_db):
+        """期限利差方向已翻转: 低利差(宽松)→高分, 高利差→低分"""
+        # 历史利差 (y10-y2) 约 0.3~0.625
+        for i, d in enumerate(_dates("2016-09-01", 70, step_days=30)):
+            v2_db.execute("INSERT INTO bond_yield (trade_date, curve_term, yield_rate) VALUES (?, 2.0, 2.5)", (d,))
+            v2_db.execute("INSERT INTO bond_yield (trade_date, curve_term, yield_rate) VALUES (?, 10.0, ?)",
+                          (d, round(2.8 + i * 0.005, 4)))
+
+        # 低利差当前值 (y10-y2 = 0.4, 历史低位) → 应为高分
+        v2_db.execute("INSERT INTO bond_yield (trade_date, curve_term, yield_rate) VALUES (?, 2.0, 2.5)", (self.TD,))
+        v2_db.execute("INSERT INTO bond_yield (trade_date, curve_term, yield_rate) VALUES (?, 10.0, 2.9)", (self.TD,))
+        v2_db.commit()
+        low = calc_yield_spread_v2(v2_db, self.TD)
+        assert low is not None and 0 <= low[0] <= 100
+
+        # 高利差当前值 (y10-y2 = 0.7, 高于历史) → 应为低分
+        v2_db.execute("UPDATE bond_yield SET yield_rate=3.2 WHERE trade_date=? AND curve_term=10.0", (self.TD,))
+        high = calc_yield_spread_v2(v2_db, self.TD)
+        assert high is not None and 0 <= high[0] <= 100
+
+        # 翻转方向: 低利差 → 高分 > 高利差 → 低分
+        assert low[0] > high[0]
+
+    def test_calc_m1_m2_spread_v2(self, v2_db):
+        """M1-M2剪刀差 = m1_yoy - m2_yoy; 月频 ffill 到交易日; 返回 (score, 原始差)"""
+        for m in _months("2016-01", 70):
+            v2_db.execute("INSERT INTO m1_monthly (month, m1_billion, m1_yoy) VALUES (?, 5e4, 4.0)", (m,))
+            v2_db.execute("INSERT INTO m2_monthly (month, m2_billion, m2_yoy) VALUES (?, 2e5, 8.0)", (m,))
+        for d in _dates("2016-09-01", 70, step_days=30):
+            v2_db.execute("INSERT INTO stock_daily (trade_date, stock_code, amount, circ_mv) "
+                          "VALUES (?, '000001.SZ', 1e5, 1e8)", (d,))
+        v2_db.execute("INSERT INTO stock_daily (trade_date, stock_code, amount, circ_mv) "
+                      "VALUES (?, '000001.SZ', 1e5, 1e8)", (self.TD,))
+        v2_db.commit()
+
+        r = calc_m1_m2_spread_v2(v2_db, self.TD)
+        assert r is not None
+        score, raw = r
+        assert 0 <= score <= 100
+        # 原始差 = 4.0 - 8.0 = -4.0 (ffill 到 TD 所在月)
+        assert raw == pytest.approx(-4.0, abs=1e-6)

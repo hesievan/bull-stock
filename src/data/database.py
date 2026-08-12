@@ -69,6 +69,13 @@ CREATE TABLE IF NOT EXISTS m2_monthly (
     m2_yoy      REAL
 );
 
+-- M1月度货币供应量 (akshare: macro_china_money_supply) — 用于 m1_m2_spread
+CREATE TABLE IF NOT EXISTS m1_monthly (
+    month       TEXT PRIMARY KEY,
+    m1_billion  REAL,
+    m1_yoy      REAL
+);
+
 -- A股总市值 (stock_daily total_mv 成分股加总proxy)
 CREATE TABLE IF NOT EXISTS stock_market_cap (
     trade_date  TEXT PRIMARY KEY,
@@ -76,13 +83,7 @@ CREATE TABLE IF NOT EXISTS stock_market_cap (
     stock_count INTEGER
 );
 
--- 个股资产负债表
-CREATE TABLE IF NOT EXISTS stock_balance (
-    stock_code TEXT NOT NULL,
-    report_date TEXT NOT NULL,    -- 报告期 YYYY-MM-DD
-    bps REAL,                     -- 每股净资产
-    PRIMARY KEY (stock_code, report_date)
-);
+-- [已删除] V1遗留/死表: stock_balance
 
 -- 融资融券 (tushare: margin 接口, 沪深北三市合并日汇总)
 CREATE TABLE IF NOT EXISTS margin_history (
@@ -123,52 +124,11 @@ CREATE TABLE IF NOT EXISTS index_pe_history (
     PRIMARY KEY (trade_date, index_code)
 );
 
--- 涨停明细 (由 stock_daily.pct_change >= 9.9 筛选写入)
-CREATE TABLE IF NOT EXISTS limit_up_daily (
-    trade_date TEXT NOT NULL,
-    stock_code TEXT NOT NULL,
-    PRIMARY KEY (trade_date, stock_code)
-);
-
--- AH 溢价指数 (akshare: stock_zh_ah_spot_em)
-CREATE TABLE IF NOT EXISTS ah_premium (
-    trade_date TEXT NOT NULL PRIMARY KEY,
-    premium REAL,                -- 溢价率(%)
-    n_stocks INTEGER,            -- 有效股对数
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- 新增投资者 (中国结算, 手动录入)
-CREATE TABLE IF NOT EXISTS new_investors (
-    week_end_date TEXT NOT NULL PRIMARY KEY,
-    new_accounts REAL            -- 新增户数(万户)
-);
-
--- 热度指数计算结果
-CREATE TABLE IF NOT EXISTS heat_index (
-    trade_date TEXT NOT NULL PRIMARY KEY,
-    composite_score REAL NOT NULL,  -- 综合热度 0-100
-    composite_score_smoothed REAL,  -- 平滑后综合热度
-    heat_level TEXT,                -- 热度等级 green/yellow/orange/red
-    heat_level_smoothed TEXT,       -- 平滑后等级
-    dim_valuation REAL,             -- 估值维度
-    dim_macro REAL,                 -- 宏观维度
-    dim_fund REAL,                  -- 资金维度
-    dim_sentiment REAL,             -- 情绪维度
-    dim_technical REAL,             -- 技术维度
-    dim_structure REAL,             -- 结构维度
-    detail_json TEXT,               -- 所有子指标详情
-    created_at TEXT DEFAULT (datetime('now'))
-);
-
--- 板块热度 (Phase 2: 行业指数)
-CREATE TABLE IF NOT EXISTS sector_heat (
-    trade_date TEXT NOT NULL,
-    sector_code TEXT NOT NULL,
-    composite_score REAL NOT NULL,
-    detail_json TEXT,
-    PRIMARY KEY (trade_date, sector_code)
-);
+-- [已删除] V1遗留/死表: limit_up_daily
+-- [已删除] V1遗留/死表: ah_premium
+-- [已删除] V1遗留/死表: new_investors
+-- [已删除] V1遗留/死表: heat_index (V1 结果表, 已被 JSON 输出取代)
+-- [已删除] V1遗留/死表: sector_heat
 
 -- 元数据
 CREATE TABLE IF NOT EXISTS metadata (
@@ -192,12 +152,7 @@ CREATE TABLE IF NOT EXISTS index_daily_pe (
     const_date TEXT
 );
 
--- AH溢价月表 (SSE AH Premium Index 月度值)
-CREATE TABLE IF NOT EXISTS ah_premium_monthly (
-    trade_date TEXT PRIMARY KEY,
-    premium REAL,
-    score REAL
-);
+-- [已删除] V1遗留/死表: ah_premium_monthly
 
 -- 涨跌家数比预计算表 (由 stock_daily 汇总)
 CREATE TABLE IF NOT EXISTS daily_updown (
@@ -247,22 +202,8 @@ CREATE TABLE IF NOT EXISTS index_constituents_hist (
     PRIMARY KEY (index_code, con_code, trade_date)
 );
 
--- 股权风险溢价预计算表 (ERP = 1/PE - 10Y国债)
-CREATE TABLE IF NOT EXISTS daily_erp (
-    trade_date TEXT PRIMARY KEY,
-    erp REAL,
-    ey REAL,
-    bond_rate REAL,
-    pe REAL
-);
-
--- 宏观指标预计算表 (M1-M2 剪刀差, M2同比)
-CREATE TABLE IF NOT EXISTS daily_macro (
-    trade_date TEXT PRIMARY KEY,
-    m1_yoy REAL,
-    m2_yoy REAL,
-    scissors REAL
-);
+-- [已删除] V1遗留/死表: daily_erp (ERP 已被 PE+巴菲特取代)
+-- [已删除] V1遗留/死表: daily_macro (M1-M2 改用 m1_monthly/m2_monthly)
 
 -- 申万行业分类 (tushare stock_basic.industry)
 CREATE TABLE IF NOT EXISTS stock_shenwan (
@@ -324,22 +265,7 @@ def _migrate(conn, from_ver: int):
     """数据库版本迁移 — 按版本号逐步升级"""
     if from_ver < 2:
         pass
-    if from_ver < 3:
-        cols = {r[1] for r in conn.execute("PRAGMA table_info(heat_index)").fetchall()}
-        for col in ("dim_macro", "composite_score_smoothed", "heat_level", "heat_level_smoothed"):
-            if col not in cols:
-                # 这些列存数值(分数/等级)，必须用 REAL 而非 TEXT，否则后续数值比较/排序出错
-                conn.execute(f"ALTER TABLE heat_index ADD COLUMN {col} REAL")
-    if from_ver < 4:
-        # 迁移: ah_premium 增加 n_stocks 列 (v3→v4)
-        try:
-            ah_cols = {r[1] for r in conn.execute("PRAGMA table_info(ah_premium)").fetchall()}
-            if 'n_stocks' not in ah_cols:
-                conn.execute("ALTER TABLE ah_premium ADD COLUMN n_stocks INTEGER")
-            if 'created_at' not in ah_cols:
-                conn.execute("ALTER TABLE ah_premium ADD COLUMN created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
-        except Exception as e:
-            logger.warning("ah_premium migration skipped (table may not exist): %s", e)
+    # [已删除] v3/v4 迁移: 原引用已删除的 heat_index/ah_premium 表, 不再需要
     if from_ver < 5:
         # 迁移: index_daily_pe 增加 const_date 列 (v4→v5)
         try:
@@ -358,46 +284,7 @@ def _migrate(conn, from_ver: int):
             logger.info("qvix_daily migrated: added component columns")
         except Exception as e:
             logger.warning("qvix_daily migration skipped: %s", e)
-    if from_ver < 7:
-        # 迁移 v7: heat_index 列类型固化 — dim_macro / composite_score_smoothed 应为 REAL
-        # heat_level / heat_level_smoothed 应为 TEXT。旧版迁移可能用了默认 TEXT 类型。
-        try:
-            cols = {r[1]: r[2] for r in conn.execute("PRAGMA table_info(heat_index)").fetchall()}
-            needs_fix = any(
-                cols.get(c) != t
-                for c, t in [("dim_macro", "REAL"), ("composite_score_smoothed", "REAL"),
-                             ("heat_level", "TEXT"), ("heat_level_smoothed", "TEXT")]
-            )
-            if needs_fix:
-                conn.executescript("""
-                    CREATE TABLE heat_index_v7 (
-                        trade_date TEXT NOT NULL PRIMARY KEY,
-                        composite_score REAL NOT NULL,
-                        dim_valuation REAL,
-                        dim_fund REAL,
-                        dim_sentiment REAL,
-                        dim_technical REAL,
-                        dim_structure REAL,
-                        dim_macro REAL,
-                        composite_score_smoothed REAL,
-                        heat_level TEXT,
-                        heat_level_smoothed TEXT,
-                        detail_json TEXT,
-                        created_at TEXT DEFAULT (datetime('now'))
-                    );
-                    INSERT INTO heat_index_v7 SELECT
-                        trade_date, composite_score, dim_valuation, dim_fund,
-                        dim_sentiment, dim_technical, dim_structure,
-                        CAST(dim_macro AS REAL), CAST(composite_score_smoothed AS REAL),
-                        heat_level, heat_level_smoothed,
-                        detail_json, created_at
-                    FROM heat_index;
-                    DROP TABLE heat_index;
-                    ALTER TABLE heat_index_v7 RENAME TO heat_index;
-                """)
-                logger.info("heat_index columns migrated: dim_macro/composite_score_smoothed→REAL, heat_level→TEXT")
-        except Exception as e:
-            logger.warning("heat_index migration skipped: %s", e)
+    # [已删除] v7 迁移: 原 CREATE heat_index_v7 ... RENAME heat_index, 引用已删除的 heat_index 表
     if from_ver < 8:
         # 迁移 v8: 新建 stock_shenwan 表（SCHEMA 已包含建表 DDL，此处只打日志）
         logger.info("v8 migration: stock_shenwan table added (populated by S3_shenwan step)")
@@ -453,13 +340,10 @@ STALENESS_CONFIG = [
     {"table": "daily_ma_alignment", "step": "S30", "fallback": False, "max_gap_days": 5, "desc": "MA排列比"},
     {"table": "daily_new_high",     "step": "S30b", "fallback": True,  "max_gap_days": 5, "desc": "创新高占比"},
     {"table": "daily_turnover",     "step": "S30c", "fallback": True,  "max_gap_days": 5, "desc": "换手率(10年窗口)"},
-    {"table": "daily_erp",          "step": "-",   "fallback": True,  "max_gap_days": 5, "desc": "股权风险溢价(已弃用)"},
     {"table": "daily_seal_rate",    "step": "S31b", "fallback": True,  "max_gap_days": 5, "desc": "涨停封板率"},
     {"table": "daily_circ_mv",      "step": "S26", "fallback": False, "max_gap_days": 5, "desc": "流通市值"},
-    {"table": "daily_macro",        "step": "-",   "fallback": False, "max_gap_days": 7, "desc": "宏观(M1-M2)"},
     {"table": "qvix_daily",         "step": "manual", "fallback": False, "max_gap_days": 5, "desc": "QVIX恐慌"},
     {"table": "index_daily_pe",     "step": "S25", "fallback": False, "max_gap_days": 5, "desc": "指数PE中位数"},
-    {"table": "ah_premium_monthly", "step": "S4",  "fallback": True,  "max_gap_days": 38, "desc": "AH溢价(月)"},
 ]
 
 
@@ -516,12 +400,12 @@ def check_precompute_staleness(trade_date: str = None, db_path: str = None) -> l
 _ALLOWED_TABLES = {
     "index_daily", "stock_daily", "stock_industry", "m2_monthly",
     "stock_market_cap", "margin_history", "northbound_history",
-    "bond_yield", "index_pe_history", "ah_premium", "stock_balance",
-    "limit_up_daily", "new_investors",
-    "heat_index", "sector_heat", "metadata",
-    "daily_circ_mv", "index_daily_pe", "ah_premium_monthly",
+    "bond_yield", "index_pe_history",
+    "metadata",
+    "daily_circ_mv", "index_daily_pe",
+    "m1_monthly",
     "daily_updown", "daily_limit", "daily_ma_alignment",
-    "daily_below_net", "daily_erp", "daily_macro", "daily_turnover", "qvix_daily",
+    "daily_below_net", "daily_turnover", "qvix_daily",
     "daily_new_high", "stock_high_250d", "index_constituents_hist",
     "stock_shenwan", "daily_seal_rate",
 }
@@ -570,39 +454,8 @@ def get_latest_date(table: str, date_col: str = "trade_date", db_path: str = Non
     return row["d"] if row and row["d"] else None
 
 
-def save_heat_index_to_db(result: dict, db_path: str = None):
-    """保存热度指数计算结果到数据库"""
-    from src.output.json_writer import get_heat_level as _gl
-    with get_conn(db_path) as conn:
-        score = result.get("composite_score")
-        smoothed = result.get("composite_score_smoothed")
-        # BUG-5 修复: composite_score 为 NOT NULL, 计算失败时跳过写入
-        if score is None:
-            logger.warning("save_heat_index_to_db: composite_score is None, skipping write for %s",
-                           result.get("trade_date"))
-            return
-        conn.execute("""
-            INSERT OR REPLACE INTO heat_index
-                (trade_date, composite_score, composite_score_smoothed,
-                 heat_level, heat_level_smoothed,
-                 dim_valuation, dim_macro, dim_fund, dim_sentiment,
-                 dim_technical, dim_structure, detail_json)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """, (
-            result.get("trade_date"),
-            score,
-            smoothed,
-            _gl(score) if score is not None else None,
-            _gl(smoothed) if smoothed is not None else None,
-            result.get("dim_valuation"),
-            result.get("dim_macro"),
-            result.get("dim_fund"),
-            result.get("dim_sentiment"),
-            result.get("dim_technical"),
-            result.get("dim_structure"),
-            json.dumps(result.get("indicators", {}), ensure_ascii=False) if result.get("indicators") else None,
-        ))
-    logger.info("Saved heat index to DB: %s score=%s", result.get("trade_date"), score)
+# [已删除] save_heat_index_to_db: 写入已删除的 V1 heat_index 表; V2 结果改由 json_writer.save_results_v2 输出 JSON
+# 如需把结果落库, 可新建一张与 V2 四维结构一致的结果表, 但当前以 web/data/*.json 为准。
 
 
 def update_index_daily_pe(trade_date: str, db_path: str = None):

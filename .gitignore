@@ -21,3 +21,9 @@ report.md
 .omo/
 .playwright-mcp/
 .workbuddy/
+
+# 数据库 / 数据备份（避免误提交 GB 级文件）
+data/*.db.bak*
+data/*.bak*
+web/data/*.bak*
+web/data/notification.txt

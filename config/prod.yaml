@@ -5,12 +5,15 @@ v2_engine:
   weights:
     pe: 0.14
     buffett: 0.14
-    margin_ratio: 0.15
-    seal_rate: 0.15
+    margin_ratio: 0.05
+    north_ratio: 0.04
+    yield_spread: 0.03
+    m1_m2_spread: 0.03
+    seal_rate: 0.08
     turnover_m2: 0.15
     turnover: 0.12
-    new_high: 0.10
-    ma_alignment: 0.05
+    new_high: 0.14
+    ma_alignment: 0.08
   divergence:
     turnover_threshold: 70
     decline_threshold: -1.5

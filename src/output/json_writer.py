@@ -405,6 +405,7 @@ def build_feishu_notification(result: Dict, history: list = None) -> Optional[st
     # V2 评分指标(百分位分 >80 为偏高)
     v2_highlights = [
         ("pe", "大盘PE"), ("buffett", "巴菲特指标"), ("margin_ratio_v2", "两融余额占比"),
+        ("north_ratio", "北向净流入占比"), ("yield_spread", "国债期限利差"), ("m1_m2_spread", "M1-M2剪刀差"),
         ("seal_rate", "涨停封板率"), ("turnover_m2", "成交额M2比"), ("turnover", "换手率"),
     ]
     for _k, _label in v2_highlights:

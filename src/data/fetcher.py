@@ -230,6 +230,20 @@ def fetch_northbound_history(start: str, end: str) -> pd.DataFrame:
         # BUG-3 修复: tushare 返回列名 north_money 映射到 DB 列 north_net
         if "north_money" in result.columns:
             result = result.rename(columns={"north_money": "north_net"})
+        # 单位断裂修复: tushare moneyflow_hsgt 自 2024-08-19(沪深港通暂停披露北向净买额)起
+        # north_money/hgt/sgt/south_money 量级突增约 127 倍(无实际意义), 与历史(百万元)单位不一致。
+        # 统一回缩到历史单位, 否则 north_ratio 的百分位会失真(近期恒为满分)。
+        # 断裂窗口: 2024-08-19~08-30 原始值暴涨(8万~17万), 2024-09 起 tushare 持续以新量级返回,
+        # 故截止点取断裂起点 2024-08-19(该日及之后拉取的全部原始值均为膨胀量级, 需回缩)。
+        # 因子=post中位数/pre中位数。旧库已对 >=2024-09-01 做过同样修复, 此处起点前移以覆盖 8 月缺口。
+        _NORTH_UNIT_BREAK = "2024-08-19"
+        _NORTH_UNIT_FACTOR = 126.66
+        flow_cols = ["north_net", "hgt", "sgt", "south_money"]
+        mask = result["trade_date"] >= _NORTH_UNIT_BREAK
+        for col in flow_cols:
+            if col in result.columns:
+                result.loc[mask, col] = pd.to_numeric(result.loc[mask, col], errors="coerce") / _NORTH_UNIT_FACTOR
+        return result
     except Exception as e:
         logger.error("fetch_northbound_history failed: %s", str(e)[:80])
         return pd.DataFrame()
@@ -238,7 +252,11 @@ def fetch_northbound_history(start: str, end: str) -> pd.DataFrame:
 # ── tushare: 国债收益率 ──────────────────────────────────────────────────────
 
 def _fetch_bond_yield_akshare() -> pd.DataFrame:
-    """从 akshare 获取全部历史国债收益率数据"""
+    """从 akshare 获取国债收益率曲线 (2年 + 10年) — 用于期限利差 yield_spread = 10Y - 2Y
+
+    注: 原方案想用 10Y-1Y, 但 akshare 的 1Y 国债历史极短(仅 2020-2021 一年),
+    故改用 2s10s 利差 (10Y-2Y), 两者均来自 bond_zh_us_rate 且覆盖 2010-01-04~今, 完整。
+    """
     try:
         import akshare as ak
     except ImportError:
@@ -246,15 +264,18 @@ def _fetch_bond_yield_akshare() -> pd.DataFrame:
     df = ak.bond_zh_us_rate(start_date="20100101")
     if df is None or df.empty:
         return pd.DataFrame()
-    df = df.rename(columns={
-        "日期": "trade_date",
-        "中国国债收益率10年": "yield_rate"
-    })
-    df["trade_date"] = pd.to_datetime(df["trade_date"]).dt.strftime("%Y-%m-%d")
-    df["curve_term"] = 10.0
-    df["yield_rate"] = pd.to_numeric(df["yield_rate"], errors="coerce")
-    df = df.dropna(subset=["yield_rate"])
-    return df[["trade_date", "curve_term", "yield_rate"]]
+    df["trade_date"] = pd.to_datetime(df["日期"]).dt.strftime("%Y-%m-%d")
+    recs = []
+    for term, col in [(2.0, "中国国债收益率2年"), (10.0, "中国国债收益率10年")]:
+        sub = df[["trade_date", col]].copy().rename(columns={col: "yield_rate"})
+        sub["curve_term"] = term
+        sub["yield_rate"] = pd.to_numeric(sub["yield_rate"], errors="coerce")
+        sub = sub.dropna(subset=["yield_rate"])
+        recs.append(sub)
+    if not recs:
+        return pd.DataFrame()
+    out = pd.concat(recs, ignore_index=True)
+    return out[["trade_date", "curve_term", "yield_rate"]]
 
 
 def fetch_bond_yield_history(start: str, end: str) -> pd.DataFrame:
@@ -382,6 +403,40 @@ def fetch_m2_history(start: str = "2008-01-01", end: str = None):
         logger.info("M2 data saved: %d rows from %s to %s", len(df), df["month"].min(), df["month"].max())
     except Exception as e:
         logger.error("fetch_m2_history (tushare) failed: %s", str(e)[:80])
+
+
+# ── M1月度数据 (akshare macro_china_money_supply) ─────────────────────────────
+
+def fetch_m1_history(start: str = "2008-01-01", end: str = None):
+    """获取 M1 货币供应数据 (akshare macro_china_money_supply), 写入 m1_monthly 表
+
+    用于资金维度新指标 m1_m2_spread = M1同比 - M2同比。
+    M2同比仍由 fetch_m2_history (tushare cn_m) 写入 m2_monthly, 两表按月关联。
+    """
+    from src.data.database import save_dataframe as _sv
+    try:
+        import akshare as ak
+    except ImportError:
+        logger.error("akshare not installed, cannot fetch M1")
+        return
+    try:
+        df = ak.macro_china_money_supply()
+    except Exception as e:
+        logger.error("fetch_m1_history (akshare) failed: %s", str(e)[:80])
+        return
+    if df is None or df.empty:
+        logger.warning("macro_china_money_supply returned empty")
+        return
+    df["month"] = df["月份"].str.replace("年", "-").str.replace("月份", "")
+    df = df.rename(columns={
+        "货币(M1)-数量(亿元)": "m1_billion",
+        "货币(M1)-同比增长": "m1_yoy",
+    })
+    df["m1_billion"] = pd.to_numeric(df["m1_billion"], errors="coerce")
+    df["m1_yoy"] = pd.to_numeric(df["m1_yoy"], errors="coerce")
+    df = df.dropna(subset=["m1_yoy"])[["month", "m1_billion", "m1_yoy"]]
+    _sv(df, "m1_monthly")
+    logger.info("M1 data saved: %d rows from %s to %s", len(df), df["month"].min(), df["month"].max())
 
 
 # ── 申万行业分类 ───────────────────────────────────────────────────────────────

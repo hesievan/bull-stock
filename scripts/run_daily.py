@@ -378,7 +378,7 @@ def run_daily(trade_date=None):
 
     _run_step(step_status, "S3_industry", _step36)
 
-    # ── Step 5: 计算热度指数 V2 (8指标) ───────────────────────────────────
+    # ── Step 5: 计算热度指数 V2 (11指标) ──────────────────────────────────
     logger.info("Step 5: Calculating heat index v2...")
 
     def _step5():

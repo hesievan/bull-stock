@@ -74,11 +74,14 @@ BEAR_PHASES = {"bear_crash", "bear_bottom", "correction"}
 WEIGHTS = INDICATOR_WEIGHTS
 IND_DIMS = {
     "pe": "valuation", "buffett": "valuation",
-    "margin_ratio": "fund",
+    "margin_ratio": "fund", "north_ratio": "fund", "yield_spread": "fund", "m1_m2_spread": "fund",
     "seal_rate": "sentiment", "turnover_m2": "sentiment", "turnover": "sentiment",
     "new_high": "structure", "ma_alignment": "structure",
 }
 DIMS = ["valuation", "fund", "sentiment", "structure"]
+
+IND_COLS = ["pe", "buffett", "margin_ratio", "north_ratio", "yield_spread", "m1_m2_spread",
+            "seal_rate", "turnover_m2", "turnover", "new_high", "ma_alignment"]
 
 SATURATION_CUTOFF = 0.85
 SATURATION_HEADROOM = 0.15
@@ -196,7 +199,14 @@ def run_backtest():
     daily_amt = pd.read_sql("SELECT trade_date, SUM(amount)*1000 as amount FROM stock_daily WHERE amount > 0 GROUP BY trade_date", conn)
     daily_amt["trade_date"] = daily_amt["trade_date"].astype(str)
     daily_amt["month"] = daily_amt["trade_date"].str[:7]
-    daily_amt = daily_amt.merge(m2_all, on="month", how="left")
+    # FIX: 与引擎 calc_turnover_m2 保持一致 — M2 按月回填到最近可用月份
+    # (原 left merge 要求精确月份匹配, 当 m2_monthly 缺最新月时 turnover_m2 整段缺失)
+    import bisect as _bisect
+    _m2_months = list(m2_all["month"])
+    _m2_vals = list(m2_all["m2_billion"])
+    daily_amt["m2_billion"] = daily_amt["month"].apply(
+        lambda mm: (_m2_vals[_bisect.bisect_right(_m2_months, mm) - 1]
+                    if _bisect.bisect_right(_m2_months, mm) - 1 >= 0 else None))
     daily_amt["turnover_m2"] = daily_amt["amount"] / (daily_amt["m2_billion"] * 1e8)
     print(f"        {len(daily_amt)} rows")
 
@@ -217,6 +227,46 @@ def run_backtest():
     ma_align_df = pd.read_sql("SELECT trade_date, ma_alignment_ratio FROM daily_ma_alignment WHERE ma_alignment_ratio IS NOT NULL", conn)
     ma_align_df["trade_date"] = ma_align_df["trade_date"].astype(str)
     print(f"        {len(ma_align_df)} rows")
+
+    # 9. north_ratio (北向净流入比 = north_net×1000/amount)
+    print("  [9/11] North ratio...")
+    north_hist = pd.read_sql("""
+        SELECT n.trade_date, n.north_net * 1000.0 / a.amount AS ratio
+        FROM northbound_history n
+        JOIN (SELECT trade_date, SUM(amount) AS amount FROM stock_daily WHERE amount>0 GROUP BY trade_date) a
+          ON n.trade_date = a.trade_date
+        WHERE n.north_net IS NOT NULL AND a.amount > 0
+        ORDER BY n.trade_date
+    """, conn)
+    north_hist["trade_date"] = north_hist["trade_date"].astype(str)
+    print(f"        {len(north_hist)} rows")
+
+    # 10. yield_spread (10Y-2Y 期限利差)
+    print("  [10/11] Yield spread (10Y-2Y)...")
+    yspread_df = pd.read_sql("""
+        SELECT trade_date,
+               MAX(CASE WHEN curve_term=10.0 THEN yield_rate END) AS y10,
+               MAX(CASE WHEN curve_term=2.0 THEN yield_rate END) AS y2
+        FROM bond_yield WHERE curve_term IN (2.0, 10.0)
+        GROUP BY trade_date
+    """, conn)
+    yspread_df["trade_date"] = yspread_df["trade_date"].astype(str)
+    yspread_df["spread"] = yspread_df["y10"] - yspread_df["y2"]
+    print(f"        {len(yspread_df)} rows")
+
+    # 11. m1_m2_spread (M1同比 - M2同比, 月频映射到交易日)
+    print("  [11/11] M1-M2 spread...")
+    mser = pd.read_sql("""
+        SELECT a.month, a.m1_yoy - b.m2_yoy AS spread
+        FROM m1_monthly a JOIN m2_monthly b ON a.month = b.month
+        WHERE a.m1_yoy IS NOT NULL AND b.m2_yoy IS NOT NULL
+    """, conn)
+    _m1m2 = pd.DataFrame({"trade_date": all_dates})
+    _m1m2["month"] = _m1m2["trade_date"].str[:7]
+    _m1m2 = _m1m2.merge(mser, on="month", how="left").sort_values("trade_date")
+    _m1m2["spread"] = _m1m2["spread"].ffill()
+    _m1m2["trade_date"] = _m1m2["trade_date"].astype(str)
+    print(f"        {len(_m1m2)} rows")
 
     # 上证综指
     idx_df = pd.read_sql(
@@ -332,6 +382,36 @@ def run_backtest():
                 scores["ma_alignment"] = max(0, min(100, pct * 100))
                 raws["ma_alignment"] = cur_ma_val
 
+        # North ratio
+        cur_north = north_hist[north_hist["trade_date"] <= td]
+        if len(cur_north) > 0:
+            cur_nr = cur_north.iloc[-1]["ratio"]
+            hist_nr = north_hist[(north_hist["trade_date"] >= ten_years_ago) & (north_hist["ratio"].notna())]
+            if len(hist_nr) >= 60:
+                pct = _pct_rank(hist_nr["ratio"], cur_nr)
+                scores["north_ratio"] = max(0, min(100, pct * 100))
+                raws["north_ratio"] = cur_nr
+
+        # Yield spread (10Y-2Y)
+        cur_ys = yspread_df[yspread_df["trade_date"] <= td]
+        if len(cur_ys) > 0 and pd.notna(cur_ys.iloc[-1]["spread"]):
+            cur_ys_val = cur_ys.iloc[-1]["spread"]
+            hist_ys = yspread_df[(yspread_df["trade_date"] >= ten_years_ago) & (yspread_df["spread"].notna())]
+            if len(hist_ys) >= 60:
+                pct = _pct_rank(-hist_ys["spread"], -cur_ys_val)
+                scores["yield_spread"] = max(0, min(100, pct * 100))
+                raws["yield_spread"] = cur_ys_val
+
+        # M1-M2 spread
+        cur_mm = _m1m2[_m1m2["trade_date"] <= td]
+        if len(cur_mm) > 0 and pd.notna(cur_mm.iloc[-1]["spread"]):
+            cur_mm_val = cur_mm.iloc[-1]["spread"]
+            hist_mm = _m1m2[(_m1m2["trade_date"] >= ten_years_ago) & (_m1m2["spread"].notna())]
+            if len(hist_mm) >= 60:
+                pct = _pct_rank(hist_mm["spread"], cur_mm_val)
+                scores["m1_m2_spread"] = max(0, min(100, pct * 100))
+                raws["m1_m2_spread"] = cur_mm_val
+
         # 维度分
         dim_scores = {}
         for dim_name in DIMS:
@@ -380,7 +460,7 @@ def run_backtest():
     df["is_bear"] = df["phase"].isin(BEAR_PHASES)
 
     # 展开指标
-    for ind in ["pe", "buffett", "margin_ratio", "seal_rate", "turnover_m2", "turnover", "new_high", "ma_alignment"]:
+    for ind in IND_COLS:
         df[f"ind_{ind}"] = df["indicators"].apply(lambda d: d.get(ind) if isinstance(d, dict) else None)
 
     # ── 分析 1: 各阶段热度分布 ───────────────────────────────────────────
@@ -482,7 +562,8 @@ def run_backtest():
     print("分析 5: 各指标牛熊区分度")
     print("=" * 70)
 
-    ind_cols = ["pe", "buffett", "margin_ratio", "seal_rate", "turnover_m2", "turnover", "new_high", "ma_alignment"]
+    ind_cols = ["pe", "buffett", "margin_ratio", "north_ratio", "yield_spread", "m1_m2_spread",
+                "seal_rate", "turnover_m2", "turnover", "new_high", "ma_alignment"]
     print(f"\n{'指标':15s} | {'牛市均值':>8s} | {'熊市均值':>8s} | {'区分度':>8s} | {'t统计量':>8s} | {'p值':>10s}")
     print("-" * 75)
     for ind in ind_cols:
@@ -516,7 +597,7 @@ def run_backtest():
         ("2024-02-05", "底部2635"),
         ("2024-09-24", "924行情起点"),
         ("2024-10-08", "924行情顶3674"),
-        ("2026-08-07", "最新"),
+        ("2026-08-11", "最新"),
     ]
 
     print(f"\n{'日期':12s} | {'事件':20s} | {'热度':>6s} | {'级别':6s} | {'上证':>8s} | {'估值':>6s} | {'资金':>6s} | {'情绪':>6s} | {'结构':>6s}")

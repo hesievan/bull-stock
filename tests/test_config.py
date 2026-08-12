@@ -55,8 +55,9 @@ class TestV2EngineConfig:
             weights = v2["weights"]
             assert abs(sum(weights.values()) - 1.0) < 0.001, f"{env} weights must sum to 1.0"
             assert set(weights) == {
-                "pe", "buffett", "margin_ratio", "seal_rate",
-                "turnover_m2", "turnover", "new_high", "ma_alignment",
+                "pe", "buffett", "margin_ratio", "north_ratio", "yield_spread",
+                "m1_m2_spread", "seal_rate", "turnover_m2", "turnover",
+                "new_high", "ma_alignment",
             }
 
     def test_v2_engine_matches_code_defaults(self):

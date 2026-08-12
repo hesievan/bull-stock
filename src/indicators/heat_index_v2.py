@@ -1,18 +1,24 @@
 """
 牛市热度指数 V2 — 精简版计算引擎
 
-8 个核心指标 + QVIX 仅展示不计分
+11 个核心指标 + QVIX 仅展示不计分
 
 P0-1 去同源加权: 剔除与 PE/Buffett 共线的 ERP、存款市值比,
 腾出权重接入「涨停封板率」(市场追涨情绪的独立信号)。
 
 指标:
    估值(28%):  大盘PE(14%), 巴菲特指标(14%)
-   资金(15%):  两融余额市值比(15%)
+   资金(15%):  两融余额市值比(5%), 北向净流入比(4%), 国债期限利差(3%), M1-M2剪刀差(3%)
    情绪(42%):  涨停封板率(15%), 成交额M2比(15%), 换手率(12%)
    结构(15%):  创新高占比(10%), MA排列比(5%)
 
 展示(不计分): QVIX恐慌指数
+
+资金维度扩容 (2026-08): 原单一 margin_ratio(15%) 拆分为 4 个低相关标准化指标,
+总权重仍为 15%。所有新指标均为比率/差分形式, 避免绝对额体量漂移。
+  north_ratio   = 北向净流入 / 当日成交额   (百万元×1e6 / 千元×1e3 = north_net×1000/amount)
+  yield_spread  = 10Y国债收益率 - 2Y国债收益率 (2s10s 期限利差; 1Y 历史不可用故用 2Y, 覆盖 2010~今)
+  m1_m2_spread  = M1同比 - M2同比            (货币活化程度)
 """
 import logging
 import math
@@ -32,12 +38,15 @@ logger = logging.getLogger(__name__)
 DEFAULT_WEIGHTS = {
     "pe": 0.14,                # 大盘PE
     "buffett": 0.14,           # 巴菲特指标
-    "margin_ratio": 0.15,      # 两融余额市值比
-    "seal_rate": 0.15,         # 涨停封板率 (回测调权: 28%→15%, 区分度3.1偏低)
+    "margin_ratio": 0.05,      # 两融余额市值比 (资金扩容: 15%→5%)
+    "north_ratio": 0.04,       # 北向净流入比 (新增)
+    "yield_spread": 0.03,      # 国债期限利差 10Y-2Y (新增)
+    "m1_m2_spread": 0.03,      # M1-M2剪刀差 (新增)
+    "seal_rate": 0.08,          # 涨停封板率 (降权: 15%→8%, 区分度3.1最低且日内噪声大)         # 涨停封板率 (回测调权: 28%→15%, 区分度3.1偏低)
     "turnover_m2": 0.15,       # 成交额M2比 (回测调权: 10%→15%, 区分度21.0最高)
     "turnover": 0.12,          # 换手率 (回测调权: 10%→12%, 区分度21.0)
-    "new_high": 0.10,          # 创新高占比 (回测调权: 6%→10%, 区分度19.4)
-    "ma_alignment": 0.05,      # MA排列比 (回测调权: 4%→5%, 区分度15.1)
+    "new_high": 0.14,           # 创新高占比 (升权: 10%→14%, 区分度19.4)          # 创新高占比 (回测调权: 6%→10%, 区分度19.4)
+    "ma_alignment": 0.08,       # MA排列比 (升权: 5%→8%, 区分度15.1)      # MA排列比 (回测调权: 4%→5%, 区分度15.1)
 }
 
 # 背离检测参数 (内置默认值, 可被 v2_engine.divergence 覆盖)
@@ -92,6 +101,9 @@ INDICATOR_DIMENSIONS = {
     "pe": "valuation",
     "buffett": "valuation",
     "margin_ratio": "fund",
+    "north_ratio": "fund",
+    "yield_spread": "fund",
+    "m1_m2_spread": "fund",
     "seal_rate": "sentiment",
     "turnover_m2": "sentiment",
     "turnover": "sentiment",
@@ -582,6 +594,157 @@ def calc_ma_alignment_v2(conn, trade_date: str) -> Optional[float]:
         return None
 
 
+def calc_north_ratio_v2(conn, trade_date: str) -> Optional[float]:
+    """北向净流入比 = 北向净流入 / 当日成交额 (北向参与度, 比率形式)
+
+    单位: north_net(百万元) × 1e6 / amount(千元) × 1e3 = north_net × 1000 / amount。
+    除以同步放大的成交额抵消北向绝对额的体量漂移; 负值=外资净卖出。
+    方向: 北向参与度越高=外资越积极=热度越高 (pos)。
+    """
+    try:
+        td = trade_date
+        nb = conn.execute(
+            "SELECT north_net FROM northbound_history WHERE trade_date<=? ORDER BY trade_date DESC LIMIT 1",
+            (td,)
+        ).fetchone()
+        if not nb or nb[0] is None:
+            return None
+        north_net = float(nb[0])  # 百万元
+        amt = conn.execute(
+            "SELECT SUM(amount) FROM stock_daily WHERE trade_date=? AND amount > 0",
+            (td,)
+        ).fetchone()
+        if not amt or amt[0] is None or amt[0] <= 0:
+            return None
+        amount = float(amt[0])  # 千元
+        cur_ratio = north_net * 1000.0 / amount
+
+        win = str(int(td[:4]) - 10) + td[4:]
+        hist = pd.read_sql("""
+            SELECT n.trade_date, n.north_net * 1000.0 / a.amount AS ratio
+            FROM northbound_history n
+            JOIN (SELECT trade_date, SUM(amount) AS amount FROM stock_daily
+                  WHERE amount>0 AND trade_date >= ? GROUP BY trade_date) a
+              ON n.trade_date = a.trade_date
+            WHERE n.trade_date >= ? AND n.north_net IS NOT NULL AND a.amount > 0
+            ORDER BY n.trade_date
+        """, conn, params=[win, win])
+        if hist.empty or len(hist) < 60:
+            return None
+        hist_ratios = hist["ratio"].dropna()
+        if len(hist_ratios) < 60:
+            return None
+        pct = _pct_rank(hist_ratios, cur_ratio)
+        score = pct * 100
+        logger.info("北向净流入比: %.6f, score=%.1f (n=%d)", cur_ratio, score, len(hist_ratios))
+        return max(0, min(100, score)), cur_ratio
+    except Exception as e:
+        logger.warning("North ratio calc failed: %s", e)
+        return None
+
+
+def calc_yield_spread_v2(conn, trade_date: str) -> Optional[float]:
+    """国债期限利差 = 10Y收益率 - 2Y收益率 (2s10s 曲线斜率)
+
+    数据源 bond_zh_us_rate, 覆盖 2010~今。1Y 国债历史极短(仅 2020-2021), 故用 2Y 替代 1Y。
+    方向修正(回测发现): A股实证中牛市期 10Y-2Y 利差偏低(短端对宽松更敏感、曲线走平),
+    故利差越小=宽松/多头情绪=热度越高。因此用 -spread 做百分位, 使低利差→高分 (pos)。
+    """
+    try:
+        td = trade_date
+        row = conn.execute(
+            "SELECT curve_term, yield_rate FROM bond_yield "
+            "WHERE trade_date=? AND curve_term IN (2.0, 10.0)",
+            (td,)
+        ).fetchall()
+        y2 = y10 = None
+        for ct, yr in row:
+            if ct == 2.0:
+                y2 = yr
+            elif ct == 10.0:
+                y10 = yr
+        if y2 is None or y10 is None:
+            return None
+        cur = float(y10) - float(y2)
+
+        hist = pd.read_sql("""
+            SELECT trade_date,
+                   MAX(CASE WHEN curve_term=10.0 THEN yield_rate END) AS y10,
+                   MAX(CASE WHEN curve_term=2.0 THEN yield_rate END) AS y2
+            FROM bond_yield
+            WHERE trade_date >= ? AND curve_term IN (2.0, 10.0)
+            GROUP BY trade_date
+        """, conn, params=[str(int(td[:4]) - 10) + td[4:]])
+        if hist.empty or len(hist) < 60:
+            return None
+        hist["spread"] = hist["y10"] - hist["y2"]
+        hist_ratios = hist["spread"].dropna()
+        if len(hist_ratios) < 60:
+            return None
+        pct = _pct_rank(-hist_ratios, -cur)
+        score = pct * 100
+        logger.info("国债期限利差(10Y-2Y, 已翻转方向): %.4f, score=%.1f (n=%d)", cur, score, len(hist_ratios))
+        return max(0, min(100, score)), cur
+    except Exception as e:
+        logger.warning("Yield spread calc failed: %s", e)
+        return None
+
+
+def calc_m1_m2_spread_v2(conn, trade_date: str) -> Optional[float]:
+    """M1-M2剪刀差 = M1同比 - M2同比 (货币活化程度)
+
+    数据源: m1_monthly(M1同比, akshare) + m2_monthly(M2同比, tushare), 按月关联。
+    方向: 剪刀差扩大(企业活期资金占比上升)=资金活性增强=热度越高 (pos)。
+    月频数据映射到每个交易日, 缺失月份沿用最近月 (ffill)。
+    """
+    try:
+        td = trade_date
+        td_month = td[:7]
+        m1 = conn.execute(
+            "SELECT m1_yoy FROM m1_monthly WHERE month<=? ORDER BY month DESC LIMIT 1",
+            (td_month,)
+        ).fetchone()
+        m2 = conn.execute(
+            "SELECT m2_yoy FROM m2_monthly WHERE month<=? ORDER BY month DESC LIMIT 1",
+            (td_month,)
+        ).fetchone()
+        if not m1 or m1[0] is None or not m2 or m2[0] is None:
+            return None
+        cur = float(m1[0]) - float(m2[0])
+
+        mser = pd.read_sql("""
+            SELECT a.month, a.m1_yoy - b.m2_yoy AS spread
+            FROM m1_monthly a JOIN m2_monthly b ON a.month = b.month
+            WHERE a.m1_yoy IS NOT NULL AND b.m2_yoy IS NOT NULL
+            ORDER BY a.month
+        """, conn)
+        if mser.empty:
+            return None
+        dates = pd.read_sql(
+            "SELECT DISTINCT trade_date FROM stock_daily WHERE trade_date >= ? ORDER BY trade_date",
+            conn, params=[str(int(td[:4]) - 10) + td[4:]]
+        )
+        if dates.empty:
+            return None
+        dates["month"] = dates["trade_date"].str[:7]
+        merged = dates.merge(mser, on="month", how="left").sort_values("trade_date")
+        merged["spread"] = merged["spread"].ffill()
+        cur_row = merged[merged["trade_date"] <= td]
+        if cur_row.empty:
+            return None
+        cur = float(cur_row.iloc[-1]["spread"])
+        hist_ratios = merged["spread"].dropna()
+        if len(hist_ratios) < 60:
+            return None
+        pct = _pct_rank(hist_ratios, cur)
+        score = pct * 100
+        logger.info("M1-M2剪刀差: %.4f, score=%.1f (n=%d)", cur, score, len(hist_ratios))
+        return max(0, min(100, score)), cur
+    except Exception as e:
+        logger.warning("M1-M2 spread calc failed: %s", e)
+        return None
+
+
 def calc_qvix_v2(conn, trade_date: str) -> Optional[float]:
     """QVIX恐慌指数 — 仅展示不计分"""
     try:
@@ -675,6 +838,9 @@ def compute_index_v2(trade_date: str = None, db_path: str = None) -> dict:
             ("pe", calc_pe),
             ("buffett", calc_buffett),
             ("margin_ratio", calc_margin_ratio_v2),
+            ("north_ratio", calc_north_ratio_v2),
+            ("yield_spread", calc_yield_spread_v2),
+            ("m1_m2_spread", calc_m1_m2_spread_v2),
             ("seal_rate", calc_seal_rate_v2),
             ("turnover_m2", calc_turnover_m2),
             ("turnover", calc_turnover_v2),
@@ -737,6 +903,9 @@ def compute_index_v2(trade_date: str = None, db_path: str = None) -> dict:
                 "pe": scores["pe"],
                 "buffett": scores["buffett"],
                 "margin_ratio_v2": scores["margin_ratio"],
+                "north_ratio": scores.get("north_ratio"),
+                "yield_spread": scores.get("yield_spread"),
+                "m1_m2_spread": scores.get("m1_m2_spread"),
                 "seal_rate": scores["seal_rate"],
                 "turnover_m2": scores["turnover_m2"],
                 "turnover": scores["turnover"],
@@ -745,7 +914,10 @@ def compute_index_v2(trade_date: str = None, db_path: str = None) -> dict:
                 "qvix": qvix,
                 "qvix_components": qvix_components,
             },
-            "indicator_raw": _raw | {"margin_ratio_v2": _raw.get("margin_ratio")},
+            "indicator_raw": _raw | {"margin_ratio_v2": _raw.get("margin_ratio"),
+                                     "north_ratio": _raw.get("north_ratio"),
+                                     "yield_spread": _raw.get("yield_spread"),
+                                     "m1_m2_spread": _raw.get("m1_m2_spread")},
             "updated_at": date.today().strftime("%Y-%m-%d %H:%M:%S"),
         }
         return result

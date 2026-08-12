@@ -6,7 +6,6 @@
   index_daily_pe    — 成分股 PE/PB 中位数 (用于 PE/巴菲特)
   daily_circ_mv     — 全市场流通市值 (用于 margin_ratio)
   daily_total_mv    — 全市场总市值 (用于 巴菲特)
-  daily_erp         — 股权风险溢价 (已弃用, V2 不再依赖, 保留历史兼容)
   daily_seal_rate   — 涨停封板率 (用于 seal_rate, 需通过 fetch_limit_list 回填)
   daily_updown      — 涨跌家数比 (展示)
   daily_limit       — 涨停/跌停统计 (展示)
@@ -67,27 +66,6 @@ def _fetch_trade_dates(conn) -> list:
             "SELECT DISTINCT trade_date FROM index_daily ORDER BY trade_date", conn
         )
     return df["trade_date"].tolist() if not df.empty else []
-
-
-def _compute_daily_erp(trade_date: str, db_path: str) -> bool:
-    """计算单日 ERP 并写入 daily_erp 表"""
-    with get_conn(db_path) as conn:
-        pe_row = conn.execute(
-            "SELECT pe_med FROM index_daily_pe WHERE trade_date<=? ORDER BY trade_date DESC LIMIT 1",
-            (trade_date,)
-        ).fetchone()
-        bond_row = conn.execute(
-            "SELECT yield_rate FROM bond_yield WHERE curve_term=10 AND trade_date<=? ORDER BY trade_date DESC LIMIT 1",
-            (trade_date,)
-        ).fetchone()
-        if not pe_row or not bond_row or pe_row[0] is None or bond_row[0] is None:
-            return False
-        erp = (1.0 / pe_row[0] - bond_row[0] / 100.0) * 100
-        conn.execute(
-            "INSERT OR REPLACE INTO daily_erp (trade_date, erp) VALUES (?, ?)",
-            (trade_date, round(erp, 6))
-        )
-        return True
 
 
 def _compute_daily_turnover(trade_date: str, db_path: str) -> bool:
@@ -244,8 +222,6 @@ def backfill_precompute(db_path: str = None, force: bool = False):
         elapsed = time.time() - t0
         logger.info("  %s (%s): %d/%d done (%.1fs)", table, label, ok, len(need), elapsed)
 
-    # 回填 daily_erp (已弃用, V2 引擎不再依赖, 保留仅为历史兼容)
-    _backfill_derived("daily_erp", _compute_daily_erp, all_dates, db, critical=False)
     # daily_turnover 仅加速用，非 CI 关键路径
     _backfill_derived("daily_turnover", _compute_daily_turnover, all_dates, db, critical=False)
     # QVIX 恐慌指数 — 批量下载一次，避免每个日期都请求 HTTP
