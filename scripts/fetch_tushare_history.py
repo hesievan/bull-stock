@@ -16,6 +16,7 @@
   - northbound_history (北向资金)
   - bond_yield         (国债收益率, akshare)
   - m2_monthly         (M2 货币供应)
+  - m1_monthly         (M1 货币供应, akshare, 用于 m1_m2_spread)
 
 用法:
   python scripts/fetch_tushare_history.py
@@ -84,6 +85,8 @@ def main(start: str = "2015-01-01"):
         fetch_northbound_history,
         fetch_bond_yield_history,
         fetch_m2_history,
+        fetch_m1_history,
+        _save,
     )
 
     if not os.environ.get("TUSHARE_TOKEN"):
@@ -127,7 +130,11 @@ def main(start: str = "2015-01-01"):
     logger.info("=== 3/6: margin_history ===")
     try:
         df = fetch_margin_history(start, end)
-        logger.info("  margin_history: %d 行", 0 if df.empty else len(df))
+        if df is not None and not df.empty:
+            _save(df, "margin_history")
+            logger.info("  margin_history: 落库 %d 行", len(df))
+        else:
+            logger.warning("  margin_history 为空, 跳过落库")
     except Exception as e:
         logger.error("  margin_history 失败: %s", str(e)[:80])
 
@@ -135,7 +142,11 @@ def main(start: str = "2015-01-01"):
     logger.info("=== 4/6: northbound_history ===")
     try:
         df = fetch_northbound_history(start, end)
-        logger.info("  northbound_history: %d 行", 0 if df.empty else len(df))
+        if df is not None and not df.empty:
+            _save(df, "northbound_history")
+            logger.info("  northbound_history: 落库 %d 行", len(df))
+        else:
+            logger.warning("  northbound_history 为空, 跳过落库")
     except Exception as e:
         logger.error("  northbound_history 失败: %s", str(e)[:80])
 
@@ -143,7 +154,11 @@ def main(start: str = "2015-01-01"):
     logger.info("=== 5/6: bond_yield ===")
     try:
         df = fetch_bond_yield_history(start, end)
-        logger.info("  bond_yield: %d 行", 0 if df.empty else len(df))
+        if df is not None and not df.empty:
+            _save(df, "bond_yield")
+            logger.info("  bond_yield: 落库 %d 行", len(df))
+        else:
+            logger.warning("  bond_yield 为空, 跳过落库")
     except Exception as e:
         logger.error("  bond_yield 失败: %s", str(e)[:80])
 
@@ -153,6 +168,14 @@ def main(start: str = "2015-01-01"):
         fetch_m2_history(start=start[:7], end=end)
     except Exception as e:
         logger.error("  m2_monthly 失败: %s", str(e)[:80])
+
+    # ── 7. M1 货币供应 (akshare, 用于 m1_m2_spread) ───────────────────────
+    # 修复: 此前全量回填遗漏 M1, 导致 seed 库 m1_monthly 为空, M1-M2 剪刀差恒为 None。
+    logger.info("=== 7/7: m1_monthly ===")
+    try:
+        fetch_m1_history()
+    except Exception as e:
+        logger.error("  m1_monthly 失败: %s", str(e)[:80])
 
     # ── 校验 ──────────────────────────────────────────────────────────────
     logger.info("=== 校验 ===")
