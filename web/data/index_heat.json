@@ -18,11 +18,11 @@
       "momentum_120d": 42.5,
       "volume": 2.0,
       "pe": 90.3,
-      "pe_current": 14.7371,
+      "pe_current": 14.7377,
       "pb": 51.7,
       "pb_current": 1.4709,
       "pr": 98.3,
-      "pr_current": 147.65
+      "pr_current": 147.66
     }
   },
   {
@@ -44,9 +44,9 @@
       "momentum_120d": 60.8,
       "volume": 2.0,
       "pe": 58.5,
-      "pe_current": 50.1866,
+      "pe_current": 50.1995,
       "pb": 64.4,
-      "pb_current": 6.0064
+      "pb_current": 6.0079
     }
   },
   {

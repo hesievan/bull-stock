@@ -5,77 +5,77 @@
     "init_db": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.0011487007141113281
+      "elapsed": 0.0012507438659667969
     },
     "S1_index": {
       "status": "OK",
       "detail": "",
-      "elapsed": 22.57979941368103
+      "elapsed": 25.471957445144653
     },
     "S2_market": {
       "status": "OK",
       "detail": "",
-      "elapsed": 7.5277721881866455
+      "elapsed": 9.204305648803711
     },
     "S25_index_pe": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.024837732315063477
+      "elapsed": 0.025980710983276367
     },
     "S26_circ_mv": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.0037298202514648438
+      "elapsed": 0.0039441585540771484
     },
     "S26b_total_mv": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.0037207603454589844
+      "elapsed": 0.004601478576660156
     },
     "S27_updown": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.007719278335571289
+      "elapsed": 0.00854635238647461
     },
     "S28_limit": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.007357358932495117
+      "elapsed": 0.00884246826171875
     },
     "S29_below_net": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.007399559020996094
+      "elapsed": 0.008225679397583008
     },
     "S30_ma_alignment": {
       "status": "OK",
       "detail": "",
-      "elapsed": 4.558549642562866
+      "elapsed": 4.709241628646851
     },
     "S30b_new_high": {
       "status": "OK",
       "detail": "",
-      "elapsed": 1.1125869750976562
+      "elapsed": 1.119048833847046
     },
     "S30c_turnover": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.006626129150390625
+      "elapsed": 0.00698542594909668
     },
     "S31_qvix": {
       "status": "OK",
       "detail": "",
-      "elapsed": 8.50145959854126
+      "elapsed": 11.559197902679443
     },
     "S31b_seal_rate": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.017795324325561523
+      "elapsed": 0.019547700881958008
     },
     "S31c_index_pe": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.37168359756469727
+      "elapsed": 0.9646589756011963
     },
     "precompute_staleness": [
       {
@@ -182,50 +182,60 @@
     "S24_precompute_check": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.007811307907104492
+      "elapsed": 0.0076503753662109375
     },
     "S24c_m2": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.0011506080627441406
+      "elapsed": 0.0010759830474853516
+    },
+    "S24d_m1": {
+      "status": "OK",
+      "detail": "",
+      "elapsed": 1.672546625137329
+    },
+    "S24e_northbound": {
+      "status": "OK",
+      "detail": "",
+      "elapsed": 12.823586225509644
     },
     "S3_margin": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.5867164134979248
+      "elapsed": 0.4364333152770996
     },
     "S3_bond_yield": {
       "status": "OK",
       "detail": "",
-      "elapsed": 4.032699346542358
+      "elapsed": 5.303648233413696
     },
     "S3_tushare": {
       "status": "OK",
       "detail": "",
-      "elapsed": 4.648871898651123
+      "elapsed": 5.772935628890991
     },
     "S3_shenwan": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.00550079345703125
+      "elapsed": 0.006411552429199219
     },
     "S3_industry": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.0011186599731445312
+      "elapsed": 0.0011982917785644531
     },
     "S5_calc": {
       "status": "OK",
       "detail": "",
-      "elapsed": 7.044349670410156
+      "elapsed": 7.833969593048096
     },
     "S55_index_heat": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.12162280082702637
+      "elapsed": 0.13089370727539062
     }
   },
-  "n_ok": 24,
+  "n_ok": 26,
   "n_failed": 0,
   "n_skipped": 0
 }
