@@ -546,6 +546,18 @@ def run_daily(trade_date=None):
         if focus_results:
             out_dir = os.path.join(os.path.dirname(__file__), "..", "web", "data")
             os.makedirs(out_dir, exist_ok=True)
+            # 清洗 NaN/Inf → None, 避免产出非法 JSON 破坏前端 fetchJSON
+            def _clean_nan(o):
+                if isinstance(o, float):
+                    if o != o or abs(o) == float("inf"):  # NaN 或 ±Inf
+                        return None
+                    return o
+                if isinstance(o, dict):
+                    return {k: _clean_nan(v) for k, v in o.items()}
+                if isinstance(o, list):
+                    return [_clean_nan(v) for v in o]
+                return o
+            focus_results = _clean_nan(focus_results)
             with open(os.path.join(out_dir, "focus_industries.json"), "w", encoding="utf-8") as _f:
                 json.dump(focus_results, _f, ensure_ascii=False, indent=2)
             logger.info("Step 7.5: Wrote %d focus industries", len(focus_results) - 1)

@@ -24,7 +24,7 @@ DB_PATH = os.environ.get(
 )
 
 # ── 建表 SQL ──────────────────────────────────────────────────────────────────
-SCHEMA_VERSION = 10
+SCHEMA_VERSION = 11
 
 SCHEMA = """
 -- 指数日行情 (tushare index_daily)
@@ -210,6 +210,8 @@ CREATE TABLE IF NOT EXISTS stock_shenwan (
     stock_code TEXT NOT NULL,
     sw_code TEXT,               -- 申万一级行业代码
     sw_name TEXT,               -- 申万一级行业名称
+    sw_l2_code TEXT,            -- 申万二级细分行业代码 (如 801125 白酒, 801194 保险)
+    sw_l2_name TEXT,            -- 申万二级细分行业名称
     update_date TEXT,
     PRIMARY KEY (stock_code)
 );
@@ -310,6 +312,16 @@ def _migrate(conn, from_ver: int):
         # v10: 新增 daily_seal_rate 表 (涨停封板率, P0-1)
         # 表已由 SCHEMA 的 CREATE TABLE IF NOT EXISTS 自动创建, 此处仅记录
         logger.info("v10 migration: daily_seal_rate table added (涨停封板率)")
+    if from_ver < 11:
+        # v11: stock_shenwan 增加二级细分行业列 (sw_l2_code/sw_l2_name)，支持白酒/保险等二级行业
+        try:
+            sw_cols = {r[1] for r in conn.execute("PRAGMA table_info(stock_shenwan)").fetchall()}
+            for col_name, col_type in (("sw_l2_code", "TEXT"), ("sw_l2_name", "TEXT")):
+                if col_name not in sw_cols:
+                    conn.execute(f"ALTER TABLE stock_shenwan ADD COLUMN {col_name} {col_type}")
+            logger.info("v11 migration: stock_shenwan added l2 columns (sw_l2_code/sw_l2_name)")
+        except Exception as e:
+            logger.warning("stock_shenwan l2 migration skipped: %s", e)
     logger.info("Database migrated from v%d to v%d", from_ver, SCHEMA_VERSION)
 
 

@@ -1,5 +1,5 @@
 """
-重点行业热度 — 申万一级行业（6大核心行业）
+重点行业热度 — 申万一级 10 行业 + 二级细分（白酒 / 保险）
 """
 import logging
 from concurrent.futures import ThreadPoolExecutor
@@ -12,7 +12,11 @@ from src.indicators.utils import _pct_rank
 
 logger = logging.getLogger(__name__)
 
-FOCUS_SW_CODES = ["801780", "801790", "801120", "801150", "801730", "801080"]
+FOCUS_SW_CODES = [
+    "801780", "801790", "801120", "801150", "801730", "801080",
+    "801050", "801160", "801180", "801950",
+    "801125", "801194",
+]
 
 # 申万指数代码 (带后缀用于 akshare)
 SW_INDEX_CODES = {
@@ -22,6 +26,12 @@ SW_INDEX_CODES = {
     "801150": "801150.SI",
     "801730": "801730.SI",
     "801080": "801080.SI",
+    "801050": "801050.SI",
+    "801160": "801160.SI",
+    "801180": "801180.SI",
+    "801950": "801950.SI",
+    "801125": "801125.SI",
+    "801194": "801194.SI",
 }
 
 SW_NAME_MAP = {
@@ -31,6 +41,18 @@ SW_NAME_MAP = {
     "801150": "医药生物",
     "801730": "电力设备",
     "801080": "电子",
+    "801050": "有色金属",
+    "801160": "公用事业",
+    "801180": "房地产",
+    "801950": "煤炭",
+    "801125": "白酒",
+    "801194": "保险",
+}
+
+# 行业层级: 二级细分行业按 sw_l2_code 过滤成分股/历史, 一级按 sw_code
+SW_LEVEL_MAP = {
+    "801125": "l2",   # 白酒 (父: 食品饮料 801120)
+    "801194": "l2",   # 保险 (父: 非银金融 801790)
 }
 
 
@@ -40,20 +62,33 @@ def _sp_rank(series, value):
 
 
 def _get_hist_industry_data(conn, trade_date, sw_codes, lookback_days=365):
-    """从 stock_daily + stock_shenwan 获取行业历史数据用于百分位计算"""
+    """从 stock_daily + stock_shenwan 获取行业历史数据用于百分位计算
+
+    一级行业按 ss.sw_code 过滤, 二级细分按 ss.sw_l2_code 过滤。
+    """
     start = (pd.Timestamp(trade_date) - pd.DateOffset(days=lookback_days)).strftime("%Y-%m-%d")
 
-    placeholders = ",".join(["?"] * len(sw_codes))
+    l1 = [c for c in sw_codes if SW_LEVEL_MAP.get(c) != "l2"]
+    l2 = [c for c in sw_codes if SW_LEVEL_MAP.get(c) == "l2"]
+    conds, params = [], [start, trade_date]
+    if l1:
+        conds.append("ss.sw_code IN (%s)" % ",".join(["?"] * len(l1)))
+        params += l1
+    if l2:
+        conds.append("ss.sw_l2_code IN (%s)" % ",".join(["?"] * len(l2)))
+        params += l2
+    where_extra = (" AND (" + " OR ".join(conds) + ")") if conds else " AND 1=0"
+
     hist = pd.read_sql(
         f"""SELECT sd.trade_date, sd.stock_code, sd.close, sd.pct_change,
                    sd.peTTM, sd.pbMRQ, sd.turnover_rate, sd.total_mv,
-                   ss.sw_code, ss.sw_name
+                   ss.sw_code, ss.sw_name, ss.sw_l2_code, ss.sw_l2_name
             FROM stock_daily sd
             JOIN stock_shenwan ss ON sd.stock_code = ss.stock_code
             WHERE sd.trade_date >= ? AND sd.trade_date <= ?
-              AND ss.sw_code IN ({placeholders})
-              AND sd.close IS NOT NULL AND sd.close > 0""",
-        conn, params=[start, trade_date] + sw_codes,
+              AND sd.close IS NOT NULL AND sd.close > 0
+              {where_extra}""",
+        conn, params=params,
     )
     for col in ("close", "pct_change", "peTTM", "pbMRQ", "turnover_rate", "total_mv"):
         if col in hist.columns:
@@ -74,7 +109,7 @@ def _fetch_index_data(trade_date: str) -> dict:
 
     result = {}
     # 行情数据：akshare index_hist_sw 无 start_date/批量接口(实测拉全量历史)，
-    # 用线程池并行拉取 6 个行业以降低总耗时 (串行 1-3s → ~0.5s)
+    # 用线程池并行拉取各重点行业以降低总耗时
     def _fetch_one(sw_code: str):
         try:
             import akshare as ak
@@ -103,24 +138,26 @@ def _fetch_index_data(trade_date: str) -> dict:
             logger.warning("fetch index hist failed for %s: %s", sw_code, str(e)[:80])
             return None
 
-    with ThreadPoolExecutor(max_workers=6) as pool:
+    with ThreadPoolExecutor(max_workers=12) as pool:
         fetched = dict(zip(FOCUS_SW_CODES, pool.map(_fetch_one, FOCUS_SW_CODES)))
     for sw_code, data in fetched.items():
         if data is not None:
             result[sw_code] = data
 
-    # PE/PB 数据
+    # 估值辅助: 把 akshare 返回的 '--'/NaN 转成可序列化数值
+    def _f(v):
+        try:
+            return round(float(v), 2) if pd.notna(v) and v != "--" else None
+        except (ValueError, TypeError):
+            return None
+
+    # 一级行业 PE/PB (sw_index_first_info 仅覆盖一级)
     try:
         info = ak.sw_index_first_info()
         if info is not None and not info.empty:
             for _, row in info.iterrows():
                 idx_code = str(row.get("行业代码", "")).replace(".SI", "")
                 if idx_code in result:
-                    def _f(v):
-                        try:
-                            return round(float(v), 2) if pd.notna(v) and v != "--" else None
-                        except (ValueError, TypeError):
-                            return None
                     result[idx_code].update({
                         "index_pe": _f(row.get("静态市盈率")),
                         "index_pe_ttm": _f(row.get("TTM(滚动)市盈率")),
@@ -128,13 +165,31 @@ def _fetch_index_data(trade_date: str) -> dict:
                         "index_div_yield": _f(row.get("静态股息率")),
                     })
     except Exception as e:
-        logger.warning("fetch index info failed: %s", str(e)[:80])
+        logger.warning("fetch index first info failed: %s", str(e)[:80])
+
+    # 二级细分行业 PE/PB (sw_index_second_info 覆盖 l2 代码, 如白酒/保险)
+    l2_codes = {c for c in result if SW_LEVEL_MAP.get(c) == "l2"}
+    if l2_codes:
+        try:
+            info2 = ak.sw_index_second_info()
+            if info2 is not None and not info2.empty:
+                for _, row in info2.iterrows():
+                    idx_code = str(row.get("行业代码", "")).replace(".SI", "")
+                    if idx_code in l2_codes and idx_code in result:
+                        result[idx_code].update({
+                            "index_pe": _f(row.get("静态市盈率")),
+                            "index_pe_ttm": _f(row.get("TTM(滚动)市盈率")),
+                            "index_pb": _f(row.get("市净率")),
+                            "index_div_yield": _f(row.get("静态股息率")),
+                        })
+        except Exception as e:
+            logger.warning("fetch index second info failed: %s", str(e)[:80])
 
     return result
 
 
 def compute_focus_industries(trade_date: str, db_path: str = None) -> list:
-    """计算6个重点申万行业的当日热度数据
+    """计算重点申万行业的当日热度数据
 
     Returns: list[dict] sorted by composite_score descending
     """
@@ -169,9 +224,9 @@ def compute_focus_industries(trade_date: str, db_path: str = None) -> list:
         for col in ("close", "pct_change", "peTTM", "pbMRQ", "turnover_rate", "total_mv", "amount"):
             today[col] = pd.to_numeric(today[col], errors="coerce")
 
-        # 2. 关联申万分类
+        # 2. 关联申万分类 (含二级细分)
         shenwan = pd.read_sql(
-            "SELECT stock_code, sw_code, sw_name FROM stock_shenwan",
+            "SELECT stock_code, sw_code, sw_name, sw_l2_code, sw_l2_name FROM stock_shenwan",
             conn,
         )
         merged = today.merge(shenwan, on="stock_code", how="inner")
@@ -193,7 +248,9 @@ def compute_focus_industries(trade_date: str, db_path: str = None) -> list:
 
     for sw_code in FOCUS_SW_CODES:
         sw_name = SW_NAME_MAP.get(sw_code, sw_code)
-        members = merged[merged["sw_code"] == sw_code]
+        sw_level = SW_LEVEL_MAP.get(sw_code, "l1")
+        sw_col = "sw_l2_code" if sw_level == "l2" else "sw_code"
+        members = merged[merged[sw_col] == sw_code]
         if members.empty:
             logger.warning("focus_industries: %s has no members with data today", sw_name)
             continue
@@ -260,7 +317,7 @@ def compute_focus_industries(trade_date: str, db_path: str = None) -> list:
                 })
 
         # 热度评分（估值百分位 + 情绪百分位）
-        hist_ind = hist[hist["sw_code"] == sw_code] if not hist.empty else pd.DataFrame()
+        hist_ind = hist[hist[sw_col] == sw_code] if not hist.empty else pd.DataFrame()
         dim_scores = []
 
         # 估值分: PE 百分位
@@ -302,6 +359,7 @@ def compute_focus_industries(trade_date: str, db_path: str = None) -> list:
         results.append({
             "sw_code": sw_code,
             "sw_name": sw_name,
+            "sw_level": sw_level,
             "trade_date": trade_date,
             "n_stocks": n_stocks,
             "n_with_data": len(pc),

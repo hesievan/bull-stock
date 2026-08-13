@@ -448,6 +448,16 @@ SHENWAN_FOCUS_INDUSTRIES = [
     {"sw_code": "801150", "sw_name": "医药生物"},
     {"sw_code": "801730", "sw_name": "电力设备"},
     {"sw_code": "801080", "sw_name": "电子"},
+    {"sw_code": "801050", "sw_name": "有色金属"},
+    {"sw_code": "801160", "sw_name": "公用事业"},
+    {"sw_code": "801180", "sw_name": "房地产"},
+    {"sw_code": "801950", "sw_name": "煤炭"},
+]
+
+# 申万二级细分行业 (重点行业热度的细分赛道) — parent 为所属一级代码
+SHENWAN_L2_FOCUS = [
+    {"sw_code": "801125", "sw_name": "白酒", "parent": "801120"},
+    {"sw_code": "801194", "sw_name": "保险", "parent": "801790"},
 ]
 
 
@@ -468,7 +478,11 @@ def _normalize_stock_code(raw_code: str) -> str:
 
 
 def fetch_shenwan_industry() -> pd.DataFrame:
-    """从 akshare 拉取申万一级行业成分股映射，保存到 stock_shenwan 表"""
+    """从 akshare 拉取申万一级 + 二级细分行业成分股映射，保存到 stock_shenwan 表
+
+    一级行业写入 sw_code/sw_name；二级细分行业 (SHENWAN_L2_FOCUS) 的成分股
+    其 sw_code 仍记父一级，同时写 sw_l2_code/sw_l2_name，便于按二级赛道单独算热度。
+    """
     from src.data.database import save_dataframe as _sv
     try:
         import akshare as ak
@@ -476,37 +490,69 @@ def fetch_shenwan_industry() -> pd.DataFrame:
         logger.error("akshare not installed, cannot fetch Shenwan industry")
         return pd.DataFrame()
 
-    records = []
     today_str = date.today().strftime("%Y-%m-%d")
+    rows = {}  # stock_code -> dict (按 stock_code 去重, 二级覆盖写入 l2 字段)
+
+    def _fetch_constituents(sw_code: str):
+        try:
+            df = ak.index_component_sw(symbol=sw_code)
+        except Exception as e:
+            logger.warning("fetch_shenwan_industry: index_component_sw %s failed: %s", sw_code, str(e)[:80])
+            return []
+        if df is None or df.empty:
+            return []
+        code_col = next((c for c in ['stock_code', '证券代码'] if c in df.columns), None)
+        if code_col is None:
+            logger.warning("fetch_shenwan_industry: no stock code column in %s", df.columns)
+            return []
+        return [str(c) for c in df[code_col].dropna().unique()]
+
+    # 1. 一级行业
     for ind in SHENWAN_FOCUS_INDUSTRIES:
         sw_code = ind["sw_code"]
         sw_name = ind["sw_name"]
-        try:
-            df = ak.index_component_sw(symbol=sw_code)
-            if df is None or df.empty:
-                logger.warning("fetch_shenwan_industry: no data for %s(%s)", sw_name, sw_code)
-                continue
-            code_col = next((c for c in ['stock_code', '证券代码'] if c in df.columns), None)
-            if code_col is None:
-                logger.warning("fetch_shenwan_industry: no stock code column in %s", df.columns)
-                continue
-            codes = df[code_col].dropna().unique()
-            for c in codes:
-                records.append({
-                    "stock_code": _normalize_stock_code(str(c)),
-                    "sw_code": sw_code,
-                    "sw_name": sw_name,
-                    "update_date": today_str,
-                })
-            logger.info("fetch_shenwan_industry: %s(%s): %d stocks", sw_name, sw_code, len(codes))
-        except Exception as e:
-            logger.warning("fetch_shenwan_industry %s failed: %s", sw_name, str(e)[:80])
+        codes = _fetch_constituents(sw_code)
+        for c in codes:
+            sc = _normalize_stock_code(c)
+            rows[sc] = {
+                "stock_code": sc,
+                "sw_code": sw_code,
+                "sw_name": sw_name,
+                "sw_l2_code": None,
+                "sw_l2_name": None,
+                "update_date": today_str,
+            }
+        logger.info("fetch_shenwan_industry: %s(%s): %d stocks", sw_name, sw_code, len(codes))
 
-    if not records:
+    # 2. 二级细分行业 (成分股 sw_code 记父一级, 同时写 l2 字段)
+    parent_name = {i["sw_code"]: i["sw_name"] for i in SHENWAN_FOCUS_INDUSTRIES}
+    for ind in SHENWAN_L2_FOCUS:
+        l2_code = ind["sw_code"]
+        l2_name = ind["sw_name"]
+        pcode = ind["parent"]
+        codes = _fetch_constituents(l2_code)
+        for c in codes:
+            sc = _normalize_stock_code(c)
+            if sc not in rows:
+                # 兜底: 父一级未覆盖时(理论不发生)按父级写入
+                rows[sc] = {
+                    "stock_code": sc,
+                    "sw_code": pcode,
+                    "sw_name": parent_name.get(pcode),
+                    "sw_l2_code": l2_code,
+                    "sw_l2_name": l2_name,
+                    "update_date": today_str,
+                }
+            else:
+                rows[sc]["sw_l2_code"] = l2_code
+                rows[sc]["sw_l2_name"] = l2_name
+        logger.info("fetch_shenwan_industry: %s(%s, 父%s): %d stocks", l2_name, l2_code, pcode, len(codes))
+
+    if not rows:
         logger.error("fetch_shenwan_industry: no records fetched")
         return pd.DataFrame()
 
-    result = pd.DataFrame(records)
+    result = pd.DataFrame(list(rows.values()))
     _sv(result, "stock_shenwan")
     logger.info("fetch_shenwan_industry: saved %d records", len(result))
     return result
