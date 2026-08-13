@@ -7,7 +7,7 @@
 > **定位：仅提示离场 / 减仓，不发出进场或加仓信号。**
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-v3.24-blue" alt="version">
+  <img src="https://img.shields.io/badge/version-v3.25-blue" alt="version">
   <img src="https://img.shields.io/badge/python-3.10%2B-blue" alt="python">
   <img src="https://img.shields.io/badge/tests-82_passing-brightgreen" alt="tests">
   <img src="https://img.shields.io/badge/license-MIT-green" alt="license">
@@ -370,13 +370,23 @@ score = avg(估值分(PE百分位), 情绪分(换手率百分位), 涨跌比分(
 | `GET /api/sectors` | 板块热度 | — |
 | `GET /api/detail` | 详细指标拆解 | — |
 | `GET /api/strategy` | 策略信号 | — |
-| `GET /api/health` | 健康检查 | — |
+| `GET /api/health` | 健康检查（含 DB 连接/schema 版本/最近运行/内存/环境） | — |
 
 ```bash
 python scripts/api_server.py
 curl http://localhost:8000/api/heat
 curl http://localhost:8000/api/strategy
+curl http://localhost:8000/api/health
 ```
+
+### 运维增强（P3）
+
+- **`.env` 集中加载**：所有脚本统一通过 `src/config.load_dotenv_safe()` 读取 `TUSHARE_TOKEN`/`FEISHU_WEBHOOK` 等密钥（项目根或 `~/daily_stock_analysis/.env`），环境变量优先、文件回退，不再各脚本重复解析。
+- **结构化日志（可选）**：`run_daily` 支持 `HEAT_LOG_JSON=1` 输出单行 JSON 日志（便于日志采集）；默认仍为文本格式。
+- **备份清理**：`python scripts/db_tools.py cleanup [--keep N] [--days D] [--dry-run]` 清理 `data/backups` 过期 gzip 备份与 `data/` 下 `.bak_*` 临时备份，避免磁盘膨胀。
+- **配置强类型与校验**：`src/config.load_config_typed()` 返回 dataclass 视图；`validate_config()` 在加载时校验权重求和≈1.0、热度等级完整性等（仅告警不阻断）。
+- **前端增强**：`web/app.html` 新增「⤓ CSV」一键导出历史数据为 CSV，以及「◐」深/浅色主题切换（持久化到 localStorage）。
+- **耗时与进度**：`run_daily` 每步带序号进度与耗时；`backtest_v2`/`backfill_*` 关键脚本用 `src/common.timed` 记录总耗时。
 
 ---
 
@@ -404,9 +414,9 @@ bull-market-heat-index/
 │   ├── api_server.py                # FastAPI REST API
 │   ├── backfill_index_heat_history.py # 指数热度历史批量回填
 │   ├── backfill_precompute.py       # V2 预计算表历史回填（CI 种子库构建）
-│   ├── db_tools.py                   # 数据库综合工具（状态/压缩/备份/归档）
+│   ├── db_tools.py                   # 数据库综合工具（状态/压缩/备份/归档/清理）
 │   └── ...                          # 回测 / 分析工具
-├── tests/                           # 82 个单元测试
+├── tests/                           # 101 个单元测试
 ├── config/                          # dev.yaml / prod.yaml
 ├── web/                             # 前端 SPA（ECharts 暗色主题）
 │   ├── app.html                     # 主仪表盘
@@ -435,7 +445,7 @@ bull-market-heat-index/
 | 前端 | Vanilla JS + ECharts（暗色 SPA，响应式） |
 | CI/CD | GitHub Actions（每日 18:00 北京时） |
 | 通知 | 飞书 Webhook + Bark（iOS 推送） |
-| 测试 | pytest（82 例） |
+| 测试 | pytest（101 例） |
 
 ---
 
@@ -461,4 +471,4 @@ MIT
 
 ---
 
-*版本: v3.24 | 调整: 2026-08-12 | 11 指标 / 4 维度体系（估值28% / 资金15% / 情绪35% / 结构22%）。2026-08 资金维度由单一两融扩展为 4 指标；2026-08-12 涨停封板率 15%→8% 降权（按回测区分度补偿结构与情绪），修复换手率显示口径（2.33% 非 233%），修复回测 M2 月份回填（2026-07~08 的 turnover_m2 缺失导致综合分系统性偏低 4.8 分）。同日清理数据库：删除 12 张 V1 遗留/死表（limit_up_daily、sector_heat、stock_balance、daily_erp、daily_macro、daily_ma250、daily_sector_div、macro_money、new_investors、heat_index、ah_premium、ah_premium_monthly），表数 37→25。全历史回测（2816 交易日）验证：牛熊区分度 15.3、同期相关 0.810、领先 60 日相关 −0.231、极热后 60 日 −8.3%、极冷后 60 日 +7.5%。*
+*版本: v3.25 | 调整: 2026-08-13 | 11 指标 / 4 维度体系（估值28% / 资金15% / 情绪35% / 结构22%）。2026-08 资金维度由单一两融扩展为 4 指标；2026-08-12 涨停封板率 15%→8% 降权（按回测区分度补偿结构与情绪），修复换手率显示口径（2.33% 非 233%），修复回测 M2 月份回填（2026-07~08 的 turnover_m2 缺失导致综合分系统性偏低 4.8 分）。同日清理数据库：删除 12 张 V1 遗留/死表（limit_up_daily、sector_heat、stock_balance、daily_erp、daily_macro、daily_ma250、daily_sector_div、macro_money、new_investors、heat_index、ah_premium、ah_premium_monthly），表数 37→25。全历史回测（2816 交易日）验证：牛熊区分度 15.3、同期相关 0.810、领先 60 日相关 −0.231、极热后 60 日 −8.3%、极冷后 60 日 +7.5%。*

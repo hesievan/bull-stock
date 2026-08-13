@@ -198,12 +198,35 @@ def create_app():
 
     @app.get("/api/health")
     def health():
+        info: dict = {"status": "ok", "checks": {}}
+        # 数据时效
         index = _read_json("index.json")
-        return {
-            "status": "ok",
-            "data_date": index.get("trade_date") if index else None,
-            "generated_at": index.get("updated_at") if index else None,
-        }
+        run_status = _read_json("run_status.json")
+        info["data_date"] = index.get("trade_date") if index else None
+        info["generated_at"] = index.get("updated_at") if index else None
+        info["last_run"] = run_status.get("generated_at") if run_status else None
+        info["last_run_ok"] = (run_status.get("n_failed", 1) == 0) if run_status else None
+
+        # DB 连接 + schema 版本
+        try:
+            from src.data.database import get_conn, SCHEMA_VERSION
+
+            with get_conn() as conn:
+                tables = conn.execute("SELECT count(*) FROM sqlite_master WHERE type='table'").fetchone()[0]
+            info["db"] = {"status": "ok", "tables": tables, "schema_version": SCHEMA_VERSION}
+        except Exception as exc:  # noqa: BLE001
+            info["db"] = {"status": "error", "detail": str(exc)[:120]}
+            info["status"] = "degraded"
+
+        # 运行环境元数据
+        try:
+            from src.common import runtime_meta
+
+            info.update(runtime_meta())
+        except Exception:  # noqa: BLE001
+            pass
+
+        return info
 
     return app
 

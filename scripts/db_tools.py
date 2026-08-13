@@ -21,6 +21,7 @@ import shutil
 import glob
 import sqlite3
 import logging
+import time
 from datetime import datetime
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -244,6 +245,57 @@ def list_backups():
             print(f"  {name}  ({size / 1024:.1f} KB)")
 
 
+# ── 清理过期备份（P3-F4）───────────────────────────────────────────────────────
+
+
+def cleanup_backups(keep: int = 5, days: int | None = None, dry_run: bool = False) -> list:
+    """清理过期备份，避免 data/ 无限膨胀。
+
+    - backups/ 下的 gzip 备份：保留最近 `keep` 个（默认 5）；若指定 `days`，
+      额外删除早于 `days` 天的备份（不论 keep）。
+    - data/ 下的 `.bak_*` 开发期临时备份：保留最近 3 个，其余删除。
+    - dry_run=True 只预览不删除。
+    返回被处理的文件路径列表。
+    """
+    removed: list = []
+    n_backups_removed = 0
+
+    # 1) 正式备份目录
+    backups = sorted(glob.glob(os.path.join(BACKUP_DIR, "heat_index_*.db.gz")))
+    for b in backups[:-keep] if keep >= 0 else []:
+        if days is not None:
+            age_days = (time.time() - os.path.getmtime(b)) / 86400
+            if age_days < days:
+                continue  # 未超期，跳过（即使超出 keep 也保留）
+        removed.append(b)
+        n_backups_removed += 1
+
+    # 2) 开发期临时备份（.bak_*），保留最近 3 个
+    bak_files = sorted(glob.glob(os.path.join(DB_DIR, "*.bak_*")))
+    for b in bak_files[:-3]:
+        removed.append(b)
+
+    if dry_run:
+        logger.info("cleanup (dry-run): %d file(s) would be removed", len(removed))
+    else:
+        for b in removed:
+            try:
+                os.remove(b)
+            except OSError as e:
+                logger.warning("failed to remove %s: %s", b, e)
+        logger.info(
+            "cleanup: removed %d file(s) (backups=%d, temp=%d), kept %d backup(s)",
+            len(removed),
+            n_backups_removed,
+            len(removed) - n_backups_removed,
+            len(backups) - n_backups_removed,
+        )
+
+    for b in removed:
+        logger.info("  %s %s", "WOULD REMOVE" if dry_run else "removed", os.path.basename(b))
+    return removed
+
+
 # ── CLI ──────────────────────────────────────────────────────────────────────
 
 USAGE = """Usage: python scripts/db_tools.py <command> [args]
@@ -257,7 +309,8 @@ Commands:
   size                    显示数据库和压缩文件大小
   backup                  创建带日期的 gzip 备份
   restore [backup_file]   从备份恢复（默认最新）
-  list                    列出所有备份"""
+  list                    列出所有备份
+  cleanup [--keep N] [--days D] [--dry-run]   清理过期备份（保留最近 N 个备份 + 最近 3 个 .bak_*）"""
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
@@ -285,6 +338,26 @@ if __name__ == "__main__":
         restore(sys.argv[2] if len(sys.argv) > 2 else None)
     elif cmd == "list":
         list_backups()
+    elif cmd == "cleanup":
+        keep = 5
+        days = None
+        dry_run = False
+        rest = sys.argv[2:]
+        i = 0
+        while i < len(rest):
+            a = rest[i]
+            if a == "--keep" and i + 1 < len(rest):
+                keep = int(rest[i + 1])
+                i += 2
+            elif a == "--days" and i + 1 < len(rest):
+                days = int(rest[i + 1])
+                i += 2
+            elif a == "--dry-run":
+                dry_run = True
+                i += 1
+            else:
+                i += 1
+        cleanup_backups(keep=keep, days=days, dry_run=dry_run)
     else:
         print(f"Unknown command: {cmd}")
         print(USAGE)

@@ -21,8 +21,9 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from src.data.database import DB_PATH
 from src.indicators.utils import _pct_rank
 from src.indicators.heat_index_v2 import INDICATOR_WEIGHTS
+from src.common import timed
 
-logging.basicConfig(level=logging.WARNING, format="%(asctime)s %(levelname)s %(message)s")
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 logger = logging.getLogger(__name__)
 
 
@@ -137,6 +138,7 @@ def _t_test(a, b):
     return t, p
 
 
+@timed("backtest_v2")
 def run_backtest():
     print("=" * 70)
     print("V2 热度指数全历史回测 (内存优化版)")

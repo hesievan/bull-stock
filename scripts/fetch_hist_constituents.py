@@ -31,25 +31,9 @@ from datetime import date
 logger = logging.getLogger(__name__)
 
 
-def _load_env():
-    if os.environ.get("TUSHARE_TOKEN"):
-        return
-    from pathlib import Path
+from src.config import load_dotenv_safe
 
-    candidates = [
-        Path(__file__).resolve().parent.parent / ".env",
-        Path.home() / "daily_stock_analysis" / ".env",
-    ]
-    for p in candidates:
-        if p.exists():
-            for line in p.read_text(encoding="utf-8").splitlines():
-                line = line.strip()
-                if line.startswith("TUSHARE_TOKEN="):
-                    os.environ["TUSHARE_TOKEN"] = line.split("=", 1)[1].strip("\"'")
-                    return
-
-
-_load_env()
+load_dotenv_safe()
 
 logging.basicConfig(
     level=logging.INFO,

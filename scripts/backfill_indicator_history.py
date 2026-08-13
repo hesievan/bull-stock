@@ -19,10 +19,13 @@ import pandas as pd
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger(__name__)
+from src.common import timed
+
 DB_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "heat_index.db")
 DATA_DIR = os.path.join(os.path.dirname(__file__), "..", "web", "data")
 
 
+@timed("backfill_indicator_history")
 def main():
     logger.info("Generating raw indicator history...")
     conn = sqlite3.connect(DB_PATH)

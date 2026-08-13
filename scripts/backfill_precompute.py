@@ -42,6 +42,8 @@ from src.data.database import (
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger(__name__)
 
+from src.common import timed
+
 TASKS = [
     ("index_daily_pe", update_index_daily_pe, "成分股PE/PB中位数", True),
     ("daily_circ_mv", compute_daily_circ_mv, "流通市值", True),
@@ -202,6 +204,7 @@ def _backfill_seal_rate_batch(db_path: str, all_dates: list, force: bool):
     )
 
 
+@timed("backfill_precompute")
 def backfill_precompute(db_path: str = None, force: bool = False):
     """回填所有预计算表"""
     db = db_path or DB_PATH

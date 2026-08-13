@@ -3,7 +3,7 @@
 import pytest
 from unittest.mock import patch
 
-from src.config import load_config, BASE_DIR
+from src.config import load_config, load_config_typed, validate_config, BASE_DIR
 
 
 class TestLoadConfig:
@@ -131,3 +131,71 @@ class TestV2EngineConfig:
 
         with mpatch.object(h, "load_config", lambda *a, **k: {"heat_levels": {}}):
             assert h._load_v2_config() == {}
+
+
+class TestValidateConfig:
+    """P3-B1: 配置校验应捕获常见错误配置而不抛异常。"""
+
+    def _good(self):
+        return {
+            "v2_engine": {
+                "weights": {
+                    "pe": 0.14,
+                    "buffett": 0.14,
+                    "margin_ratio": 0.05,
+                    "north_ratio": 0.04,
+                    "yield_spread": 0.03,
+                    "m1_m2_spread": 0.03,
+                    "seal_rate": 0.08,
+                    "turnover_m2": 0.15,
+                    "turnover": 0.12,
+                    "new_high": 0.14,
+                    "ma_alignment": 0.08,
+                }
+            },
+            "heat_levels": {
+                "red": {"min": 65, "max": 100, "label": "红", "color": "#f00"},
+                "orange": {"min": 55, "max": 64, "label": "橙", "color": "#e58"},
+                "yellow": {"min": 40, "max": 54, "label": "黄", "color": "#d29"},
+                "green": {"min": 0, "max": 39, "label": "绿", "color": "#3f9"},
+            },
+            "data": {"db_path": "data/x.db"},
+        }
+
+    def test_valid_config_has_no_issues(self):
+        assert validate_config(self._good()) == []
+
+    def test_missing_weight_keys(self):
+        cfg = self._good()
+        del cfg["v2_engine"]["weights"]["pe"]
+        issues = validate_config(cfg)
+        assert any("缺失键" in i for i in issues)
+
+    def test_weight_sum_off(self):
+        cfg = self._good()
+        cfg["v2_engine"]["weights"]["pe"] = 0.5
+        issues = validate_config(cfg)
+        assert any("求和" in i for i in issues)
+
+    def test_missing_heat_level(self):
+        cfg = self._good()
+        del cfg["heat_levels"]["red"]
+        issues = validate_config(cfg)
+        assert any("heat_levels 缺失" in i for i in issues)
+
+    def test_missing_db_path(self):
+        cfg = self._good()
+        del cfg["data"]
+        issues = validate_config(cfg)
+        assert any("db_path" in i for i in issues)
+
+
+class TestLoadConfigTyped:
+    """P3-B1: 强类型配置视图。"""
+
+    def test_typed_weights_and_levels(self):
+        cfg = load_config_typed(BASE_DIR / "config" / "prod.yaml")
+        assert abs(sum(cfg.weights.__dict__.values()) - 1.0) < 0.01
+        assert set(cfg.heat_levels) == {"red", "orange", "yellow", "green"}
+        assert cfg.heat_levels["red"].min == 65
+        assert cfg.raw["v2_engine"]["weights"]["pe"] > 0

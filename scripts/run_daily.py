@@ -35,61 +35,55 @@ def _clean_nan(o):
     return o
 
 
-def _load_env():
-    if os.environ.get("TUSHARE_TOKEN"):
-        return
-    from pathlib import Path
+from src.config import load_dotenv_safe
+from src.common import JsonFormatter
 
-    candidates = [
-        Path(__file__).resolve().parent.parent / ".env",
-        Path.home() / "daily_stock_analysis" / ".env",
-    ]
-    for p in candidates:
-        if p.exists():
-            for line in p.read_text(encoding="utf-8").splitlines():
-                line = line.strip()
-                if line.startswith("TUSHARE_TOKEN="):
-                    os.environ["TUSHARE_TOKEN"] = line.split("=", 1)[1].strip("\"'")
-                    return
+load_dotenv_safe()
 
-
-_load_env()
-
+_log_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+_json_logs = bool(os.environ.get("HEAT_LOG_JSON"))
+_fmt = JsonFormatter() if _json_logs else logging.Formatter("%(asctime)s [%(levelname)s] %(message)s")
+_log_handlers = [
+    logging.StreamHandler(),
+    logging.FileHandler(os.path.join(_log_dir, "run_daily.log"), encoding="utf-8"),
+]
+for _h in _log_handlers:
+    _h.setFormatter(_fmt)
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(message)s",
-    handlers=[
-        logging.StreamHandler(),
-        logging.FileHandler(
-            os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "run_daily.log"), encoding="utf-8"
-        ),
-    ],
+    handlers=_log_handlers,
 )
 logger = logging.getLogger(__name__)
 
 
+_STEP_SEQ = {"n": 0}
+
+
 def _run_step(step_status, step_name, fn, *args, **kwargs):
+    _STEP_SEQ["n"] += 1
+    seq = _STEP_SEQ["n"]
     t0 = time.time()
     try:
         result = fn(*args, **kwargs)
         elapsed = time.time() - t0
         if result is False:
             step_status[step_name] = {"status": "SKIPPED", "detail": "no data needed", "elapsed": elapsed}
-            logger.info("  step %s: SKIPPED (%.1fs)", step_name, elapsed)
+            logger.info("  [%02d] step %s: SKIPPED (%.1fs)", seq, step_name, elapsed)
         else:
             step_status[step_name] = {"status": "OK", "detail": "", "elapsed": elapsed}
-            logger.info("  step %s: OK (%.1fs)", step_name, elapsed)
+            logger.info("  [%02d] step %s: OK (%.1fs)", seq, step_name, elapsed)
         return result
     except Exception as exc:
         elapsed = time.time() - t0
         msg = str(exc)[:120]
         step_status[step_name] = {"status": "FAILED", "detail": msg, "elapsed": elapsed}
-        logger.error("  step %s: FAILED -- %s", step_name, msg)
+        logger.error("  [%02d] step %s: FAILED -- %s", seq, step_name, msg)
         return None
 
 
 def run_daily(trade_date=None):
-    from src.data.database import init_database, read_dataframe, DB_PATH
+    from src.data.database import init_database, read_dataframe, DB_PATH, SCHEMA_VERSION
+    from src.common import runtime_meta
     from src.data.fetcher import (
         fetch_all_index_incremental,
         fetch_daily_basic_to_stock_daily,
@@ -102,6 +96,7 @@ def run_daily(trade_date=None):
     trade_date = trade_date or date.today().strftime("%Y-%m-%d")
     t_start = time.time()
     step_status = {}
+    _STEP_SEQ["n"] = 0
 
     logger.info("=" * 60)
     logger.info("BULL MARKET HEAT INDEX -- Daily Run v3 (tushare only)")
@@ -559,6 +554,8 @@ def run_daily(trade_date=None):
             "n_ok": n_ok,
             "n_failed": n_fail,
             "n_skipped": n_skip,
+            "schema_version": SCHEMA_VERSION,
+            **runtime_meta(),
         }
         with open(os.path.join(out_dir, "run_status.json"), "w", encoding="utf-8") as sf:
             json.dump(_clean_nan(status_out), sf, ensure_ascii=False, indent=2)

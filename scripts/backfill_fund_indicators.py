@@ -17,20 +17,9 @@ from datetime import date
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 
-def _load_env_token():
-    """从 .env 读取 TUSHARE_TOKEN (与 run_daily.py 一致), 必须在 import fetcher 前设置"""
-    env_path = os.path.join(os.path.dirname(__file__), "..", ".env")
-    try:
-        with open(env_path) as f:
-            for line in f:
-                line = line.strip()
-                if line.startswith("TUSHARE_TOKEN="):
-                    os.environ["TUSHARE_TOKEN"] = line.split("=", 1)[1].strip("\"'")
-    except FileNotFoundError:
-        pass
+from src.config import load_dotenv_safe
 
-
-_load_env_token()
+load_dotenv_safe()
 
 from src.data.database import (
     DB_PATH,
