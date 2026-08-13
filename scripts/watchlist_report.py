@@ -18,7 +18,7 @@ DB_PATH = PROJECT_ROOT / "data" / "heat_index.db"
 # (名称, 腾讯代码, tushare格式代码, DB代码)
 HOLDINGS = [
     ("顺丰控股", "sz002352", "002352.SZ", "sz002352"),
-    ("五粮液",   "sz000858", "000858.SZ", "sz000858"),
+    ("五粮液", "sz000858", "000858.SZ", "sz000858"),
     ("中国平安", "sh601318", "601318.SH", "sh601318"),
     ("公牛集团", "sh603195", "603195.SH", "sh603195"),
     ("吉祥航空", "sh603885", "603885.SH", "sh603885"),
@@ -32,6 +32,7 @@ FEISHU_WEBHOOK = os.environ.get("FEISHU_WEBHOOK", "")
 # Bark 推送配置
 import urllib.request as _urllib_request
 import json as _json
+
 _BARK_KEY = os.environ.get("BARK_KEY", os.environ.get("bark", "").replace("https://api.day.app/", "").rstrip("/"))
 _BARK_API = f"https://api.day.app/{_BARK_KEY}" if _BARK_KEY else ""
 
@@ -62,10 +63,15 @@ def fetch_realtime_tencent():
         except (ValueError, IndexError):
             continue
         result[code] = {
-            "name": name, "close": close, "chg": chg_pct,
-            "vol": vol, "amount": amount,
-            "open": today_open, "prev_close": prev_close,
-            "high": high, "low": low,
+            "name": name,
+            "close": close,
+            "chg": chg_pct,
+            "vol": vol,
+            "amount": amount,
+            "open": today_open,
+            "prev_close": prev_close,
+            "high": high,
+            "low": low,
         }
     return result
 
@@ -76,7 +82,8 @@ def fetch_history(db_code, days=120):
     df = pd.read_sql_query(
         "SELECT trade_date, close, volume, amount FROM stock_daily "
         "WHERE stock_code = ? ORDER BY trade_date DESC LIMIT ?",
-        conn, params=(db_code, days * 2)
+        conn,
+        params=(db_code, days * 2),
     )
     conn.close()
     if df.empty:
@@ -190,7 +197,7 @@ def build_report():
                     lines.append(f"  {s}")
 
             # 成交
-            parts = [f"成交 {amount/1e4:.2f}亿", f"量 {vol:.0f}万手"]
+            parts = [f"成交 {amount / 1e4:.2f}亿", f"量 {vol:.0f}万手"]
             if vol_ratio is not None:
                 parts.append(f"量比 {vol_ratio:.2f}")
             lines.append(f"  {' · '.join(parts)}")
@@ -241,14 +248,17 @@ def push_bark(title, body, level="active", group="Watchlist"):
     if not _BARK_API:
         print("Bark not configured, skip")
         return
-    payload = _json.dumps({
-        "title": title,
-        "body": body,
-        "group": group,
-        "level": level,
-    }).encode("utf-8")
+    payload = _json.dumps(
+        {
+            "title": title,
+            "body": body,
+            "group": group,
+            "level": level,
+        }
+    ).encode("utf-8")
     req = _urllib_request.Request(
-        _BARK_API, data=payload,
+        _BARK_API,
+        data=payload,
         headers={"Content-Type": "application/json"},
         method="POST",
     )
@@ -277,7 +287,7 @@ if __name__ == "__main__":
 
     # Bark 推送（完整信息，与飞书通知内容一致）
     try:
-        now_str = datetime.now().strftime('%H:%M')
+        now_str = datetime.now().strftime("%H:%M")
         push_bark(
             title=f"📊 持仓监控 {now_str}",
             body=report,

@@ -10,6 +10,7 @@ V2 引擎关键日期回测对照 — 用于代码审查修复前后的信号对
   python scripts/compare_backtest.py --dates 2024-10-08,2026-06-24  # 指定日期
   python scripts/compare_backtest.py --label baseline --out reports/backtest_baseline.json
 """
+
 import sys
 import os
 import json
@@ -25,14 +26,14 @@ logging.basicConfig(level=logging.WARNING, format="%(asctime)s [%(levelname)s] %
 
 # README 回测表 8 个关键日期 (日期, 市场状态, 描述, 修复前基线分)
 README_KEY_DATES = [
-    ("2015-06-12", "BULL_PEAK",   "2015牛市顶",     83.8),
-    ("2018-12-28", "BEAR_BOTTOM", "2018熊底",       5.2),
-    ("2020-07-10", "BULL_START",  "2020牛市启动",   70.4),
-    ("2021-02-18", "BULL_PEAK",   "2021牛市顶",     74.1),
-    ("2024-02-05", "BEAR_BOTTOM", "2024熊底",       23.5),
-    ("2024-10-08", "PULSE_PEAK",  "2024脉冲顶",     49.1),
-    ("2026-06-24", "CHOP",        "2026震荡市",     53.9),
-    ("2026-06-25", "CHOP",        "2026震荡市",     54.6),
+    ("2015-06-12", "BULL_PEAK", "2015牛市顶", 83.8),
+    ("2018-12-28", "BEAR_BOTTOM", "2018熊底", 5.2),
+    ("2020-07-10", "BULL_START", "2020牛市启动", 70.4),
+    ("2021-02-18", "BULL_PEAK", "2021牛市顶", 74.1),
+    ("2024-02-05", "BEAR_BOTTOM", "2024熊底", 23.5),
+    ("2024-10-08", "PULSE_PEAK", "2024脉冲顶", 49.1),
+    ("2026-06-24", "CHOP", "2026震荡市", 53.9),
+    ("2026-06-25", "CHOP", "2026震荡市", 54.6),
 ]
 
 DIM_LABELS = {"valuation": "估值", "fund": "资金", "sentiment": "情绪", "structure": "结构"}
@@ -95,16 +96,18 @@ def main():
         f.write("|------|---------|--------|------|------|------|------|------|------|\n")
         for r in results:
             if "error" in r:
-                f.write(f"| {r['trade_date']} | {r.get('state','')} | ERROR: {r['error'][:40]} | | | | | | |\n")
+                f.write(f"| {r['trade_date']} | {r.get('state', '')} | ERROR: {r['error'][:40]} | | | | | | |\n")
                 continue
             dims = r["dimensions"]
             comp = r["composite_score"]
             base = r.get("baseline_composite")
             diff = f"{comp - base:+.1f}" if (comp is not None and base is not None) else "-"
             comp_s = f"{comp:.1f}" if comp is not None else "None"
-            f.write(f"| {r['trade_date']} | {r.get('desc','') or r.get('state','')} | {comp_s} "
-                    f"| {dims.get('valuation')} | {dims.get('fund')} | {dims.get('sentiment')} | {dims.get('structure')} "
-                    f"| {base} | {diff} |\n")
+            f.write(
+                f"| {r['trade_date']} | {r.get('desc', '') or r.get('state', '')} | {comp_s} "
+                f"| {dims.get('valuation')} | {dims.get('fund')} | {dims.get('sentiment')} | {dims.get('structure')} "
+                f"| {base} | {diff} |\n"
+            )
 
     print(f"\n结果已写入: {out_path}")
     print(f"对照表:     {md_path}")

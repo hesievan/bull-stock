@@ -22,6 +22,7 @@
   python scripts/fetch_tushare_history.py
   python scripts/fetch_tushare_history.py --start 2015-01-01
 """
+
 import sys
 import os
 import logging
@@ -36,6 +37,7 @@ def _load_env():
     if os.environ.get("TUSHARE_TOKEN"):
         return
     from pathlib import Path
+
     candidates = [
         Path(__file__).resolve().parent.parent / ".env",
         Path.home() / "daily_stock_analysis" / ".env",
@@ -45,7 +47,7 @@ def _load_env():
             for line in p.read_text(encoding="utf-8").splitlines():
                 line = line.strip()
                 if line.startswith("TUSHARE_TOKEN="):
-                    os.environ["TUSHARE_TOKEN"] = line.split("=", 1)[1].strip('"\'')
+                    os.environ["TUSHARE_TOKEN"] = line.split("=", 1)[1].strip("\"'")
                     return
 
 
@@ -57,9 +59,11 @@ logging.basicConfig(
     handlers=[
         logging.StreamHandler(),
         logging.FileHandler(
-            os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-                         "data", "fetch_tushare_history.log"),
-            mode="a", encoding="utf-8",
+            os.path.join(
+                os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "fetch_tushare_history.log"
+            ),
+            mode="a",
+            encoding="utf-8",
         ),
     ],
 )
@@ -122,8 +126,14 @@ def main(start: str = "2015-01-01"):
         done += 1
         if (i + 1) % 50 == 0:
             elapsed = time.time() - t0
-            logger.info("  stock_daily 进度 %d/%d (%.1f%%), 已写 %d 行, 用时 %.1fs",
-                        i + 1, n, (i + 1) / n * 100, total_written, elapsed)
+            logger.info(
+                "  stock_daily 进度 %d/%d (%.1f%%), 已写 %d 行, 用时 %.1fs",
+                i + 1,
+                n,
+                (i + 1) / n * 100,
+                total_written,
+                elapsed,
+            )
     logger.info("  stock_daily 完成: 新写 %d 行, 跳过 %d 个交易日", total_written, skipped)
 
     # ── 3. 融资融券 ───────────────────────────────────────────────────────
@@ -180,12 +190,9 @@ def main(start: str = "2015-01-01"):
     # ── 校验 ──────────────────────────────────────────────────────────────
     logger.info("=== 校验 ===")
     with get_conn(DB_PATH) as conn:
-        for t in ["index_daily", "stock_daily", "margin_history",
-                  "northbound_history", "bond_yield", "m2_monthly"]:
+        for t in ["index_daily", "stock_daily", "margin_history", "northbound_history", "bond_yield", "m2_monthly"]:
             try:
-                r = conn.execute(
-                    f"SELECT COUNT(*), MIN(trade_date), MAX(trade_date) FROM {t}"
-                ).fetchone()
+                r = conn.execute(f"SELECT COUNT(*), MIN(trade_date), MAX(trade_date) FROM {t}").fetchone()
                 logger.info("  %s: %d 行, %s ~ %s", t, r[0], r[1], r[2])
             except Exception as e:
                 logger.warning("  %s 校验失败: %s", t, str(e)[:60])

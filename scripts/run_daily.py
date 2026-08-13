@@ -11,6 +11,7 @@
   python scripts/run_daily.py                  # 计算今日
   python scripts/run_daily.py 2026-05-29       # 计算指定日期
 """
+
 import sys
 import os
 import logging
@@ -20,10 +21,25 @@ from datetime import date
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+
+def _clean_nan(o):
+    """递归清洗 NaN/±Inf → None，避免产出非法 JSON 破坏前端 fetchJSON。"""
+    if isinstance(o, float):
+        if o != o or abs(o) == float("inf"):  # NaN 或 ±Inf
+            return None
+        return o
+    if isinstance(o, dict):
+        return {k: _clean_nan(v) for k, v in o.items()}
+    if isinstance(o, list):
+        return [_clean_nan(v) for v in o]
+    return o
+
+
 def _load_env():
     if os.environ.get("TUSHARE_TOKEN"):
         return
     from pathlib import Path
+
     candidates = [
         Path(__file__).resolve().parent.parent / ".env",
         Path.home() / "daily_stock_analysis" / ".env",
@@ -33,8 +49,9 @@ def _load_env():
             for line in p.read_text(encoding="utf-8").splitlines():
                 line = line.strip()
                 if line.startswith("TUSHARE_TOKEN="):
-                    os.environ["TUSHARE_TOKEN"] = line.split("=", 1)[1].strip('"\'')
+                    os.environ["TUSHARE_TOKEN"] = line.split("=", 1)[1].strip("\"'")
                     return
+
 
 _load_env()
 
@@ -44,10 +61,9 @@ logging.basicConfig(
     handlers=[
         logging.StreamHandler(),
         logging.FileHandler(
-            os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "run_daily.log"),
-            encoding="utf-8"
+            os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "run_daily.log"), encoding="utf-8"
         ),
-    ]
+    ],
 )
 logger = logging.getLogger(__name__)
 
@@ -81,9 +97,7 @@ def run_daily(trade_date=None):
         fetch_bond_yield_history,
         _save,
     )
-    from src.output.json_writer import (
-        save_results_v2, build_feishu_notification, send_feishu_webhook
-    )
+    from src.output.json_writer import save_results_v2, build_feishu_notification, send_feishu_webhook
 
     trade_date = trade_date or date.today().strftime("%Y-%m-%d")
     t_start = time.time()
@@ -111,12 +125,14 @@ def run_daily(trade_date=None):
     def _step2():
         from src.data.database import DB_PATH
         import sqlite3
+
         conn = sqlite3.connect(DB_PATH)
         latest = conn.execute("SELECT MAX(trade_date) FROM stock_daily").fetchone()[0]
         conn.close()
         if latest is None:
             return fetch_daily_basic_to_stock_daily(trade_date)
         import datetime
+
         cursor = latest
         total = 0
         while cursor <= trade_date:
@@ -133,6 +149,7 @@ def run_daily(trade_date=None):
 
     def _step25():
         from src.data.database import update_index_daily_pe
+
         return update_index_daily_pe(trade_date)
 
     _run_step(step_status, "S25_index_pe", _step25)
@@ -142,6 +159,7 @@ def run_daily(trade_date=None):
 
     def _step26():
         from src.data.database import compute_daily_circ_mv
+
         return compute_daily_circ_mv(trade_date)
 
     _run_step(step_status, "S26_circ_mv", _step26)
@@ -151,6 +169,7 @@ def run_daily(trade_date=None):
 
     def _step26b():
         from src.data.database import compute_daily_total_mv
+
         return compute_daily_total_mv(trade_date)
 
     _run_step(step_status, "S26b_total_mv", _step26b)
@@ -160,6 +179,7 @@ def run_daily(trade_date=None):
 
     def _step27():
         from src.data.database import compute_daily_updown
+
         return compute_daily_updown(trade_date)
 
     _run_step(step_status, "S27_updown", _step27)
@@ -169,6 +189,7 @@ def run_daily(trade_date=None):
 
     def _step28():
         from src.data.database import compute_daily_limit
+
         return compute_daily_limit(trade_date)
 
     _run_step(step_status, "S28_limit", _step28)
@@ -178,6 +199,7 @@ def run_daily(trade_date=None):
 
     def _step29():
         from src.data.database import compute_daily_below_net
+
         return compute_daily_below_net(trade_date)
 
     _run_step(step_status, "S29_below_net", _step29)
@@ -187,6 +209,7 @@ def run_daily(trade_date=None):
 
     def _step30():
         from src.data.database import compute_daily_ma_alignment
+
         return compute_daily_ma_alignment(trade_date)
 
     _run_step(step_status, "S30_ma_alignment", _step30)
@@ -196,6 +219,7 @@ def run_daily(trade_date=None):
 
     def _step30b():
         from src.data.database import compute_daily_new_high
+
         return compute_daily_new_high(trade_date)
 
     _run_step(step_status, "S30b_new_high", _step30b)
@@ -206,6 +230,7 @@ def run_daily(trade_date=None):
     def _step30c():
         from scripts.backfill_precompute import _compute_daily_turnover
         from src.data.database import DB_PATH as _DB
+
         return _compute_daily_turnover(trade_date, _DB)
 
     _run_step(step_status, "S30c_turnover", _step30c)
@@ -219,6 +244,7 @@ def run_daily(trade_date=None):
         import sqlite3
         import pandas as _pd
         import math as _math
+
         df = fetch_panic_index(timeout=60)
         if df.empty:
             return False
@@ -234,21 +260,26 @@ def run_daily(trade_date=None):
                     logger.warning("QVIX step31 %s: no prior data", trade_date)
                     return False
                 row = df.loc[prev[-1]]
+
             def _v(x):
                 return None if (x is None or (isinstance(x, float) and _math.isnan(x))) else round(float(x), 4)
-            conn.execute("""
+
+            conn.execute(
+                """
                 INSERT OR REPLACE INTO qvix_daily
                     (trade_date, qvix, qvix_50, qvix_300, qvix_1000, panic_index, concentration)
                 VALUES (?, ?, ?, ?, ?, ?, ?)
-            """, (
-                trade_date,
-                _v(row.get("panic_index")),
-                _v(row.get("qvix_50")),
-                _v(row.get("qvix_300")),
-                _v(row.get("qvix_1000")),
-                _v(row.get("panic_index")),
-                _v(row.get("concentration")),
-            ))
+            """,
+                (
+                    trade_date,
+                    _v(row.get("panic_index")),
+                    _v(row.get("qvix_50")),
+                    _v(row.get("qvix_300")),
+                    _v(row.get("qvix_1000")),
+                    _v(row.get("panic_index")),
+                    _v(row.get("concentration")),
+                ),
+            )
             conn.commit()
             return True
         finally:
@@ -261,6 +292,7 @@ def run_daily(trade_date=None):
 
     def _step31b():
         from src.data.fetcher import fetch_limit_list
+
         return fetch_limit_list(trade_date)
 
     _run_step(step_status, "S31b_seal_rate", _step31b)
@@ -270,6 +302,7 @@ def run_daily(trade_date=None):
 
     def _step31c():
         from src.data.fetcher import fetch_index_dailybasic
+
         return fetch_index_dailybasic(trade_date)
 
     _run_step(step_status, "S31c_index_pe", _step31c)
@@ -279,6 +312,7 @@ def run_daily(trade_date=None):
 
     def _step24():
         from src.data.database import check_precompute_staleness
+
         stale_results = check_precompute_staleness(trade_date)
         stale_tables = [r for r in stale_results if r["stale"]]
         if stale_tables:
@@ -287,8 +321,12 @@ def run_daily(trade_date=None):
                 fallback_info = "yes" if r["has_fallback"] else "NO"
                 logger.warning(
                     "  %s (%s): latest=%s, gap=%sd, max=%sd, fallback=%s",
-                    r["table"], r["desc"], r["latest_date"],
-                    r["gap_days"], r["max_gap_days"], fallback_info,
+                    r["table"],
+                    r["desc"],
+                    r["latest_date"],
+                    r["gap_days"],
+                    r["max_gap_days"],
+                    fallback_info,
                 )
         else:
             logger.info("All precompute tables fresh")
@@ -303,8 +341,10 @@ def run_daily(trade_date=None):
     def _step24c():
         from src.data.fetcher import fetch_m2_history
         import datetime
+
         # 检查数据库是否已有最新M2 (当月或上月)
         from src.data.database import read_dataframe
+
         latest = read_dataframe(
             "SELECT MAX(month) FROM m2_monthly",
         )
@@ -312,7 +352,9 @@ def run_daily(trade_date=None):
             latest_m = latest.iloc[0, 0]
             td_month = trade_date[:7]
             # 若已包含本月或上月，说明数据已最新
-            if latest_m >= td_month or latest_m >= (datetime.date.today().replace(day=1) - datetime.timedelta(days=35)).strftime("%Y-%m"):
+            if latest_m >= td_month or latest_m >= (
+                datetime.date.today().replace(day=1) - datetime.timedelta(days=35)
+            ).strftime("%Y-%m"):
                 logger.info("M2 already up-to-date (latest=%s)", latest_m)
                 return True
         fetch_m2_history(start="2020-01-01", end=trade_date)
@@ -329,12 +371,12 @@ def run_daily(trade_date=None):
         from src.data.fetcher import fetch_m1_history
         import datetime
         from src.data.database import read_dataframe
+
         latest = read_dataframe("SELECT MAX(month) FROM m1_monthly")
         if not latest.empty and latest.iloc[0, 0] is not None:
             latest_m = latest.iloc[0, 0]
             # 若已覆盖本月或上月, 视为最新 (月度数据发布滞后)
-            cutoff = (datetime.date.today().replace(day=1)
-                      - datetime.timedelta(days=35)).strftime("%Y-%m")
+            cutoff = (datetime.date.today().replace(day=1) - datetime.timedelta(days=35)).strftime("%Y-%m")
             if latest_m >= cutoff:
                 logger.info("M1 already up-to-date (latest=%s)", latest_m)
                 return True
@@ -352,6 +394,7 @@ def run_daily(trade_date=None):
         from src.data.fetcher import fetch_northbound_history, _save
         from src.data.database import read_dataframe
         import datetime
+
         latest = read_dataframe("SELECT MAX(trade_date) FROM northbound_history")
         if not latest.empty and latest.iloc[0, 0] is not None:
             latest_d = latest.iloc[0, 0]
@@ -359,16 +402,14 @@ def run_daily(trade_date=None):
                 logger.info("Northbound already up-to-date (latest=%s)", latest_d)
                 return True
             # 增量: 从上次最新日的次日抓到今日 (通常为 1~2 个月)
-            start = (datetime.date.fromisoformat(latest_d)
-                     + datetime.timedelta(days=1)).isoformat()
+            start = (datetime.date.fromisoformat(latest_d) + datetime.timedelta(days=1)).isoformat()
         else:
             # 空表: 回补起点 (沪股通/深股通开通日)
             start = "2014-11-17"
         df = fetch_northbound_history(start, trade_date)
         if df is not None and not df.empty:
             _save(df, "northbound_history")
-            logger.info("Northbound saved %d rows (%s ~ %s)",
-                        len(df), df["trade_date"].min(), df["trade_date"].max())
+            logger.info("Northbound saved %d rows (%s ~ %s)", len(df), df["trade_date"].min(), df["trade_date"].max())
         else:
             logger.warning("Northbound fetch returned empty for %s ~ %s", start, trade_date)
         return True
@@ -381,12 +422,10 @@ def run_daily(trade_date=None):
     def _step3():
         any_fetched = False
         for label, table, fn in [
-            ("margin",       "margin_history",    lambda: fetch_margin_history(trade_date, trade_date)),
-            ("bond_yield",   "bond_yield",        lambda: fetch_bond_yield_history(trade_date, trade_date)),
+            ("margin", "margin_history", lambda: fetch_margin_history(trade_date, trade_date)),
+            ("bond_yield", "bond_yield", lambda: fetch_bond_yield_history(trade_date, trade_date)),
         ]:
-            already = read_dataframe(
-                "SELECT 1 FROM " + table + " WHERE trade_date=? LIMIT 1",
-                params=(trade_date,))
+            already = read_dataframe("SELECT 1 FROM " + table + " WHERE trade_date=? LIMIT 1", params=(trade_date,))
             if not already.empty:
                 step_status["S3_" + label] = {"status": "SKIPPED", "detail": "already in db", "elapsed": 0}
                 continue
@@ -404,11 +443,13 @@ def run_daily(trade_date=None):
     def _step35():
         from src.indicators.focus_industries import FOCUS_SW_CODES
         from src.data.database import read_dataframe
+
         existing = read_dataframe("SELECT COUNT(DISTINCT sw_code) as n FROM stock_shenwan")
         if not existing.empty and existing.iloc[0]["n"] >= len(FOCUS_SW_CODES):
             logger.info("Shenwan classification already loaded (%d industries)", existing.iloc[0]["n"])
             return True
         from src.data.fetcher import fetch_shenwan_industry
+
         result = fetch_shenwan_industry()
         if result is None or result.empty:
             raise RuntimeError("Failed to fetch Shenwan industry data")
@@ -421,11 +462,13 @@ def run_daily(trade_date=None):
 
     def _step36():
         from src.data.database import read_dataframe
+
         existing = read_dataframe("SELECT COUNT(*) as n FROM stock_industry")
         if not existing.empty and existing.iloc[0]["n"] > 1000:
             logger.info("stock_industry already loaded (%d stocks)", existing.iloc[0]["n"])
             return True
         from src.data.fetcher import fetch_stock_industry
+
         result = fetch_stock_industry(trade_date)
         if result is None or result.empty:
             raise RuntimeError("Failed to fetch stock industry data")
@@ -438,6 +481,7 @@ def run_daily(trade_date=None):
 
     def _step5():
         from src.indicators.heat_index_v2 import compute_index_v2
+
         res = compute_index_v2(trade_date=trade_date)
         if res is None or res.get("composite_score") is None:
             raise RuntimeError("heat index v2 composite_score is None")
@@ -448,11 +492,14 @@ def run_daily(trade_date=None):
     if result is None or result.get("composite_score") is None:
         logger.error("S5 FAILED -- writing fallback result for debug")
         result = {
-            "trade_date": trade_date, "composite_score": None,
-            "dimensions": {"valuation": {"score": None, "label": "估值"},
-                           "fund": {"score": None, "label": "资金"},
-                           "sentiment": {"score": None, "label": "情绪"},
-                           "structure": {"score": None, "label": "结构"}},
+            "trade_date": trade_date,
+            "composite_score": None,
+            "dimensions": {
+                "valuation": {"score": None, "label": "估值"},
+                "fund": {"score": None, "label": "资金"},
+                "sentiment": {"score": None, "label": "情绪"},
+                "structure": {"score": None, "label": "结构"},
+            },
             "indicators": {},
         }
 
@@ -461,12 +508,13 @@ def run_daily(trade_date=None):
 
     def _step55():
         from src.indicators.index_heat import compute_index_heat
+
         idx_results = compute_index_heat(trade_date=trade_date)
         out_dir = os.path.join(os.path.dirname(__file__), "..", "web", "data")
         os.makedirs(out_dir, exist_ok=True)
         with open(os.path.join(out_dir, "index_heat.json"), "w", encoding="utf-8") as f:
             clean = [r for r in idx_results if "error" not in r]
-            json.dump(clean, f, ensure_ascii=False, indent=2)
+            json.dump(_clean_nan(clean), f, ensure_ascii=False, indent=2)
         n_ok = sum(1 for r in idx_results if "error" not in r)
         logger.info("Index heat: %d/%d computed", n_ok, len(idx_results))
         return n_ok > 0
@@ -476,24 +524,20 @@ def run_daily(trade_date=None):
     # ── 补充展示指标 (涨跌家数比/涨停占比/破净率, 不参与计算仅供展示) ──────
     try:
         import sqlite3 as _sqlite3
+
         _conn = _sqlite3.connect(DB_PATH)
+        _row = _conn.execute("SELECT up_down_ratio FROM daily_updown WHERE trade_date=?", (trade_date,)).fetchone()
+        if _row:
+            result["display_up_down_ratio"] = round(_row[0], 4)
         _row = _conn.execute(
-            "SELECT up_down_ratio FROM daily_updown WHERE trade_date=?",
-            (trade_date,)
-        ).fetchone()
-        if _row: result["display_up_down_ratio"] = round(_row[0], 4)
-        _row = _conn.execute(
-            "SELECT limit_up_ratio, limit_ratio FROM daily_limit WHERE trade_date=?",
-            (trade_date,)
+            "SELECT limit_up_ratio, limit_ratio FROM daily_limit WHERE trade_date=?", (trade_date,)
         ).fetchone()
         if _row:
             result["display_limit_up_ratio"] = round(_row[0], 4)
             result["display_limit_ratio"] = round(_row[1], 4)
-        _row = _conn.execute(
-            "SELECT below_net_rate FROM daily_below_net WHERE trade_date=?",
-            (trade_date,)
-        ).fetchone()
-        if _row: result["display_below_net_rate"] = round(_row[0], 4)
+        _row = _conn.execute("SELECT below_net_rate FROM daily_below_net WHERE trade_date=?", (trade_date,)).fetchone()
+        if _row:
+            result["display_below_net_rate"] = round(_row[0], 4)
         _conn.close()
     except Exception:
         pass
@@ -512,10 +556,12 @@ def run_daily(trade_date=None):
             "trade_date": trade_date,
             "generated_at": date.today().strftime("%Y-%m-%d %H:%M:%S"),
             "steps": dict(step_status),
-            "n_ok": n_ok, "n_failed": n_fail, "n_skipped": n_skip,
+            "n_ok": n_ok,
+            "n_failed": n_fail,
+            "n_skipped": n_skip,
         }
         with open(os.path.join(out_dir, "run_status.json"), "w", encoding="utf-8") as sf:
-            json.dump(status_out, sf, ensure_ascii=False, indent=2)
+            json.dump(_clean_nan(status_out), sf, ensure_ascii=False, indent=2)
         return True
 
     _run_step(step_status, "S6_save", _step6)
@@ -525,12 +571,13 @@ def run_daily(trade_date=None):
 
     def _step7():
         from src.indicators.sector_calculator import calculate_sector_heat
+
         sector_results = calculate_sector_heat(trade_date, DB_PATH)
         if sector_results:
             out_dir = os.path.join(os.path.dirname(__file__), "..", "web", "data")
             os.makedirs(out_dir, exist_ok=True)
             with open(os.path.join(out_dir, "sectors.json"), "w", encoding="utf-8") as _f:
-                json.dump(sector_results, _f, ensure_ascii=False, indent=2)
+                json.dump(_clean_nan(sector_results), _f, ensure_ascii=False, indent=2)
             logger.info("Step 7: Wrote %d sectors", len(sector_results))
             return sector_results
         return None
@@ -542,21 +589,11 @@ def run_daily(trade_date=None):
 
     def _step75():
         from src.indicators.focus_industries import compute_focus_industries
+
         focus_results = compute_focus_industries(trade_date, DB_PATH)
         if focus_results:
             out_dir = os.path.join(os.path.dirname(__file__), "..", "web", "data")
             os.makedirs(out_dir, exist_ok=True)
-            # 清洗 NaN/Inf → None, 避免产出非法 JSON 破坏前端 fetchJSON
-            def _clean_nan(o):
-                if isinstance(o, float):
-                    if o != o or abs(o) == float("inf"):  # NaN 或 ±Inf
-                        return None
-                    return o
-                if isinstance(o, dict):
-                    return {k: _clean_nan(v) for k, v in o.items()}
-                if isinstance(o, list):
-                    return [_clean_nan(v) for v in o]
-                return o
             focus_results = _clean_nan(focus_results)
             with open(os.path.join(out_dir, "focus_industries.json"), "w", encoding="utf-8") as _f:
                 json.dump(focus_results, _f, ensure_ascii=False, indent=2)
@@ -610,6 +647,7 @@ def run_daily(trade_date=None):
         # Bark 推送（完整信息，与飞书通知内容一致）
         try:
             from src.output.json_writer import send_bark, get_heat_level
+
             bark_status = "timeSensitive" if get_heat_level(result.get("composite_score", 0)) == "red" else "active"
             score = result.get("composite_score", 0)
             send_bark(
@@ -624,6 +662,19 @@ def run_daily(trade_date=None):
 
     _run_step(step_status, "S9_notify", _step9)
 
+    # ── Step 10: 刷新查询规划器统计 (ANALYZE, 轻量非阻塞) ─────────────────────
+    # 每日数据写入后更新统计信息, 让新建索引(v12)与大数据表查询计划保持最优。
+    # 注意: VACUUM(重, 锁库) 不在此处, 改由 daily.yml 每周一步或 db_tools.py vacuum 手动执行。
+    def _step10():
+        from src.data.database import get_conn
+
+        with get_conn(DB_PATH) as conn:
+            conn.execute("ANALYZE")
+        logger.info("Step 10: ANALYZE done (refreshed query planner statistics)")
+        return True
+
+    _run_step(step_status, "S10_analyze", _step10)
+
     # ── 最终汇总 ────────────────────────────────────────────────────────────
     elapsed = time.time() - t_start
     n_ok = sum(1 for v in step_status.values() if isinstance(v, dict) and v.get("status") == "OK")
@@ -631,8 +682,7 @@ def run_daily(trade_date=None):
     n_skip = sum(1 for v in step_status.values() if isinstance(v, dict) and v.get("status") == "SKIPPED")
 
     logger.info("=" * 60)
-    logger.info("RUN SUMMARY: %d OK / %d FAILED / %d SKIPPED (%.1fs)",
-                n_ok, n_fail, n_skip, elapsed)
+    logger.info("RUN SUMMARY: %d OK / %d FAILED / %d SKIPPED (%.1fs)", n_ok, n_fail, n_skip, elapsed)
     for sn, sv in step_status.items():
         if isinstance(sv, dict) and sv.get("status") != "OK":
             logger.info("  [%s] %s: %s", sv["status"], sn, sv.get("detail", ""))
@@ -643,6 +693,7 @@ def run_daily(trade_date=None):
 
 if __name__ == "__main__":
     import argparse
+
     parser = argparse.ArgumentParser(description="Daily Heat Index Calculation")
     parser.add_argument("trade_date", nargs="?", help="Trade date (YYYY-MM-DD)")
     args = parser.parse_args()

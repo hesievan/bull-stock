@@ -1,4 +1,5 @@
 """配置加载"""
+
 import os
 from typing import Optional, Union
 import yaml

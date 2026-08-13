@@ -10,9 +10,11 @@
   python scripts/validate_backtest.py           # 默认验证最近7天
   python scripts/validate_backtest.py --days 30  # 验证最近30天
 """
+
 import sys
 import os
 import json
+
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from pathlib import Path

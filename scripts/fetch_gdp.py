@@ -13,6 +13,7 @@
   python scripts/fetch_gdp.py
   python scripts/fetch_gdp.py --since 2020
 """
+
 import sys
 import os
 import logging
@@ -24,6 +25,7 @@ def _load_env():
     if os.environ.get("TUSHARE_TOKEN"):
         return
     from pathlib import Path
+
     candidates = [
         Path(__file__).resolve().parent.parent / ".env",
         Path.home() / "daily_stock_analysis" / ".env",
@@ -33,7 +35,7 @@ def _load_env():
             for line in p.read_text(encoding="utf-8").splitlines():
                 line = line.strip()
                 if line.startswith("TUSHARE_TOKEN="):
-                    os.environ["TUSHARE_TOKEN"] = line.split("=", 1)[1].strip('"\'')
+                    os.environ["TUSHARE_TOKEN"] = line.split("=", 1)[1].strip("\"'")
                     return
 
 
@@ -42,11 +44,14 @@ _load_env()
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
-    handlers=[logging.StreamHandler(),
-              logging.FileHandler(
-                  os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-                               "data", "fetch_gdp.log"),
-                  mode="a", encoding="utf-8")],
+    handlers=[
+        logging.StreamHandler(),
+        logging.FileHandler(
+            os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "fetch_gdp.log"),
+            mode="a",
+            encoding="utf-8",
+        ),
+    ],
 )
 logger = logging.getLogger(__name__)
 
@@ -54,7 +59,6 @@ logger = logging.getLogger(__name__)
 def fetch_gdp(since: str = None):
     """从 Tushare 拉取 GDP 季度数据并写入 gdp_quarterly"""
     import tushare as ts
-    import sqlite3
     import pandas as pd
     from src.data.database import DB_PATH, init_database, get_conn
 

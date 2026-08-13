@@ -1,9 +1,4 @@
 """Tests for src/output/json_writer.py — 输出模块"""
-import pytest
-import json
-import os
-from pathlib import Path
-from datetime import date
 
 from src.output.json_writer import (
     get_heat_level,

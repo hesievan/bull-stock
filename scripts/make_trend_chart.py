@@ -2,6 +2,7 @@
 
 用法: python scripts/make_trend_chart.py <csv> <out_html>
 """
+
 import sys
 import csv
 
@@ -9,6 +10,8 @@ csv_path = sys.argv[1] if len(sys.argv) > 1 else "reports/heat_trend_2025-07-01_
 out_path = sys.argv[2] if len(sys.argv) > 2 else "reports/heat_trend_2025-07_2026-08-10.html"
 
 rows = list(csv.DictReader(open(csv_path)))
+
+
 def _f(v):
     try:
         return float(v)
@@ -49,7 +52,8 @@ def poly(vals, color, w=2):
         v = vals[i]
         if v is None or v == "":
             if cur:
-                segs.append(cur); cur = []
+                segs.append(cur)
+                cur = []
             continue
         cur.append(f"{sx(i):.1f},{sy(float(v)):.1f}")
     if cur:
@@ -66,37 +70,46 @@ bands = [
 ]
 band_svg = ""
 for lo, hi, col, _ in bands:
-    yb = sy(hi); ye = sy(lo)
-    band_svg += f'<rect x="{x0}" y="{yb:.1f}" width="{x1-x0:.1f}" height="{ye-yb:.1f}" fill="{col}" opacity="0.55"/>'
+    yb = sy(hi)
+    ye = sy(lo)
+    band_svg += (
+        f'<rect x="{x0}" y="{yb:.1f}" width="{x1 - x0:.1f}" height="{ye - yb:.1f}" fill="{col}" opacity="0.55"/>'
+    )
 
 # 网格 + Y 轴刻度
 grid = ""
 for v in range(0, 101, 10):
     yy = sy(v)
     grid += f'<line x1="{x0}" y1="{yy:.1f}" x2="{x1}" y2="{yy:.1f}" stroke="#eee" stroke-width="1"/>'
-    grid += f'<text x="{x0-8}" y="{yy+4:.1f}" font-size="11" fill="#666" text-anchor="end">{v}</text>'
+    grid += f'<text x="{x0 - 8}" y="{yy + 4:.1f}" font-size="11" fill="#666" text-anchor="end">{v}</text>'
 
 # X 轴月份刻度
 xticks = ""
-import datetime as dt
 seen = set()
 for i, d in enumerate(dates):
     mo = d[:7]
     if mo not in seen and (i == 0 or i == n - 1 or i % 22 == 0):
         seen.add(mo)
-        xticks += f'<text x="{sx(i):.1f}" y="{y0+18:.1f}" font-size="10" fill="#666" text-anchor="middle">{d[2:7]}</text>'
+        xticks += (
+            f'<text x="{sx(i):.1f}" y="{y0 + 18:.1f}" font-size="10" fill="#666" text-anchor="middle">{d[2:7]}</text>'
+        )
 
 colors = {
-    "composite": "#d32f2f", "valuation": "#7b1fa2",
-    "fund": "#1976d2", "sentiment": "#f57c00", "structure": "#388e3c",
+    "composite": "#d32f2f",
+    "valuation": "#7b1fa2",
+    "fund": "#1976d2",
+    "sentiment": "#f57c00",
+    "structure": "#388e3c",
 }
-lines = "".join(poly(series[k], colors[k], 2.4 if k == "composite" else 1.4) for k in
-                ["valuation", "fund", "sentiment", "structure", "composite"])
+lines = "".join(
+    poly(series[k], colors[k], 2.4 if k == "composite" else 1.4)
+    for k in ["valuation", "fund", "sentiment", "structure", "composite"]
+)
 
 legend = ""
 for i, k in enumerate(["composite", "valuation", "fund", "sentiment", "structure"]):
     lx = x0 + 10 + i * 150
-    legend += f'<rect x="{lx}" y="{T+4}" width="14" height="4" fill="{colors[k]}"/><text x="{lx+20}" y="{T+9}" font-size="11" fill="#333">{k}</text>'
+    legend += f'<rect x="{lx}" y="{T + 4}" width="14" height="4" fill="{colors[k]}"/><text x="{lx + 20}" y="{T + 9}" font-size="11" fill="#333">{k}</text>'
 
 # 标注单日跳变(>15)
 jumps = []

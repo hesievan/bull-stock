@@ -1,8 +1,6 @@
 """Tests for src/config.py — 配置加载"""
+
 import pytest
-import os
-import tempfile
-from pathlib import Path
 from unittest.mock import patch
 
 from src.config import load_config, BASE_DIR
@@ -55,18 +53,32 @@ class TestV2EngineConfig:
             weights = v2["weights"]
             assert abs(sum(weights.values()) - 1.0) < 0.001, f"{env} weights must sum to 1.0"
             assert set(weights) == {
-                "pe", "buffett", "margin_ratio", "north_ratio", "yield_spread",
-                "m1_m2_spread", "seal_rate", "turnover_m2", "turnover",
-                "new_high", "ma_alignment",
+                "pe",
+                "buffett",
+                "margin_ratio",
+                "north_ratio",
+                "yield_spread",
+                "m1_m2_spread",
+                "seal_rate",
+                "turnover_m2",
+                "turnover",
+                "new_high",
+                "ma_alignment",
             }
 
     def test_v2_engine_matches_code_defaults(self):
         """YAML 值应与 heat_index_v2 内置默认一致 (YAML 为唯一事实源)"""
         from src.indicators.heat_index_v2 import (
-            DEFAULT_DIVERGENCE, DEFAULT_WEIGHTS, NEW_HIGH_THRESHOLD,
-            TURNOVER_WINDOW_YEARS, PE_N_STOCKS_RATIO, PE_N_STOCKS_MIN,
-            SATURATION_CUTOFF, SATURATION_HEADROOM,
+            DEFAULT_DIVERGENCE,
+            DEFAULT_WEIGHTS,
+            NEW_HIGH_THRESHOLD,
+            TURNOVER_WINDOW_YEARS,
+            PE_N_STOCKS_RATIO,
+            PE_N_STOCKS_MIN,
+            SATURATION_CUTOFF,
+            SATURATION_HEADROOM,
         )
+
         cfg = load_config(BASE_DIR / "config" / "prod.yaml")["v2_engine"]
         assert cfg["weights"] == DEFAULT_WEIGHTS
         assert cfg["divergence"] == DEFAULT_DIVERGENCE
@@ -81,6 +93,7 @@ class TestV2EngineConfig:
         """修改 YAML 后 _load_v2_config 返回新值 (分数随之变化的基础)"""
         from unittest.mock import patch as mpatch
         import src.indicators.heat_index_v2 as h
+
         yaml_file = tmp_path / "cfg.yaml"
         yaml_file.write_text(
             "v2_engine:\n"
@@ -115,5 +128,6 @@ class TestV2EngineConfig:
         """config 存在但无 v2_engine 块 → 返回空 dict"""
         from unittest.mock import patch as mpatch
         import src.indicators.heat_index_v2 as h
+
         with mpatch.object(h, "load_config", lambda *a, **k: {"heat_levels": {}}):
             assert h._load_v2_config() == {}

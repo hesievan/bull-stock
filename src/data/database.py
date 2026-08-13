@@ -5,12 +5,12 @@
 - 增量数据写入 (INSERT OR REPLACE)
 - 查询接口
 """
-import json
+
 import sqlite3
 import os
 import logging
 from datetime import date
-from typing import Optional
+from typing import Iterator, Optional
 from contextlib import contextmanager
 
 import pandas as pd
@@ -18,13 +18,10 @@ import numpy as np
 
 logger = logging.getLogger(__name__)
 
-DB_PATH = os.environ.get(
-    "HEAT_INDEX_DB",
-    os.path.join(os.path.dirname(__file__), "..", "..", "data", "heat_index.db")
-)
+DB_PATH = os.environ.get("HEAT_INDEX_DB", os.path.join(os.path.dirname(__file__), "..", "..", "data", "heat_index.db"))
 
 # ── 建表 SQL ──────────────────────────────────────────────────────────────────
-SCHEMA_VERSION = 11
+SCHEMA_VERSION = 12
 
 SCHEMA = """
 -- 指数日行情 (tushare index_daily)
@@ -242,11 +239,18 @@ CREATE TABLE IF NOT EXISTS daily_seal_rate (
     limit_up_count INTEGER,        -- 触板涨停数 (limit=='U')
     sealed_count INTEGER           -- 封板成功数 (open_times==0)
 );
+
+-- ── 性能索引 (v12) ──────────────────────────────────────────────────────────
+-- 重点行业热度查询: 按 sw_code/sw_l2_code 过滤, 并经 stock_code JOIN stock_daily
+-- 取 365 天回看历史; 缺索引时退化为全表扫描。
+CREATE INDEX IF NOT EXISTS idx_shenwan_sw_code  ON stock_shenwan(sw_code);
+CREATE INDEX IF NOT EXISTS idx_shenwan_sw_l2    ON stock_shenwan(sw_l2_code);
+CREATE INDEX IF NOT EXISTS idx_daily_stock_code ON stock_daily(stock_code, trade_date);
 """
 
 
 @contextmanager
-def get_conn(db_path: str = None):
+def get_conn(db_path: str = None) -> Iterator[sqlite3.Connection]:
     path = db_path or DB_PATH
     os.makedirs(os.path.dirname(path), exist_ok=True)
     conn = sqlite3.connect(path, timeout=30)
@@ -263,7 +267,7 @@ def get_conn(db_path: str = None):
         conn.close()
 
 
-def _migrate(conn, from_ver: int):
+def _migrate(conn: sqlite3.Connection, from_ver: int) -> None:
     """数据库版本迁移 — 按版本号逐步升级"""
     if from_ver < 2:
         pass
@@ -272,7 +276,7 @@ def _migrate(conn, from_ver: int):
         # 迁移: index_daily_pe 增加 const_date 列 (v4→v5)
         try:
             pe_cols = {r[1] for r in conn.execute("PRAGMA table_info(index_daily_pe)").fetchall()}
-            if 'const_date' not in pe_cols:
+            if "const_date" not in pe_cols:
                 conn.execute("ALTER TABLE index_daily_pe ADD COLUMN const_date TEXT")
         except Exception as e:
             logger.warning("index_daily_pe migration skipped (table may not exist): %s", e)
@@ -322,10 +326,24 @@ def _migrate(conn, from_ver: int):
             logger.info("v11 migration: stock_shenwan added l2 columns (sw_l2_code/sw_l2_name)")
         except Exception as e:
             logger.warning("stock_shenwan l2 migration skipped: %s", e)
+    if from_ver < 12:
+        # v12: 性能索引。重点行业热度查询 (focus_industries) 按 sw_code/sw_l2_code 过滤
+        # 并通过 stock_code JOIN stock_daily 取 365 天回看历史, 缺索引时全表扫描。
+        try:
+            conn.executescript("""
+                CREATE INDEX IF NOT EXISTS idx_shenwan_sw_code  ON stock_shenwan(sw_code);
+                CREATE INDEX IF NOT EXISTS idx_shenwan_sw_l2    ON stock_shenwan(sw_l2_code);
+                CREATE INDEX IF NOT EXISTS idx_daily_stock_code ON stock_daily(stock_code, trade_date);
+            """)
+            logger.info(
+                "v12 migration: added performance indexes (stock_shenwan.sw_code/sw_l2_code, stock_daily.stock_code)"
+            )
+        except Exception as e:
+            logger.warning("v12 index migration skipped: %s", e)
     logger.info("Database migrated from v%d to v%d", from_ver, SCHEMA_VERSION)
 
 
-def init_database(db_path: str = None):
+def init_database(db_path: str = None) -> None:
     """初始化数据库表结构 + 版本迁移"""
     with get_conn(db_path) as conn:
         conn.executescript(SCHEMA)
@@ -339,23 +357,23 @@ def init_database(db_path: str = None):
             _migrate(conn, current_ver)
             conn.execute(
                 "INSERT OR REPLACE INTO metadata(key, value, updated_at) VALUES('schema_version', ?, datetime('now'))",
-                (str(SCHEMA_VERSION),)
+                (str(SCHEMA_VERSION),),
             )
     logger.info("Database initialized at %s (v%d)", db_path or DB_PATH, SCHEMA_VERSION)
 
 
 # 配置：各预计算表的陈旧检测阈值
 STALENESS_CONFIG = [
-    {"table": "daily_updown",       "step": "S27", "fallback": True,  "max_gap_days": 5, "desc": "涨跌家数比"},
-    {"table": "daily_limit",        "step": "S28", "fallback": True,  "max_gap_days": 5, "desc": "涨停/跌停"},
-    {"table": "daily_below_net",    "step": "S29", "fallback": True,  "max_gap_days": 5, "desc": "破净率"},
+    {"table": "daily_updown", "step": "S27", "fallback": True, "max_gap_days": 5, "desc": "涨跌家数比"},
+    {"table": "daily_limit", "step": "S28", "fallback": True, "max_gap_days": 5, "desc": "涨停/跌停"},
+    {"table": "daily_below_net", "step": "S29", "fallback": True, "max_gap_days": 5, "desc": "破净率"},
     {"table": "daily_ma_alignment", "step": "S30", "fallback": False, "max_gap_days": 5, "desc": "MA排列比"},
-    {"table": "daily_new_high",     "step": "S30b", "fallback": True,  "max_gap_days": 5, "desc": "创新高占比"},
-    {"table": "daily_turnover",     "step": "S30c", "fallback": True,  "max_gap_days": 5, "desc": "换手率(10年窗口)"},
-    {"table": "daily_seal_rate",    "step": "S31b", "fallback": True,  "max_gap_days": 5, "desc": "涨停封板率"},
-    {"table": "daily_circ_mv",      "step": "S26", "fallback": False, "max_gap_days": 5, "desc": "流通市值"},
-    {"table": "qvix_daily",         "step": "manual", "fallback": False, "max_gap_days": 5, "desc": "QVIX恐慌"},
-    {"table": "index_daily_pe",     "step": "S25", "fallback": False, "max_gap_days": 5, "desc": "指数PE中位数"},
+    {"table": "daily_new_high", "step": "S30b", "fallback": True, "max_gap_days": 5, "desc": "创新高占比"},
+    {"table": "daily_turnover", "step": "S30c", "fallback": True, "max_gap_days": 5, "desc": "换手率(10年窗口)"},
+    {"table": "daily_seal_rate", "step": "S31b", "fallback": True, "max_gap_days": 5, "desc": "涨停封板率"},
+    {"table": "daily_circ_mv", "step": "S26", "fallback": False, "max_gap_days": 5, "desc": "流通市值"},
+    {"table": "qvix_daily", "step": "manual", "fallback": False, "max_gap_days": 5, "desc": "QVIX恐慌"},
+    {"table": "index_daily_pe", "step": "S25", "fallback": False, "max_gap_days": 5, "desc": "指数PE中位数"},
 ]
 
 
@@ -381,8 +399,9 @@ def check_precompute_staleness(trade_date: str = None, db_path: str = None) -> l
             return date.fromisoformat(s)
         except ValueError:
             # 处理 YYYY-MM 月格式 -> 映射到当月最后一天
-            if len(s) == 7 and s[4] == '-':
+            if len(s) == 7 and s[4] == "-":
                 import calendar
+
                 y, m = int(s[:4]), int(s[5:7])
                 return date(y, m, calendar.monthrange(y, m)[1])
         return None
@@ -396,34 +415,50 @@ def check_precompute_staleness(trade_date: str = None, db_path: str = None) -> l
             gap = (td - latest_dt).days
         # ISSUE-8 修复: 空表(完全缺失数据)应判定为 stale=True, 而非 False
         stale = (latest_dt is None) or (gap is not None and gap > cfg["max_gap_days"])
-        results.append({
-            "table": cfg["table"],
-            "desc": cfg["desc"],
-            "latest_date": latest_raw,
-            "gap_days": gap,
-            "max_gap_days": cfg["max_gap_days"],
-            "stale": stale,
-            "has_fallback": cfg["fallback"],
-            "step": cfg["step"],
-        })
+        results.append(
+            {
+                "table": cfg["table"],
+                "desc": cfg["desc"],
+                "latest_date": latest_raw,
+                "gap_days": gap,
+                "max_gap_days": cfg["max_gap_days"],
+                "stale": stale,
+                "has_fallback": cfg["fallback"],
+                "step": cfg["step"],
+            }
+        )
     return results
 
 
 _ALLOWED_TABLES = {
-    "index_daily", "stock_daily", "stock_industry", "m2_monthly",
-    "stock_market_cap", "margin_history", "northbound_history",
-    "bond_yield", "index_pe_history",
+    "index_daily",
+    "stock_daily",
+    "stock_industry",
+    "m2_monthly",
+    "stock_market_cap",
+    "margin_history",
+    "northbound_history",
+    "bond_yield",
+    "index_pe_history",
     "metadata",
-    "daily_circ_mv", "index_daily_pe",
+    "daily_circ_mv",
+    "index_daily_pe",
     "m1_monthly",
-    "daily_updown", "daily_limit", "daily_ma_alignment",
-    "daily_below_net", "daily_turnover", "qvix_daily",
-    "daily_new_high", "stock_high_250d", "index_constituents_hist",
-    "stock_shenwan", "daily_seal_rate",
+    "daily_updown",
+    "daily_limit",
+    "daily_ma_alignment",
+    "daily_below_net",
+    "daily_turnover",
+    "qvix_daily",
+    "daily_new_high",
+    "stock_high_250d",
+    "index_constituents_hist",
+    "stock_shenwan",
+    "daily_seal_rate",
 }
 
 
-def save_dataframe(df: pd.DataFrame, table: str, db_path: str = None):
+def save_dataframe(df: pd.DataFrame, table: str, db_path: str = None) -> None:
     """保存 DataFrame 到数据库（INSERT OR REPLACE upsert）"""
     if df.empty:
         return
@@ -431,24 +466,28 @@ def save_dataframe(df: pd.DataFrame, table: str, db_path: str = None):
         raise ValueError(f"Table '{table}' not in allowlist")
     # 校验列名合法（仅允许字母/数字/下划线），并加引号，避免注入或含空格列名导致 SQL 错误
     import re
+
     safe_cols = []
     for c in df.columns:
         if not isinstance(c, str) or not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", c):
             raise ValueError(f"Invalid column name rejected: {c!r}")
         safe_cols.append(f'"{c}"')
-    cols = ', '.join(safe_cols)
+    cols = ", ".join(safe_cols)
     with get_conn(db_path) as conn:
         # ISSUE-10 修复: 固定临时表名并发冲突, 使用带时间戳的唯一表名
         import uuid as _uuid
+
         tmp_name = f"_tmp_upsert_{_uuid.uuid4().hex[:8]}"
-        df.to_sql(tmp_name, conn, if_exists='replace', index=False)
-        pk = conn.execute(f"SELECT ltrim(sql, 'CREATE TABLE ') FROM sqlite_master WHERE type='table' AND name='{table}'").fetchone()
-        if pk and 'PRIMARY KEY' in str(pk[0]).upper():
-            conn.execute(f'INSERT OR REPLACE INTO {table} ({cols}) SELECT {cols} FROM {tmp_name}')
+        df.to_sql(tmp_name, conn, if_exists="replace", index=False)
+        pk = conn.execute(
+            f"SELECT ltrim(sql, 'CREATE TABLE ') FROM sqlite_master WHERE type='table' AND name='{table}'"
+        ).fetchone()
+        if pk and "PRIMARY KEY" in str(pk[0]).upper():
+            conn.execute(f"INSERT OR REPLACE INTO {table} ({cols}) SELECT {cols} FROM {tmp_name}")
         else:
-            conn.execute(f'INSERT INTO {table} ({cols}) SELECT {cols} FROM {tmp_name}')
-        conn.execute(f'DROP TABLE {tmp_name}')
-    logger.info('Saved %d rows to %s', len(df), table)
+            conn.execute(f"INSERT INTO {table} ({cols}) SELECT {cols} FROM {tmp_name}")
+        conn.execute(f"DROP TABLE {tmp_name}")
+    logger.info("Saved %d rows to %s", len(df), table)
 
 
 def read_dataframe(query: str, params=None, db_path: str = None) -> pd.DataFrame:
@@ -460,9 +499,7 @@ def read_dataframe(query: str, params=None, db_path: str = None) -> pd.DataFrame
 def get_latest_date(table: str, date_col: str = "trade_date", db_path: str = None) -> Optional[str]:
     """获取最新日期"""
     with get_conn(db_path) as conn:
-        row = conn.execute(
-            f"SELECT MAX({date_col}) as d FROM {table}"
-        ).fetchone()
+        row = conn.execute(f"SELECT MAX({date_col}) as d FROM {table}").fetchone()
     return row["d"] if row and row["d"] else None
 
 
@@ -470,14 +507,14 @@ def get_latest_date(table: str, date_col: str = "trade_date", db_path: str = Non
 # 如需把结果落库, 可新建一张与 V2 四维结构一致的结果表, 但当前以 web/data/*.json 为准。
 
 
-def update_index_daily_pe(trade_date: str, db_path: str = None):
+def update_index_daily_pe(trade_date: str, db_path: str = None) -> bool | None:
     """计算指定交易日的成分股 PE/PB 中位数并写入 index_daily_pe 表"""
     with get_conn(db_path) as conn:
         const = conn.execute(
             "SELECT trade_date AS const_date, con_code FROM index_constituents_hist "
             "WHERE index_code IN ('hs300', 'zz500') "
             "AND trade_date = (SELECT MAX(trade_date) FROM index_constituents_hist WHERE trade_date <= ?)",
-            (trade_date,)
+            (trade_date,),
         ).fetchall()
         if not const:
             logger.warning("update_index_daily_pe %s: no constituents found", trade_date)
@@ -485,9 +522,9 @@ def update_index_daily_pe(trade_date: str, db_path: str = None):
         codes = [r[1] for r in const]
         placeholders = ",".join(["?" for _ in codes])
         df = pd.read_sql(
-            f"SELECT peTTM, pbMRQ FROM stock_daily "
-            f"WHERE trade_date=? AND stock_code IN ({placeholders})",
-            conn, params=[trade_date] + codes
+            f"SELECT peTTM, pbMRQ FROM stock_daily WHERE trade_date=? AND stock_code IN ({placeholders})",
+            conn,
+            params=[trade_date] + codes,
         )
         if df.empty:
             logger.warning("update_index_daily_pe %s: no stock_daily data", trade_date)
@@ -500,15 +537,22 @@ def update_index_daily_pe(trade_date: str, db_path: str = None):
         conn.execute(
             "INSERT OR REPLACE INTO index_daily_pe (trade_date, pe_med, pb_med, n_stocks, const_date) "
             "VALUES (?, ?, ?, ?, ?)",
-            (trade_date,
-             float(pe_vals.median()) if len(pe_vals) > 0 else None,
-             float(pb_vals.median()) if len(pb_vals) > 0 else None,
-             len(pe_vals),
-             const_date)
+            (
+                trade_date,
+                float(pe_vals.median()) if len(pe_vals) > 0 else None,
+                float(pb_vals.median()) if len(pb_vals) > 0 else None,
+                len(pe_vals),
+                const_date,
+            ),
         )
-        logger.info("index_daily_pe %s: pe_med=%.2f pb_med=%.2f n=%d const=%s",
-                     trade_date, pe_vals.median() if len(pe_vals) > 0 else 0,
-                     pb_vals.median() if len(pb_vals) > 0 else 0, len(pe_vals), const_date)
+        logger.info(
+            "index_daily_pe %s: pe_med=%.2f pb_med=%.2f n=%d const=%s",
+            trade_date,
+            pe_vals.median() if len(pe_vals) > 0 else 0,
+            pb_vals.median() if len(pb_vals) > 0 else 0,
+            len(pe_vals),
+            const_date,
+        )
         return True
 
 
@@ -517,15 +561,15 @@ def compute_daily_circ_mv(trade_date: str, db_path: str = None) -> bool:
     with get_conn(db_path) as conn:
         df = pd.read_sql(
             "SELECT SUM(circ_mv) AS total_circ_mv FROM stock_daily WHERE trade_date=? AND circ_mv > 0",
-            conn, params=[trade_date]
+            conn,
+            params=[trade_date],
         )
         if df.empty or df.iloc[0]["total_circ_mv"] is None or df.iloc[0]["total_circ_mv"] <= 0:
             logger.warning("compute_daily_circ_mv %s: no valid circ_mv data", trade_date)
             return False
         total = float(df.iloc[0]["total_circ_mv"])
         conn.execute(
-            "INSERT OR REPLACE INTO daily_circ_mv (trade_date, total_circ_mv) VALUES (?, ?)",
-            (trade_date, total)
+            "INSERT OR REPLACE INTO daily_circ_mv (trade_date, total_circ_mv) VALUES (?, ?)", (trade_date, total)
         )
         logger.info("daily_circ_mv %s: %.2f", trade_date, total)
         return True
@@ -536,7 +580,8 @@ def compute_daily_total_mv(trade_date: str, db_path: str = None) -> bool:
     with get_conn(db_path) as conn:
         df = pd.read_sql(
             "SELECT SUM(total_mv) AS total_mv, COUNT(*) AS stock_count FROM stock_daily WHERE trade_date=? AND total_mv > 0",
-            conn, params=[trade_date]
+            conn,
+            params=[trade_date],
         )
         if df.empty or df.iloc[0]["total_mv"] is None or df.iloc[0]["total_mv"] <= 0:
             logger.warning("compute_daily_total_mv %s: no valid total_mv data", trade_date)
@@ -545,7 +590,7 @@ def compute_daily_total_mv(trade_date: str, db_path: str = None) -> bool:
         count = int(df.iloc[0]["stock_count"])
         conn.execute(
             "INSERT OR REPLACE INTO stock_market_cap (trade_date, total_mv, stock_count) VALUES (?, ?, ?)",
-            (trade_date, total, count)
+            (trade_date, total, count),
         )
         logger.info("stock_market_cap %s: total_mv=%.2f stocks=%d", trade_date, total, count)
         return True
@@ -556,7 +601,8 @@ def compute_daily_updown(trade_date: str, db_path: str = None) -> bool:
     with get_conn(db_path) as conn:
         df = pd.read_sql(
             "SELECT pct_change FROM stock_daily WHERE trade_date=? AND pct_change IS NOT NULL",
-            conn, params=[trade_date]
+            conn,
+            params=[trade_date],
         )
         if df.empty or len(df) < 100:
             logger.warning("compute_daily_updown %s: insufficient data (%d)", trade_date, len(df))
@@ -568,8 +614,7 @@ def compute_daily_updown(trade_date: str, db_path: str = None) -> bool:
             return False
         ratio = round(up / dn, 6)
         conn.execute(
-            "INSERT OR REPLACE INTO daily_updown (trade_date, up_down_ratio) VALUES (?, ?)",
-            (trade_date, ratio)
+            "INSERT OR REPLACE INTO daily_updown (trade_date, up_down_ratio) VALUES (?, ?)", (trade_date, ratio)
         )
         logger.info("daily_updown %s: up=%d dn=%d ratio=%.4f", trade_date, up, dn, ratio)
         return True
@@ -580,7 +625,8 @@ def compute_daily_limit(trade_date: str, db_path: str = None) -> bool:
     with get_conn(db_path) as conn:
         df = pd.read_sql(
             "SELECT pct_change FROM stock_daily WHERE trade_date=? AND pct_change IS NOT NULL",
-            conn, params=[trade_date]
+            conn,
+            params=[trade_date],
         )
         if df.empty or len(df) < 100:
             logger.warning("compute_daily_limit %s: insufficient data (%d)", trade_date, len(df))
@@ -592,10 +638,17 @@ def compute_daily_limit(trade_date: str, db_path: str = None) -> bool:
         limit_ratio = round(limit_up / limit_down, 6) if limit_down > 0 else None
         conn.execute(
             "INSERT OR REPLACE INTO daily_limit (trade_date, limit_up_ratio, limit_ratio) VALUES (?, ?, ?)",
-            (trade_date, limit_up_ratio, limit_ratio)
+            (trade_date, limit_up_ratio, limit_ratio),
         )
-        logger.info("daily_limit %s: total=%d up=%d dn=%d up_ratio=%.4f ratio=%s",
-                     trade_date, total, limit_up, limit_down, limit_up_ratio, limit_ratio)
+        logger.info(
+            "daily_limit %s: total=%d up=%d dn=%d up_ratio=%.4f ratio=%s",
+            trade_date,
+            total,
+            limit_up,
+            limit_down,
+            limit_up_ratio,
+            limit_ratio,
+        )
         return True
 
 
@@ -604,7 +657,8 @@ def compute_daily_below_net(trade_date: str, db_path: str = None) -> bool:
     with get_conn(db_path) as conn:
         df = pd.read_sql(
             "SELECT pbMRQ FROM stock_daily WHERE trade_date=? AND pbMRQ IS NOT NULL AND pbMRQ > 0",
-            conn, params=[trade_date]
+            conn,
+            params=[trade_date],
         )
         if df.empty or len(df) < 100:
             logger.warning("compute_daily_below_net %s: insufficient data (%d)", trade_date, len(df))
@@ -613,8 +667,7 @@ def compute_daily_below_net(trade_date: str, db_path: str = None) -> bool:
         below = int((df["pbMRQ"] < 1).sum())
         ratio = round(below / total, 6)
         conn.execute(
-            "INSERT OR REPLACE INTO daily_below_net (trade_date, below_net_rate) VALUES (?, ?)",
-            (trade_date, ratio)
+            "INSERT OR REPLACE INTO daily_below_net (trade_date, below_net_rate) VALUES (?, ?)", (trade_date, ratio)
         )
         logger.info("daily_below_net %s: total=%d below=%d rate=%.4f", trade_date, total, below, ratio)
         return True
@@ -624,8 +677,7 @@ def compute_daily_ma_alignment(trade_date: str, db_path: str = None) -> bool:
     """计算 MA5>MA10>MA20>MA60 多头排列占比并写入 daily_ma_alignment"""
     with get_conn(db_path) as conn:
         target = pd.read_sql(
-            "SELECT stock_code FROM stock_daily WHERE trade_date=? AND close > 0",
-            conn, params=[trade_date]
+            "SELECT stock_code FROM stock_daily WHERE trade_date=? AND close > 0", conn, params=[trade_date]
         )
         if target.empty or len(target) < 100:
             logger.warning("compute_daily_ma_alignment %s: insufficient stocks (%d)", trade_date, len(target))
@@ -636,10 +688,11 @@ def compute_daily_ma_alignment(trade_date: str, db_path: str = None) -> bool:
             "SELECT stock_code, trade_date, close FROM stock_daily "
             "WHERE trade_date BETWEEN ? AND ? AND close > 0 "
             "ORDER BY stock_code, trade_date",
-            conn, params=(min_date, trade_date)
+            conn,
+            params=(min_date, trade_date),
         )
 
-        def _check_alignment(group):
+        def _check_alignment(group: pd.DataFrame) -> int:
             group = group.sort_values("trade_date")
             s = group["close"].values
             if len(s) < 60:
@@ -657,7 +710,7 @@ def compute_daily_ma_alignment(trade_date: str, db_path: str = None) -> bool:
 
         conn.execute(
             "INSERT OR REPLACE INTO daily_ma_alignment (trade_date, ma_alignment_ratio) VALUES (?, ?)",
-            (trade_date, ratio)
+            (trade_date, ratio),
         )
         logger.info("daily_ma_alignment %s: aligned=%d/%d ratio=%.4f", trade_date, aligned, total_stocks, ratio)
         return True
@@ -667,8 +720,7 @@ def compute_daily_new_high(trade_date: str, db_path: str = None) -> bool:
     """计算 250日新高占比并写入 daily_new_high (F8修复预计算表)"""
     with get_conn(db_path) as conn:
         target = pd.read_sql(
-            "SELECT stock_code, close FROM stock_daily WHERE trade_date=? AND close > 0",
-            conn, params=[trade_date]
+            "SELECT stock_code, close FROM stock_daily WHERE trade_date=? AND close > 0", conn, params=[trade_date]
         )
         if target.empty or len(target) < 100:
             logger.warning("compute_daily_new_high %s: insufficient stocks (%d)", trade_date, len(target))
@@ -679,7 +731,8 @@ def compute_daily_new_high(trade_date: str, db_path: str = None) -> bool:
         hist = pd.read_sql(
             "SELECT stock_code, MAX(close) as max_close FROM stock_daily "
             "WHERE trade_date BETWEEN ? AND ? AND close > 0 GROUP BY stock_code",
-            conn, params=(min_date, trade_date)
+            conn,
+            params=(min_date, trade_date),
         )
         if hist.empty:
             return False
@@ -694,7 +747,7 @@ def compute_daily_new_high(trade_date: str, db_path: str = None) -> bool:
 
         conn.execute(
             "INSERT OR REPLACE INTO daily_new_high (trade_date, new_high_ratio, n_stocks) VALUES (?, ?, ?)",
-            (trade_date, ratio, len(merged))
+            (trade_date, ratio, len(merged)),
         )
         logger.info("daily_new_high %s: new_high=%d/%d ratio=%.4f", trade_date, new_high, len(merged), ratio)
         return True
@@ -702,6 +755,7 @@ def compute_daily_new_high(trade_date: str, db_path: str = None) -> bool:
 
 if __name__ == "__main__":
     import sys
+
     path = sys.argv[1] if len(sys.argv) > 1 else DB_PATH
     init_database(path)
     print(f"Database initialized at {path}")

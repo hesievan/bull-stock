@@ -6,73 +6,92 @@
 - 数据 Zoom 联动
 - 各维度极值标记
 """
+
 import json
 import os
 
-DATA_DIR = os.path.join(os.path.dirname(__file__), '..', 'web', 'data')
-OUTPUT_DIR = os.path.join(os.path.dirname(__file__), '..', 'reports')
+DATA_DIR = os.path.join(os.path.dirname(__file__), "..", "web", "data")
+OUTPUT_DIR = os.path.join(os.path.dirname(__file__), "..", "reports")
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-history_file = os.path.join(DATA_DIR, 'history.json')
+history_file = os.path.join(DATA_DIR, "history.json")
 if not os.path.exists(history_file):
-    print("ERROR: history.json not found."); exit(1)
+    print("ERROR: history.json not found.")
+    exit(1)
 
 with open(history_file) as f:
     hist = json.load(f)
 print(f"Loaded {len(hist)} points: {hist[0]['trade_date']} ~ {hist[-1]['trade_date']}")
 
-dates = [h['trade_date'] for h in hist]
-scores = [h['composite_score'] for h in hist]
-dim_keys = ['valuation','macro','fund','sentiment','technical','structure']
-dim_labels = {'valuation':'估值','macro':'宏观','fund':'资金','sentiment':'情绪','technical':'技术','structure':'结构'}
-dim_colors = {'valuation':'#1890ff','macro':'#ff6b6b','fund':'#52c41a','sentiment':'#faad14','technical':'#722ed1','structure':'#eb2f96'}
-dim_data = {k: [h.get('dimensions',{}).get(k) for h in hist] for k in dim_keys}
+dates = [h["trade_date"] for h in hist]
+scores = [h["composite_score"] for h in hist]
+dim_keys = ["valuation", "macro", "fund", "sentiment", "technical", "structure"]
+dim_labels = {
+    "valuation": "估值",
+    "macro": "宏观",
+    "fund": "资金",
+    "sentiment": "情绪",
+    "technical": "技术",
+    "structure": "结构",
+}
+dim_colors = {
+    "valuation": "#1890ff",
+    "macro": "#ff6b6b",
+    "fund": "#52c41a",
+    "sentiment": "#faad14",
+    "technical": "#722ed1",
+    "structure": "#eb2f96",
+}
+dim_data = {k: [h.get("dimensions", {}).get(k) for h in hist] for k in dim_keys}
 
 # 统计
 red_days = sum(1 for s in scores if s >= 70)
 yellow_days = sum(1 for s in scores if 40 <= s < 70)
 green_days = sum(1 for s in scores if s < 40)
-avg_s = sum(scores)/len(scores)
-max_s = max(scores); min_s = min(scores)
-max_i = scores.index(max_s); min_i = scores.index(min_s)
-max_d = dates[max_i]; min_d = dates[min_i]
+avg_s = sum(scores) / len(scores)
+max_s = max(scores)
+min_s = min(scores)
+max_i = scores.index(max_s)
+min_i = scores.index(min_s)
+max_d = dates[max_i]
+min_d = dates[min_i]
 cur = scores[-1]
-cur_color = '#ff4d4f' if cur >= 70 else ('#faad14' if cur >= 40 else '#52c41a')
+cur_color = "#ff4d4f" if cur >= 70 else ("#faad14" if cur >= 40 else "#52c41a")
 
 # 关键事件标注
 key_events = [
-    {'date':'2015-06-12','label':'牛市顶\\n5178','color':'#ff4d4f'},
-    {'date':'2016-01-27','label':'熔断底\\n2638','color':'#52c41a'},
-    {'date':'2018-12-28','label':'贸易战底\\n2493','color':'#52c41a'},
-    {'date':'2020-03-23','label':'新冠底\\n2660','color':'#52c41a'},
-    {'date':'2020-07-09','label':'疫情反弹\\n3450','color':'#faad14'},
-    {'date':'2021-02-18','label':'核心资产顶\\n3731','color':'#ff4d4f'},
-    {'date':'2022-04-26','label':'上海疫情底\\n2886','color':'#52c41a'},
-    {'date':'2024-09-30','label':'政策脉冲\\n3350','color':'#faad14'},
-    {'date':'2024-10-08','label':'脉冲顶\\n3489','color':'#faad14'},
-    {'date':max_d if max_d not in ['2015-06-12'] else '','label':f'最高分\\n{max_s}','color':'#ff4d4f'},
+    {"date": "2015-06-12", "label": "牛市顶\\n5178", "color": "#ff4d4f"},
+    {"date": "2016-01-27", "label": "熔断底\\n2638", "color": "#52c41a"},
+    {"date": "2018-12-28", "label": "贸易战底\\n2493", "color": "#52c41a"},
+    {"date": "2020-03-23", "label": "新冠底\\n2660", "color": "#52c41a"},
+    {"date": "2020-07-09", "label": "疫情反弹\\n3450", "color": "#faad14"},
+    {"date": "2021-02-18", "label": "核心资产顶\\n3731", "color": "#ff4d4f"},
+    {"date": "2022-04-26", "label": "上海疫情底\\n2886", "color": "#52c41a"},
+    {"date": "2024-09-30", "label": "政策脉冲\\n3350", "color": "#faad14"},
+    {"date": "2024-10-08", "label": "脉冲顶\\n3489", "color": "#faad14"},
+    {"date": max_d if max_d not in ["2015-06-12"] else "", "label": f"最高分\\n{max_s}", "color": "#ff4d4f"},
 ]
 
 # 极值标记
 mark_pts = []
-mark_pts.append({'coord':[max_d,max_s],'value':f'最高 {max_s}','itemStyle':{'color':'#ff4d4f'}})
-mark_pts.append({'coord':[min_d,min_s],'value':f'最低 {min_s}','itemStyle':{'color':'#52c41a'}})
+mark_pts.append({"coord": [max_d, max_s], "value": f"最高 {max_s}", "itemStyle": {"color": "#ff4d4f"}})
+mark_pts.append({"coord": [min_d, min_s], "value": f"最低 {min_s}", "itemStyle": {"color": "#52c41a"}})
 
 # JS 数据
 JS = {
-    'dates': json.dumps(dates),
-    'scores': json.dumps(scores),
-    'dimData': json.dumps({k:[round(v,1) if v is not None else None for v in vl] for k,vl in dim_data.items()}),
-    'labels': json.dumps(dim_labels),
-    'colors': json.dumps(dim_colors),
-    'marks': json.dumps(mark_pts),
-    'events': json.dumps([e for e in key_events if e['date']]),
+    "dates": json.dumps(dates),
+    "scores": json.dumps(scores),
+    "dimData": json.dumps({k: [round(v, 1) if v is not None else None for v in vl] for k, vl in dim_data.items()}),
+    "labels": json.dumps(dim_labels),
+    "colors": json.dumps(dim_colors),
+    "marks": json.dumps(mark_pts),
+    "events": json.dumps([e for e in key_events if e["date"]]),
 }
 
-html_path = os.path.join(OUTPUT_DIR, 'history_chart.html')
-echarts_js = open(os.path.join(os.path.dirname(__file__), '..', 'web', 'echarts.min.js')).read()
+html_path = os.path.join(OUTPUT_DIR, "history_chart.html")
+echarts_js = open(os.path.join(os.path.dirname(__file__), "..", "web", "echarts.min.js")).read()
 
-TPL = '''<!DOCTYPE html>
+TPL = """<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8"><title>A股牛市热度指数历史走势 (2015-2026)</title>
@@ -185,29 +204,29 @@ mc.on('dataZoom',function(e){var o=mc.getOption().dataZoom[0];dc.dispatchAction(
 dc.on('dataZoom',function(e){var o=dc.getOption().dataZoom[0];mc.dispatchAction({type:'dataZoom',start:o.start,end:o.end});});
 window.addEventListener('resize',function(){mc.resize();dc.resize();});
 </script>
-</body></html>'''
+</body></html>"""
 
 html = TPL
-html = html.replace('__E__', echarts_js)
-html = html.replace('__DATES__', JS['dates'])
-html = html.replace('__SCORES__', JS['scores'])
-html = html.replace('__DD__', JS['dimData'])
-html = html.replace('__LB__', JS['labels'])
-html = html.replace('__CL__', JS['colors'])
-html = html.replace('__MK__', JS['marks'])
-html = html.replace('__EV__', JS['events'])
-html = html.replace('__CC__', cur_color)
-html = html.replace('__CUR__', str(cur))
-html = html.replace('__MAX__', str(max_s)).replace('__MD__', max_d[:7])
-html = html.replace('__MIN__', str(min_s)).replace('__MID__', min_d[:7])
-html = html.replace('__AVG__', f'{avg_s:.1f}')
-html = html.replace('__R__', str(red_days))
-html = html.replace('__Y__', str(yellow_days))
-html = html.replace('__G__', str(green_days))
-html = html.replace('__N__', str(len(hist)))
+html = html.replace("__E__", echarts_js)
+html = html.replace("__DATES__", JS["dates"])
+html = html.replace("__SCORES__", JS["scores"])
+html = html.replace("__DD__", JS["dimData"])
+html = html.replace("__LB__", JS["labels"])
+html = html.replace("__CL__", JS["colors"])
+html = html.replace("__MK__", JS["marks"])
+html = html.replace("__EV__", JS["events"])
+html = html.replace("__CC__", cur_color)
+html = html.replace("__CUR__", str(cur))
+html = html.replace("__MAX__", str(max_s)).replace("__MD__", max_d[:7])
+html = html.replace("__MIN__", str(min_s)).replace("__MID__", min_d[:7])
+html = html.replace("__AVG__", f"{avg_s:.1f}")
+html = html.replace("__R__", str(red_days))
+html = html.replace("__Y__", str(yellow_days))
+html = html.replace("__G__", str(green_days))
+html = html.replace("__N__", str(len(hist)))
 
-with open(html_path, 'w', encoding='utf-8') as f:
+with open(html_path, "w", encoding="utf-8") as f:
     f.write(html)
-print(f"✅ history_chart.html ({os.path.getsize(html_path)//1024}KB)")
+print(f"✅ history_chart.html ({os.path.getsize(html_path) // 1024}KB)")
 print(f"数据: {len(hist)}天 | 最高{max_s}({max_d}) | 最低{min_s}({min_d}) | 均值{avg_s:.1f}")
 print(f"🔴{red_days} 🟡{yellow_days} 🟢{green_days}")

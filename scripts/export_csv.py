@@ -9,6 +9,7 @@
   python scripts/export_csv.py --end 2026-06-17   # 到指定日期结束
   python scripts/export_csv.py --output report.csv # 指定输出文件
 """
+
 import sys
 import os
 import json
@@ -87,6 +88,7 @@ def export_csv(data, output_path):
 
 def main():
     import argparse
+
     parser = argparse.ArgumentParser(description="Export heat index data to CSV")
     parser.add_argument("--days", type=int, help="Export last N days")
     parser.add_argument("--start", help="Start date (YYYY-MM-DD)")

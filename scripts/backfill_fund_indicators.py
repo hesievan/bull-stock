@@ -8,6 +8,7 @@ Phase 0 数据回填 — 资金维度扩容所需的三个新序列
 
 运行: python scripts/backfill_fund_indicators.py
 """
+
 import logging
 import os
 import sys
@@ -24,7 +25,7 @@ def _load_env_token():
             for line in f:
                 line = line.strip()
                 if line.startswith("TUSHARE_TOKEN="):
-                    os.environ["TUSHARE_TOKEN"] = line.split("=", 1)[1].strip('"\'')
+                    os.environ["TUSHARE_TOKEN"] = line.split("=", 1)[1].strip("\"'")
     except FileNotFoundError:
         pass
 
@@ -32,7 +33,10 @@ def _load_env_token():
 _load_env_token()
 
 from src.data.database import (
-    DB_PATH, init_database, get_latest_date, read_dataframe,
+    DB_PATH,
+    init_database,
+    get_latest_date,
+    read_dataframe,
 )
 import src.data.fetcher as fetcher
 
@@ -64,8 +68,7 @@ def main():
         logger.info("        bond_yield 写入 %d 行", len(df))
     else:
         logger.warning("        bond_yield 获取为空")
-    _summarize("bond_yield", "bond_yield",
-               extra="2Y/10Y from bond_zh_us_rate")
+    _summarize("bond_yield", "bond_yield", extra="2Y/10Y from bond_zh_us_rate")
 
     # 2. M1 同比
     logger.info("[2/3] M1 货币供应 -> m1_monthly ...")

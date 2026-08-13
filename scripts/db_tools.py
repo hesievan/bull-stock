@@ -13,6 +13,7 @@
   python scripts/db_tools.py restore [backup_file]     # 从备份恢复（默认最新备份）
   python scripts/db_tools.py list                      # 列出所有备份
 """
+
 import sys
 import os
 import gzip
@@ -36,6 +37,7 @@ BACKUP_DIR = os.path.join(DB_DIR, "backups")
 
 # ── 状态检查 ─────────────────────────────────────────────────────────────────
 
+
 def check_db_status(db_path=None):
     """检查数据库状态"""
     path = db_path or DB_PATH
@@ -48,9 +50,7 @@ def check_db_status(db_path=None):
     print(f"Size: {size_mb:.1f} MB")
 
     with get_conn(path) as conn:
-        tables = conn.execute(
-            "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name"
-        ).fetchall()
+        tables = conn.execute("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name").fetchall()
         print(f"\nTables ({len(tables)}):")
         for (tname,) in tables:
             try:
@@ -65,6 +65,7 @@ def check_db_status(db_path=None):
 
 # ── VACUUM 压缩 ──────────────────────────────────────────────────────────────
 
+
 def vacuum_db(db_path=None):
     """VACUUM 压缩数据库"""
     path = db_path or DB_PATH
@@ -76,11 +77,13 @@ def vacuum_db(db_path=None):
     conn.close()
 
     size_after = os.path.getsize(path) / (1024 * 1024)
-    logger.info("Done: %.1f MB -> %.1f MB (%.1f%% reduction)",
-                size_before, size_after, (1 - size_after / size_before) * 100)
+    logger.info(
+        "Done: %.1f MB -> %.1f MB (%.1f%% reduction)", size_before, size_after, (1 - size_after / size_before) * 100
+    )
 
 
 # ── 归档 ─────────────────────────────────────────────────────────────────────
+
 
 def archive_before_year(year: int, db_path=None):
     """归档指定年份之前的数据到独立文件"""
@@ -91,14 +94,11 @@ def archive_before_year(year: int, db_path=None):
     logger.info("Archiving data before %s to %s", cutoff, archive_path)
 
     with get_conn(path) as conn:
-        tables_to_archive = ["stock_daily", "index_daily", "margin_history",
-                             "northbound_history", "bond_yield"]
+        tables_to_archive = ["stock_daily", "index_daily", "margin_history", "northbound_history", "bond_yield"]
         total = 0
         for tname in tables_to_archive:
             try:
-                count = conn.execute(
-                    f"SELECT COUNT(*) FROM {tname} WHERE trade_date < ?", (cutoff,)
-                ).fetchone()[0]
+                count = conn.execute(f"SELECT COUNT(*) FROM {tname} WHERE trade_date < ?", (cutoff,)).fetchone()[0]
                 total += count
             except Exception:
                 pass
@@ -117,16 +117,10 @@ def archive_before_year(year: int, db_path=None):
                 conn.execute(f"SELECT * FROM {tname} WHERE 1=0").fetchall()
                 cols = [d[1] for d in conn.execute(f"PRAGMA table_info({tname})").fetchall()]
 
-                rows = conn.execute(
-                    f"SELECT * FROM {tname} WHERE trade_date < ?", (cutoff,)
-                ).fetchall()
+                rows = conn.execute(f"SELECT * FROM {tname} WHERE trade_date < ?", (cutoff,)).fetchall()
                 if rows:
-                    archive_conn.execute(
-                        f"CREATE TABLE IF NOT EXISTS {tname} AS SELECT * FROM {tname} WHERE 1=0"
-                    )
-                    archive_conn.executemany(
-                        f"INSERT INTO {tname} VALUES ({','.join(['?'] * len(cols))})", rows
-                    )
+                    archive_conn.execute(f"CREATE TABLE IF NOT EXISTS {tname} AS SELECT * FROM {tname} WHERE 1=0")
+                    archive_conn.executemany(f"INSERT INTO {tname} VALUES ({','.join(['?'] * len(cols))})", rows)
                     logger.info("  Archived %s: %d rows", tname, len(rows))
             except Exception as e:
                 logger.warning("  Skip %s: %s", tname, str(e)[:60])
@@ -136,9 +130,7 @@ def archive_before_year(year: int, db_path=None):
 
         for tname in tables_to_archive:
             try:
-                deleted = conn.execute(
-                    f"DELETE FROM {tname} WHERE trade_date < ?", (cutoff,)
-                ).rowcount
+                deleted = conn.execute(f"DELETE FROM {tname} WHERE trade_date < ?", (cutoff,)).rowcount
                 if deleted:
                     logger.info("  Deleted from %s: %d rows", tname, deleted)
             except Exception:
@@ -148,6 +140,7 @@ def archive_before_year(year: int, db_path=None):
 
 
 # ── gzip 压缩/解压 ──────────────────────────────────────────────────────────
+
 
 def compress():
     db_path = os.path.join(DB_DIR, "heat_index.db")
@@ -192,6 +185,7 @@ def show_size():
 
 
 # ── 备份/恢复 ────────────────────────────────────────────────────────────────
+
 
 def backup():
     db_path = os.path.join(DB_DIR, "heat_index.db")

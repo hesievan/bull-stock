@@ -9,6 +9,7 @@ turnover_m2 两个缺失原始值。秒级完成 (不逐日调用引擎, 避免 
 采样: ISO 周最后一个交易日 (含末日), 即与既有 history.json 周频口径一致。
 不含 MA10/MA20 均线 (主趋势线只保留 composite_score + 阈值带)。
 """
+
 import csv
 import json
 import os
@@ -46,8 +47,15 @@ COL2KEY = {
 }
 # indicator_history.json 中可直接取的原始值键
 RAW_KEYS = [
-    "pe", "buffett", "seal_rate", "turnover", "ma_alignment",
-    "new_high", "north_ratio", "yield_spread", "m1_m2_spread",
+    "pe",
+    "buffett",
+    "seal_rate",
+    "turnover",
+    "ma_alignment",
+    "new_high",
+    "north_ratio",
+    "yield_spread",
+    "m1_m2_spread",
 ]
 
 
@@ -166,17 +174,17 @@ def main():
             raw[k] = v
         raw["margin_ratio_v2"] = mr_raw.get(d)
         raw["turnover_m2"] = tm2_raw.get(d)
-        out.append({
-            "trade_date": d,
-            "composite_score": cs,
-            "level": lvl,
-            "dimensions": {
-                dim: {"score": dims[dim], "label": DIM_LABEL[dim]} for dim in DIMENSIONS
-            },
-            "indicators_v2": raw,
-            "version": VERSION,
-            "updated_at": date.today().strftime("%Y-%m-%d %H:%M:%S"),
-        })
+        out.append(
+            {
+                "trade_date": d,
+                "composite_score": cs,
+                "level": lvl,
+                "dimensions": {dim: {"score": dims[dim], "label": DIM_LABEL[dim]} for dim in DIMENSIONS},
+                "indicators_v2": raw,
+                "version": VERSION,
+                "updated_at": date.today().strftime("%Y-%m-%d %H:%M:%S"),
+            }
+        )
 
     out.sort(key=lambda x: x["trade_date"])
     tmp = OUT + ".tmp"

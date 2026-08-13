@@ -7,6 +7,7 @@
   python scripts/compare_history.py 2015-06-12         # 对比指定日期
   python scripts/compare_history.py --list              # 列出所有历史记录
 """
+
 import sys
 import os
 import json
@@ -71,15 +72,15 @@ def find_closest(history, target_date):
 
 
 def compare(current, target, target_date):
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print(f"历史对比: 当前 vs {KEY_NODES.get(target_date, target_date)}")
-    print(f"{'='*60}\n")
+    print(f"{'=' * 60}\n")
 
     c_score = current.get("composite_score")
     t_score = target.get("composite_score")
     print(f"{'指标':<12} {'当前':>8} {'目标':>8} {'差异':>8}")
-    print(f"{'-'*40}")
-    print(f"{'综合热度':<12} {c_score:>8.1f} {t_score:>8.1f} {c_score-t_score:>+8.1f}")
+    print(f"{'-' * 40}")
+    print(f"{'综合热度':<12} {c_score:>8.1f} {t_score:>8.1f} {c_score - t_score:>+8.1f}")
 
     c_dims = current.get("dimensions", {})
     t_dims = target.get("dimensions", {})
@@ -88,15 +89,15 @@ def compare(current, target, target_date):
         t_val = t_dims.get(key, {})
         c_score = c_val.get("score", 0) if isinstance(c_val, dict) else (c_val or 0)
         t_score = t_val.get("score", 0) if isinstance(t_val, dict) else (t_val or 0)
-        print(f"{label:<12} {c_score:>8.1f} {t_score:>8.1f} {c_score-t_score:>+8.1f}")
+        print(f"{label:<12} {c_score:>8.1f} {t_score:>8.1f} {c_score - t_score:>+8.1f}")
 
     print(f"\n当前日期: {current.get('trade_date')}")
     print(f"对比日期: {target.get('trade_date')} ({KEY_NODES.get(target_date, '')})")
 
     # 分析差异
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print("差异分析:")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
 
     diff = c_score - t_score
     if abs(diff) < 5:

@@ -17,6 +17,7 @@
 用法:
   python scripts/fetch_hist_constituents.py
 """
+
 import sys
 import os
 import time
@@ -34,6 +35,7 @@ def _load_env():
     if os.environ.get("TUSHARE_TOKEN"):
         return
     from pathlib import Path
+
     candidates = [
         Path(__file__).resolve().parent.parent / ".env",
         Path.home() / "daily_stock_analysis" / ".env",
@@ -43,7 +45,7 @@ def _load_env():
             for line in p.read_text(encoding="utf-8").splitlines():
                 line = line.strip()
                 if line.startswith("TUSHARE_TOKEN="):
-                    os.environ["TUSHARE_TOKEN"] = line.split("=", 1)[1].strip('"\'')
+                    os.environ["TUSHARE_TOKEN"] = line.split("=", 1)[1].strip("\"'")
                     return
 
 
@@ -52,11 +54,16 @@ _load_env()
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
-    handlers=[logging.StreamHandler(),
-              logging.FileHandler(
-                  os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-                               "data", "fetch_hist_constituents.log"),
-                  mode="a", encoding="utf-8")],
+    handlers=[
+        logging.StreamHandler(),
+        logging.FileHandler(
+            os.path.join(
+                os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "fetch_hist_constituents.log"
+            ),
+            mode="a",
+            encoding="utf-8",
+        ),
+    ],
 )
 logger = logging.getLogger(__name__)
 
@@ -83,9 +90,7 @@ def _get_month_end_dates(pro, start_year: int = 2015, end_year: int = None, end_
     end_month = end_month or today.month
     dates = []
     try:
-        cal = pro.trade_cal(exchange="SSE",
-                            start_date=f"{start_year}0101",
-                            end_date=f"{end_year}{end_month:02d}28")
+        cal = pro.trade_cal(exchange="SSE", start_date=f"{start_year}0101", end_date=f"{end_year}{end_month:02d}28")
         cal = cal[cal["is_open"] == 1]
         for y in range(start_year, end_year + 1):
             m_max = end_month if y == end_year else 12
@@ -105,7 +110,6 @@ def _get_month_end_dates(pro, start_year: int = 2015, end_year: int = None, end_
 
 def main():
     import tushare as ts
-    import sqlite3
     import pandas as pd
     from src.data.database import DB_PATH, init_database, get_conn
 
@@ -120,8 +124,9 @@ def main():
 
     with get_conn(DB_PATH) as conn:
         # 已有 (index_code, trade_date) 集合, 支持断点续传
-        existing = {(r[0], r[1]) for r in conn.execute(
-            "SELECT index_code, trade_date FROM index_constituents_hist").fetchall()}
+        existing = {
+            (r[0], r[1]) for r in conn.execute("SELECT index_code, trade_date FROM index_constituents_hist").fetchall()
+        }
 
         total = 0
         for i, dt in enumerate(dates):
@@ -136,9 +141,15 @@ def main():
                     continue
                 if df is None or df.empty:
                     continue
-                rows = [(idx_name, _to_ak_code(r["con_code"]), dt,
-                         float(r["weight"]) if pd.notna(r.get("weight")) else None)
-                        for _, r in df.iterrows()]
+                rows = [
+                    (
+                        idx_name,
+                        _to_ak_code(r["con_code"]),
+                        dt,
+                        float(r["weight"]) if pd.notna(r.get("weight")) else None,
+                    )
+                    for _, r in df.iterrows()
+                ]
                 conn.executemany(
                     "INSERT OR REPLACE INTO index_constituents_hist "
                     "(index_code, con_code, trade_date, weight) VALUES (?,?,?,?)",

@@ -3,6 +3,9 @@
 
 从 calculator.py 拆分, 职责: 按行业计算热度评分
 """
+
+from __future__ import annotations
+
 import logging
 
 import pandas as pd
@@ -13,44 +16,93 @@ from src.indicators.utils import _pct_rank
 logger = logging.getLogger(__name__)
 
 SECTOR_NAME_MAP = {
-    "A01": "农业", "A02": "林业", "A03": "畜牧业", "A04": "渔业",
-    "A05": "农林牧渔辅助", "B06": "煤炭开采", "B07": "石油天然气开采",
-    "B08": "黑色金属矿采选", "B09": "有色金属矿采选", "B10": "非金属矿采选",
-    "B11": "开采辅助", "B12": "其他采矿", "C13": "农副食品加工",
-    "C14": "食品制造", "C15": "酒类饮料", "C17": "纺织业", "C18": "纺织服装",
-    "C19": "皮革制品", "C21": "家具制造", "C22": "造纸", "C25": "石油加工炼焦",
-    "C26": "化学原料", "C27": "医药制造", "C28": "化学纤维", "C29": "橡胶塑料",
-    "C30": "非金属矿物制品", "C31": "黑色金属冶炼", "C32": "有色金属冶炼",
-    "C33": "金属制品", "C34": "通用设备制造", "C35": "专用设备制造",
-    "C36": "汽车制造", "C38": "电气机械器材", "C39": "计算机通信电子",
-    "D44": "电力生产供应", "D45": "燃气生产供应", "D46": "水的生产供应",
-    "E47": "房屋建筑", "E48": "土木工程", "E49": "建筑装饰",
-    "F51": "批发业", "F52": "零售业", "G56": "航空运输", "G58": "道路运输",
-    "G60": "仓储邮政", "I63": "电信广播电视", "I64": "互联网相关",
-    "I65": "软件信息技术", "J66": "货币金融服务", "J67": "资本市场服务",
-    "J68": "保险业", "J69": "其他金融", "K70": "房地产业",
-    "L71": "租赁业", "L72": "商务服务", "M73": "研究和试验",
-    "M75": "科技推广", "O79": "居民服务", "P82": "教育",
-    "Q83": "卫生", "R85": "新闻传媒", "R87": "文化艺术",
-    "R89": "娱乐业", "S90": "综合",
+    "A01": "农业",
+    "A02": "林业",
+    "A03": "畜牧业",
+    "A04": "渔业",
+    "A05": "农林牧渔辅助",
+    "B06": "煤炭开采",
+    "B07": "石油天然气开采",
+    "B08": "黑色金属矿采选",
+    "B09": "有色金属矿采选",
+    "B10": "非金属矿采选",
+    "B11": "开采辅助",
+    "B12": "其他采矿",
+    "C13": "农副食品加工",
+    "C14": "食品制造",
+    "C15": "酒类饮料",
+    "C17": "纺织业",
+    "C18": "纺织服装",
+    "C19": "皮革制品",
+    "C21": "家具制造",
+    "C22": "造纸",
+    "C25": "石油加工炼焦",
+    "C26": "化学原料",
+    "C27": "医药制造",
+    "C28": "化学纤维",
+    "C29": "橡胶塑料",
+    "C30": "非金属矿物制品",
+    "C31": "黑色金属冶炼",
+    "C32": "有色金属冶炼",
+    "C33": "金属制品",
+    "C34": "通用设备制造",
+    "C35": "专用设备制造",
+    "C36": "汽车制造",
+    "C38": "电气机械器材",
+    "C39": "计算机通信电子",
+    "D44": "电力生产供应",
+    "D45": "燃气生产供应",
+    "D46": "水的生产供应",
+    "E47": "房屋建筑",
+    "E48": "土木工程",
+    "E49": "建筑装饰",
+    "F51": "批发业",
+    "F52": "零售业",
+    "G56": "航空运输",
+    "G58": "道路运输",
+    "G60": "仓储邮政",
+    "I63": "电信广播电视",
+    "I64": "互联网相关",
+    "I65": "软件信息技术",
+    "J66": "货币金融服务",
+    "J67": "资本市场服务",
+    "J68": "保险业",
+    "J69": "其他金融",
+    "K70": "房地产业",
+    "L71": "租赁业",
+    "L72": "商务服务",
+    "M73": "研究和试验",
+    "M75": "科技推广",
+    "O79": "居民服务",
+    "P82": "教育",
+    "Q83": "卫生",
+    "R85": "新闻传媒",
+    "R87": "文化艺术",
+    "R89": "娱乐业",
+    "S90": "综合",
 }
 
 
-def _sector_name(code):
+def _sector_name(code: str) -> str:
     return SECTOR_NAME_MAP.get(code[:3] if code else "", code or "未知")
 
 
-def _sp_rank(series, value):
+def _sp_rank(series: pd.Series, value: float) -> float:
     """历史分位 0-1 (ISSUE-7 统一: 使用 utils._pct_rank, 含自身的 <= 比较)"""
     return _pct_rank(series, value, scale="0-1")
 
 
-def _sp_combine(scores):
+def _sp_combine(scores: list) -> float | None:
     v = [x for x in scores if x is not None and not np.isnan(x)]
     return round(float(np.mean(v)), 1) if v else None
 
 
-def _sect_valuation(scode, today_df, _hist_pm, _hist_bm):
+def _sect_valuation(
+    scode: str,
+    today_df: pd.DataFrame,
+    _hist_pm: pd.DataFrame,
+    _hist_bm: pd.DataFrame,
+) -> float | None:
     """估值: 行业中位数PE/PB历史分位(查预计算表)"""
     mem = today_df[today_df["industry"] == scode]
     if len(mem) < 5:
@@ -69,7 +121,12 @@ def _sect_valuation(scode, today_df, _hist_pm, _hist_bm):
     return _sp_combine(out)
 
 
-def _sect_sentiment(scode, today_df, _hist_tm, _hist_up_ratio):
+def _sect_sentiment(
+    scode: str,
+    today_df: pd.DataFrame,
+    _hist_tm: pd.DataFrame,
+    _hist_up_ratio: pd.DataFrame,
+) -> float | None:
     """情绪: 行业换手率 + 涨跌家数比(查预计算表)"""
     mem = today_df[today_df["industry"] == scode]
     if len(mem) < 5:
@@ -89,7 +146,11 @@ def _sect_sentiment(scode, today_df, _hist_tm, _hist_up_ratio):
     return _sp_combine(out)
 
 
-def _sect_technical(scode, today_df, hist_df):
+def _sect_technical(
+    scode: str,
+    today_df: pd.DataFrame,
+    hist_df: pd.DataFrame,
+) -> float | None:
     """技术: 站上年线比例 + 创新高比例 (向量化)"""
     mem = today_df[today_df["industry"] == scode]
     if len(mem) < 10:
@@ -152,7 +213,9 @@ def calculate_sector_heat(trade_date: str, db_path: str) -> list:
 
         today = pd.read_sql(
             """SELECT stock_code, close, pct_change, peTTM, pbMRQ, turnover_rate
-               FROM stock_daily WHERE trade_date = ?""", conn, params=[trade_date]
+               FROM stock_daily WHERE trade_date = ?""",
+            conn,
+            params=[trade_date],
         )
         # 如果指定日期没有数据，使用最新可用日期
         if today.empty:
@@ -162,7 +225,9 @@ def calculate_sector_heat(trade_date: str, db_path: str) -> list:
                 logger.info("Using latest available date: %s (requested: %s)", actual_date, trade_date)
                 today = pd.read_sql(
                     """SELECT stock_code, close, pct_change, peTTM, pbMRQ, turnover_rate
-                       FROM stock_daily WHERE trade_date = ?""", conn, params=[actual_date]
+                       FROM stock_daily WHERE trade_date = ?""",
+                    conn,
+                    params=[actual_date],
                 )
                 trade_date = actual_date
 
@@ -178,12 +243,13 @@ def calculate_sector_heat(trade_date: str, db_path: str) -> list:
         hist_parts = []
         batch_size = 500
         for i in range(0, len(ind_codes), batch_size):
-            batch = ind_codes[i:i+batch_size]
+            batch = ind_codes[i : i + batch_size]
             ph = ",".join(["?"] * len(batch))
             h = pd.read_sql(
                 f"""SELECT stock_code, trade_date, close, pct_change, peTTM, pbMRQ, turnover_rate
                     FROM stock_daily WHERE trade_date >= ? AND trade_date <= ? AND stock_code IN ({ph})""",
-                conn, params=[start, trade_date] + batch,
+                conn,
+                params=[start, trade_date] + batch,
             )
             hist_parts.append(h)
         hist = pd.concat(hist_parts, ignore_index=True) if hist_parts else pd.DataFrame()
@@ -212,9 +278,15 @@ def calculate_sector_heat(trade_date: str, db_path: str) -> list:
         tech = _sect_technical(scode, today, hist)
 
         ws, vs = [], []
-        if val is not None: ws.append(0.4); vs.append(val)
-        if sent is not None: ws.append(0.3); vs.append(sent)
-        if tech is not None: ws.append(0.3); vs.append(tech)
+        if val is not None:
+            ws.append(0.4)
+            vs.append(val)
+        if sent is not None:
+            ws.append(0.3)
+            vs.append(sent)
+        if tech is not None:
+            ws.append(0.3)
+            vs.append(tech)
         if not vs:
             continue
 
@@ -231,19 +303,21 @@ def calculate_sector_heat(trade_date: str, db_path: str) -> list:
             li = pc.idxmax()
             leader = {"code": str(members.loc[li, "stock_code"]), "pct": round(float(pc.loc[li]), 2)}
 
-        results.append({
-            "sector_code": scode,
-            "sector_name": _sector_name(scode),
-            "n_stocks": int(n),
-            "composite_score": comp,
-            "heat_label": label,
-            "dim_valuation": val,
-            "dim_sentiment": sent,
-            "dim_technical": tech,
-            "avg_pct_change": avg_pct,
-            "up_ratio": up_r,
-            "leader": leader,
-        })
+        results.append(
+            {
+                "sector_code": scode,
+                "sector_name": _sector_name(scode),
+                "n_stocks": int(n),
+                "composite_score": comp,
+                "heat_label": label,
+                "dim_valuation": val,
+                "dim_sentiment": sent,
+                "dim_technical": tech,
+                "avg_pct_change": avg_pct,
+                "up_ratio": up_r,
+                "leader": leader,
+            }
+        )
 
     results.sort(key=lambda x: x["composite_score"], reverse=True)
     for i, r in enumerate(results, 1):

@@ -9,6 +9,7 @@
   python scripts/fix_turnover.py          # 检查并修复
   python scripts/fix_turnover.py --check  # 仅检查，不修复
 """
+
 import sys
 import os
 import logging
@@ -52,8 +53,7 @@ def fix_turnover(dry_run=False):
 
     logger.warning("发现 %d 条错误记录:", len(bad_dates))
     for row in bad_dates[:10]:
-        logger.warning("  %s: 当前=%.4f, 正确=%.4f, 差异=%.4f",
-                       row[0], row[3], row[2], abs(row[3] - row[2]))
+        logger.warning("  %s: 当前=%.4f, 正确=%.4f, 差异=%.4f", row[0], row[3], row[2], abs(row[3] - row[2]))
     if len(bad_dates) > 10:
         logger.warning("  ... 还有 %d 条", len(bad_dates) - 10)
 

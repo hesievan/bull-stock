@@ -34,17 +34,19 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
-          pip install ruff pytest
+          pip install ruff pytest pytest-cov
 
       - name: Lint
         run: |
-          ruff check src/ scripts/ --select E,F,W --ignore E501,E701,E702,E402,W293,E401 || true
-          ruff format --check src/ scripts/ || true
+          ruff check
+          ruff format --check
 
       - name: Unit tests
         run: |
           cd ${{ github.workspace }}
-          python -m pytest tests/ -v --tb=short
+          # --cov-fail-under 为覆盖率底线(回归防护), 非目标值。
+          # 当前基线约 39%; 随测试补充应逐步调高(45→50→...→70), 避免每日 CI 因未达标而阻断数据更新。
+          python -m pytest tests/ -v --tb=short --cov=src --cov-report=term-missing --cov-fail-under=38
 
       # ── 数据库恢复 ──────────────────────────────────────────────────────────
       - name: Restore database from cache
@@ -102,6 +104,17 @@ jobs:
         run: |
           cd ${{ github.workspace }}
           python scripts/run_daily.py
+
+      # ── 每周 VACUUM (压缩数据库, 周一执行; 重操作, 失败不阻断流水线) ──────
+      - name: Weekly VACUUM (Mondays)
+        if: success()
+        run: |
+          if [ "$(date -u +%u)" = "1" ]; then
+            echo "Monday: running weekly VACUUM..."
+            python scripts/db_tools.py vacuum || echo "VACUUM skipped/failed"
+          else
+            echo "Not Monday, skip VACUUM"
+          fi
 
       # ── 重算全量指标历史 (覆盖 V1 遗留数据, 确保 seal_rate 等全量可用) ──
       - name: Regenerate full indicator history

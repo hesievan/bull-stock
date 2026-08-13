@@ -5,11 +5,12 @@
 
 用法: python scripts/regen_today_snapshot.py [trade_date]
 """
+
 import os
 import sys
 import json
 import sqlite3
-from datetime import datetime, date
+from datetime import datetime
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -17,7 +18,9 @@ from src.indicators.heat_index_v2 import compute_index_v2
 from src.output.json_writer import get_heat_level
 
 WEB_DATA = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "web", "data")
-DB = os.environ.get("HEAT_DB", os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "heat_index.db"))
+DB = os.environ.get(
+    "HEAT_DB", os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "heat_index.db")
+)
 
 
 def _atomic_write_json(path, data):
@@ -33,6 +36,7 @@ def _round_score(v):
     try:
         f = float(v)
         import math
+
         if math.isnan(f) or math.isinf(f):
             return None
         return round(f, 1)
@@ -73,9 +77,7 @@ def main():
         "level": get_heat_level(composite) if composite is not None else "unknown",
         "dimensions": dims,
         "indicators_v2": {
-            k: res.get("indicator_raw", {}).get(k)
-            for k in res["indicators"]
-            if k not in ("qvix", "qvix_components")
+            k: res.get("indicator_raw", {}).get(k) for k in res["indicators"] if k not in ("qvix", "qvix_components")
         },
         "qvix_display": res["indicators"].get("qvix"),
         "qvix_components": res["indicators"].get("qvix_components"),
@@ -88,7 +90,9 @@ def main():
         r = conn.execute("SELECT up_down_ratio FROM daily_updown WHERE trade_date=?", (trade_date,)).fetchone()
         if r:
             index_data["display_up_down_ratio"] = round(r[0], 4)
-        r = conn.execute("SELECT limit_up_ratio, limit_ratio FROM daily_limit WHERE trade_date=?", (trade_date,)).fetchone()
+        r = conn.execute(
+            "SELECT limit_up_ratio, limit_ratio FROM daily_limit WHERE trade_date=?", (trade_date,)
+        ).fetchone()
         if r:
             index_data["display_limit_up_ratio"] = round(r[0], 4)
             index_data["display_limit_ratio"] = round(r[1], 4)
@@ -107,7 +111,7 @@ def main():
     print(f"✓ 已重写 index.json/detail.json ({trade_date})")
     print(f"  composite = {_round_score(composite)}  level = {index_data['level']}")
     print(f"  dimensions = {dims}")
-    print(f"  fund 4 子项 = {{")
+    print("  fund 4 子项 = {")
     ind = res["indicators"]
     for k in ["margin_ratio_v2", "north_ratio", "yield_spread", "m1_m2_spread"]:
         print(f"    {k}: {ind[k]}")

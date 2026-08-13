@@ -6,6 +6,7 @@ V2 引擎历史基线重算脚本
 - 输出新 history.json（覆盖原文件）
 - 增量保存，支持中断续算
 """
+
 import json
 import logging
 import os
@@ -16,12 +17,19 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 import sqlite3
 from src.indicators.heat_index_v2 import (
-    INDICATOR_WEIGHTS, INDICATOR_DIMENSIONS, DIMENSIONS,
-    calc_pe, calc_seal_rate_v2, calc_buffett,
+    INDICATOR_WEIGHTS,
+    INDICATOR_DIMENSIONS,
+    DIMENSIONS,
+    calc_pe,
+    calc_seal_rate_v2,
+    calc_buffett,
     calc_margin_ratio_v2,
-    calc_turnover_m2, calc_turnover_v2,
-    calc_new_high_v2, calc_ma_alignment_v2,
-    _apply_sentiment_divergence, _apply_new_high_divergence,
+    calc_turnover_m2,
+    calc_turnover_v2,
+    calc_new_high_v2,
+    calc_ma_alignment_v2,
+    _apply_sentiment_divergence,
+    _apply_new_high_divergence,
 )
 from src.data.database import DB_PATH
 
@@ -44,6 +52,7 @@ def v2_level(score):
 def compute_v2_for_date(conn, td):
     """直接使用已有 conn 调用 V2 各指标函数，避免反复连接/断开"""
     _raw = {}
+
     def _unpack(k, v):
         if v is None:
             _raw[k] = None
@@ -91,7 +100,11 @@ def compute_v2_for_date(conn, td):
         composite = None
     else:
         total_weight = sum(INDICATOR_WEIGHTS[k] for k, _ in valid_scores)
-        composite = round(sum(v * INDICATOR_WEIGHTS[k] for k, v in valid_scores) / total_weight, 1) if total_weight > 0 else None
+        composite = (
+            round(sum(v * INDICATOR_WEIGHTS[k] for k, v in valid_scores) / total_weight, 1)
+            if total_weight > 0
+            else None
+        )
 
     # 维度标签
     dim_labels = {"valuation": "估值", "fund": "资金", "sentiment": "情绪", "structure": "结构"}
@@ -99,10 +112,7 @@ def compute_v2_for_date(conn, td):
         "trade_date": td,
         "composite_score": composite,
         "level": v2_level(composite),
-        "dimensions": {
-            dim: {"score": dim_scores.get(dim), "label": dim_labels.get(dim, dim)}
-            for dim in DIMENSIONS
-        },
+        "dimensions": {dim: {"score": dim_scores.get(dim), "label": dim_labels.get(dim, dim)} for dim in DIMENSIONS},
         "indicators_v2": {k: _raw.get(k) for k in scores if k != "qvix"},
         "qvix_display": None,
         "version": "v2",
@@ -112,13 +122,14 @@ def compute_v2_for_date(conn, td):
 
 def main():
     import argparse
+
     parser = argparse.ArgumentParser(description="Recalc V2 history baseline")
     parser.add_argument("--input", default="web/data/history.json", help="Input V1 history JSON")
     parser.add_argument("--output", default="web/data/history.json", help="Output V2 history JSON")
-    parser.add_argument("--checkpoint", default="web/data/.v2_recalc_checkpoint.json",
-                        help="Checkpoint file for resume")
-    parser.add_argument("--start-from", default=None,
-                        help="Skip dates before this date (YYYY-MM-DD)")
+    parser.add_argument(
+        "--checkpoint", default="web/data/.v2_recalc_checkpoint.json", help="Checkpoint file for resume"
+    )
+    parser.add_argument("--start-from", default=None, help="Skip dates before this date (YYYY-MM-DD)")
     args = parser.parse_args()
 
     # 加载现有历史
@@ -144,8 +155,9 @@ def main():
     if not pending:
         logger.warning("No pending dates to compute!")
     else:
-        logger.warning("Computing V2 for %d dates (total %d, %d already done)...",
-                       len(pending), len(all_dates), len(done_dates))
+        logger.warning(
+            "Computing V2 for %d dates (total %d, %d already done)...", len(pending), len(all_dates), len(done_dates)
+        )
 
     # 所有 dates（已做 + 待做）
     all_v2 = {r["trade_date"]: r for r in v2_results}
@@ -164,18 +176,22 @@ def main():
                 if result["composite_score"] is not None:
                     all_v2[d] = result
                 else:
-                    logger.warning("  [%d/%d] %s: V2 returned None", i+1, len(pending), d)
+                    logger.warning("  [%d/%d] %s: V2 returned None", i + 1, len(pending), d)
             except Exception as e:
-                logger.warning("  [%d/%d] %s: ERROR %s", i+1, len(pending), d, e)
+                logger.warning("  [%d/%d] %s: ERROR %s", i + 1, len(pending), d, e)
 
             dt = time.time() - t0
             elapsed = time.time() - t_start
             remaining = (len(pending) - i - 1) * dt if dt > 0 else 0
             logger.warning(
                 "  [%d/%d] %s: composite=%s (%.1fs, elapsed=%.0fs, ETA=%.0fs)",
-                i+1, len(pending), d,
+                i + 1,
+                len(pending),
+                d,
                 all_v2.get(d, {}).get("composite_score", "ERR"),
-                dt, elapsed, remaining
+                dt,
+                elapsed,
+                remaining,
             )
 
             # 每 20 个日期保存 checkpoint
@@ -202,8 +218,9 @@ def main():
     # 写入
     with open(args.output, "w") as f:
         json.dump(final_history, f, ensure_ascii=False, indent=2)
-    logger.warning("Done! Wrote %d records to %s (%.1f min)",
-                   len(final_history), args.output, (time.time() - t_start) / 60)
+    logger.warning(
+        "Done! Wrote %d records to %s (%.1f min)", len(final_history), args.output, (time.time() - t_start) / 60
+    )
 
     # 清除 checkpoint
     if os.path.exists(args.checkpoint):

@@ -15,20 +15,27 @@
   daily_turnover    — 换手率 (加速 turnover 计算)
   qvix_daily        — QVIX 恐慌指数 (展示)
 """
+
 import logging
 import os
 import sys
 import time
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 import pandas as pd
 
 from src.data.database import (
-    get_conn, read_dataframe, DB_PATH,
+    get_conn,
+    read_dataframe,
+    DB_PATH,
     update_index_daily_pe,
-    compute_daily_circ_mv, compute_daily_total_mv,
-    compute_daily_updown, compute_daily_limit,
-    compute_daily_below_net, compute_daily_ma_alignment,
+    compute_daily_circ_mv,
+    compute_daily_total_mv,
+    compute_daily_updown,
+    compute_daily_limit,
+    compute_daily_below_net,
+    compute_daily_ma_alignment,
     compute_daily_new_high,
 )
 
@@ -36,14 +43,14 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(me
 logger = logging.getLogger(__name__)
 
 TASKS = [
-    ("index_daily_pe",    update_index_daily_pe,     "成分股PE/PB中位数", True),
-    ("daily_circ_mv",     compute_daily_circ_mv,     "流通市值",          True),
-    ("stock_market_cap",  compute_daily_total_mv,    "总市值",            True),
-    ("daily_updown",      compute_daily_updown,      "涨跌家数比",        False),
-    ("daily_limit",       compute_daily_limit,       "涨停统计",          False),
-    ("daily_below_net",   compute_daily_below_net,   "破净率",            False),
-    ("daily_ma_alignment", compute_daily_ma_alignment, "均线排列比",      True),
-    ("daily_new_high",     compute_daily_new_high,     "创新高占比",      True),
+    ("index_daily_pe", update_index_daily_pe, "成分股PE/PB中位数", True),
+    ("daily_circ_mv", compute_daily_circ_mv, "流通市值", True),
+    ("stock_market_cap", compute_daily_total_mv, "总市值", True),
+    ("daily_updown", compute_daily_updown, "涨跌家数比", False),
+    ("daily_limit", compute_daily_limit, "涨停统计", False),
+    ("daily_below_net", compute_daily_below_net, "破净率", False),
+    ("daily_ma_alignment", compute_daily_ma_alignment, "均线排列比", True),
+    ("daily_new_high", compute_daily_new_high, "创新高占比", True),
 ]
 
 
@@ -57,14 +64,10 @@ def _existing_dates(table: str, db_path: str) -> set:
 
 def _fetch_trade_dates(conn) -> list:
     """从 stock_daily 获取所有有数据的历史交易日 (排序)"""
-    df = pd.read_sql(
-        "SELECT DISTINCT trade_date FROM stock_daily ORDER BY trade_date", conn
-    )
+    df = pd.read_sql("SELECT DISTINCT trade_date FROM stock_daily ORDER BY trade_date", conn)
     if df.empty:
         # 兜底: 从 index_daily 获取
-        df = pd.read_sql(
-            "SELECT DISTINCT trade_date FROM index_daily ORDER BY trade_date", conn
-        )
+        df = pd.read_sql("SELECT DISTINCT trade_date FROM index_daily ORDER BY trade_date", conn)
     return df["trade_date"].tolist() if not df.empty else []
 
 
@@ -78,23 +81,22 @@ def _compute_daily_turnover(trade_date: str, db_path: str) -> bool:
         df = pd.read_sql(
             "SELECT SUM(amount) / NULLIF(SUM(circ_mv), 0) * 10.0 as turnover_rate "
             "FROM stock_daily WHERE trade_date=? AND amount>0 AND circ_mv>0",
-            conn, params=[trade_date]
+            conn,
+            params=[trade_date],
         )
         if df.empty or df.iloc[0, 0] is None:
             return False
         conn.execute(
             "INSERT OR REPLACE INTO daily_turnover (trade_date, turnover_rate) VALUES (?, ?)",
-            (trade_date, round(float(df.iloc[0, 0]), 4))
+            (trade_date, round(float(df.iloc[0, 0]), 4)),
         )
         return True
-
-
-
 
 
 def _backfill_qvix_batch(db_path: str, force: bool):
     """批量回填 QVIX 恐慌指数 — 一次性下载，逐日匹配写入"""
     from src.data.qvix_fetcher import fetch_panic_index
+
     try:
         df = fetch_panic_index(timeout=60)
     except Exception as e:
@@ -125,19 +127,22 @@ def _backfill_qvix_batch(db_path: str, force: bool):
                     continue
                 row = df.loc[prev[-1]]
             try:
-                conn.execute("""
+                conn.execute(
+                    """
                     INSERT OR REPLACE INTO qvix_daily
                         (trade_date, qvix, qvix_50, qvix_300, qvix_1000, panic_index, concentration)
                     VALUES (?, ?, ?, ?, ?, ?, ?)
-                """, (
-                    td,
-                    round(float(row["panic_index"]), 4),
-                    round(float(row["qvix_50"]), 4) if pd.notna(row["qvix_50"]) else None,
-                    round(float(row["qvix_300"]), 4) if pd.notna(row["qvix_300"]) else None,
-                    round(float(row["qvix_1000"]), 4) if pd.notna(row["qvix_1000"]) else None,
-                    round(float(row["panic_index"]), 4) if pd.notna(row["panic_index"]) else None,
-                    round(float(row["concentration"]), 4) if pd.notna(row["concentration"]) else None,
-                ))
+                """,
+                    (
+                        td,
+                        round(float(row["panic_index"]), 4),
+                        round(float(row["qvix_50"]), 4) if pd.notna(row["qvix_50"]) else None,
+                        round(float(row["qvix_300"]), 4) if pd.notna(row["qvix_300"]) else None,
+                        round(float(row["qvix_1000"]), 4) if pd.notna(row["qvix_1000"]) else None,
+                        round(float(row["panic_index"]), 4) if pd.notna(row["panic_index"]) else None,
+                        round(float(row["concentration"]), 4) if pd.notna(row["concentration"]) else None,
+                    ),
+                )
                 ok += 1
             except Exception as e:
                 logger.warning("QVIX batch %s error: %s", td, e)
@@ -182,11 +187,19 @@ def _backfill_seal_rate_batch(db_path: str, all_dates: list, force: bool):
             fail += 1
         if (i + 1) % 200 == 0:
             elapsed = time.time() - t0
-            logger.info("  daily_seal_rate: %d/%d (%.1f%%) ok=%d skip=%d fail=%d",
-                        i + 1, len(need), (i + 1) / len(need) * 100, ok, skip, fail)
+            logger.info(
+                "  daily_seal_rate: %d/%d (%.1f%%) ok=%d skip=%d fail=%d",
+                i + 1,
+                len(need),
+                (i + 1) / len(need) * 100,
+                ok,
+                skip,
+                fail,
+            )
     elapsed = time.time() - t0
-    logger.info("  daily_seal_rate (涨停封板率): %d/%d done, skip=%d, fail=%d (%.1fs)",
-                ok, len(need), skip, fail, elapsed)
+    logger.info(
+        "  daily_seal_rate (涨停封板率): %d/%d done, skip=%d, fail=%d (%.1fs)", ok, len(need), skip, fail, elapsed
+    )
 
 
 def backfill_precompute(db_path: str = None, force: bool = False):
@@ -257,6 +270,7 @@ def _backfill_derived(table: str, func, all_dates: list, db_path: str, critical:
 
 if __name__ == "__main__":
     import argparse
+
     parser = argparse.ArgumentParser(description="回填预计算表")
     parser.add_argument("--force", action="store_true", help="强制全部重算")
     parser.add_argument("--db", help="数据库路径 (默认 DB_PATH)")

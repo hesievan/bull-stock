@@ -1,9 +1,12 @@
 """
 重点行业热度 — 申万一级 10 行业 + 二级细分（白酒 / 保险）
 """
+
+from __future__ import annotations
+
 import logging
+import sqlite3
 from concurrent.futures import ThreadPoolExecutor
-from datetime import date, timedelta
 import numpy as np
 import pandas as pd
 
@@ -13,9 +16,18 @@ from src.indicators.utils import _pct_rank
 logger = logging.getLogger(__name__)
 
 FOCUS_SW_CODES = [
-    "801780", "801790", "801120", "801150", "801730", "801080",
-    "801050", "801160", "801180", "801950",
-    "801125", "801194",
+    "801780",
+    "801790",
+    "801120",
+    "801150",
+    "801730",
+    "801080",
+    "801050",
+    "801160",
+    "801180",
+    "801950",
+    "801125",
+    "801194",
 ]
 
 # 申万指数代码 (带后缀用于 akshare)
@@ -51,17 +63,22 @@ SW_NAME_MAP = {
 
 # 行业层级: 二级细分行业按 sw_l2_code 过滤成分股/历史, 一级按 sw_code
 SW_LEVEL_MAP = {
-    "801125": "l2",   # 白酒 (父: 食品饮料 801120)
-    "801194": "l2",   # 保险 (父: 非银金融 801790)
+    "801125": "l2",  # 白酒 (父: 食品饮料 801120)
+    "801194": "l2",  # 保险 (父: 非银金融 801790)
 }
 
 
-def _sp_rank(series, value):
+def _sp_rank(series: pd.Series, value: float) -> float:
     """历史百分位 0-100 (ISSUE-7 统一: 使用 utils._pct_rank, 含自身的 <= 比较)"""
     return _pct_rank(series, value, scale="0-100")
 
 
-def _get_hist_industry_data(conn, trade_date, sw_codes, lookback_days=365):
+def _get_hist_industry_data(
+    conn: sqlite3.Connection,
+    trade_date: str,
+    sw_codes: list[str],
+    lookback_days: int = 365,
+) -> pd.DataFrame:
     """从 stock_daily + stock_shenwan 获取行业历史数据用于百分位计算
 
     一级行业按 ss.sw_code 过滤, 二级细分按 ss.sw_l2_code 过滤。
@@ -88,7 +105,8 @@ def _get_hist_industry_data(conn, trade_date, sw_codes, lookback_days=365):
             WHERE sd.trade_date >= ? AND sd.trade_date <= ?
               AND sd.close IS NOT NULL AND sd.close > 0
               {where_extra}""",
-        conn, params=params,
+        conn,
+        params=params,
     )
     for col in ("close", "pct_change", "peTTM", "pbMRQ", "turnover_rate", "total_mv"):
         if col in hist.columns:
@@ -108,9 +126,10 @@ def _fetch_index_data(trade_date: str) -> dict:
         return {}
 
     result = {}
+
     # 行情数据：akshare index_hist_sw 无 start_date/批量接口(实测拉全量历史)，
     # 用线程池并行拉取各重点行业以降低总耗时
-    def _fetch_one(sw_code: str):
+    def _fetch_one(sw_code: str) -> dict | None:
         try:
             import akshare as ak
         except ImportError:
@@ -145,7 +164,7 @@ def _fetch_index_data(trade_date: str) -> dict:
             result[sw_code] = data
 
     # 估值辅助: 把 akshare 返回的 '--'/NaN 转成可序列化数值
-    def _f(v):
+    def _f(v: float) -> float | None:
         try:
             return round(float(v), 2) if pd.notna(v) and v != "--" else None
         except (ValueError, TypeError):
@@ -158,12 +177,14 @@ def _fetch_index_data(trade_date: str) -> dict:
             for _, row in info.iterrows():
                 idx_code = str(row.get("行业代码", "")).replace(".SI", "")
                 if idx_code in result:
-                    result[idx_code].update({
-                        "index_pe": _f(row.get("静态市盈率")),
-                        "index_pe_ttm": _f(row.get("TTM(滚动)市盈率")),
-                        "index_pb": _f(row.get("市净率")),
-                        "index_div_yield": _f(row.get("静态股息率")),
-                    })
+                    result[idx_code].update(
+                        {
+                            "index_pe": _f(row.get("静态市盈率")),
+                            "index_pe_ttm": _f(row.get("TTM(滚动)市盈率")),
+                            "index_pb": _f(row.get("市净率")),
+                            "index_div_yield": _f(row.get("静态股息率")),
+                        }
+                    )
     except Exception as e:
         logger.warning("fetch index first info failed: %s", str(e)[:80])
 
@@ -176,12 +197,14 @@ def _fetch_index_data(trade_date: str) -> dict:
                 for _, row in info2.iterrows():
                     idx_code = str(row.get("行业代码", "")).replace(".SI", "")
                     if idx_code in l2_codes and idx_code in result:
-                        result[idx_code].update({
-                            "index_pe": _f(row.get("静态市盈率")),
-                            "index_pe_ttm": _f(row.get("TTM(滚动)市盈率")),
-                            "index_pb": _f(row.get("市净率")),
-                            "index_div_yield": _f(row.get("静态股息率")),
-                        })
+                        result[idx_code].update(
+                            {
+                                "index_pe": _f(row.get("静态市盈率")),
+                                "index_pe_ttm": _f(row.get("TTM(滚动)市盈率")),
+                                "index_pb": _f(row.get("市净率")),
+                                "index_div_yield": _f(row.get("静态股息率")),
+                            }
+                        )
         except Exception as e:
             logger.warning("fetch index second info failed: %s", str(e)[:80])
 
@@ -203,7 +226,8 @@ def compute_focus_industries(trade_date: str, db_path: str = None) -> list:
                FROM stock_daily sd
                LEFT JOIN stock_industry si ON sd.stock_code = si.code
                WHERE sd.trade_date = ?""",
-            conn, params=[trade_date],
+            conn,
+            params=[trade_date],
         )
         if today.empty:
             latest = conn.execute("SELECT MAX(trade_date) as d FROM stock_daily").fetchone()
@@ -215,7 +239,8 @@ def compute_focus_industries(trade_date: str, db_path: str = None) -> list:
                     """SELECT stock_code, close, pct_change, peTTM, pbMRQ,
                               turnover_rate, total_mv, amount
                        FROM stock_daily WHERE trade_date = ?""",
-                    conn, params=[trade_date],
+                    conn,
+                    params=[trade_date],
                 )
         if today.empty:
             logger.error("focus_industries: no stock_daily data for %s", trade_date)
@@ -294,11 +319,13 @@ def compute_focus_industries(trade_date: str, db_path: str = None) -> list:
                     display_name = name
                 else:
                     display_name = str(r["stock_code"])
-                top_gainers.append({
-                    "stock_code": str(r["stock_code"]),
-                    "stock_name": display_name,
-                    "pct_change": round(float(r["pct_change"]), 2),
-                })
+                top_gainers.append(
+                    {
+                        "stock_code": str(r["stock_code"]),
+                        "stock_name": display_name,
+                        "pct_change": round(float(r["pct_change"]), 2),
+                    }
+                )
 
         # Top 3 领跌
         sorted_down = members.sort_values("pct_change", ascending=True).head(3)
@@ -310,11 +337,13 @@ def compute_focus_industries(trade_date: str, db_path: str = None) -> list:
                     display_name = name
                 else:
                     display_name = str(r["stock_code"])
-                top_losers.append({
-                    "stock_code": str(r["stock_code"]),
-                    "stock_name": display_name,
-                    "pct_change": round(float(r["pct_change"]), 2),
-                })
+                top_losers.append(
+                    {
+                        "stock_code": str(r["stock_code"]),
+                        "stock_name": display_name,
+                        "pct_change": round(float(r["pct_change"]), 2),
+                    }
+                )
 
         # 热度评分（估值百分位 + 情绪百分位）
         hist_ind = hist[hist[sw_col] == sw_code] if not hist.empty else pd.DataFrame()
@@ -329,7 +358,9 @@ def compute_focus_industries(trade_date: str, db_path: str = None) -> list:
             pe_score = None
 
         # 情绪分: 换手率百分位
-        tr_mean = float(members["turnover_rate"].dropna().mean()) if len(members["turnover_rate"].dropna()) > 0 else None
+        tr_mean = (
+            float(members["turnover_rate"].dropna().mean()) if len(members["turnover_rate"].dropna()) > 0 else None
+        )
         if tr_mean is not None and tr_mean > 0 and not hist_ind.empty:
             hist_tr = hist_ind.groupby("trade_date")["turnover_rate"].mean().dropna()
             tr_score = _sp_rank(hist_tr, tr_mean)
@@ -350,67 +381,81 @@ def compute_focus_industries(trade_date: str, db_path: str = None) -> list:
             ur_score = None
 
         composite = round(float(np.mean(dim_scores)), 1) if dim_scores else None
-        heat_label = "hot" if composite is not None and composite >= 70 else (
-            "warm" if composite is not None and composite >= 40 else "cold"
+        heat_label = (
+            "hot"
+            if composite is not None and composite >= 70
+            else ("warm" if composite is not None and composite >= 40 else "cold")
         )
 
         idx = index_data.get(sw_code, {})
 
-        results.append({
-            "sw_code": sw_code,
-            "sw_name": sw_name,
-            "sw_level": sw_level,
-            "trade_date": trade_date,
-            "n_stocks": n_stocks,
-            "n_with_data": len(pc),
-            "avg_pct_change": avg_pct,
-            "vs_market_pct": vs_market,
-            "up_count": up_count,
-            "down_count": down_count,
-            "up_ratio": up_ratio,
-            "med_pe": med_pe,
-            "med_pb": med_pb,
-            "total_mv": total_mv,
-            "avg_mv": avg_mv,
-            "total_amount": total_amount,
-            "composite_score": composite,
-            "heat_label": heat_label,
-            "score_valuation": round(pe_score, 1) if pe_score is not None else None,
-            "score_turnover": round(tr_score, 1) if tr_score is not None else None,
-            "score_up_ratio": round(ur_score, 1) if ur_score is not None else None,
-            "top_gainers": top_gainers[:3],
-            "top_losers": top_losers[:3],
-            "index_close": idx.get("index_close"),
-            "index_pct_change": idx.get("index_pct_change"),
-            "index_pe": idx.get("index_pe"),
-            "index_pe_ttm": idx.get("index_pe_ttm"),
-            "index_pb": idx.get("index_pb"),
-            "index_div_yield": idx.get("index_div_yield"),
-        })
+        results.append(
+            {
+                "sw_code": sw_code,
+                "sw_name": sw_name,
+                "sw_level": sw_level,
+                "trade_date": trade_date,
+                "n_stocks": n_stocks,
+                "n_with_data": len(pc),
+                "avg_pct_change": avg_pct,
+                "vs_market_pct": vs_market,
+                "up_count": up_count,
+                "down_count": down_count,
+                "up_ratio": up_ratio,
+                "med_pe": med_pe,
+                "med_pb": med_pb,
+                "total_mv": total_mv,
+                "avg_mv": avg_mv,
+                "total_amount": total_amount,
+                "composite_score": composite,
+                "heat_label": heat_label,
+                "score_valuation": round(pe_score, 1) if pe_score is not None else None,
+                "score_turnover": round(tr_score, 1) if tr_score is not None else None,
+                "score_up_ratio": round(ur_score, 1) if ur_score is not None else None,
+                "top_gainers": top_gainers[:3],
+                "top_losers": top_losers[:3],
+                "index_close": idx.get("index_close"),
+                "index_pct_change": idx.get("index_pct_change"),
+                "index_pe": idx.get("index_pe"),
+                "index_pe_ttm": idx.get("index_pe_ttm"),
+                "index_pb": idx.get("index_pb"),
+                "index_div_yield": idx.get("index_div_yield"),
+            }
+        )
 
     # 补充市场参考
-    results.append({
-        "sw_code": "__market__",
-        "sw_name": "全市场",
-        "trade_date": trade_date,
-        "n_stocks": market_total,
-        "n_with_data": market_total,
-        "avg_pct_change": round(market_avg_pct, 2),
-        "vs_market_pct": 0,
-        "up_count": market_up_count,
-        "down_count": market_total - market_up_count,
-        "up_ratio": round(market_up_count / max(market_total, 1) * 100, 1),
-        "med_pe": None, "med_pb": None,
-        "total_mv": None, "avg_mv": None, "total_amount": None,
-        "composite_score": None, "heat_label": None,
-        "score_valuation": None, "score_turnover": None, "score_up_ratio": None,
-        "top_gainers": [], "top_losers": [],
-    })
+    results.append(
+        {
+            "sw_code": "__market__",
+            "sw_name": "全市场",
+            "trade_date": trade_date,
+            "n_stocks": market_total,
+            "n_with_data": market_total,
+            "avg_pct_change": round(market_avg_pct, 2),
+            "vs_market_pct": 0,
+            "up_count": market_up_count,
+            "down_count": market_total - market_up_count,
+            "up_ratio": round(market_up_count / max(market_total, 1) * 100, 1),
+            "med_pe": None,
+            "med_pb": None,
+            "total_mv": None,
+            "avg_mv": None,
+            "total_amount": None,
+            "composite_score": None,
+            "heat_label": None,
+            "score_valuation": None,
+            "score_turnover": None,
+            "score_up_ratio": None,
+            "top_gainers": [],
+            "top_losers": [],
+        }
+    )
 
-    results.sort(key=lambda x: (
-        0 if x["sw_code"] == "__market__" else
-        (-x["composite_score"] if x["composite_score"] is not None else 0)
-    ))
+    results.sort(
+        key=lambda x: (
+            0 if x["sw_code"] == "__market__" else (-x["composite_score"] if x["composite_score"] is not None else 0)
+        )
+    )
     for i, r in enumerate(results):
         r["rank"] = i + 1 if r["sw_code"] != "__market__" else None
 

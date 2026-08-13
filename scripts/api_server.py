@@ -15,9 +15,11 @@ API:
   GET /api/strategy      — 策略信号
   GET /api/health        — 健康检查
 """
+
 import sys
 import os
 import json
+
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from pathlib import Path
@@ -125,13 +127,15 @@ def calculate_strategy_signal(heat_data):
         "target_position": round(target_position, 1),
         "reason": reason,
         "risk_level": risk_level,
-        "risk_cn": {"low": "低风险", "medium": "中风险", "high": "高风险", "extreme": "极高风险"}.get(risk_level, "未知"),
+        "risk_cn": {"low": "低风险", "medium": "中风险", "high": "高风险", "extreme": "极高风险"}.get(
+            risk_level, "未知"
+        ),
         "indicators": {
             "heat_score": score,
             "valuation": valuation,
             "sentiment": sentiment,
             "fund": fund,
-        }
+        },
     }
 
 
@@ -206,6 +210,7 @@ def create_app():
 
 if __name__ == "__main__":
     import argparse
+
     parser = argparse.ArgumentParser(description="Heat Index API Server")
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=8000)
@@ -214,6 +219,7 @@ if __name__ == "__main__":
     app = create_app()
     try:
         import uvicorn
+
         uvicorn.run(app, host=args.host, port=args.port)
     except ImportError:
         print("ERROR: uvicorn not installed. Run: pip install uvicorn")

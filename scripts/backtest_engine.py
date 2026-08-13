@@ -8,6 +8,7 @@
   python scripts/backtest_engine.py --initial 1000000  # 初始资金100万
   python scripts/backtest_engine.py --report           # 生成HTML报告
 """
+
 import sys
 import os
 import json
@@ -36,13 +37,16 @@ class BacktestEngine:
         """获取指数价格数据"""
         conn = sqlite3.connect(DB_PATH)
         try:
-            rows = conn.execute("""
+            rows = conn.execute(
+                """
                 SELECT trade_date, close, pct_change
                 FROM index_daily
                 WHERE index_code='sh000001'
                   AND trade_date BETWEEN ? AND ?
                 ORDER BY trade_date
-            """, (start, end)).fetchall()
+            """,
+                (start, end),
+            ).fetchall()
             return [{"date": r[0], "close": r[1], "pct_change": r[2] or 0} for r in rows]
         finally:
             conn.close()
@@ -121,7 +125,7 @@ class BacktestEngine:
 
         print(f"回测区间: {start} ~ {end}")
         print(f"初始资金: {self.initial_capital:,.0f}")
-        print(f"手续费: {self.commission*100:.1f}%")
+        print(f"手续费: {self.commission * 100:.1f}%")
         print("-" * 60)
 
         # 获取数据
@@ -168,11 +172,16 @@ class BacktestEngine:
                         cash -= cost
                         shares += buy_shares
                         position = new_position
-                        trades.append({
-                            "date": trade_date, "action": "BUY",
-                            "price": close, "shares": buy_shares,
-                            "amount": buy_amount, "score": score
-                        })
+                        trades.append(
+                            {
+                                "date": trade_date,
+                                "action": "BUY",
+                                "price": close,
+                                "shares": buy_shares,
+                                "amount": buy_amount,
+                                "score": score,
+                            }
+                        )
 
             elif signal == "sell" and position > 0.1:
                 new_position = self.calculate_position(signal, position, score)
@@ -189,24 +198,31 @@ class BacktestEngine:
                         cash += revenue
                         shares -= sell_shares
                         position = new_position
-                        trades.append({
-                            "date": trade_date, "action": "SELL",
-                            "price": close, "shares": sell_shares,
-                            "amount": revenue, "score": score
-                        })
+                        trades.append(
+                            {
+                                "date": trade_date,
+                                "action": "SELL",
+                                "price": close,
+                                "shares": sell_shares,
+                                "amount": revenue,
+                                "score": score,
+                            }
+                        )
 
             # 记录权益
             total_value = cash + shares * close
-            equity_curve.append({
-                "date": trade_date,
-                "close": close,
-                "score": score,
-                "position": position,
-                "cash": cash,
-                "shares": shares,
-                "total_value": total_value,
-                "signal": signal,
-            })
+            equity_curve.append(
+                {
+                    "date": trade_date,
+                    "close": close,
+                    "score": score,
+                    "position": position,
+                    "cash": cash,
+                    "shares": shares,
+                    "total_value": total_value,
+                    "signal": signal,
+                }
+            )
 
             prev_score = score
 
@@ -255,12 +271,12 @@ class BacktestEngine:
         # 夏普比率 (简化计算)
         returns = []
         for i in range(1, len(equity_curve)):
-            r = (equity_curve[i]["total_value"] / equity_curve[i-1]["total_value"] - 1)
+            r = equity_curve[i]["total_value"] / equity_curve[i - 1]["total_value"] - 1
             returns.append(r)
         if returns:
             avg_return = sum(returns) / len(returns)
             std_return = (sum((r - avg_return) ** 2 for r in returns) / len(returns)) ** 0.5
-            sharpe = (avg_return / std_return * (252 ** 0.5)) if std_return > 0 else 0
+            sharpe = (avg_return / std_return * (252**0.5)) if std_return > 0 else 0
         else:
             sharpe = 0
 
@@ -307,7 +323,7 @@ class BacktestEngine:
         print(f"回测年数:     {metrics['years']:>14.1f}")
 
         # 策略 vs 买入持有
-        alpha = metrics['total_return'] - metrics['buy_hold_return']
+        alpha = metrics["total_return"] - metrics["buy_hold_return"]
         print(f"\n超额收益(Alpha): {alpha:+.2f}%")
 
         # 最近10笔交易
@@ -315,9 +331,10 @@ class BacktestEngine:
             print("\n最近10笔交易:")
             print("-" * 60)
             for t in trades[-10:]:
-                score_str = f"{t['score']:.0f}" if t['score'] else "N/A"
-                print(f"  {t['date']} {t['action']:4} @ {t['price']:.2f}  "
-                      f"金额: {t['amount']:>10,.0f}  热度: {score_str}")
+                score_str = f"{t['score']:.0f}" if t["score"] else "N/A"
+                print(
+                    f"  {t['date']} {t['action']:4} @ {t['price']:.2f}  金额: {t['amount']:>10,.0f}  热度: {score_str}"
+                )
 
 
 def generate_report(result: Dict, output_path: str = None):
@@ -369,22 +386,22 @@ tr:hover {{ background: #161b22; }}
 <body>
 <div class="container">
 <h1>回测报告 - A股牛市热度指数</h1>
-<p style="color: #8b949e;">生成时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</p>
+<p style="color: #8b949e;">生成时间: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}</p>
 
 <div class="metrics">
-  <div class="metric {'positive' if metrics['total_return'] > 0 else 'negative'}"><div class="value">{metrics['total_return']:+.1f}%</div><div class="label">总收益</div></div>
-  <div class="metric {'positive' if metrics['annual_return'] > 0 else 'negative'}"><div class="value">{metrics['annual_return']:+.1f}%</div><div class="label">年化收益</div></div>
-  <div class="metric negative"><div class="value">{metrics['max_drawdown']:.1f}%</div><div class="label">最大回撤</div></div>
-  <div class="metric"><div class="value">{metrics['sharpe_ratio']:.2f}</div><div class="label">夏普比率</div></div>
-  <div class="metric"><div class="value">{metrics['win_rate']:.0f}%</div><div class="label">胜率</div></div>
+  <div class="metric {"positive" if metrics["total_return"] > 0 else "negative"}"><div class="value">{metrics["total_return"]:+.1f}%</div><div class="label">总收益</div></div>
+  <div class="metric {"positive" if metrics["annual_return"] > 0 else "negative"}"><div class="value">{metrics["annual_return"]:+.1f}%</div><div class="label">年化收益</div></div>
+  <div class="metric negative"><div class="value">{metrics["max_drawdown"]:.1f}%</div><div class="label">最大回撤</div></div>
+  <div class="metric"><div class="value">{metrics["sharpe_ratio"]:.2f}</div><div class="label">夏普比率</div></div>
+  <div class="metric"><div class="value">{metrics["win_rate"]:.0f}%</div><div class="label">胜率</div></div>
 </div>
 
 <div class="metrics">
-  <div class="metric"><div class="value">{metrics['initial_capital']:,.0f}</div><div class="label">初始资金</div></div>
-  <div class="metric"><div class="value">{metrics['final_value']:,.0f}</div><div class="label">最终价值</div></div>
-  <div class="metric {'positive' if metrics['total_return'] > metrics['buy_hold_return'] else 'negative'}"><div class="value">{metrics['total_return'] - metrics['buy_hold_return']:+.1f}%</div><div class="label">超额收益(Alpha)</div></div>
-  <div class="metric"><div class="value">{metrics['buy_hold_return']:+.1f}%</div><div class="label">买入持有收益</div></div>
-  <div class="metric"><div class="value">{metrics['total_trades']}</div><div class="label">交易次数</div></div>
+  <div class="metric"><div class="value">{metrics["initial_capital"]:,.0f}</div><div class="label">初始资金</div></div>
+  <div class="metric"><div class="value">{metrics["final_value"]:,.0f}</div><div class="label">最终价值</div></div>
+  <div class="metric {"positive" if metrics["total_return"] > metrics["buy_hold_return"] else "negative"}"><div class="value">{metrics["total_return"] - metrics["buy_hold_return"]:+.1f}%</div><div class="label">超额收益(Alpha)</div></div>
+  <div class="metric"><div class="value">{metrics["buy_hold_return"]:+.1f}%</div><div class="label">买入持有收益</div></div>
+  <div class="metric"><div class="value">{metrics["total_trades"]}</div><div class="label">交易次数</div></div>
 </div>
 
 <div class="chart">
@@ -406,10 +423,10 @@ tr:hover {{ background: #161b22; }}
         action_class = "buy" if t["action"] == "BUY" else "sell"
         score_str = f"{t['score']:.0f}" if t.get("score") else "N/A"
         html += f"""<tr>
-<td>{t['date']}</td>
-<td class="{action_class}">{t['action']}</td>
-<td>{t['price']:.2f}</td>
-<td>{t['amount']:,.0f}</td>
+<td>{t["date"]}</td>
+<td class="{action_class}">{t["action"]}</td>
+<td>{t["price"]:.2f}</td>
+<td>{t["amount"]:,.0f}</td>
 <td>{score_str}</td>
 </tr>"""
 
@@ -469,6 +486,7 @@ scoreChart.setOption({{
 
 def main():
     import argparse
+
     parser = argparse.ArgumentParser(description="Backtest engine based on heat index")
     parser.add_argument("--start", default="2015-01-01", help="Start date")
     parser.add_argument("--end", help="End date")

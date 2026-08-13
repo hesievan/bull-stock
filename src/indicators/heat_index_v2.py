@@ -20,6 +20,7 @@ P0-1 去同源加权: 剔除与 PE/Buffett 共线的 ERP、存款市值比,
   yield_spread  = 10Y国债收益率 - 2Y国债收益率 (2s10s 期限利差; 1Y 历史不可用故用 2Y, 覆盖 2010~今)
   m1_m2_spread  = M1同比 - M2同比            (货币活化程度)
 """
+
 import logging
 import math
 import sqlite3
@@ -36,26 +37,26 @@ logger = logging.getLogger(__name__)
 
 # ── 指标权重配置 (内置默认值, 可被 config/*.yaml 的 v2_engine 覆盖) ─────────────
 DEFAULT_WEIGHTS = {
-    "pe": 0.14,                # 大盘PE
-    "buffett": 0.14,           # 巴菲特指标
-    "margin_ratio": 0.05,      # 两融余额市值比 (资金扩容: 15%→5%)
-    "north_ratio": 0.04,       # 北向净流入比 (新增)
-    "yield_spread": 0.03,      # 国债期限利差 10Y-2Y (新增)
-    "m1_m2_spread": 0.03,      # M1-M2剪刀差 (新增)
-    "seal_rate": 0.08,          # 涨停封板率 (降权: 15%→8%, 区分度3.1最低且日内噪声大)         # 涨停封板率 (回测调权: 28%→15%, 区分度3.1偏低)
-    "turnover_m2": 0.15,       # 成交额M2比 (回测调权: 10%→15%, 区分度21.0最高)
-    "turnover": 0.12,          # 换手率 (回测调权: 10%→12%, 区分度21.0)
-    "new_high": 0.14,           # 创新高占比 (升权: 10%→14%, 区分度19.4)          # 创新高占比 (回测调权: 6%→10%, 区分度19.4)
-    "ma_alignment": 0.08,       # MA排列比 (升权: 5%→8%, 区分度15.1)      # MA排列比 (回测调权: 4%→5%, 区分度15.1)
+    "pe": 0.14,  # 大盘PE
+    "buffett": 0.14,  # 巴菲特指标
+    "margin_ratio": 0.05,  # 两融余额市值比 (资金扩容: 15%→5%)
+    "north_ratio": 0.04,  # 北向净流入比 (新增)
+    "yield_spread": 0.03,  # 国债期限利差 10Y-2Y (新增)
+    "m1_m2_spread": 0.03,  # M1-M2剪刀差 (新增)
+    "seal_rate": 0.08,  # 涨停封板率 (降权: 15%→8%, 区分度3.1最低且日内噪声大)         # 涨停封板率 (回测调权: 28%→15%, 区分度3.1偏低)
+    "turnover_m2": 0.15,  # 成交额M2比 (回测调权: 10%→15%, 区分度21.0最高)
+    "turnover": 0.12,  # 换手率 (回测调权: 10%→12%, 区分度21.0)
+    "new_high": 0.14,  # 创新高占比 (升权: 10%→14%, 区分度19.4)          # 创新高占比 (回测调权: 6%→10%, 区分度19.4)
+    "ma_alignment": 0.08,  # MA排列比 (升权: 5%→8%, 区分度15.1)      # MA排列比 (回测调权: 4%→5%, 区分度15.1)
 }
 
 # 背离检测参数 (内置默认值, 可被 v2_engine.divergence 覆盖)
 DEFAULT_DIVERGENCE = {
-    "turnover_threshold": 70,       # 换手率超过此值才触发背离检查
-    "decline_threshold": -1.5,      # 指数跌幅超过此值(%)触发惩罚
-    "penalty_factor": 0.2,          # 每次背离扣除的分数（×100=20分，匹配README文档"最多20分"）
-    "lookback_days": 20,            # 背离检测的回看天数
-    "new_high_penalty": 15,         # 顶背离时扣除的结构分
+    "turnover_threshold": 70,  # 换手率超过此值才触发背离检查
+    "decline_threshold": -1.5,  # 指数跌幅超过此值(%)触发惩罚
+    "penalty_factor": 0.2,  # 每次背离扣除的分数（×100=20分，匹配README文档"最多20分"）
+    "lookback_days": 20,  # 背离检测的回看天数
+    "new_high_penalty": 15,  # 顶背离时扣除的结构分
 }
 
 
@@ -73,8 +74,9 @@ _cfg = _load_v2_config()
 INDICATOR_WEIGHTS = _cfg.get("weights") or DEFAULT_WEIGHTS
 
 # 验证权重总和为1.0
-assert abs(sum(INDICATOR_WEIGHTS.values()) - 1.0) < 0.001, \
+assert abs(sum(INDICATOR_WEIGHTS.values()) - 1.0) < 0.001, (
     f"Indicator weights must sum to 1.0, got {sum(INDICATOR_WEIGHTS.values())}"
+)
 
 DIMENSIONS = ["valuation", "fund", "sentiment", "structure"]
 
@@ -140,6 +142,7 @@ def _get_conn(db_path: str = None):
 # 各指标计算函数
 # ═══════════════════════════════════════════════════════════════════════════
 
+
 def calc_pe(conn, trade_date: str) -> Optional[tuple]:
     """大盘PE — index_daily_pe 中位数历史百分位 (高PE=贵=高热度)
 
@@ -150,8 +153,7 @@ def calc_pe(conn, trade_date: str) -> Optional[tuple]:
         td = trade_date
         # 当前值
         cur = conn.execute(
-            "SELECT pe_med, n_stocks FROM index_daily_pe WHERE trade_date<=? ORDER BY trade_date DESC LIMIT 1",
-            (td,)
+            "SELECT pe_med, n_stocks FROM index_daily_pe WHERE trade_date<=? ORDER BY trade_date DESC LIMIT 1", (td,)
         ).fetchone()
         if not cur or cur[0] is None:
             return None
@@ -162,7 +164,8 @@ def calc_pe(conn, trade_date: str) -> Optional[tuple]:
         # 历史序列 (10年), 过滤口径不一致的数据 (n_stocks相差超过50%)
         hist = pd.read_sql(
             "SELECT pe_med, n_stocks FROM index_daily_pe WHERE trade_date >= ? AND pe_med IS NOT NULL",
-            conn, params=[str(int(td[:4]) - 10) + td[4:]]
+            conn,
+            params=[str(int(td[:4]) - 10) + td[4:]],
         )
         if hist.empty or len(hist) < 120:
             return None
@@ -204,10 +207,7 @@ def calc_seal_rate_v2(conn, trade_date: str) -> Optional[float]:
     try:
         td = trade_date
         # 当前值
-        row = conn.execute(
-            "SELECT seal_rate FROM daily_seal_rate WHERE trade_date=?",
-            (td,)
-        ).fetchone()
+        row = conn.execute("SELECT seal_rate FROM daily_seal_rate WHERE trade_date=?", (td,)).fetchone()
         if not row or row[0] is None:
             return None
         cur = float(row[0])
@@ -216,10 +216,9 @@ def calc_seal_rate_v2(conn, trade_date: str) -> Optional[float]:
 
         # 历史序列 (10年窗口)
         hist = pd.read_sql(
-            "SELECT seal_rate FROM daily_seal_rate "
-            "WHERE trade_date >= ? AND seal_rate IS NOT NULL "
-            "ORDER BY trade_date",
-            conn, params=[str(int(td[:4]) - 10) + td[4:]]
+            "SELECT seal_rate FROM daily_seal_rate WHERE trade_date >= ? AND seal_rate IS NOT NULL ORDER BY trade_date",
+            conn,
+            params=[str(int(td[:4]) - 10) + td[4:]],
         )
         if hist.empty or len(hist) < 60:
             return None
@@ -246,14 +245,10 @@ def calc_buffett(conn, trade_date: str) -> Optional[float]:
         td = trade_date
 
         # 总市值 — 优先用预计算表, 回退到实时计算
-        mv_row = conn.execute(
-            "SELECT total_mv FROM stock_market_cap WHERE trade_date=?",
-            (td,)
-        ).fetchone()
+        mv_row = conn.execute("SELECT total_mv FROM stock_market_cap WHERE trade_date=?", (td,)).fetchone()
         if not mv_row or mv_row[0] is None:
             mv_row = conn.execute(
-                "SELECT SUM(total_mv) FROM stock_daily WHERE trade_date=? AND total_mv > 0",
-                (td,)
+                "SELECT SUM(total_mv) FROM stock_daily WHERE trade_date=? AND total_mv > 0", (td,)
             ).fetchone()
         if not mv_row or mv_row[0] is None:
             logger.warning("Buffett index: no market cap data for %s, return None", td)
@@ -262,10 +257,7 @@ def calc_buffett(conn, trade_date: str) -> Optional[float]:
 
         # 找到当日所属年份，用前一年的年度GDP（巴菲特指标的常规做法）
         td_year = int(td[:4])
-        gdp_all = pd.read_sql(
-            "SELECT quarter, gdp FROM gdp_quarterly WHERE gdp IS NOT NULL ORDER BY quarter",
-            conn
-        )
+        gdp_all = pd.read_sql("SELECT quarter, gdp FROM gdp_quarterly WHERE gdp IS NOT NULL ORDER BY quarter", conn)
         if gdp_all.empty:
             logger.warning("Buffett index: gdp_quarterly table empty, return None")
             return None
@@ -281,22 +273,23 @@ def calc_buffett(conn, trade_date: str) -> Optional[float]:
             cur_year -= 1
         if cur_year not in annual_gdp:
             logger.warning(
-                "Buffett index: no GDP data for year %d or earlier. "
-                "Available years: %s. Return None.",
-                td_year - 1, available_years)
+                "Buffett index: no GDP data for year %d or earlier. Available years: %s. Return None.",
+                td_year - 1,
+                available_years,
+            )
             return None
         if (td_year - 1 - cur_year) > 0:
             logger.info(
-                "Buffett index: using GDP from year %d (latest available, "
-                "%d year(s) behind)",
-                cur_year, td_year - 1 - cur_year)
+                "Buffett index: using GDP from year %d (latest available, %d year(s) behind)",
+                cur_year,
+                td_year - 1 - cur_year,
+            )
         cur_annual_gdp = annual_gdp[cur_year] * 1e8  # 亿元→元
 
         if cur_annual_gdp <= 0:
             logger.warning(
-                "Buffett index: GDP for year %d is non-positive (%.2f), "
-                "return None",
-                cur_year, cur_annual_gdp)
+                "Buffett index: GDP for year %d is non-positive (%.2f), return None", cur_year, cur_annual_gdp
+            )
             return None
 
         buffett_ratio = total_mv / cur_annual_gdp
@@ -305,7 +298,8 @@ def calc_buffett(conn, trade_date: str) -> Optional[float]:
         mv_hist = pd.read_sql(
             "SELECT trade_date, total_mv FROM stock_market_cap "
             "WHERE trade_date >= ? AND total_mv > 0 ORDER BY trade_date",
-            conn, params=[str(td_year - 10) + td[4:]]
+            conn,
+            params=[str(td_year - 10) + td[4:]],
         )
         if mv_hist.empty:
             return None
@@ -325,8 +319,14 @@ def calc_buffett(conn, trade_date: str) -> Optional[float]:
 
         pct = _pct_rank(hist_ratios, buffett_ratio)
         score = pct * 100  # 巴菲特指标越高=越贵=热度越高
-        logger.info("巴菲特指标: %.4f (%s年GDP=%.0f亿), score=%.1f (n=%d)",
-                     buffett_ratio, cur_year, cur_annual_gdp / 1e8, score, len(hist_ratios))
+        logger.info(
+            "巴菲特指标: %.4f (%s年GDP=%.0f亿), score=%.1f (n=%d)",
+            buffett_ratio,
+            cur_year,
+            cur_annual_gdp / 1e8,
+            score,
+            len(hist_ratios),
+        )
         return max(0, min(100, score)), buffett_ratio
     except Exception as e:
         logger.warning("Buffett calc failed: %s", e)
@@ -339,8 +339,7 @@ def calc_margin_ratio_v2(conn, trade_date: str) -> Optional[float]:
         td = trade_date
         # 两融数据
         margin = conn.execute(
-            "SELECT rzye, rqye FROM margin_history WHERE trade_date<=? ORDER BY trade_date DESC LIMIT 1",
-            (td,)
+            "SELECT rzye, rqye FROM margin_history WHERE trade_date<=? ORDER BY trade_date DESC LIMIT 1", (td,)
         ).fetchone()
         if not margin:
             return None
@@ -349,8 +348,7 @@ def calc_margin_ratio_v2(conn, trade_date: str) -> Optional[float]:
 
         # 流通市值 (daily_circ_mv.total_circ_mv 单位为万元, 转为元: ×10000)
         mv_row = conn.execute(
-            "SELECT total_circ_mv FROM daily_circ_mv WHERE trade_date<=? ORDER BY trade_date DESC LIMIT 1",
-            (td,)
+            "SELECT total_circ_mv FROM daily_circ_mv WHERE trade_date<=? ORDER BY trade_date DESC LIMIT 1", (td,)
         ).fetchone()
         if not mv_row or mv_row[0] is None or mv_row[0] <= 0:
             return None
@@ -360,7 +358,8 @@ def calc_margin_ratio_v2(conn, trade_date: str) -> Optional[float]:
 
         # 历史序列 (10年窗口; daily_circ_mv.total_circ_mv 万元→元 ×10000)
         # GROUP BY 防止 daily_circ_mv 表历史重复行导致 JOIN 膨胀
-        hist = pd.read_sql("""
+        hist = pd.read_sql(
+            """
             SELECT m.trade_date, AVG((m.rzye + m.rqye)) / (c.total_circ_mv * 10000) as ratio
             FROM margin_history m
             JOIN (SELECT trade_date, MAX(total_circ_mv) as total_circ_mv FROM daily_circ_mv
@@ -369,7 +368,10 @@ def calc_margin_ratio_v2(conn, trade_date: str) -> Optional[float]:
             WHERE m.trade_date >= ? AND m.rzye > 0
             GROUP BY m.trade_date
             ORDER BY m.trade_date
-        """, conn, params=[str(int(td[:4]) - 10) + td[4:]])
+        """,
+            conn,
+            params=[str(int(td[:4]) - 10) + td[4:]],
+        )
 
         if hist.empty or len(hist) < 60:
             return None
@@ -402,8 +404,7 @@ def calc_turnover_m2(conn, trade_date: str) -> Optional[float]:
 
         # M2 (m2_billion 单位为亿元, 转为元: ×1e8)
         m2_row = conn.execute(
-            "SELECT m2_billion FROM m2_monthly WHERE month<=? ORDER BY month DESC LIMIT 1",
-            (td_month,)
+            "SELECT m2_billion FROM m2_monthly WHERE month<=? ORDER BY month DESC LIMIT 1", (td_month,)
         ).fetchone()
         if not m2_row or m2_row[0] is None:
             return None
@@ -411,8 +412,7 @@ def calc_turnover_m2(conn, trade_date: str) -> Optional[float]:
 
         # 当日成交额 (stock_daily.amount 单位为千元, 转为元: ×1000)
         amt_row = conn.execute(
-            "SELECT SUM(amount) FROM stock_daily WHERE trade_date=? AND amount > 0",
-            (td,)
+            "SELECT SUM(amount) FROM stock_daily WHERE trade_date=? AND amount > 0", (td,)
         ).fetchone()
         if not amt_row or amt_row[0] is None:
             return None
@@ -425,16 +425,18 @@ def calc_turnover_m2(conn, trade_date: str) -> Optional[float]:
 
         # 历史序列 (月度M2 + 日均成交额)
         m2_all = pd.read_sql(
-            "SELECT month, m2_billion FROM m2_monthly WHERE m2_billion IS NOT NULL ORDER BY month",
-            conn
+            "SELECT month, m2_billion FROM m2_monthly WHERE m2_billion IS NOT NULL ORDER BY month", conn
         )
-        amt_monthly = pd.read_sql("""
+        amt_monthly = pd.read_sql(
+            """
             SELECT substr(trade_date, 1, 7) as month, AVG(daily_amt)*1000 as avg_daily_amt FROM (
                 SELECT trade_date, SUM(amount) as daily_amt
                 FROM stock_daily WHERE amount > 0 AND trade_date >= '2010-01-01'
                 GROUP BY trade_date
             ) GROUP BY month ORDER BY month
-        """, conn)
+        """,
+            conn,
+        )
 
         merged = m2_all.merge(amt_monthly, on="month", how="inner")
         if merged.empty or len(merged) < 60:
@@ -464,7 +466,8 @@ def calc_turnover_v2(conn, trade_date: str) -> Optional[float]:
             "SELECT trade_date, turnover_rate FROM daily_turnover "
             "WHERE trade_date >= ? AND trade_date <= ? AND turnover_rate IS NOT NULL "
             "ORDER BY trade_date",
-            conn, params=(ten_years_ago, td)
+            conn,
+            params=(ten_years_ago, td),
         )
         if hist.empty or len(hist) < 60:
             return None
@@ -474,7 +477,8 @@ def calc_turnover_v2(conn, trade_date: str) -> Optional[float]:
         today = pd.read_sql(
             "SELECT SUM(amount) as amt, SUM(circ_mv) as mv "
             "FROM stock_daily WHERE trade_date=? AND amount > 0 AND circ_mv > 0",
-            conn, params=(td,)
+            conn,
+            params=(td,),
         )
         if today.empty or today["mv"].iloc[0] is None or today["mv"].iloc[0] <= 0:
             # fallback: 最近日期
@@ -482,7 +486,7 @@ def calc_turnover_v2(conn, trade_date: str) -> Optional[float]:
                 "SELECT SUM(amount) as amt, SUM(circ_mv) as mv "
                 "FROM stock_daily WHERE trade_date = (SELECT MAX(trade_date) FROM stock_daily WHERE circ_mv > 0) "
                 "AND amount > 0 AND circ_mv > 0",
-                conn
+                conn,
             )
         if today.empty or today["mv"].iloc[0] is None or today["mv"].iloc[0] <= 0:
             return None
@@ -503,30 +507,30 @@ def calc_new_high_v2(conn, trade_date: str) -> Optional[float]:
     try:
         td = trade_date
         # 当前值: 优先预计算表 daily_new_high, 无则保留 stock_daily 直接查询兜底
-        row = conn.execute(
-            "SELECT new_high_ratio FROM daily_new_high WHERE trade_date=?",
-            (td,)
-        ).fetchone()
+        row = conn.execute("SELECT new_high_ratio FROM daily_new_high WHERE trade_date=?", (td,)).fetchone()
         if not row or row[0] is None:
             today = pd.read_sql(
-                "SELECT stock_code, close FROM stock_daily WHERE trade_date=? AND close > 0",
-                conn, params=(td,)
+                "SELECT stock_code, close FROM stock_daily WHERE trade_date=? AND close > 0", conn, params=(td,)
             )
             if today.empty or len(today) < 100:
                 today = pd.read_sql(
                     "SELECT stock_code, close FROM stock_daily WHERE trade_date = (SELECT MAX(trade_date) FROM stock_daily WHERE close > 0) AND close > 0",
-                    conn
+                    conn,
                 )
             if today.empty or len(today) < 100:
                 return None
 
-            hist = pd.read_sql("""
+            hist = pd.read_sql(
+                """
                 SELECT stock_code, MAX(close) as max_close
                 FROM stock_daily
                 WHERE trade_date <= ? AND trade_date >= date(?, '-250 days')
                   AND close > 0
                 GROUP BY stock_code
-            """, conn, params=(td, td))
+            """,
+                conn,
+                params=(td, td),
+            )
             if hist.empty:
                 return None
             merged = today.merge(hist, on="stock_code", how="inner").dropna()
@@ -539,7 +543,8 @@ def calc_new_high_v2(conn, trade_date: str) -> Optional[float]:
         # 历史序列 (10年, 预计算表)
         hist = pd.read_sql(
             "SELECT new_high_ratio FROM daily_new_high WHERE trade_date >= ? AND new_high_ratio IS NOT NULL",
-            conn, params=[str(int(td[:4]) - 10) + td[4:]]
+            conn,
+            params=[str(int(td[:4]) - 10) + td[4:]],
         )
         if hist.empty or len(hist) < 60:
             # 历史不足时宁缺毋滥 (与 PE/ERP 行为一致), 不返回绝对分
@@ -560,14 +565,11 @@ def calc_ma_alignment_v2(conn, trade_date: str) -> Optional[float]:
     try:
         td = trade_date
         # 当前值
-        row = conn.execute(
-            "SELECT ma_alignment_ratio FROM daily_ma_alignment WHERE trade_date=?",
-            (td,)
-        ).fetchone()
+        row = conn.execute("SELECT ma_alignment_ratio FROM daily_ma_alignment WHERE trade_date=?", (td,)).fetchone()
         if not row or row[0] is None:
             row = conn.execute(
                 "SELECT ma_alignment_ratio FROM daily_ma_alignment WHERE trade_date<=? ORDER BY trade_date DESC LIMIT 1",
-                (td,)
+                (td,),
             ).fetchone()
         if not row or row[0] is None:
             return None
@@ -576,12 +578,12 @@ def calc_ma_alignment_v2(conn, trade_date: str) -> Optional[float]:
         # 历史序列 (10年)
         hist = pd.read_sql(
             "SELECT ma_alignment_ratio FROM daily_ma_alignment WHERE trade_date >= ? AND ma_alignment_ratio IS NOT NULL",
-            conn, params=[str(int(td[:4]) - 10) + td[4:]]
+            conn,
+            params=[str(int(td[:4]) - 10) + td[4:]],
         )
         if hist.empty or len(hist) < 60:
             # F6修复: 历史不足时收敛到[20,80], 原实现 cur_val*100 会给出异常高分
-            logger.warning("MA alignment: insufficient historical data (%d records), using clamped fallback",
-                           len(hist))
+            logger.warning("MA alignment: insufficient historical data (%d records), using clamped fallback", len(hist))
             score = max(20, min(cur_val * 100, 80))
             return score, cur_val
 
@@ -604,23 +606,20 @@ def calc_north_ratio_v2(conn, trade_date: str) -> Optional[float]:
     try:
         td = trade_date
         nb = conn.execute(
-            "SELECT north_net FROM northbound_history WHERE trade_date<=? ORDER BY trade_date DESC LIMIT 1",
-            (td,)
+            "SELECT north_net FROM northbound_history WHERE trade_date<=? ORDER BY trade_date DESC LIMIT 1", (td,)
         ).fetchone()
         if not nb or nb[0] is None:
             return None
         north_net = float(nb[0])  # 百万元
-        amt = conn.execute(
-            "SELECT SUM(amount) FROM stock_daily WHERE trade_date=? AND amount > 0",
-            (td,)
-        ).fetchone()
+        amt = conn.execute("SELECT SUM(amount) FROM stock_daily WHERE trade_date=? AND amount > 0", (td,)).fetchone()
         if not amt or amt[0] is None or amt[0] <= 0:
             return None
         amount = float(amt[0])  # 千元
         cur_ratio = north_net * 1000.0 / amount
 
         win = str(int(td[:4]) - 10) + td[4:]
-        hist = pd.read_sql("""
+        hist = pd.read_sql(
+            """
             SELECT n.trade_date, n.north_net * 1000.0 / a.amount AS ratio
             FROM northbound_history n
             JOIN (SELECT trade_date, SUM(amount) AS amount FROM stock_daily
@@ -628,7 +627,10 @@ def calc_north_ratio_v2(conn, trade_date: str) -> Optional[float]:
               ON n.trade_date = a.trade_date
             WHERE n.trade_date >= ? AND n.north_net IS NOT NULL AND a.amount > 0
             ORDER BY n.trade_date
-        """, conn, params=[win, win])
+        """,
+            conn,
+            params=[win, win],
+        )
         if hist.empty or len(hist) < 60:
             return None
         hist_ratios = hist["ratio"].dropna()
@@ -653,9 +655,7 @@ def calc_yield_spread_v2(conn, trade_date: str) -> Optional[float]:
     try:
         td = trade_date
         row = conn.execute(
-            "SELECT curve_term, yield_rate FROM bond_yield "
-            "WHERE trade_date=? AND curve_term IN (2.0, 10.0)",
-            (td,)
+            "SELECT curve_term, yield_rate FROM bond_yield WHERE trade_date=? AND curve_term IN (2.0, 10.0)", (td,)
         ).fetchall()
         y2 = y10 = None
         for ct, yr in row:
@@ -667,14 +667,18 @@ def calc_yield_spread_v2(conn, trade_date: str) -> Optional[float]:
             return None
         cur = float(y10) - float(y2)
 
-        hist = pd.read_sql("""
+        hist = pd.read_sql(
+            """
             SELECT trade_date,
                    MAX(CASE WHEN curve_term=10.0 THEN yield_rate END) AS y10,
                    MAX(CASE WHEN curve_term=2.0 THEN yield_rate END) AS y2
             FROM bond_yield
             WHERE trade_date >= ? AND curve_term IN (2.0, 10.0)
             GROUP BY trade_date
-        """, conn, params=[str(int(td[:4]) - 10) + td[4:]])
+        """,
+            conn,
+            params=[str(int(td[:4]) - 10) + td[4:]],
+        )
         if hist.empty or len(hist) < 60:
             return None
         hist["spread"] = hist["y10"] - hist["y2"]
@@ -701,28 +705,30 @@ def calc_m1_m2_spread_v2(conn, trade_date: str) -> Optional[float]:
         td = trade_date
         td_month = td[:7]
         m1 = conn.execute(
-            "SELECT m1_yoy FROM m1_monthly WHERE month<=? ORDER BY month DESC LIMIT 1",
-            (td_month,)
+            "SELECT m1_yoy FROM m1_monthly WHERE month<=? ORDER BY month DESC LIMIT 1", (td_month,)
         ).fetchone()
         m2 = conn.execute(
-            "SELECT m2_yoy FROM m2_monthly WHERE month<=? ORDER BY month DESC LIMIT 1",
-            (td_month,)
+            "SELECT m2_yoy FROM m2_monthly WHERE month<=? ORDER BY month DESC LIMIT 1", (td_month,)
         ).fetchone()
         if not m1 or m1[0] is None or not m2 or m2[0] is None:
             return None
         cur = float(m1[0]) - float(m2[0])
 
-        mser = pd.read_sql("""
+        mser = pd.read_sql(
+            """
             SELECT a.month, a.m1_yoy - b.m2_yoy AS spread
             FROM m1_monthly a JOIN m2_monthly b ON a.month = b.month
             WHERE a.m1_yoy IS NOT NULL AND b.m2_yoy IS NOT NULL
             ORDER BY a.month
-        """, conn)
+        """,
+            conn,
+        )
         if mser.empty:
             return None
         dates = pd.read_sql(
             "SELECT DISTINCT trade_date FROM stock_daily WHERE trade_date >= ? ORDER BY trade_date",
-            conn, params=[str(int(td[:4]) - 10) + td[4:]]
+            conn,
+            params=[str(int(td[:4]) - 10) + td[4:]],
         )
         if dates.empty:
             return None
@@ -751,7 +757,7 @@ def calc_qvix_v2(conn, trade_date: str) -> Optional[float]:
         td = trade_date
         row = conn.execute(
             "SELECT COALESCE(panic_index, qvix) FROM qvix_daily WHERE trade_date<=? ORDER BY trade_date DESC LIMIT 1",
-            (td,)
+            (td,),
         ).fetchone()
         if row and row[0] is not None:
             return float(row[0])
@@ -767,7 +773,7 @@ def calc_qvix_components_v2(conn, trade_date: str) -> Optional[dict]:
         row = conn.execute(
             "SELECT qvix_50, qvix_300, qvix_1000, concentration FROM qvix_daily"
             " WHERE trade_date<=? ORDER BY trade_date DESC LIMIT 1",
-            (trade_date,)
+            (trade_date,),
         ).fetchone()
         if row and any(v is not None for v in row):
             return {
@@ -786,6 +792,7 @@ def calc_qvix_components_v2(conn, trade_date: str) -> Optional[dict]:
 # 主计算引擎
 # ═══════════════════════════════════════════════════════════════════════════
 
+
 def compute_index_v2(trade_date: str = None, db_path: str = None) -> dict:
     """计算新版热度指数，返回包含所有指标和分数的字典"""
     td = trade_date or date.today().strftime("%Y-%m-%d")
@@ -794,9 +801,18 @@ def compute_index_v2(trade_date: str = None, db_path: str = None) -> dict:
     conn = _get_conn(db)
     try:
         # 诊断: 关键预计算表记录数
-        for tbl_name in ("index_daily_pe", "stock_market_cap", "daily_circ_mv",
-                         "daily_seal_rate", "m2_monthly", "margin_history", "bond_yield",
-                         "stock_daily", "daily_turnover", "qvix_daily"):
+        for tbl_name in (
+            "index_daily_pe",
+            "stock_market_cap",
+            "daily_circ_mv",
+            "daily_seal_rate",
+            "m2_monthly",
+            "margin_history",
+            "bond_yield",
+            "stock_daily",
+            "daily_turnover",
+            "qvix_daily",
+        ):
             try:
                 cnt = conn.execute(f"SELECT COUNT(*) FROM {tbl_name}").fetchone()[0]
                 date_col = "month" if tbl_name == "m2_monthly" else "trade_date"
@@ -811,11 +827,14 @@ def compute_index_v2(trade_date: str = None, db_path: str = None) -> dict:
                 "FROM index_daily_pe WHERE pe_med IS NOT NULL"
             ).fetchone()
             if n_dist:
-                logger.info("DIAG: index_daily_pe n_stocks — min=%s max=%s avg=%.0f count=%s",
-                            n_dist[0], n_dist[1], n_dist[2] if n_dist[2] else 0, n_dist[3])
-            cur_n = conn.execute(
-                "SELECT n_stocks FROM index_daily_pe ORDER BY trade_date DESC LIMIT 1"
-            ).fetchone()
+                logger.info(
+                    "DIAG: index_daily_pe n_stocks — min=%s max=%s avg=%.0f count=%s",
+                    n_dist[0],
+                    n_dist[1],
+                    n_dist[2] if n_dist[2] else 0,
+                    n_dist[3],
+                )
+            cur_n = conn.execute("SELECT n_stocks FROM index_daily_pe ORDER BY trade_date DESC LIMIT 1").fetchone()
             if cur_n:
                 logger.info("DIAG: n_stocks (latest)=%s", cur_n[0])
         except Exception as e:
@@ -823,6 +842,7 @@ def compute_index_v2(trade_date: str = None, db_path: str = None) -> dict:
 
         # 计算所有指标 (每个函数返回 (分数, 原始值))
         _raw = {}
+
         def _unpack(k, v):
             if v is None:
                 _raw[k] = None
@@ -873,8 +893,7 @@ def compute_index_v2(trade_date: str = None, db_path: str = None) -> dict:
                 continue
             w = sum(INDICATOR_WEIGHTS[k] for k, _ in available)
             if w > 0:
-                dim_scores[dim_name] = (
-                    sum(v * INDICATOR_WEIGHTS[k] for k, v in available) / w)
+                dim_scores[dim_name] = sum(v * INDICATOR_WEIGHTS[k] for k, v in available) / w
             else:
                 dim_scores[dim_name] = None
 
@@ -894,10 +913,22 @@ def compute_index_v2(trade_date: str = None, db_path: str = None) -> dict:
             "trade_date": td,
             "composite_score": round(composite, 1) if composite is not None else None,
             "dimensions": {
-                "valuation": {"score": round(dim_scores.get("valuation"), 1) if dim_scores.get("valuation") is not None else None, "label": "估值"},
-                "fund": {"score": round(dim_scores.get("fund"), 1) if dim_scores.get("fund") is not None else None, "label": "资金"},
-                "sentiment": {"score": round(dim_scores.get("sentiment"), 1) if dim_scores.get("sentiment") is not None else None, "label": "情绪"},
-                "structure": {"score": round(dim_scores.get("structure"), 1) if dim_scores.get("structure") is not None else None, "label": "结构"},
+                "valuation": {
+                    "score": round(dim_scores.get("valuation"), 1) if dim_scores.get("valuation") is not None else None,
+                    "label": "估值",
+                },
+                "fund": {
+                    "score": round(dim_scores.get("fund"), 1) if dim_scores.get("fund") is not None else None,
+                    "label": "资金",
+                },
+                "sentiment": {
+                    "score": round(dim_scores.get("sentiment"), 1) if dim_scores.get("sentiment") is not None else None,
+                    "label": "情绪",
+                },
+                "structure": {
+                    "score": round(dim_scores.get("structure"), 1) if dim_scores.get("structure") is not None else None,
+                    "label": "结构",
+                },
             },
             "indicators": {
                 "pe": scores["pe"],
@@ -914,10 +945,13 @@ def compute_index_v2(trade_date: str = None, db_path: str = None) -> dict:
                 "qvix": qvix,
                 "qvix_components": qvix_components,
             },
-            "indicator_raw": _raw | {"margin_ratio_v2": _raw.get("margin_ratio"),
-                                     "north_ratio": _raw.get("north_ratio"),
-                                     "yield_spread": _raw.get("yield_spread"),
-                                     "m1_m2_spread": _raw.get("m1_m2_spread")},
+            "indicator_raw": _raw
+            | {
+                "margin_ratio_v2": _raw.get("margin_ratio"),
+                "north_ratio": _raw.get("north_ratio"),
+                "yield_spread": _raw.get("yield_spread"),
+                "m1_m2_spread": _raw.get("m1_m2_spread"),
+            },
             "updated_at": date.today().strftime("%Y-%m-%d %H:%M:%S"),
         }
         return result
@@ -929,16 +963,20 @@ def compute_index_v2(trade_date: str = None, db_path: str = None) -> dict:
 # 背离惩罚与评分调整
 # ═══════════════════════════════════════════════════════════════════════════
 
-def _apply_sentiment_divergence(conn, trade_date: str,
-                                 sentiment_scores: dict) -> dict:
+
+def _apply_sentiment_divergence(conn, trade_date: str, sentiment_scores: dict) -> dict:
     """情绪背离惩罚: 高活跃度(换手率高) + 指数下跌 = 减分"""
     try:
         td = trade_date
-        idx_close = pd.read_sql("""
+        idx_close = pd.read_sql(
+            """
             SELECT trade_date, close FROM index_daily
             WHERE index_code='sh000001' AND trade_date <= ? AND trade_date >= date(?, ?)
             ORDER BY trade_date DESC LIMIT 2
-        """, conn, params=(td, td, f'-{DIVERGENCE_CONFIG["lookback_days"]} days'))
+        """,
+            conn,
+            params=(td, td, f"-{DIVERGENCE_CONFIG['lookback_days']} days"),
+        )
 
         if len(idx_close) < 2:
             return sentiment_scores
@@ -946,13 +984,13 @@ def _apply_sentiment_divergence(conn, trade_date: str,
         pct_change = (idx_close.iloc[0]["close"] / idx_close.iloc[-1]["close"] - 1) * 100
 
         turnover_score = sentiment_scores.get("turnover")
-        if (turnover_score is not None
-                and turnover_score > DIVERGENCE_CONFIG["turnover_threshold"]
-                and pct_change < DIVERGENCE_CONFIG["decline_threshold"]):
-
+        if (
+            turnover_score is not None
+            and turnover_score > DIVERGENCE_CONFIG["turnover_threshold"]
+            and pct_change < DIVERGENCE_CONFIG["decline_threshold"]
+        ):
             penalty = DIVERGENCE_CONFIG["penalty_factor"]
-            logger.info("情绪背离惩罚: 换手率=%.1f, 指数%.1f%%, 减%.1f分",
-                        turnover_score, pct_change, penalty)
+            logger.info("情绪背离惩罚: 换手率=%.1f, 指数%.1f%%, 减%.1f分", turnover_score, pct_change, penalty)
             # F2修复(方案B): 只扣触发背离的换手率指标, 惩罚总额=20分(匹配README"最多20分")
             # 原实现对 turnover_m2 和 turnover 各扣20分=总40分, 惩罚翻倍导致信号失真
             for key in ("turnover",):
@@ -963,8 +1001,7 @@ def _apply_sentiment_divergence(conn, trade_date: str,
     return sentiment_scores
 
 
-def _apply_new_high_divergence(conn, trade_date: str,
-                                new_high_score: float) -> float:
+def _apply_new_high_divergence(conn, trade_date: str, new_high_score: float) -> float:
     """创新高顶背离: 指数涨 + 新高占比下降 = 扣分"""
     if new_high_score is None:
         return new_high_score
@@ -974,13 +1011,9 @@ def _apply_new_high_divergence(conn, trade_date: str,
         prev_td = (pd.Timestamp(td) - pd.DateOffset(days=lookback)).strftime("%Y-%m-%d")
 
         # F8修复: 改用预计算表 daily_new_high, 替代原 4 次全量 stock_daily 查询
-        now_row = conn.execute(
-            "SELECT new_high_ratio FROM daily_new_high WHERE trade_date=?",
-            (td,)
-        ).fetchone()
+        now_row = conn.execute("SELECT new_high_ratio FROM daily_new_high WHERE trade_date=?", (td,)).fetchone()
         prev_row = conn.execute(
-            "SELECT new_high_ratio FROM daily_new_high WHERE trade_date<=? ORDER BY trade_date DESC LIMIT 1",
-            (prev_td,)
+            "SELECT new_high_ratio FROM daily_new_high WHERE trade_date<=? ORDER BY trade_date DESC LIMIT 1", (prev_td,)
         ).fetchone()
         if not now_row or not prev_row or now_row[0] is None or prev_row[0] is None:
             return new_high_score
@@ -990,11 +1023,11 @@ def _apply_new_high_divergence(conn, trade_date: str,
         # 指数涨跌
         idx = conn.execute(
             "SELECT close FROM index_daily WHERE index_code='sh000001' AND trade_date <= ? ORDER BY trade_date DESC LIMIT 1",
-            (td,)
+            (td,),
         ).fetchone()
         idx_prev = conn.execute(
             "SELECT close FROM index_daily WHERE index_code='sh000001' AND trade_date <= ? ORDER BY trade_date DESC LIMIT 1",
-            (prev_td,)
+            (prev_td,),
         ).fetchone()
         if not idx or not idx_prev:
             return new_high_score
@@ -1004,8 +1037,7 @@ def _apply_new_high_divergence(conn, trade_date: str,
         # 顶背离: 指数涨>3%, 新高占比下降>5%, 且当前<30%
         if idx_change > 3 and prev_val - now_val > 5 and now_val < 30:
             penalty = DIVERGENCE_CONFIG["new_high_penalty"]
-            logger.info("新高顶背离: 指数+%.1f%%, 新高%.1f→%.1f%%, 扣%.0f分",
-                        idx_change, prev_val, now_val, penalty)
+            logger.info("新高顶背离: 指数+%.1f%%, 新高%.1f→%.1f%%, 扣%.0f分", idx_change, prev_val, now_val, penalty)
             return max(0, new_high_score - penalty)
     except Exception as e:
         logger.warning("New high divergence check failed: %s", e)

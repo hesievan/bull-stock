@@ -9,14 +9,17 @@
 
 用法: python scripts/show_engine_live.py [trade_date]
 """
+
 import os
 import sys
-from datetime import date
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from src.indicators.heat_index_v2 import (
-    compute_index_v2, INDICATOR_WEIGHTS, INDICATOR_DIMENSIONS, DIMENSIONS,
+    compute_index_v2,
+    INDICATOR_WEIGHTS,
+    INDICATOR_DIMENSIONS,
+    DIMENSIONS,
 )
 from src.output.json_writer import get_heat_level
 from src.data.database import DB_PATH
@@ -31,7 +34,10 @@ IND_META = {
     "m1_m2_spread": ("M1-M2剪刀差", lambda v: f"{v:.2f}%" if v is not None else "—"),
     "seal_rate": ("涨停封板率", lambda v: f"{v:.2%}" if v is not None else "—"),
     "turnover_m2": ("成交额M2比", lambda v: f"{v:.4%}" if v is not None else "—"),
-    "turnover": ("换手率", lambda v: f"{v:.2f}%" if v is not None else "—"),  # raw 已是百分比数值(2.33 表示 2.33%), 与 app.html 一致
+    "turnover": (
+        "换手率",
+        lambda v: f"{v:.2f}%" if v is not None else "—",
+    ),  # raw 已是百分比数值(2.33 表示 2.33%), 与 app.html 一致
     "new_high": ("创新高占比", lambda v: f"{v:.2%}" if v is not None else "—"),
     "ma_alignment": ("MA排列比", lambda v: f"{v:.2%}" if v is not None else "—"),
 }
@@ -54,8 +60,7 @@ def main():
 
     # 指标明细
     # 引擎 res["indicators"] 里两融键名为 margin_ratio_v2, 其余键名与内部一致
-    IND_KEY_MAP = {k: ("margin_ratio_v2" if k == "margin_ratio" else k)
-                   for k in INDICATOR_WEIGHTS}
+    IND_KEY_MAP = {k: ("margin_ratio_v2" if k == "margin_ratio" else k) for k in INDICATOR_WEIGHTS}
     print(f"{'指标':<22}{'原始值':<14}{'得分':<8}{'权重':<8}{'维度'}")
     print("-" * 78)
     contrib = {}

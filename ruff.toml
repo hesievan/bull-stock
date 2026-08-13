@@ -1,0 +1,19 @@
+# Ruff 配置 — 承接 CI 内联规则 (daily.yml 改为 `ruff check` 读取本文件)
+# 设计意图: 仅启用错误(E)/pyflakes(F)/告警(W) 三类, 忽略排版类噪声规则
+target-version = "py312"
+line-length = 120
+
+[lint]
+select = ["E", "F", "W"]
+ignore = [
+    "E501",  # 行过长 (长 SQL/URL 不可避免)
+    "E701",  # 一行多语句
+    "E702",  # 分号结尾多语句
+    "E402",  # 模块级 import 不在顶部 (run_daily 等需 sys.path 注入)
+    "W293",  # 空白行含空白字符
+    "E401",  # 一行多 import
+]
+
+# 对测试文件放宽部分规则 (允许 assert 裸露等)
+[lint.per-file-ignores]
+"tests/**" = ["E402"]

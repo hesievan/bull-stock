@@ -9,6 +9,7 @@
   python scripts/heat_analysis.py --predict          # 趋势预测
   python scripts/heat_analysis.py --all              # 全部分析
 """
+
 import sys
 import os
 import json
@@ -104,10 +105,12 @@ def explain_change(current: Dict, history: List) -> str:
     if changes:
         changes.sort(key=lambda x: abs(x[1]), reverse=True)
         top = changes[0]
-        lines.extend([
-            "",
-            f"主要驱动: {top[0]}维度{top[2]}{abs(top[1]):.1f}分",
-        ])
+        lines.extend(
+            [
+                "",
+                f"主要驱动: {top[0]}维度{top[2]}{abs(top[1]):.1f}分",
+            ]
+        )
 
     return "\n".join(lines)
 
@@ -177,13 +180,15 @@ def detect_anomalies(current: Dict, history: List) -> str:
     if all_scores:
         avg = sum(all_scores) / len(all_scores)
         std = (sum((s - avg) ** 2 for s in all_scores) / len(all_scores)) ** 0.5
-        lines.extend([
-            "",
-            "统计信息:",
-            f"  历史均值: {avg:.1f}",
-            f"  历史标准差: {std:.1f}",
-            f"  当前偏离: {(today_score - avg) / std:.1f}σ" if std > 0 else "",
-        ])
+        lines.extend(
+            [
+                "",
+                "统计信息:",
+                f"  历史均值: {avg:.1f}",
+                f"  历史标准差: {std:.1f}",
+                f"  当前偏离: {(today_score - avg) / std:.1f}σ" if std > 0 else "",
+            ]
+        )
 
     return "\n".join(lines)
 
@@ -220,7 +225,7 @@ def predict_trend(history: List) -> str:
 
     # 波动率
     if len(scores) >= 20:
-        returns = [scores[i] - scores[i-1] for i in range(1, len(scores[-20:]))]
+        returns = [scores[i] - scores[i - 1] for i in range(1, len(scores[-20:]))]
         volatility = (sum(r**2 for r in returns) / len(returns)) ** 0.5
     else:
         volatility = 0
@@ -243,24 +248,30 @@ def predict_trend(history: List) -> str:
     # 简单预测
     if trend == "上升趋势" and momentum > 0:
         predict = min(100, scores[-1] + momentum * 0.5)
-        lines.extend([
-            "",
-            f"预测: 未来5日可能升至 {predict:.0f}",
-            "风险: 若突破65需警惕",
-        ])
+        lines.extend(
+            [
+                "",
+                f"预测: 未来5日可能升至 {predict:.0f}",
+                "风险: 若突破65需警惕",
+            ]
+        )
     elif trend == "下降趋势" and momentum < 0:
         predict = max(0, scores[-1] + momentum * 0.5)
-        lines.extend([
-            "",
-            f"预测: 未来5日可能降至 {predict:.0f}",
-            "机会: 若跌破40可关注",
-        ])
+        lines.extend(
+            [
+                "",
+                f"预测: 未来5日可能降至 {predict:.0f}",
+                "机会: 若跌破40可关注",
+            ]
+        )
     else:
-        lines.extend([
-            "",
-            "预测: 短期维持震荡",
-            "关注: 等待方向选择",
-        ])
+        lines.extend(
+            [
+                "",
+                "预测: 短期维持震荡",
+                "关注: 等待方向选择",
+            ]
+        )
 
     # 相似历史模式
     lines.append("")
@@ -299,6 +310,7 @@ def full_analysis():
 
 def main():
     import argparse
+
     parser = argparse.ArgumentParser(description="Heat index analysis tools")
     parser.add_argument("--attr", action="store_true", help="Show change attribution")
     parser.add_argument("--anomaly", action="store_true", help="Detect anomalies")

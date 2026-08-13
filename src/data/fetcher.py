@@ -5,10 +5,14 @@
   tushare(2000积分): 全市场日K线、PE/PB/市值、融资融券、北向资金、指数PE/PB、成分股、行业分类
   akshare:           M2月度数据、国债收益率、AH股溢价
 """
+
+from __future__ import annotations
+
 import logging
 import time
 import os
 from datetime import date
+from typing import Any, Callable
 
 import pandas as pd
 import numpy as np
@@ -24,28 +28,40 @@ TUSHARE_TIMEOUT = 30
 TUSHARE_RETRIES = 2
 
 INDEX_CODE_MAP = {
-    "sh000001": "000001.SH", "sz399001": "399001.SZ", "sz399006": "399006.SZ",
-    "sh000300": "000300.SH", "sh000905": "000905.SH", "sh000852": "000852.SH",
-    "sh000688": "000688.SH", "bj899050": "899050.BJ", "sh000510": "000510.SH",
+    "sh000001": "000001.SH",
+    "sz399001": "399001.SZ",
+    "sz399006": "399006.SZ",
+    "sh000300": "000300.SH",
+    "sh000905": "000905.SH",
+    "sh000852": "000852.SH",
+    "sh000688": "000688.SH",
+    "bj899050": "899050.BJ",
+    "sh000510": "000510.SH",
     "sh000922": "000922.SH",
 }
 INDEX_NAMES = {
-    "sh000001": "上证综指", "sz399001": "深证成指", "sz399006": "创业板指",
-    "sh000300": "沪深300", "sh000905": "中证500", "sh000852": "中证1000",
-    "sh000688": "科创50", "bj899050": "北证50", "sh000510": "中证A500",
+    "sh000001": "上证综指",
+    "sz399001": "深证成指",
+    "sz399006": "创业板指",
+    "sh000300": "沪深300",
+    "sh000905": "中证500",
+    "sh000852": "中证1000",
+    "sh000688": "科创50",
+    "bj899050": "北证50",
+    "sh000510": "中证A500",
     "sh000922": "中证红利",
 }
 
 
-def _ts_sleep():
+def _ts_sleep() -> None:
     now = time.time()
-    wait = 0.15 - (now - getattr(_ts_sleep, '_last', 0))
+    wait = 0.15 - (now - getattr(_ts_sleep, "_last", 0))
     if wait > 0:
         time.sleep(wait)
     _ts_sleep._last = time.time()
 
 
-def _retry(fn, max_retries=3, base_delay=1):
+def _retry(fn: Callable, max_retries: int = 3, base_delay: int = 1) -> Any:
     """指数退避重试装饰器。连续失败 max_retries 次后抛出异常。"""
     last_exc = None
     for attempt in range(max_retries):
@@ -54,14 +70,15 @@ def _retry(fn, max_retries=3, base_delay=1):
         except Exception as e:
             last_exc = e
             if attempt < max_retries - 1:
-                delay = base_delay * (2 ** attempt)
+                delay = base_delay * (2**attempt)
                 logger.warning("Retry %d/%d after %.1fs: %s", attempt + 1, max_retries, delay, str(e)[:80])
                 time.sleep(delay)
     raise last_exc
 
 
-def _save(df: pd.DataFrame, table: str):
+def _save(df: pd.DataFrame, table: str) -> None:
     from src.data.database import save_dataframe as _sv
+
     _sv(df, table)
 
 
@@ -86,12 +103,14 @@ def ts_to_ak(ts_code: str) -> str:
     return ts_code
 
 
-def _get_pro():
+def _get_pro() -> Any:
     import tushare as ts
+
     return ts.pro_api(TUSHARE_TOKEN)
 
 
 # ── tushare: 指数日行情 ──────────────────────────────────────────────────────
+
 
 def fetch_index_daily(ak_code: str, start: str, end: str) -> pd.DataFrame:
     ts_code = INDEX_CODE_MAP.get(ak_code)
@@ -99,15 +118,23 @@ def fetch_index_daily(ak_code: str, start: str, end: str) -> pd.DataFrame:
         return pd.DataFrame()
     try:
         pro = _get_pro()
-        df = pro.index_daily(ts_code=ts_code,
-                             start_date=start.replace("-", ""),
-                             end_date=end.replace("-", ""))
+        df = pro.index_daily(ts_code=ts_code, start_date=start.replace("-", ""), end_date=end.replace("-", ""))
         _ts_sleep()
         if df is not None and not df.empty:
             df["trade_date"] = pd.to_datetime(df["trade_date"], format="%Y%m%d").dt.strftime("%Y-%m-%d")
             df["index_code"] = ak_code
             df.rename(columns={"pct_chg": "pct_change", "vol": "volume"}, inplace=True)
-            expected_cols = ["trade_date", "index_code", "open", "high", "low", "close", "volume", "amount", "pct_change"]
+            expected_cols = [
+                "trade_date",
+                "index_code",
+                "open",
+                "high",
+                "low",
+                "close",
+                "volume",
+                "amount",
+                "pct_change",
+            ]
             for col in expected_cols:
                 if col not in df.columns and col not in ("trade_date", "index_code"):
                     df[col] = None
@@ -119,6 +146,7 @@ def fetch_index_daily(ak_code: str, start: str, end: str) -> pd.DataFrame:
 
     try:
         import akshare as ak
+
         logger.info("fetch_index_daily(%s): falling back to akshare stock_zh_index_daily_tx", ak_code)
         df = ak.stock_zh_index_daily_tx(symbol=ak_code)
         if df is None or df.empty:
@@ -144,15 +172,15 @@ def fetch_index_daily(ak_code: str, start: str, end: str) -> pd.DataFrame:
         return pd.DataFrame()
 
 
-def fetch_all_index_incremental(db_path=None):
+def fetch_all_index_incremental(db_path: str | None = None) -> None:
     from src.data.database import DB_PATH as _DB
+
     _db = db_path or _DB
     for ak_code in INDEX_CODE_MAP:
         with get_conn(_db) as conn:
-            latest = conn.execute(
-                "SELECT MAX(trade_date) FROM index_daily WHERE index_code=?",
-                (ak_code,)
-            ).fetchone()[0]
+            latest = conn.execute("SELECT MAX(trade_date) FROM index_daily WHERE index_code=?", (ak_code,)).fetchone()[
+                0
+            ]
         start = latest or "2015-01-01"
         end = date.today().strftime("%Y-%m-%d")
         df = fetch_index_daily(ak_code, start, end)
@@ -162,6 +190,7 @@ def fetch_all_index_incremental(db_path=None):
 
 
 # ── tushare: 融资融券 ──────────────────────────────────────────────────────
+
 
 def fetch_margin_history(start: str, end: str) -> pd.DataFrame:
     """拉取融资融券历史数据 — 沪深北三市合并
@@ -177,8 +206,7 @@ def fetch_margin_history(start: str, end: str) -> pd.DataFrame:
             ds = dt.strftime("%Y%m%d")
             try:
                 # exchange="" 返回沪深北三市合并日汇总
-                df = pro.margin(start_date=ds,
-                                end_date=(dt + pd.offsets.MonthEnd(0)).strftime("%Y%m%d"))
+                df = pro.margin(start_date=ds, end_date=(dt + pd.offsets.MonthEnd(0)).strftime("%Y%m%d"))
                 _ts_sleep()
                 if df is not None and not df.empty:
                     dfs.append(df)
@@ -202,6 +230,7 @@ def fetch_margin_history(start: str, end: str) -> pd.DataFrame:
 
 
 # ── tushare: 北向资金 ──────────────────────────────────────────────────────
+
 
 def fetch_northbound_history(start: str, end: str) -> pd.DataFrame:
     try:
@@ -251,6 +280,7 @@ def fetch_northbound_history(start: str, end: str) -> pd.DataFrame:
 
 # ── tushare: 国债收益率 ──────────────────────────────────────────────────────
 
+
 def _fetch_bond_yield_akshare() -> pd.DataFrame:
     """从 akshare 获取国债收益率曲线 (2年 + 10年) — 用于期限利差 yield_spread = 10Y - 2Y
 
@@ -289,12 +319,14 @@ def fetch_bond_yield_history(start: str, end: str) -> pd.DataFrame:
 
 # ── tushare: 全市场 PE/PB/市值 + K线 ────────────────────────────────────────
 
+
 def fetch_daily_basic_to_stock_daily(trade_date: str, db_path: str = None) -> int:
     """
     拉取 tushare daily(全市场K线) + daily_basic(PE/PB/市值)
     合并写入 stock_daily 表
     """
     from src.data.database import DB_PATH as _DB
+
     if not TUSHARE_TOKEN:
         logger.warning("TUSHARE_TOKEN not set, skipping")
         return 0
@@ -303,7 +335,7 @@ def fetch_daily_basic_to_stock_daily(trade_date: str, db_path: str = None) -> in
     with get_conn(_db) as conn:
         existing = conn.execute(
             "SELECT COUNT(*) FROM stock_daily WHERE trade_date=? AND total_mv IS NOT NULL AND total_mv > 0 AND amount IS NOT NULL AND amount > 0",
-            (trade_date,)
+            (trade_date,),
         ).fetchone()[0]
     if existing > 7000:  # ISSUE-12 修复: A股超5000只, 原 4000 过低会错误跳过
         logger.info("daily_basic %s: already has %d rows with full data, skipping", trade_date, existing)
@@ -325,9 +357,9 @@ def fetch_daily_basic_to_stock_daily(trade_date: str, db_path: str = None) -> in
 
     try:
         df_basic = _retry(
-            lambda: pro.daily_basic(trade_date=ds,
-                fields='ts_code,pe_ttm,pb,total_mv,circ_mv,turnover_rate'),
-            max_retries=2, base_delay=2,
+            lambda: pro.daily_basic(trade_date=ds, fields="ts_code,pe_ttm,pb,total_mv,circ_mv,turnover_rate"),
+            max_retries=2,
+            base_delay=2,
         )
         _ts_sleep()
     except Exception as e:
@@ -335,13 +367,13 @@ def fetch_daily_basic_to_stock_daily(trade_date: str, db_path: str = None) -> in
         df_basic = None
 
     if df_basic is not None and not df_basic.empty:
-        merged = df_daily.merge(df_basic, on='ts_code', how='left')
+        merged = df_daily.merge(df_basic, on="ts_code", how="left")
     else:
         merged = df_daily
-        for col in ['pe_ttm', 'pb', 'total_mv', 'circ_mv', 'turnover_rate']:
+        for col in ["pe_ttm", "pb", "total_mv", "circ_mv", "turnover_rate"]:
             merged[col] = None
 
-    def _f(v):
+    def _f(v: Any) -> float | None:
         if v is None or (isinstance(v, float) and (pd.isna(v) or np.isinf(v))):
             return None
         return float(v)
@@ -351,19 +383,31 @@ def fetch_daily_basic_to_stock_daily(trade_date: str, db_path: str = None) -> in
         code = ts_to_ak(row.get("ts_code", ""))
         if not code:
             continue
-        rows.append((
-            _f(row.get("open")), _f(row.get("high")), _f(row.get("low")),
-            _f(row.get("close")), _f(row.get("vol")), _f(row.get("amount")),
-            _f(row.get("pct_chg")), _f(row.get("pe_ttm")), _f(row.get("pb")),
-            _f(row.get("total_mv")), _f(row.get("circ_mv")),
-            _f(row.get("turnover_rate")), trade_date, code,
-        ))
+        rows.append(
+            (
+                _f(row.get("open")),
+                _f(row.get("high")),
+                _f(row.get("low")),
+                _f(row.get("close")),
+                _f(row.get("vol")),
+                _f(row.get("amount")),
+                _f(row.get("pct_chg")),
+                _f(row.get("pe_ttm")),
+                _f(row.get("pb")),
+                _f(row.get("total_mv")),
+                _f(row.get("circ_mv")),
+                _f(row.get("turnover_rate")),
+                trade_date,
+                code,
+            )
+        )
 
     if not rows:
         return 0
 
     with get_conn(_db) as conn:
-        conn.executemany("""
+        conn.executemany(
+            """
             INSERT INTO stock_daily (open, high, low, close, volume, amount, pct_change,
                                      peTTM, pbMRQ, total_mv, circ_mv, turnover_rate,
                                      trade_date, stock_code)
@@ -377,7 +421,9 @@ def fetch_daily_basic_to_stock_daily(trade_date: str, db_path: str = None) -> in
                 total_mv = COALESCE(excluded.total_mv, stock_daily.total_mv),
                 circ_mv = COALESCE(excluded.circ_mv, stock_daily.circ_mv),
                 turnover_rate = COALESCE(excluded.turnover_rate, stock_daily.turnover_rate)
-        """, rows)
+        """,
+            rows,
+        )
     written = len(rows)
     logger.info("daily_basic %s: wrote %d stocks", trade_date, written)
     return written
@@ -385,7 +431,8 @@ def fetch_daily_basic_to_stock_daily(trade_date: str, db_path: str = None) -> in
 
 # ── M2月度数据 (tushare cn_m) ──────────────────────────────────────────────────
 
-def fetch_m2_history(start: str = "2008-01-01", end: str = None):
+
+def fetch_m2_history(start: str = "2008-01-01", end: str | None = None) -> None:
     """获取M2货币供应数据 (tushare cn_m 接口)"""
     try:
         pro = _get_pro()
@@ -407,13 +454,15 @@ def fetch_m2_history(start: str = "2008-01-01", end: str = None):
 
 # ── M1月度数据 (akshare macro_china_money_supply) ─────────────────────────────
 
-def fetch_m1_history(start: str = "2008-01-01", end: str = None):
+
+def fetch_m1_history(start: str = "2008-01-01", end: str | None = None) -> None:
     """获取 M1 货币供应数据 (akshare macro_china_money_supply), 写入 m1_monthly 表
 
     用于资金维度新指标 m1_m2_spread = M1同比 - M2同比。
     M2同比仍由 fetch_m2_history (tushare cn_m) 写入 m2_monthly, 两表按月关联。
     """
     from src.data.database import save_dataframe as _sv
+
     try:
         import akshare as ak
     except ImportError:
@@ -428,10 +477,12 @@ def fetch_m1_history(start: str = "2008-01-01", end: str = None):
         logger.warning("macro_china_money_supply returned empty")
         return
     df["month"] = df["月份"].str.replace("年", "-").str.replace("月份", "")
-    df = df.rename(columns={
-        "货币(M1)-数量(亿元)": "m1_billion",
-        "货币(M1)-同比增长": "m1_yoy",
-    })
+    df = df.rename(
+        columns={
+            "货币(M1)-数量(亿元)": "m1_billion",
+            "货币(M1)-同比增长": "m1_yoy",
+        }
+    )
     df["m1_billion"] = pd.to_numeric(df["m1_billion"], errors="coerce")
     df["m1_yoy"] = pd.to_numeric(df["m1_yoy"], errors="coerce")
     df = df.dropna(subset=["m1_yoy"])[["month", "m1_billion", "m1_yoy"]]
@@ -484,6 +535,7 @@ def fetch_shenwan_industry() -> pd.DataFrame:
     其 sw_code 仍记父一级，同时写 sw_l2_code/sw_l2_name，便于按二级赛道单独算热度。
     """
     from src.data.database import save_dataframe as _sv
+
     try:
         import akshare as ak
     except ImportError:
@@ -493,7 +545,7 @@ def fetch_shenwan_industry() -> pd.DataFrame:
     today_str = date.today().strftime("%Y-%m-%d")
     rows = {}  # stock_code -> dict (按 stock_code 去重, 二级覆盖写入 l2 字段)
 
-    def _fetch_constituents(sw_code: str):
+    def _fetch_constituents(sw_code: str) -> list[str]:
         try:
             df = ak.index_component_sw(symbol=sw_code)
         except Exception as e:
@@ -501,7 +553,7 @@ def fetch_shenwan_industry() -> pd.DataFrame:
             return []
         if df is None or df.empty:
             return []
-        code_col = next((c for c in ['stock_code', '证券代码'] if c in df.columns), None)
+        code_col = next((c for c in ["stock_code", "证券代码"] if c in df.columns), None)
         if code_col is None:
             logger.warning("fetch_shenwan_industry: no stock code column in %s", df.columns)
             return []
@@ -560,6 +612,7 @@ def fetch_shenwan_industry() -> pd.DataFrame:
 
 # ── 证监会行业分类 ────────────────────────────────────────────────────────────
 
+
 def fetch_stock_industry(trade_date: str = None) -> pd.DataFrame:
     """BUG-2 修复: 从 tushare stock_basic 拉取全市场行业分类, 保存到 stock_industry 表
 
@@ -570,6 +623,7 @@ def fetch_stock_industry(trade_date: str = None) -> pd.DataFrame:
       list_date          → update_date
     """
     from src.data.database import save_dataframe as _sv
+
     if not TUSHARE_TOKEN:
         logger.warning("TUSHARE_TOKEN not set, skipping stock_industry fetch")
         return pd.DataFrame()
@@ -581,10 +635,7 @@ def fetch_stock_industry(trade_date: str = None) -> pd.DataFrame:
         return pd.DataFrame()
 
     try:
-        df = pro.stock_basic(
-            exchange='', list_status='L',
-            fields='ts_code,name,industry,list_date'
-        )
+        df = pro.stock_basic(exchange="", list_status="L", fields="ts_code,name,industry,list_date")
         _ts_sleep()
     except Exception as e:
         logger.error("fetch_stock_industry tushare failed: %s", str(e)[:80])
@@ -596,18 +647,20 @@ def fetch_stock_industry(trade_date: str = None) -> pd.DataFrame:
 
     # 转换代码格式: 600000.SH → sh600000
     records = []
-    today_str = (trade_date or date.today().strftime("%Y-%m-%d"))
+    today_str = trade_date or date.today().strftime("%Y-%m-%d")
     for _, row in df.iterrows():
         code = ts_to_ak(str(row.get("ts_code", "")))
         if not code or not code[2:].isdigit():
             continue
-        records.append({
-            "code": code,                      # sh600000 格式, 匹配 stock_daily
-            "code_name": str(row.get("name", "")),
-            "industry": str(row.get("industry", "")),
-            "industry_classification": str(row.get("industry", "")),
-            "update_date": today_str,
-        })
+        records.append(
+            {
+                "code": code,  # sh600000 格式, 匹配 stock_daily
+                "code_name": str(row.get("name", "")),
+                "industry": str(row.get("industry", "")),
+                "industry_classification": str(row.get("industry", "")),
+                "update_date": today_str,
+            }
+        )
 
     if not records:
         logger.error("fetch_stock_industry: no valid records after conversion")
@@ -620,6 +673,7 @@ def fetch_stock_industry(trade_date: str = None) -> pd.DataFrame:
 
 
 # ── 涨停封板率 (P0-1: 本地计算, 无需 tushare API) ────────────────────────────────
+
 
 def _get_limit_factor(code: str) -> float:
     """根据股票代码返回涨跌停幅度。ST 股 (5%) 无法从代码识别, 不纳入。"""
@@ -670,7 +724,8 @@ def fetch_limit_list(trade_date: str, db_path: str = None) -> bool:
             "FROM stock_daily a "
             "INNER JOIN stock_daily b ON a.stock_code = b.stock_code AND b.trade_date = ? "
             "WHERE a.trade_date = ? AND a.amount > 0",
-            conn, params=[prev_date, trade_date],
+            conn,
+            params=[prev_date, trade_date],
         )
     finally:
         conn.close()
@@ -705,7 +760,10 @@ def fetch_limit_list(trade_date: str, db_path: str = None) -> bool:
         )
     logger.info(
         "daily_seal_rate %s: seal_rate=%.4f (%d 涨停 / %d 触板)",
-        trade_date, seal_rate, closed_count, touched_count,
+        trade_date,
+        seal_rate,
+        closed_count,
+        touched_count,
     )
     return True
 
@@ -767,13 +825,15 @@ def fetch_index_dailybasic(trade_date: str, db_path: str = None) -> bool:
         total_mv = row.get("total_mv")
         if total_mv is not None and not (isinstance(total_mv, float) and np.isnan(total_mv)):
             total_mv = round(float(total_mv) / 10000, 4)
-        records.append({
-            "trade_date": trade_date,
-            "index_code": ak_code,
-            "pe_ttm": _safe_float(row.get("pe_ttm_a") or row.get("pe")),
-            "pb": _safe_float(row.get("pb")),
-            "total_mv": total_mv,
-        })
+        records.append(
+            {
+                "trade_date": trade_date,
+                "index_code": ak_code,
+                "pe_ttm": _safe_float(row.get("pe_ttm_a") or row.get("pe")),
+                "pb": _safe_float(row.get("pb")),
+                "total_mv": total_mv,
+            }
+        )
 
     if not records:
         logger.warning("index_dailybasic %s: no target indices matched", trade_date)
@@ -785,7 +845,7 @@ def fetch_index_dailybasic(trade_date: str, db_path: str = None) -> bool:
     return True
 
 
-def _safe_float(v):
+def _safe_float(v: Any) -> float | None:
     """安全转 float, NaN/None → None"""
     if v is None:
         return None

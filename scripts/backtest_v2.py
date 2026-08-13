@@ -5,6 +5,7 @@ V2 热度指数全历史回测 — 内存优化版
 策略: 先用批量 SQL 预计算所有指标的原始值, 再在内存中算百分位得分,
 避免逐日重复加载 stock_daily (11M rows) 等大表。
 """
+
 import json
 import logging
 import math
@@ -39,33 +40,33 @@ def v2_level(score):
 
 # ── A 股已知牛熊周期 ──────────────────────────────────────────────────────
 MARKET_PHASES = [
-    ("2015-01-05", "2015-06-12", "bull_peak",   "2015大牛市顶部 (5178点)"),
-    ("2015-06-15", "2015-08-26", "bear_crash",  "股灾1.0 (5178→2850)"),
-    ("2015-08-27", "2015-12-31", "bounce",      "股灾后反弹"),
+    ("2015-01-05", "2015-06-12", "bull_peak", "2015大牛市顶部 (5178点)"),
+    ("2015-06-15", "2015-08-26", "bear_crash", "股灾1.0 (5178→2850)"),
+    ("2015-08-27", "2015-12-31", "bounce", "股灾后反弹"),
     ("2016-01-01", "2016-01-28", "bear_bottom", "熔断底 (2638点)"),
-    ("2016-01-29", "2016-11-30", "slow_bull",   "慢牛修复"),
-    ("2016-12-01", "2017-05-31", "correction",  "震荡调整"),
-    ("2017-06-01", "2018-01-29", "bull_peak",   "蓝筹白马牛 (3587点)"),
-    ("2018-01-30", "2018-10-19", "bear_crash",  "贸易战熊市 (3587→2449)"),
-    ("2018-10-20", "2019-04-19", "bull_rally",  "春季躁动 (2449→3288)"),
-    ("2019-04-22", "2019-08-09", "correction",  "中美摩擦回调"),
-    ("2019-08-12", "2020-01-20", "slow_bull",   "科技牛慢涨"),
-    ("2020-01-21", "2020-03-23", "bear_crash",  "新冠疫情冲击 (3127→2646)"),
-    ("2020-03-24", "2020-07-13", "bull_rally",  "流动性牛快速反弹"),
-    ("2020-07-14", "2021-02-18", "bull_peak",   "核心资产牛顶 (3731点)"),
-    ("2021-02-19", "2021-03-25", "correction",  "茅指数回调"),
-    ("2021-03-26", "2021-12-13", "bull_peak",   "新能源结构牛 (创业板3576)"),
-    ("2021-12-14", "2022-04-27", "bear_crash",  "多因素熊市 (3700→2863)"),
-    ("2022-04-28", "2022-07-05", "bounce",      "超跌反弹"),
+    ("2016-01-29", "2016-11-30", "slow_bull", "慢牛修复"),
+    ("2016-12-01", "2017-05-31", "correction", "震荡调整"),
+    ("2017-06-01", "2018-01-29", "bull_peak", "蓝筹白马牛 (3587点)"),
+    ("2018-01-30", "2018-10-19", "bear_crash", "贸易战熊市 (3587→2449)"),
+    ("2018-10-20", "2019-04-19", "bull_rally", "春季躁动 (2449→3288)"),
+    ("2019-04-22", "2019-08-09", "correction", "中美摩擦回调"),
+    ("2019-08-12", "2020-01-20", "slow_bull", "科技牛慢涨"),
+    ("2020-01-21", "2020-03-23", "bear_crash", "新冠疫情冲击 (3127→2646)"),
+    ("2020-03-24", "2020-07-13", "bull_rally", "流动性牛快速反弹"),
+    ("2020-07-14", "2021-02-18", "bull_peak", "核心资产牛顶 (3731点)"),
+    ("2021-02-19", "2021-03-25", "correction", "茅指数回调"),
+    ("2021-03-26", "2021-12-13", "bull_peak", "新能源结构牛 (创业板3576)"),
+    ("2021-12-14", "2022-04-27", "bear_crash", "多因素熊市 (3700→2863)"),
+    ("2022-04-28", "2022-07-05", "bounce", "超跌反弹"),
     ("2022-07-06", "2022-10-31", "bear_bottom", "二次探底 (2885)"),
-    ("2022-11-01", "2023-05-09", "bull_rally",  "疫后复苏行情"),
-    ("2023-05-10", "2024-02-05", "bear_crash",  "阴跌熊市 (3418→2635)"),
-    ("2024-02-06", "2024-05-20", "bull_rally",  "春季反弹 (2635→3174)"),
+    ("2022-11-01", "2023-05-09", "bull_rally", "疫后复苏行情"),
+    ("2023-05-10", "2024-02-05", "bear_crash", "阴跌熊市 (3418→2635)"),
+    ("2024-02-06", "2024-05-20", "bull_rally", "春季反弹 (2635→3174)"),
     ("2024-05-21", "2024-09-18", "bear_bottom", "缩量磨底 (3174→2689)"),
-    ("2024-09-24", "2024-10-08", "bull_peak",   "924行情急涨 (2689→3674)"),
-    ("2024-10-09", "2024-11-27", "correction",  "急涨后回调"),
-    ("2024-11-28", "2025-07-11", "slow_bull",   "震荡上行"),
-    ("2025-07-14", "2026-08-07", "bull_peak",   "持续上涨"),
+    ("2024-09-24", "2024-10-08", "bull_peak", "924行情急涨 (2689→3674)"),
+    ("2024-10-09", "2024-11-27", "correction", "急涨后回调"),
+    ("2024-11-28", "2025-07-11", "slow_bull", "震荡上行"),
+    ("2025-07-14", "2026-08-07", "bull_peak", "持续上涨"),
 ]
 BULL_PHASES = {"bull_peak", "bull_rally", "slow_bull", "bounce"}
 BEAR_PHASES = {"bear_crash", "bear_bottom", "correction"}
@@ -73,22 +74,41 @@ BEAR_PHASES = {"bear_crash", "bear_bottom", "correction"}
 # 指标权重 — 从 heat_index_v2 模块导入, 与 config/*.yaml 保持同步
 WEIGHTS = INDICATOR_WEIGHTS
 IND_DIMS = {
-    "pe": "valuation", "buffett": "valuation",
-    "margin_ratio": "fund", "north_ratio": "fund", "yield_spread": "fund", "m1_m2_spread": "fund",
-    "seal_rate": "sentiment", "turnover_m2": "sentiment", "turnover": "sentiment",
-    "new_high": "structure", "ma_alignment": "structure",
+    "pe": "valuation",
+    "buffett": "valuation",
+    "margin_ratio": "fund",
+    "north_ratio": "fund",
+    "yield_spread": "fund",
+    "m1_m2_spread": "fund",
+    "seal_rate": "sentiment",
+    "turnover_m2": "sentiment",
+    "turnover": "sentiment",
+    "new_high": "structure",
+    "ma_alignment": "structure",
 }
 DIMS = ["valuation", "fund", "sentiment", "structure"]
 
-IND_COLS = ["pe", "buffett", "margin_ratio", "north_ratio", "yield_spread", "m1_m2_spread",
-            "seal_rate", "turnover_m2", "turnover", "new_high", "ma_alignment"]
+IND_COLS = [
+    "pe",
+    "buffett",
+    "margin_ratio",
+    "north_ratio",
+    "yield_spread",
+    "m1_m2_spread",
+    "seal_rate",
+    "turnover_m2",
+    "turnover",
+    "new_high",
+    "ma_alignment",
+]
 
 SATURATION_CUTOFF = 0.85
 SATURATION_HEADROOM = 0.15
 
+
 # 涨跌停因子
 def _get_limit_factor(code):
-    c = str(code).replace("sh","").replace("sz","").replace("bj","")
+    c = str(code).replace("sh", "").replace("sz", "").replace("bj", "")
     if c.startswith("300") or c.startswith("301") or c.startswith("688"):
         return 0.20
     if c.startswith("8") or c.startswith("4") or c.startswith("920"):
@@ -109,7 +129,7 @@ def _t_test(a, b):
         return 0.0, 1.0
     m1, m2 = float(np.mean(a)), float(np.mean(b))
     v1, v2 = float(np.var(a, ddof=1)), float(np.var(b, ddof=1))
-    se = math.sqrt(v1/n1 + v2/n2)
+    se = math.sqrt(v1 / n1 + v2 / n2)
     if se == 0:
         return 0.0, 1.0
     t = (m1 - m2) / se
@@ -127,9 +147,9 @@ def run_backtest():
     conn.execute("PRAGMA synchronous=OFF")
     conn.execute("PRAGMA cache_size=-80000")
 
-    all_dates = [r[0] for r in conn.execute(
-        "SELECT DISTINCT trade_date FROM stock_daily ORDER BY trade_date"
-    ).fetchall()]
+    all_dates = [
+        r[0] for r in conn.execute("SELECT DISTINCT trade_date FROM stock_daily ORDER BY trade_date").fetchall()
+    ]
     print(f"\n总交易日: {len(all_dates)} ({all_dates[0]} ~ {all_dates[-1]})")
 
     # ── 批量预计算所有指标原始值 ────────────────────────────────────────
@@ -143,7 +163,9 @@ def run_backtest():
 
     # 2. stock_market_cap (巴菲特指标)
     print("  [2/8] Buffett (stock_market_cap + gdp_quarterly)...")
-    mvcap_df = pd.read_sql("SELECT trade_date, total_mv FROM stock_market_cap WHERE total_mv > 0 ORDER BY trade_date", conn)
+    mvcap_df = pd.read_sql(
+        "SELECT trade_date, total_mv FROM stock_market_cap WHERE total_mv > 0 ORDER BY trade_date", conn
+    )
     mvcap_df["trade_date"] = mvcap_df["trade_date"].astype(str)
     gdp_df = pd.read_sql("SELECT quarter, gdp FROM gdp_quarterly WHERE gdp IS NOT NULL ORDER BY quarter", conn)
     gdp_df["year"] = gdp_df["quarter"].str[:4].astype(int)
@@ -164,7 +186,8 @@ def run_backtest():
 
     # 3. margin_ratio (两融余额市值比)
     print("  [3/8] Margin ratio...")
-    margin_hist = pd.read_sql("""
+    margin_hist = pd.read_sql(
+        """
         SELECT m.trade_date, AVG((m.rzye + m.rqye)) / (c.total_circ_mv * 10000) as ratio
         FROM margin_history m
         JOIN (SELECT trade_date, MAX(total_circ_mv) as total_circ_mv FROM daily_circ_mv
@@ -173,7 +196,9 @@ def run_backtest():
         WHERE m.rzye > 0
         GROUP BY m.trade_date
         ORDER BY m.trade_date
-    """, conn)
+    """,
+        conn,
+    )
     margin_hist["trade_date"] = margin_hist["trade_date"].astype(str)
     print(f"        {len(margin_hist)} rows")
 
@@ -186,81 +211,106 @@ def run_backtest():
     # 5. turnover_m2 (成交额/M2)
     print("  [5/8] Turnover/M2...")
     m2_all = pd.read_sql("SELECT month, m2_billion FROM m2_monthly WHERE m2_billion IS NOT NULL ORDER BY month", conn)
-    amt_monthly = pd.read_sql("""
+    amt_monthly = pd.read_sql(
+        """
         SELECT substr(trade_date, 1, 7) as month, AVG(daily_amt)*1000 as avg_daily_amt FROM (
             SELECT trade_date, SUM(amount) as daily_amt
             FROM stock_daily WHERE amount > 0 AND trade_date >= '2010-01-01'
             GROUP BY trade_date
         ) GROUP BY month ORDER BY month
-    """, conn)
+    """,
+        conn,
+    )
     m2_merged = m2_all.merge(amt_monthly, on="month", how="inner")
     m2_merged["ratio"] = m2_merged["avg_daily_amt"] / (m2_merged["m2_billion"] * 1e8)
     # 当日成交额
-    daily_amt = pd.read_sql("SELECT trade_date, SUM(amount)*1000 as amount FROM stock_daily WHERE amount > 0 GROUP BY trade_date", conn)
+    daily_amt = pd.read_sql(
+        "SELECT trade_date, SUM(amount)*1000 as amount FROM stock_daily WHERE amount > 0 GROUP BY trade_date", conn
+    )
     daily_amt["trade_date"] = daily_amt["trade_date"].astype(str)
     daily_amt["month"] = daily_amt["trade_date"].str[:7]
     # FIX: 与引擎 calc_turnover_m2 保持一致 — M2 按月回填到最近可用月份
     # (原 left merge 要求精确月份匹配, 当 m2_monthly 缺最新月时 turnover_m2 整段缺失)
     import bisect as _bisect
+
     _m2_months = list(m2_all["month"])
     _m2_vals = list(m2_all["m2_billion"])
     daily_amt["m2_billion"] = daily_amt["month"].apply(
-        lambda mm: (_m2_vals[_bisect.bisect_right(_m2_months, mm) - 1]
-                    if _bisect.bisect_right(_m2_months, mm) - 1 >= 0 else None))
+        lambda mm: (
+            _m2_vals[_bisect.bisect_right(_m2_months, mm) - 1]
+            if _bisect.bisect_right(_m2_months, mm) - 1 >= 0
+            else None
+        )
+    )
     daily_amt["turnover_m2"] = daily_amt["amount"] / (daily_amt["m2_billion"] * 1e8)
     print(f"        {len(daily_amt)} rows")
 
     # 6. turnover (换手率)
     print("  [6/8] Turnover rate...")
-    turnover_df = pd.read_sql("SELECT trade_date, turnover_rate FROM daily_turnover WHERE turnover_rate IS NOT NULL", conn)
+    turnover_df = pd.read_sql(
+        "SELECT trade_date, turnover_rate FROM daily_turnover WHERE turnover_rate IS NOT NULL", conn
+    )
     turnover_df["trade_date"] = turnover_df["trade_date"].astype(str)
     print(f"        {len(turnover_df)} rows")
 
     # 7. new_high
     print("  [7/8] New high ratio...")
-    newhigh_df = pd.read_sql("SELECT trade_date, new_high_ratio FROM daily_new_high WHERE new_high_ratio IS NOT NULL", conn)
+    newhigh_df = pd.read_sql(
+        "SELECT trade_date, new_high_ratio FROM daily_new_high WHERE new_high_ratio IS NOT NULL", conn
+    )
     newhigh_df["trade_date"] = newhigh_df["trade_date"].astype(str)
     print(f"        {len(newhigh_df)} rows")
 
     # 8. ma_alignment
     print("  [8/8] MA alignment...")
-    ma_align_df = pd.read_sql("SELECT trade_date, ma_alignment_ratio FROM daily_ma_alignment WHERE ma_alignment_ratio IS NOT NULL", conn)
+    ma_align_df = pd.read_sql(
+        "SELECT trade_date, ma_alignment_ratio FROM daily_ma_alignment WHERE ma_alignment_ratio IS NOT NULL", conn
+    )
     ma_align_df["trade_date"] = ma_align_df["trade_date"].astype(str)
     print(f"        {len(ma_align_df)} rows")
 
     # 9. north_ratio (北向净流入比 = north_net×1000/amount)
     print("  [9/11] North ratio...")
-    north_hist = pd.read_sql("""
+    north_hist = pd.read_sql(
+        """
         SELECT n.trade_date, n.north_net * 1000.0 / a.amount AS ratio
         FROM northbound_history n
         JOIN (SELECT trade_date, SUM(amount) AS amount FROM stock_daily WHERE amount>0 GROUP BY trade_date) a
           ON n.trade_date = a.trade_date
         WHERE n.north_net IS NOT NULL AND a.amount > 0
         ORDER BY n.trade_date
-    """, conn)
+    """,
+        conn,
+    )
     north_hist["trade_date"] = north_hist["trade_date"].astype(str)
     print(f"        {len(north_hist)} rows")
 
     # 10. yield_spread (10Y-2Y 期限利差)
     print("  [10/11] Yield spread (10Y-2Y)...")
-    yspread_df = pd.read_sql("""
+    yspread_df = pd.read_sql(
+        """
         SELECT trade_date,
                MAX(CASE WHEN curve_term=10.0 THEN yield_rate END) AS y10,
                MAX(CASE WHEN curve_term=2.0 THEN yield_rate END) AS y2
         FROM bond_yield WHERE curve_term IN (2.0, 10.0)
         GROUP BY trade_date
-    """, conn)
+    """,
+        conn,
+    )
     yspread_df["trade_date"] = yspread_df["trade_date"].astype(str)
     yspread_df["spread"] = yspread_df["y10"] - yspread_df["y2"]
     print(f"        {len(yspread_df)} rows")
 
     # 11. m1_m2_spread (M1同比 - M2同比, 月频映射到交易日)
     print("  [11/11] M1-M2 spread...")
-    mser = pd.read_sql("""
+    mser = pd.read_sql(
+        """
         SELECT a.month, a.m1_yoy - b.m2_yoy AS spread
         FROM m1_monthly a JOIN m2_monthly b ON a.month = b.month
         WHERE a.m1_yoy IS NOT NULL AND b.m2_yoy IS NOT NULL
-    """, conn)
+    """,
+        conn,
+    )
     _m1m2 = pd.DataFrame({"trade_date": all_dates})
     _m1m2["month"] = _m1m2["trade_date"].str[:7]
     _m1m2 = _m1m2.merge(mser, on="month", how="left").sort_values("trade_date")
@@ -277,7 +327,7 @@ def run_backtest():
     idx_close = idx_df["close"]
 
     conn.close()
-    print(f"\n预计算完成。开始逐日计算百分位得分...")
+    print("\n预计算完成。开始逐日计算百分位得分...")
 
     # ── 逐日计算百分位得分 ────────────────────────────────────────────────
     results = []
@@ -376,7 +426,9 @@ def run_backtest():
             cur_ma = ma_align_df[ma_align_df["trade_date"] <= td]
         if len(cur_ma) > 0:
             cur_ma_val = cur_ma.iloc[-1]["ma_alignment_ratio"]
-            hist_ma = ma_align_df[(ma_align_df["trade_date"] >= ten_years_ago) & (ma_align_df["ma_alignment_ratio"].notna())]
+            hist_ma = ma_align_df[
+                (ma_align_df["trade_date"] >= ten_years_ago) & (ma_align_df["ma_alignment_ratio"].notna())
+            ]
             if len(hist_ma) >= 60:
                 pct = _pct_rank(hist_ma["ma_alignment_ratio"], cur_ma_val)
                 scores["ma_alignment"] = max(0, min(100, pct * 100))
@@ -431,20 +483,26 @@ def run_backtest():
             total_weight = sum(WEIGHTS[k] for k, _ in valid_scores)
             composite = sum(v * WEIGHTS[k] for k, v in valid_scores) / total_weight if total_weight > 0 else None
 
-        results.append({
-            "trade_date": td,
-            "composite_score": round(composite, 1) if composite is not None else None,
-            "level": v2_level(composite),
-            "dimensions": {dim: round(dim_scores.get(dim), 1) if dim_scores.get(dim) is not None else None for dim in DIMS},
-            "indicators": {k: round(v, 1) if v is not None else None for k, v in scores.items()},
-            "indicator_raw": {k: round(v, 6) if v is not None else None for k, v in raws.items()},
-        })
+        results.append(
+            {
+                "trade_date": td,
+                "composite_score": round(composite, 1) if composite is not None else None,
+                "level": v2_level(composite),
+                "dimensions": {
+                    dim: round(dim_scores.get(dim), 1) if dim_scores.get(dim) is not None else None for dim in DIMS
+                },
+                "indicators": {k: round(v, 1) if v is not None else None for k, v in scores.items()},
+                "indicator_raw": {k: round(v, 6) if v is not None else None for k, v in raws.items()},
+            }
+        )
 
         if (i + 1) % 500 == 0:
             elapsed = time.time() - t_start
             eta = elapsed / (i + 1) * (len(all_dates) - i - 1)
-            print(f"  [{i+1}/{len(all_dates)}] {td} composite={results[-1]['composite_score']} "
-                  f"({elapsed:.0f}s elapsed, ETA {eta:.0f}s)")
+            print(
+                f"  [{i + 1}/{len(all_dates)}] {td} composite={results[-1]['composite_score']} "
+                f"({elapsed:.0f}s elapsed, ETA {eta:.0f}s)"
+            )
 
     elapsed = time.time() - t_start
     print(f"\n计算完成: {len(results)} 日期 ({elapsed:.1f}s)")
@@ -468,18 +526,30 @@ def run_backtest():
     print("分析 1: 各市场阶段热度分布")
     print("=" * 70)
 
-    phase_stats = df.groupby("phase").agg(
-        count=("composite_score", "count"),
-        mean=("composite_score", "mean"),
-        median=("composite_score", "median"),
-        std=("composite_score", "std"),
-        min=("composite_score", "min"),
-        max=("composite_score", "max"),
-        p25=("composite_score", lambda x: x.quantile(0.25)),
-        p75=("composite_score", lambda x: x.quantile(0.75)),
-    ).round(1)
-    phase_order = ["bull_peak", "bull_rally", "slow_bull", "bounce",
-                   "correction", "bear_crash", "bear_bottom", "unknown"]
+    phase_stats = (
+        df.groupby("phase")
+        .agg(
+            count=("composite_score", "count"),
+            mean=("composite_score", "mean"),
+            median=("composite_score", "median"),
+            std=("composite_score", "std"),
+            min=("composite_score", "min"),
+            max=("composite_score", "max"),
+            p25=("composite_score", lambda x: x.quantile(0.25)),
+            p75=("composite_score", lambda x: x.quantile(0.75)),
+        )
+        .round(1)
+    )
+    phase_order = [
+        "bull_peak",
+        "bull_rally",
+        "slow_bull",
+        "bounce",
+        "correction",
+        "bear_crash",
+        "bear_bottom",
+        "unknown",
+    ]
     phase_stats = phase_stats.reindex([p for p in phase_order if p in phase_stats.index])
     print(phase_stats.to_string())
 
@@ -496,15 +566,23 @@ def run_backtest():
     bear_total = len(bear_dates)
 
     print(f"\n牛市期间 (n={bull_total}):")
-    print(f"  热度>=55 (正确信号): {bull_hit} ({bull_hit/bull_total*100:.1f}%)")
-    print(f"  热度40-55 (中性):    {((bull_dates['composite_score']>=40).sum() - bull_hit)} ({((bull_dates['composite_score']>=40).sum() - bull_hit)/bull_total*100:.1f}%)")
-    print(f"  热度<40 (错误信号):  {(bull_dates['composite_score']<40).sum()} ({(bull_dates['composite_score']<40).sum()/bull_total*100:.1f}%)")
+    print(f"  热度>=55 (正确信号): {bull_hit} ({bull_hit / bull_total * 100:.1f}%)")
+    print(
+        f"  热度40-55 (中性):    {((bull_dates['composite_score'] >= 40).sum() - bull_hit)} ({((bull_dates['composite_score'] >= 40).sum() - bull_hit) / bull_total * 100:.1f}%)"
+    )
+    print(
+        f"  热度<40 (错误信号):  {(bull_dates['composite_score'] < 40).sum()} ({(bull_dates['composite_score'] < 40).sum() / bull_total * 100:.1f}%)"
+    )
     print(f"  平均热度: {bull_dates['composite_score'].mean():.1f}")
 
     print(f"\n熊市期间 (n={bear_total}):")
-    print(f"  热度<40 (正确信号):  {bear_hit} ({bear_hit/bear_total*100:.1f}%)")
-    print(f"  热度40-55 (中性):    {((bear_dates['composite_score']>=40).sum() - bear_hit)} ({((bear_dates['composite_score']>=40).sum() - bear_hit)/bear_total*100:.1f}%)")
-    print(f"  热度>=55 (错误信号): {(bear_dates['composite_score']>=55).sum()} ({(bear_dates['composite_score']>=55).sum()/bear_total*100:.1f}%)")
+    print(f"  热度<40 (正确信号):  {bear_hit} ({bear_hit / bear_total * 100:.1f}%)")
+    print(
+        f"  热度40-55 (中性):    {((bear_dates['composite_score'] >= 40).sum() - bear_hit)} ({((bear_dates['composite_score'] >= 40).sum() - bear_hit) / bear_total * 100:.1f}%)"
+    )
+    print(
+        f"  热度>=55 (错误信号): {(bear_dates['composite_score'] >= 55).sum()} ({(bear_dates['composite_score'] >= 55).sum() / bear_total * 100:.1f}%)"
+    )
     print(f"  平均热度: {bear_dates['composite_score'].mean():.1f}")
 
     # ── 分析 3: 极值信号 → 后续市场表现 ─────────────────────────────────
@@ -522,7 +600,7 @@ def run_backtest():
                 fwd_close = idx_df.iloc[idx_pos + n_days]["close"]
                 cur_close = idx_df.iloc[idx_pos]["close"]
                 return (fwd_close / cur_close - 1) * 100
-        except:
+        except Exception:
             pass
         return None
 
@@ -531,14 +609,18 @@ def run_backtest():
         rets = extreme_high["trade_date"].apply(lambda d: fwd_return(d, n))
         valid = rets.dropna()
         if len(valid) > 0:
-            print(f"  后{n}日收益: 均值={valid.mean():.1f}%  中位数={valid.median():.1f}%  正收益率={((valid>0).mean()*100):.0f}%  (n={len(valid)})")
+            print(
+                f"  后{n}日收益: 均值={valid.mean():.1f}%  中位数={valid.median():.1f}%  正收益率={((valid > 0).mean() * 100):.0f}%  (n={len(valid)})"
+            )
 
     print(f"\n极冷信号 (热度<=20, n={len(extreme_low)}):")
     for n in [5, 20, 60]:
         rets = extreme_low["trade_date"].apply(lambda d: fwd_return(d, n))
         valid = rets.dropna()
         if len(valid) > 0:
-            print(f"  后{n}日收益: 均值={valid.mean():.1f}%  中位数={valid.median():.1f}%  正收益率={((valid>0).mean()*100):.0f}%  (n={len(valid)})")
+            print(
+                f"  后{n}日收益: 均值={valid.mean():.1f}%  中位数={valid.median():.1f}%  正收益率={((valid > 0).mean() * 100):.0f}%  (n={len(valid)})"
+            )
 
     # ── 分析 4: 热度与指数相关性 ─────────────────────────────────────────
     print("\n" + "=" * 70)
@@ -562,8 +644,19 @@ def run_backtest():
     print("分析 5: 各指标牛熊区分度")
     print("=" * 70)
 
-    ind_cols = ["pe", "buffett", "margin_ratio", "north_ratio", "yield_spread", "m1_m2_spread",
-                "seal_rate", "turnover_m2", "turnover", "new_high", "ma_alignment"]
+    ind_cols = [
+        "pe",
+        "buffett",
+        "margin_ratio",
+        "north_ratio",
+        "yield_spread",
+        "m1_m2_spread",
+        "seal_rate",
+        "turnover_m2",
+        "turnover",
+        "new_high",
+        "ma_alignment",
+    ]
     print(f"\n{'指标':15s} | {'牛市均值':>8s} | {'熊市均值':>8s} | {'区分度':>8s} | {'t统计量':>8s} | {'p值':>10s}")
     print("-" * 75)
     for ind in ind_cols:
@@ -600,39 +693,62 @@ def run_backtest():
         ("2026-08-11", "最新"),
     ]
 
-    print(f"\n{'日期':12s} | {'事件':20s} | {'热度':>6s} | {'级别':6s} | {'上证':>8s} | {'估值':>6s} | {'资金':>6s} | {'情绪':>6s} | {'结构':>6s}")
+    print(
+        f"\n{'日期':12s} | {'事件':20s} | {'热度':>6s} | {'级别':6s} | {'上证':>8s} | {'估值':>6s} | {'资金':>6s} | {'情绪':>6s} | {'结构':>6s}"
+    )
     print("-" * 100)
     for kd, desc in key_dates:
         row = df[df["trade_date"] == kd]
         if len(row) > 0:
             r = row.iloc[0]
             dims = r["dimensions"]
-            print(f"  {kd} | {desc:20s} | {r['composite_score']:6.1f} | {r['level']:6s} | "
-                  f"{r['close']:8.0f} | {dims.get('valuation',0) or 0:6.1f} | {dims.get('fund',0) or 0:6.1f} | "
-                  f"{dims.get('sentiment',0) or 0:6.1f} | {dims.get('structure',0) or 0:6.1f}")
+            print(
+                f"  {kd} | {desc:20s} | {r['composite_score']:6.1f} | {r['level']:6s} | "
+                f"{r['close']:8.0f} | {dims.get('valuation', 0) or 0:6.1f} | {dims.get('fund', 0) or 0:6.1f} | "
+                f"{dims.get('sentiment', 0) or 0:6.1f} | {dims.get('structure', 0) or 0:6.1f}"
+            )
 
     # ── 分析 7: 月度趋势 ────────────────────────────────────────────────
     print("\n" + "=" * 70)
     print("分析 7: 月度热度趋势 (关键月份)")
     print("=" * 70)
     df["month"] = df["trade_date"].str[:7]
-    monthly = df.groupby("month").agg(
-        heat_mean=("composite_score", "mean"),
-        close_mean=("close", "mean"),
-        n_days=("composite_score", "count"),
-    ).round(1)
+    monthly = (
+        df.groupby("month")
+        .agg(
+            heat_mean=("composite_score", "mean"),
+            close_mean=("close", "mean"),
+            n_days=("composite_score", "count"),
+        )
+        .round(1)
+    )
 
     # 选取关键月份
     key_months = [
-        "2015-06", "2015-07", "2015-08",  # 股灾
-        "2016-01", "2016-02",              # 熔断
-        "2018-01", "2018-02", "2018-10",   # 贸易战
-        "2019-01", "2019-02", "2019-03",   # 春季躁动
-        "2020-03", "2020-07",              # 疫情+反弹
-        "2021-02", "2021-12",              # 顶部
-        "2022-04", "2022-10",              # 熊市底
-        "2024-02", "2024-09", "2024-10",   # 924行情
-        "2025-06", "2025-07", "2026-07", "2026-08",  # 最新
+        "2015-06",
+        "2015-07",
+        "2015-08",  # 股灾
+        "2016-01",
+        "2016-02",  # 熔断
+        "2018-01",
+        "2018-02",
+        "2018-10",  # 贸易战
+        "2019-01",
+        "2019-02",
+        "2019-03",  # 春季躁动
+        "2020-03",
+        "2020-07",  # 疫情+反弹
+        "2021-02",
+        "2021-12",  # 顶部
+        "2022-04",
+        "2022-10",  # 熊市底
+        "2024-02",
+        "2024-09",
+        "2024-10",  # 924行情
+        "2025-06",
+        "2025-07",
+        "2026-07",
+        "2026-08",  # 最新
     ]
     print(f"\n{'月份':8s} | {'月均热度':>8s} | {'月均上证':>8s} | {'天数':>4s}")
     print("-" * 40)
@@ -661,7 +777,7 @@ def run_backtest():
     }
     with open("reports/backtest_v2_summary.json", "w") as f:
         json.dump(summary, f, ensure_ascii=False, indent=2, default=str)
-    print(f"统计摘要已保存: reports/backtest_v2_summary.json")
+    print("统计摘要已保存: reports/backtest_v2_summary.json")
 
     return df, summary
 

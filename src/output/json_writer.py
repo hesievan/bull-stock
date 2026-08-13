@@ -4,6 +4,9 @@
 - 飞书通知文本生成（含防抖逻辑）
 - 飞书 Webhook 推送
 """
+
+from __future__ import annotations
+
 import json
 import os
 import tempfile
@@ -17,7 +20,7 @@ from typing import Dict, Optional, Tuple
 logger = logging.getLogger(__name__)
 
 
-def _atomic_write_json(filepath: str, data):
+def _atomic_write_json(filepath: str, data) -> None:
     """原子写入 JSON 文件，先写临时文件再 rename，防止写入中途崩溃"""
     dir_name = os.path.dirname(filepath) or "."
     fd, tmp_path = tempfile.mkstemp(dir=dir_name, suffix=".tmp")
@@ -32,20 +35,24 @@ def _atomic_write_json(filepath: str, data):
             pass
         raise
 
+
 # 加载配置（惰性)
 _config_cache = None
-def _get_config():
+
+
+def _get_config() -> dict:
     global _config_cache
     if _config_cache is None:
         try:
             from src.config import load_config
+
             _config_cache = load_config()
         except Exception:
             _config_cache = {}
     return _config_cache
 
 
-def _get_thresholds():
+def _get_thresholds() -> dict:
     hl = _get_config().get("heat_levels", {})
     return {
         "red": hl.get("red", {}).get("min", 65),
@@ -54,16 +61,16 @@ def _get_thresholds():
     }
 
 
-def _get_debounce():
+def _get_debounce() -> Tuple[int, int]:
     db = _get_config().get("debounce", {})
     return db.get("red_days", 2), db.get("recover_days", 1)
 
 
-def _get_notify_rules():
+def _get_notify_rules() -> list:
     return _get_config().get("notification", {}).get("notify_rules", [])
 
 
-def _get_quiet_hours():
+def _get_quiet_hours() -> dict:
     return _get_config().get("notification", {}).get("quiet_hours", {})
 
 
@@ -91,22 +98,19 @@ def get_heat_level(score: float) -> str:
 
 def get_heat_level_cn(score: float) -> str:
     level = get_heat_level(score)
-    return {
-        "red": "🔴 红色预警",
-        "orange": "🟠 橙色关注",
-        "yellow": "🟡 黄色警惕",
-        "green": "🟢 绿色安全"
-    }.get(level, "未知")
+    return {"red": "🔴 红色预警", "orange": "🟠 橙色关注", "yellow": "🟡 黄色警惕", "green": "🟢 绿色安全"}.get(
+        level, "未知"
+    )
 
 
-def save_results_v2(result_v2: Dict, output_dir: str = None):
+def save_results_v2(result_v2: Dict, output_dir: str = None) -> Dict:
     """保存 V2 版计算结果到 JSON 文件（4维度 + 9指标 + QVIX展示）"""
     output_dir = output_dir or os.path.join(os.path.dirname(__file__), "..", "..", "web", "data")
     os.makedirs(output_dir, exist_ok=True)
 
     trade_date = result_v2["trade_date"]
 
-    def _round_score(v):
+    def _round_score(v) -> Optional[float]:
         if v is None:
             return None
         try:
@@ -269,6 +273,7 @@ def _should_notify(score: float, level: str, history: list, trade_date: str) -> 
     qh = _get_quiet_hours()
     if qh.get("enabled"):
         from datetime import datetime
+
         now = datetime.now()
         start = qh.get("start", "22:00")
         end = qh.get("end", "08:00")
@@ -382,11 +387,13 @@ def build_feishu_notification(result: Dict, history: list = None) -> Optional[st
         lines.append(f"📉 脱离红区，连续 {consecutive} 天回落。")
         lines.append(f"此前红色区间持续 {consecutive} 天。")
 
-    lines.extend([
-        "",
-        "维度拆解：",
-        *dim_lines,
-    ])
+    lines.extend(
+        [
+            "",
+            "维度拆解：",
+            *dim_lines,
+        ]
+    )
 
     # 板块热度 TOP5
     sectors_top5 = result.get("sectors_top5", [])
@@ -398,15 +405,21 @@ def build_feishu_notification(result: Dict, history: list = None) -> Optional[st
             leader = s.get("leader", {})
             ldr_str = ""
             if leader:
-                ldr_str = f"  龙头:{leader.get('code','')} +{leader.get('pct',0):.1f}%"
+                ldr_str = f"  龙头:{leader.get('code', '')} +{leader.get('pct', 0):.1f}%"
             sec_lines.append(f"  {i}. {name}  {sc:.0f}分{ldr_str}")
         lines.extend(["", "🔥 板块热度 TOP5：", *sec_lines])
     highlights = []
     # V2 评分指标(百分位分 >80 为偏高)
     v2_highlights = [
-        ("pe", "大盘PE"), ("buffett", "巴菲特指标"), ("margin_ratio_v2", "两融余额占比"),
-        ("north_ratio", "北向净流入占比"), ("yield_spread", "国债期限利差"), ("m1_m2_spread", "M1-M2剪刀差"),
-        ("seal_rate", "涨停封板率"), ("turnover_m2", "成交额M2比"), ("turnover", "换手率"),
+        ("pe", "大盘PE"),
+        ("buffett", "巴菲特指标"),
+        ("margin_ratio_v2", "两融余额占比"),
+        ("north_ratio", "北向净流入占比"),
+        ("yield_spread", "国债期限利差"),
+        ("m1_m2_spread", "M1-M2剪刀差"),
+        ("seal_rate", "涨停封板率"),
+        ("turnover_m2", "成交额M2比"),
+        ("turnover", "换手率"),
     ]
     for _k, _label in v2_highlights:
         _v = sub_indicators.get(_k)
@@ -433,11 +446,13 @@ def build_feishu_notification(result: Dict, history: list = None) -> Optional[st
         quality_lines.append("  提示: 评分可信度降低，建议关注数据恢复")
         lines.extend(quality_lines)
 
-    lines.extend([
-        "",
-        "不构成投资建议，仅供参考。",
-        "详情：web/data/detail.json",
-    ])
+    lines.extend(
+        [
+            "",
+            "不构成投资建议，仅供参考。",
+            "详情：web/data/detail.json",
+        ]
+    )
 
     msg = "\n".join(lines)
 
@@ -476,14 +491,17 @@ def send_bark(title: str, body: str, level: str = "active", group: str = "HeatIn
     if not BARK_API:
         logger.warning("Bark not configured (BARK_KEY env var missing)")
         return False
-    payload = json.dumps({
-        "title": title,
-        "body": body,
-        "group": group,
-        "level": level,
-    }).encode("utf-8")
+    payload = json.dumps(
+        {
+            "title": title,
+            "body": body,
+            "group": group,
+            "level": level,
+        }
+    ).encode("utf-8")
     req = urllib.request.Request(
-        BARK_API, data=payload,
+        BARK_API,
+        data=payload,
         headers={"Content-Type": "application/json"},
         method="POST",
     )

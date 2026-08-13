@@ -6,6 +6,7 @@
 用法:
   python scripts/backfill_index_heat_history.py
 """
+
 import sys
 import os
 import json
@@ -13,6 +14,7 @@ import logging
 import sqlite3
 
 import pandas as pd
+
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger(__name__)
@@ -66,7 +68,8 @@ def _compute_single(conn, ak_code, trade_date):
     # 指数日线
     idx_df = pd.read_sql(
         "SELECT * FROM index_daily WHERE index_code=? AND trade_date<=? ORDER BY trade_date",
-        conn, params=(ak_code, trade_date)
+        conn,
+        params=(ak_code, trade_date),
     )
     if len(idx_df) < 200:
         return None
@@ -80,7 +83,7 @@ def _compute_single(conn, ak_code, trade_date):
     # MA250 偏离分位
     ma250 = pd.Series(close).rolling(250).mean().dropna().values
     if len(ma250) > 200:
-        dev = (close[-len(ma250):] / ma250 - 1) * 100
+        dev = (close[-len(ma250) :] / ma250 - 1) * 100
         dev_clean = dev[~pd.isna(dev)]
         if len(dev_clean) > 100:
             current_dev = dev_clean[-1]
@@ -92,13 +95,12 @@ def _compute_single(conn, ak_code, trade_date):
         # 相对强度 vs 沪深300
         bm = pd.read_sql(
             "SELECT trade_date, close FROM index_daily WHERE index_code='sh000300' AND trade_date<=? ORDER BY trade_date",
-            conn, params=(trade_date,)
+            conn,
+            params=(trade_date,),
         )
         if not bm.empty:
             merged = pd.merge(
-                idx_df[["trade_date", "close"]],
-                bm[["trade_date", "close"]],
-                on="trade_date", suffixes=("_idx", "_bm")
+                idx_df[["trade_date", "close"]], bm[["trade_date", "close"]], on="trade_date", suffixes=("_idx", "_bm")
             )
             if len(merged) > 60:
                 idx_ret = pd.to_numeric(merged["close_idx"], errors="coerce").pct_change()
@@ -109,9 +111,11 @@ def _compute_single(conn, ak_code, trade_date):
                     rs = _pct_rank(cum_excess, cum_excess.iloc[-1]) * 100
                     # 连续跑赢惩罚
                     n_beat = 0
-                    for r in excess.iloc[-min(20, len(excess)):]:
-                        if r > 0: n_beat += 1
-                        else: n_beat = 0
+                    for r in excess.iloc[-min(20, len(excess)) :]:
+                        if r > 0:
+                            n_beat += 1
+                        else:
+                            n_beat = 0
                     tech_scores.append(min(rs + min(n_beat * 1.5, 15), 100))
     else:
         for days in [20, 60, 120]:
@@ -127,7 +131,8 @@ def _compute_single(conn, ak_code, trade_date):
     if ts_code:
         pe_df = pd.read_sql(
             "SELECT trade_date, pe_ttm, pb FROM index_pe_history WHERE index_code=? AND trade_date<=? ORDER BY trade_date",
-            conn, params=(ak_code, trade_date)
+            conn,
+            params=(ak_code, trade_date),
         )
         if not pe_df.empty and len(pe_df) > 60:
             pe = pd.to_numeric(pe_df["pe_ttm"], errors="coerce").dropna()
@@ -156,8 +161,7 @@ def main():
 
     # 获取所有有 index_daily 数据的交易日
     dates = pd.read_sql(
-        "SELECT DISTINCT trade_date FROM index_daily WHERE index_code='sh000300' ORDER BY trade_date",
-        conn
+        "SELECT DISTINCT trade_date FROM index_daily WHERE index_code='sh000300' ORDER BY trade_date", conn
     )["trade_date"].tolist()
     logger.info("Total trading dates: %d", len(dates))
 

@@ -10,6 +10,7 @@ For each target index, computes:
 The "overheating" concept here is bullish — higher scores mean the index
 is more extended/extreme and closer to a potential bull market top.
 """
+
 import logging
 from collections import OrderedDict
 from typing import Optional
@@ -22,15 +23,17 @@ from src.indicators.utils import _pct_rank, _to_numeric
 
 logger = logging.getLogger(__name__)
 
-TARGET_INDICES = OrderedDict({
-    "sh000300": "沪深300",
-    "sz399006": "创业板指",
-    "sh000688": "科创50",
-    "bj899050": "北证50",
-    "sh000510": "中证A500",
-    "sh000852": "中证1000",
-    "sh000922": "中证红利",
-})
+TARGET_INDICES = OrderedDict(
+    {
+        "sh000300": "沪深300",
+        "sz399006": "创业板指",
+        "sh000688": "科创50",
+        "bj899050": "北证50",
+        "sh000510": "中证A500",
+        "sh000852": "中证1000",
+        "sh000922": "中证红利",
+    }
+)
 
 # 使用相对强弱评分替代绝对动量评分的指数（短历史 < 1000 交易日）
 SHORT_HISTORY_INDICES = {"bj899050", "sh000510"}
@@ -61,6 +64,7 @@ def get_overheat_level(score: float) -> str:
 def compute_index_heat(trade_date: str = None, db_path: str = None) -> list[dict]:
     """Compute overheating scores for all target indices."""
     from datetime import date
+
     trade_date = trade_date or date.today().strftime("%Y-%m-%d")
 
     results = []
@@ -70,22 +74,26 @@ def compute_index_heat(trade_date: str = None, db_path: str = None) -> list[dict
             results.append(row)
         except Exception as e:
             logger.warning("Index heat %s (%s) failed: %s", name, ak_code, e)
-            results.append({
-                "index_code": ak_code,
-                "index_name": name,
-                "error": str(e)[:80],
-            })
+            results.append(
+                {
+                    "index_code": ak_code,
+                    "index_name": name,
+                    "error": str(e)[:80],
+                }
+            )
     return results
 
 
 def _get_index_daily(ak_code: str, trade_date: str, lookback_years: int = 10, db_path: str = None) -> pd.DataFrame:
     """Get index daily data with sufficient history for analysis."""
     from datetime import date, timedelta
+
     td = date.fromisoformat(trade_date)
     start = (td - timedelta(days=lookback_years * 365)).strftime("%Y-%m-%d")
     df = read_dataframe(
         "SELECT * FROM index_daily WHERE index_code=? AND trade_date BETWEEN ? AND ? ORDER BY trade_date",
-        params=(ak_code, start, trade_date), db_path=db_path
+        params=(ak_code, start, trade_date),
+        db_path=db_path,
     )
     df["close"] = _to_numeric(df["close"])
     df["volume"] = _to_numeric(df["volume"])
@@ -98,7 +106,8 @@ def _get_index_pe_history(ak_code: str, trade_date: str, db_path: str = None) ->
     df = read_dataframe(
         "SELECT trade_date, pe_ttm, pb FROM index_pe_history "
         "WHERE index_code=? AND trade_date <= ? ORDER BY trade_date",
-        params=(ak_code, trade_date), db_path=db_path
+        params=(ak_code, trade_date),
+        db_path=db_path,
     )
     return df
 
@@ -139,9 +148,12 @@ def _calc_relative_strength(index_df: pd.DataFrame, benchmark_df: pd.DataFrame, 
     if index_df.empty or benchmark_df.empty:
         return None
     # 对齐日期
-    merged = pd.merge(index_df[["trade_date", "close"]],
-                      benchmark_df[["trade_date", "close"]],
-                      on="trade_date", suffixes=("_idx", "_bm"))
+    merged = pd.merge(
+        index_df[["trade_date", "close"]],
+        benchmark_df[["trade_date", "close"]],
+        on="trade_date",
+        suffixes=("_idx", "_bm"),
+    )
     if len(merged) < window + 10:
         return None
     idx_ret = merged["close_idx"].pct_change()
@@ -155,7 +167,7 @@ def _calc_relative_strength(index_df: pd.DataFrame, benchmark_df: pd.DataFrame, 
     score = _pct_rank(cumulative_excess, current) * 100
     # 连续跑赢惩罚
     consecutive_beat = 0
-    for ret in excess.iloc[-min(20, len(excess)):]:
+    for ret in excess.iloc[-min(20, len(excess)) :]:
         if ret > 0:
             consecutive_beat += 1
         else:
@@ -177,7 +189,7 @@ def _calc_volume_score(index_df: pd.DataFrame, days: int = 60) -> Optional[float
     recent_avg = amt.rolling(days).mean().dropna()
     if len(recent_avg) < 10:
         return None
-    ratio_series = amt.iloc[-len(recent_avg):] / recent_avg
+    ratio_series = amt.iloc[-len(recent_avg) :] / recent_avg
     current_ratio = (amt.iloc[-1] / recent_avg.iloc[-1]) if len(recent_avg) > 0 else 0
     score = _pct_rank(ratio_series, current_ratio) * 100
     return score
@@ -259,8 +271,7 @@ def _analyze_single_index(ak_code: str, name: str, trade_date: str, db_path: str
         if rs_score is not None:
             tech_scores.append(rs_score)
             detail["relative_strength_60d"] = round(rs_score, 1)
-            logger.info("  %s: using relative strength (%.1f) instead of absolute momentum",
-                        name, rs_score)
+            logger.info("  %s: using relative strength (%.1f) instead of absolute momentum", name, rs_score)
     else:
         for days, label in [(20, "momentum_20d"), (60, "momentum_60d"), (120, "momentum_120d")]:
             mom_score = _calc_momentum_score(idx_df, days)
@@ -321,10 +332,17 @@ def _analyze_single_index(ak_code: str, name: str, trade_date: str, db_path: str
         "detail": detail,
     }
     if composite is not None:
-        logger.info("Index %s (%s): composite=%.1f level=%s tech=%s val=%s",
-                    name, ak_code, composite, result["level"],
-                    tech_scores, val_scores)
+        logger.info(
+            "Index %s (%s): composite=%.1f level=%s tech=%s val=%s",
+            name,
+            ak_code,
+            composite,
+            result["level"],
+            tech_scores,
+            val_scores,
+        )
     else:
-        logger.info("Index %s (%s): insufficient data (tech=%d val=%d)",
-                    name, ak_code, len(tech_scores), len(val_scores))
+        logger.info(
+            "Index %s (%s): insufficient data (tech=%d val=%d)", name, ak_code, len(tech_scores), len(val_scores)
+        )
     return result

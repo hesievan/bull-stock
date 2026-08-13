@@ -6,6 +6,7 @@
   python scripts/backtest_viz.py                    # 生成报告
   python scripts/backtest_viz.py --output report.html  # 指定输出文件
 """
+
 import sys
 import os
 import json
@@ -52,8 +53,14 @@ def calculate_metrics(results):
         "min_score": min(scores),
         "bull_peak_avg": sum(r["composite"] for r in bull_peaks) / len(bull_peaks) if bull_peaks else 0,
         "bear_bottom_avg": sum(r["composite"] for r in bear_bottoms) / len(bear_bottoms) if bear_bottoms else 0,
-        "accuracy": sum(1 for r in valid if (r["state"] in ("BULL_PEAK", "SURGE_PEAK") and r["composite"] >= 55) or
-                       (r["state"] in ("BEAR_BOTTOM", "CRASH_BOTTOM") and r["composite"] <= 40)) / len(valid) * 100,
+        "accuracy": sum(
+            1
+            for r in valid
+            if (r["state"] in ("BULL_PEAK", "SURGE_PEAK") and r["composite"] >= 55)
+            or (r["state"] in ("BEAR_BOTTOM", "CRASH_BOTTOM") and r["composite"] <= 40)
+        )
+        / len(valid)
+        * 100,
     }
 
 
@@ -64,7 +71,7 @@ def generate_html_report(results, history, metrics, output_path):
     scores = [r.get("composite", 0) or 0 for r in results if "error" not in r]
     states = [r["state"] for r in results if "error" not in r]
     descs = [r.get("desc", "") for r in results if "error" not in r]
-    dims = ['valuation', 'fund', 'sentiment', 'technical', 'structure']
+    dims = ["valuation", "fund", "sentiment", "technical", "structure"]
 
     html = f"""<!DOCTYPE html>
 <html lang="zh-CN">
@@ -92,13 +99,13 @@ tr:hover {{ background: #161b22; }}
 <body>
 <div class="container">
 <h1>回测报告 - A股牛市热度指数</h1>
-<p style="color: #8b949e;">生成时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</p>
+<p style="color: #8b949e;">生成时间: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}</p>
 
 <div class="metrics">
-  <div class="metric"><div class="value">{metrics.get('total_dates', 0)}</div><div class="label">测试日期数</div></div>
-  <div class="metric"><div class="value">{metrics.get('avg_score', 0):.1f}</div><div class="label">平均热度</div></div>
-  <div class="metric"><div class="value">{metrics.get('accuracy', 0):.0f}%</div><div class="label">信号准确率</div></div>
-  <div class="metric"><div class="value">{metrics.get('bull_peak_avg', 0):.0f} / {metrics.get('bear_bottom_avg', 0):.0f}</div><div class="label">牛市顶/熊市底</div></div>
+  <div class="metric"><div class="value">{metrics.get("total_dates", 0)}</div><div class="label">测试日期数</div></div>
+  <div class="metric"><div class="value">{metrics.get("avg_score", 0):.1f}</div><div class="label">平均热度</div></div>
+  <div class="metric"><div class="value">{metrics.get("accuracy", 0):.0f}%</div><div class="label">信号准确率</div></div>
+  <div class="metric"><div class="value">{metrics.get("bull_peak_avg", 0):.0f} / {metrics.get("bear_bottom_avg", 0):.0f}</div><div class="label">牛市顶/熊市底</div></div>
 </div>
 
 <div class="chart">
@@ -122,23 +129,23 @@ tr:hover {{ background: #161b22; }}
         score = r.get("composite", 0) or 0
         level_class = "red" if score >= 65 else "yellow" if score >= 40 else "green"
         html += f"""<tr>
-<td>{r['date']}</td>
-<td>{r.get('sh_close', '')}</td>
-<td>{r.get('state', '')}</td>
+<td>{r["date"]}</td>
+<td>{r.get("sh_close", "")}</td>
+<td>{r.get("state", "")}</td>
 <td class="{level_class}">{score:.1f}</td>
-<td>{r.get('valuation', 0) or 0:.1f}</td>
-<td>{r.get('fund', 0) or 0:.1f}</td>
-<td>{r.get('sentiment', 0) or 0:.1f}</td>
-<td>{r.get('technical', 0) or 0:.1f}</td>
-<td>{r.get('structure', 0) or 0:.1f}</td>
-<td>{r.get('desc', '')}</td>
+<td>{r.get("valuation", 0) or 0:.1f}</td>
+<td>{r.get("fund", 0) or 0:.1f}</td>
+<td>{r.get("sentiment", 0) or 0:.1f}</td>
+<td>{r.get("technical", 0) or 0:.1f}</td>
+<td>{r.get("structure", 0) or 0:.1f}</td>
+<td>{r.get("desc", "")}</td>
 </tr>"""
 
     html += f"""</table>
 </div>
 
 <script>
-const dims = {json.dumps(['valuation', 'fund', 'sentiment', 'technical', 'structure'])};
+const dims = {json.dumps(["valuation", "fund", "sentiment", "technical", "structure"])};
 const dates = {json.dumps(dates)};
 const scores = {json.dumps(scores)};
 const states = {json.dumps(states)};
@@ -186,6 +193,7 @@ dimChart.setOption({{
 
 def main():
     import argparse
+
     parser = argparse.ArgumentParser(description="Generate backtest visualization report")
     parser.add_argument("--output", help="Output HTML file path")
     args = parser.parse_args()

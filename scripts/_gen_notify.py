@@ -3,7 +3,9 @@
 bypassing the internal debounce so the text is always produced (user
 explicitly requested delivery). Then print the Feishu notification text.
 """
+
 import os, sys, json, inspect
+
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 WEB = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "web", "data")
@@ -19,9 +21,9 @@ jw._should_notify = lambda *a, **k: True
 #    original function.
 src = inspect.getsource(jw.build_feishu_notification)
 block = (
-    '    # 防抖期间不发通知\n'
+    "    # 防抖期间不发通知\n"
     '    if event in ("pending_red", "pending_recover", "stable"):\n'
-    '        return None  # 不需要推送\n'
+    "        return None  # 不需要推送\n"
 )
 assert block in src, "debounce block not found; script may have changed"
 src = src.replace(block, "    # debounce suppressed by caller request\n")

@@ -10,6 +10,7 @@
 
 支持断点续传: 跳过已有数据的日期。
 """
+
 import sys
 import os
 import time
@@ -26,15 +27,13 @@ logger = logging.getLogger(__name__)
 
 
 def main():
-    from src.data.database import DB_PATH, get_conn
+    from src.data.database import DB_PATH
     from src.data.fetcher import fetch_limit_list
     import sqlite3
 
     db = DB_PATH
     conn = sqlite3.connect(db)
-    rows = conn.execute(
-        "SELECT DISTINCT trade_date FROM stock_daily ORDER BY trade_date"
-    ).fetchall()
+    rows = conn.execute("SELECT DISTINCT trade_date FROM stock_daily ORDER BY trade_date").fetchall()
     all_dates = [r[0] for r in rows]
 
     existing = set()
@@ -46,8 +45,7 @@ def main():
     conn.close()
 
     need = [d for d in all_dates if d not in existing]
-    logger.info("Total trade dates: %d, already have: %d, need to fetch: %d",
-                len(all_dates), len(existing), len(need))
+    logger.info("Total trade dates: %d, already have: %d, need to fetch: %d", len(all_dates), len(existing), len(need))
 
     if not need:
         logger.info("Nothing to backfill, daily_seal_rate is up-to-date")
@@ -73,14 +71,21 @@ def main():
             elapsed = time.time() - t0
             rate = (i + 1) / elapsed if elapsed > 0 else 0
             eta = (len(need) - i - 1) / rate if rate > 0 else 0
-            logger.info("  Progress: %d/%d (%.1f%%) — ok=%d skip=%d fail=%d — %.1fs elapsed, ETA %.0fs",
-                        i + 1, len(need), (i + 1) / len(need) * 100,
-                        ok, skip, fail, elapsed, eta)
+            logger.info(
+                "  Progress: %d/%d (%.1f%%) — ok=%d skip=%d fail=%d — %.1fs elapsed, ETA %.0fs",
+                i + 1,
+                len(need),
+                (i + 1) / len(need) * 100,
+                ok,
+                skip,
+                fail,
+                elapsed,
+                eta,
+            )
 
     elapsed = time.time() - t0
     logger.info("=" * 60)
-    logger.info("Backfill complete: %d ok / %d skip / %d fail / %d total (%.1fs)",
-                ok, skip, fail, len(need), elapsed)
+    logger.info("Backfill complete: %d ok / %d skip / %d fail / %d total (%.1fs)", ok, skip, fail, len(need), elapsed)
     logger.info("=" * 60)
 
 

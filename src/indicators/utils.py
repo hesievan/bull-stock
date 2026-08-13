@@ -1,18 +1,23 @@
 """Shared utilities and constants for indicator calculations"""
+
+from __future__ import annotations
+
 import logging
 import numpy as np
 import pandas as pd
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
 _config_cache = None
 
 
-def get_config():
+def get_config() -> dict:
     global _config_cache
     if _config_cache is None:
         try:
             from src.config import load_config
+
             cfg = load_config()
             _config_cache = cfg if cfg is not None else {}
         except Exception as e:
@@ -43,16 +48,13 @@ def _pct_rank(series: pd.Series, value: float, scale: str = "0-1") -> float:
     return pct
 
 
-def _score_with_fallback(score, fallback_reason=""):
+def _score_with_fallback(score: float | None, fallback_reason: str = "") -> float | None:
     if score is None or np.isnan(score):
         return None
     return max(0, min(100, float(score)))
 
 
-def _to_numeric(series, errors="coerce", fillna=None):
+def _to_numeric(series: Any, errors: str = "coerce", fillna: float | None = None) -> pd.Series:
     """安全转换为数值类型，无效值转为 NaN"""
     s = pd.to_numeric(series, errors=errors)
     return s.fillna(fillna) if fillna is not None else s
-
-
-

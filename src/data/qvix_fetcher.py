@@ -9,6 +9,7 @@ QVIX 恐慌指数获取模块
   - 沪深300股指期权 IO (2019-12 起)
   - 中证1000股指期权 MO (2022-07 起)
 """
+
 import logging
 import io
 import urllib.request
@@ -21,9 +22,9 @@ OPTBBS_URL = "http://1.optbbs.com/d/csv/d/k.csv"
 # CFFEX index option QVIX column indices in the optbbs CSV:
 # Columns: [date, open, high, low, close]
 QVIX_COLUMNS = {
-    "50index":  [0, 79, 80, 81, 82],    # 上证50股指期权 HO
-    "300index": [0, 17, 18, 19, 20],    # 沪深300股指期权 IO
-    "1000index":[0, 25, 26, 27, 28],    # 中证1000股指期权 MO
+    "50index": [0, 79, 80, 81, 82],  # 上证50股指期权 HO
+    "300index": [0, 17, 18, 19, 20],  # 沪深300股指期权 IO
+    "1000index": [0, 25, 26, 27, 28],  # 中证1000股指期权 MO
 }
 
 # optbbs CSV 当前列数；上游改结构时显式报错而非静默错配数据
@@ -39,10 +40,7 @@ PANIC_WEIGHTS = {
 
 def _download_csv(timeout: int = 60) -> pd.DataFrame:
     """下载 optbbs.com 的 QVIX CSV 数据"""
-    req = urllib.request.Request(
-        OPTBBS_URL,
-        headers={"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)"}
-    )
+    req = urllib.request.Request(OPTBBS_URL, headers={"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)"})
     data = urllib.request.urlopen(req, timeout=timeout).read()
     df = pd.read_csv(io.BytesIO(data), encoding="gbk")
     logger.info("QVIX CSV 下载完成: %d 行, %d 列", len(df), len(df.columns))
@@ -76,8 +74,7 @@ def fetch_qvix_data(timeout: int = 60) -> pd.DataFrame:
     for name, cols in QVIX_COLUMNS.items():
         series[name] = _extract_qvix(df_raw, cols)
     merged = pd.DataFrame(series).sort_index()
-    logger.info("QVIX 合并完成: %d 天, 范围 %s ~ %s",
-                len(merged), merged.index.min().date(), merged.index.max().date())
+    logger.info("QVIX 合并完成: %d 天, 范围 %s ~ %s", len(merged), merged.index.min().date(), merged.index.max().date())
     return merged
 
 
@@ -101,11 +98,13 @@ def compute_panic_index(qvix_df: pd.DataFrame) -> pd.DataFrame:
     )
     df["concentration"] = df["1000index"] - df["50index"]
     # 重命名以保持列名一致
-    df = df.rename(columns={
-        "50index": "qvix_50",
-        "300index": "qvix_300",
-        "1000index": "qvix_1000",
-    })
+    df = df.rename(
+        columns={
+            "50index": "qvix_50",
+            "300index": "qvix_300",
+            "1000index": "qvix_1000",
+        }
+    )
     return df
 
 

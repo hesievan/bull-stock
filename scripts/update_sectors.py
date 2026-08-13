@@ -5,6 +5,7 @@ update_sectors.py — 计算板块热度并输出 JSON 供前端使用
 用法:
   python scripts/update_sectors.py [--date YYYY-MM-DD] [--db data/heat_index.db] [--out web/data/sectors.json]
 """
+
 import sys
 import os
 import json

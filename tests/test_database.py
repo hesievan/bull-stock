@@ -1,9 +1,7 @@
 """Tests for src/data/database.py — 数据库管理"""
+
 import pytest
 import os
-import sqlite3
-import tempfile
-from pathlib import Path
 
 from src.data.database import (
     get_conn,
@@ -64,9 +62,7 @@ class TestGetConn:
 class TestInitDatabase:
     def test_creates_tables(self, tmp_db):
         with get_conn(tmp_db) as conn:
-            tables = conn.execute(
-                "SELECT name FROM sqlite_master WHERE type='table'"
-            ).fetchall()
+            tables = conn.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()
             table_names = {t[0] for t in tables}
             assert "stock_daily" in table_names
             assert "index_daily" in table_names
@@ -76,9 +72,7 @@ class TestInitDatabase:
 
     def test_schema_version(self, tmp_db):
         with get_conn(tmp_db) as conn:
-            ver = conn.execute(
-                "SELECT value FROM metadata WHERE key='schema_version'"
-            ).fetchone()
+            ver = conn.execute("SELECT value FROM metadata WHERE key='schema_version'").fetchone()
             assert ver is not None
             assert int(ver[0]) == SCHEMA_VERSION
 
@@ -116,15 +110,15 @@ class TestSaveDataframe:
 
 class TestReadDataframe:
     def test_with_params(self, tmp_db):
-        df = pd.DataFrame({
-            "trade_date": ["2025-01-01", "2025-01-02"],
-            "index_code": ["sh000001", "sh000001"],
-            "close": [3000.0, 3100.0],
-        })
-        save_dataframe(df, "index_daily", tmp_db)
-        result = read_dataframe(
-            "SELECT * FROM index_daily WHERE close > ?", params=(3000,), db_path=tmp_db
+        df = pd.DataFrame(
+            {
+                "trade_date": ["2025-01-01", "2025-01-02"],
+                "index_code": ["sh000001", "sh000001"],
+                "close": [3000.0, 3100.0],
+            }
         )
+        save_dataframe(df, "index_daily", tmp_db)
+        result = read_dataframe("SELECT * FROM index_daily WHERE close > ?", params=(3000,), db_path=tmp_db)
         assert len(result) == 1
 
 
@@ -134,14 +128,13 @@ class TestGetLatestDate:
         assert result is None
 
     def test_with_data(self, tmp_db):
-        df = pd.DataFrame({
-            "trade_date": ["2025-01-01", "2025-01-02"],
-            "index_code": ["sh000001", "sh000001"],
-            "close": [3000.0, 3100.0],
-        })
+        df = pd.DataFrame(
+            {
+                "trade_date": ["2025-01-01", "2025-01-02"],
+                "index_code": ["sh000001", "sh000001"],
+                "close": [3000.0, 3100.0],
+            }
+        )
         save_dataframe(df, "index_daily", tmp_db)
         result = get_latest_date("index_daily", db_path=tmp_db)
         assert result == "2025-01-02"
-
-
-
