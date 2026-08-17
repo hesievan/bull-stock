@@ -113,7 +113,7 @@ def main():
     print(f"  dimensions = {dims}")
     print("  fund 4 子项 = {")
     ind = res["indicators"]
-    for k in ["margin_ratio_v2", "north_ratio", "yield_spread", "m1_m2_spread"]:
+    for k in ["margin_ratio_v2", "yield_spread", "m1_m2_spread"]:
         print(f"    {k}: {ind[k]}")
     print("  }}")
 

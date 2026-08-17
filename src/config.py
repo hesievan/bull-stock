@@ -71,7 +71,6 @@ _EXPECTED_WEIGHT_KEYS = (
     "pe",
     "buffett",
     "margin_ratio",
-    "north_ratio",
     "yield_spread",
     "m1_m2_spread",
     "seal_rate",
@@ -87,7 +86,6 @@ class EngineWeights:
     pe: float = 0.0
     buffett: float = 0.0
     margin_ratio: float = 0.0
-    north_ratio: float = 0.0
     yield_spread: float = 0.0
     m1_m2_spread: float = 0.0
     seal_rate: float = 0.0

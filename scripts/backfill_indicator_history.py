@@ -149,21 +149,6 @@ def main():
     except Exception as e:
         logger.warning("创新高占比失败: %s", str(e)[:60])
 
-    # 9. 北向净流入占比 (实际值: north_net×1000/amount)
-    logger.info("9/11 北向净流入占比...")
-    nb_amt = pd.read_sql(
-        """
-        SELECT n.trade_date, n.north_net * 1000.0 / a.amount AS ratio
-        FROM (SELECT trade_date, north_net FROM northbound_history WHERE north_net IS NOT NULL) n
-        JOIN (SELECT trade_date, SUM(amount) AS amount FROM stock_daily
-              WHERE amount>0 GROUP BY trade_date) a
-          ON n.trade_date = a.trade_date
-        WHERE a.amount > 0 ORDER BY n.trade_date
-    """,
-        conn,
-    )
-    nb_d = dict(zip(nb_amt["trade_date"], nb_amt["ratio"].round(6)))
-
     # 10. 国债期限利差 (实际值: 10Y−2Y, 单位 %)
     logger.info("10/11 国债期限利差...")
     ys = pd.read_sql(
@@ -210,7 +195,6 @@ def main():
         | set(ma_d)
         | set(bf_d)
         | set(nh_d)
-        | set(nb_d)
         | set(ys_d)
         | set(m1m2_d)
     )
@@ -233,8 +217,6 @@ def main():
             entry["buffett"] = bf_d[td]
         if td in nh_d:
             entry["new_high"] = nh_d[td]
-        if td in nb_d:
-            entry["north_ratio"] = nb_d[td]
         if td in ys_d:
             entry["yield_spread"] = ys_d[td]
         if td in m1m2_d:
@@ -253,7 +235,6 @@ def main():
         "seal_rate",
         "buffett",
         "margin_ratio_v2",
-        "north_ratio",
         "yield_spread",
         "m1_m2_spread",
         "turnover_m2",

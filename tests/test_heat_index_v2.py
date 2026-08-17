@@ -21,7 +21,6 @@ from src.indicators.heat_index_v2 import (
     calc_new_high_v2,
     calc_pe,
     calc_turnover_v2,
-    calc_north_ratio_v2,
     calc_yield_spread_v2,
     calc_m1_m2_spread_v2,
     compute_index_v2,
@@ -691,10 +690,6 @@ class TestComputeIndexV2EndToEnd:
                 (d, round(0.1 + i * 0.008, 4)),
             )
         conn.execute("INSERT INTO daily_ma_alignment (trade_date, ma_alignment_ratio) VALUES (?, 0.9)", (td,))
-        # 9. 北向净流入 (与 stock_daily 同日, 用于 north_ratio 历史窗口)
-        for i, d in enumerate(_dates("2016-09-01", 70, step_days=30)):
-            conn.execute("INSERT INTO northbound_history (trade_date, north_net) VALUES (?, ?)", (d, 500.0 + i * 10.0))
-        conn.execute("INSERT INTO northbound_history (trade_date, north_net) VALUES (?, 4000.0)", (td,))
         # 10. 国债收益率 2Y/10Y (与 stock_daily 同日, 用于期限利差)
         for i, d in enumerate(_dates("2016-09-01", 70, step_days=30)):
             conn.execute("INSERT INTO bond_yield (trade_date, curve_term, yield_rate) VALUES (?, 2.0, 2.5)", (d,))
@@ -722,7 +717,6 @@ class TestComputeIndexV2EndToEnd:
             "pe": "pe",
             "buffett": "buffett",
             "margin_ratio_v2": "margin_ratio",
-            "north_ratio": "north_ratio",
             "yield_spread": "yield_spread",
             "m1_m2_spread": "m1_m2_spread",
             "seal_rate": "seal_rate",
@@ -745,7 +739,7 @@ class TestComputeIndexV2EndToEnd:
 
         val = _dim_weighted(["pe", "buffett"])
         assert res["dimensions"]["valuation"]["score"] == pytest.approx(round(val, 1), abs=0.1)
-        fund = _dim_weighted(["margin_ratio_v2", "north_ratio", "yield_spread", "m1_m2_spread"])
+        fund = _dim_weighted(["margin_ratio_v2", "yield_spread", "m1_m2_spread"])
         assert res["dimensions"]["fund"]["score"] == pytest.approx(round(fund, 1), abs=0.1)
         sent = _dim_weighted(["seal_rate", "turnover_m2", "turnover"])
         assert res["dimensions"]["sentiment"]["score"] == pytest.approx(round(sent, 1), abs=0.1)
@@ -757,8 +751,7 @@ class TestComputeIndexV2EndToEnd:
         dim_weights = {
             "valuation": sum(INDICATOR_WEIGHTS[result_to_weight[k]] for k in ("pe", "buffett")),
             "fund": sum(
-                INDICATOR_WEIGHTS[result_to_weight[k]]
-                for k in ("margin_ratio_v2", "north_ratio", "yield_spread", "m1_m2_spread")
+                INDICATOR_WEIGHTS[result_to_weight[k]] for k in ("margin_ratio_v2", "yield_spread", "m1_m2_spread")
             ),
             "sentiment": sum(INDICATOR_WEIGHTS[result_to_weight[k]] for k in ("seal_rate", "turnover_m2", "turnover")),
             "structure": sum(INDICATOR_WEIGHTS[result_to_weight[k]] for k in ("new_high", "ma_alignment")),
@@ -786,7 +779,6 @@ class TestComputeIndexV2EndToEnd:
         for k in (
             "buffett",
             "margin_ratio_v2",
-            "north_ratio",
             "yield_spread",
             "m1_m2_spread",
             "seal_rate",
@@ -804,31 +796,9 @@ class TestComputeIndexV2EndToEnd:
 
 
 class TestNewFundIndicators:
-    """north_ratio / yield_spread / m1_m2_spread 计算正确性与方向性"""
+    """yield_spread / m1_m2_spread 计算正确性与方向性"""
 
     TD = "2026-08-06"
-
-    def test_calc_north_ratio_v2(self, v2_db):
-        """北向净流入比 = north_net(百万元)×1000 / 成交额(千元); 返回 (score, 原始比)"""
-        for i, d in enumerate(_dates("2016-09-01", 70, step_days=30)):
-            v2_db.execute(
-                "INSERT INTO stock_daily (trade_date, stock_code, amount, circ_mv) VALUES (?, '000001.SZ', ?, 1e8)",
-                (d, 1e5 + i * 1e3),
-            )
-            v2_db.execute("INSERT INTO northbound_history (trade_date, north_net) VALUES (?, ?)", (d, 500.0 + i * 10.0))
-        v2_db.execute(
-            "INSERT INTO stock_daily (trade_date, stock_code, amount, circ_mv) VALUES (?, '000001.SZ', 1e6, 1e8)",
-            (self.TD,),
-        )
-        v2_db.execute("INSERT INTO northbound_history (trade_date, north_net) VALUES (?, 4000.0)", (self.TD,))
-        v2_db.commit()
-
-        r = calc_north_ratio_v2(v2_db, self.TD)
-        assert r is not None
-        score, raw = r
-        assert 0 <= score <= 100
-        # 原始比 = 4000 百万元 × 1000 / 1e6 千元 = 4.0
-        assert raw == pytest.approx(4.0, abs=1e-6)
 
     def test_calc_yield_spread_v2_direction_flipped(self, v2_db):
         """期限利差方向已翻转: 低利差(宽松)→高分, 高利差→低分"""

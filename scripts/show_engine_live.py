@@ -29,7 +29,6 @@ IND_META = {
     "pe": ("大盘PE", lambda v: f"{v:.2f}" if v is not None else "—"),
     "buffett": ("巴菲特指标(总市值/GDP)", lambda v: f"{v:.2%}" if v is not None else "—"),
     "margin_ratio": ("两融余额市值比", lambda v: f"{v:.4%}" if v is not None else "—"),
-    "north_ratio": ("北向净流入比", lambda v: f"{v:.6f}" if v is not None else "—"),
     "yield_spread": ("国债期限利差(10Y-2Y)", lambda v: f"{v:.4f}" if v is not None else "—"),
     "m1_m2_spread": ("M1-M2剪刀差", lambda v: f"{v:.2f}%" if v is not None else "—"),
     "seal_rate": ("涨停封板率", lambda v: f"{v:.2%}" if v is not None else "—"),

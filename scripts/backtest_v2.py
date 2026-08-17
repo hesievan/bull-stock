@@ -78,7 +78,6 @@ IND_DIMS = {
     "pe": "valuation",
     "buffett": "valuation",
     "margin_ratio": "fund",
-    "north_ratio": "fund",
     "yield_spread": "fund",
     "m1_m2_spread": "fund",
     "seal_rate": "sentiment",
@@ -93,7 +92,6 @@ IND_COLS = [
     "pe",
     "buffett",
     "margin_ratio",
-    "north_ratio",
     "yield_spread",
     "m1_m2_spread",
     "seal_rate",
@@ -271,22 +269,6 @@ def run_backtest():
     ma_align_df["trade_date"] = ma_align_df["trade_date"].astype(str)
     print(f"        {len(ma_align_df)} rows")
 
-    # 9. north_ratio (北向净流入比 = north_net×1000/amount)
-    print("  [9/11] North ratio...")
-    north_hist = pd.read_sql(
-        """
-        SELECT n.trade_date, n.north_net * 1000.0 / a.amount AS ratio
-        FROM northbound_history n
-        JOIN (SELECT trade_date, SUM(amount) AS amount FROM stock_daily WHERE amount>0 GROUP BY trade_date) a
-          ON n.trade_date = a.trade_date
-        WHERE n.north_net IS NOT NULL AND a.amount > 0
-        ORDER BY n.trade_date
-    """,
-        conn,
-    )
-    north_hist["trade_date"] = north_hist["trade_date"].astype(str)
-    print(f"        {len(north_hist)} rows")
-
     # 10. yield_spread (10Y-2Y 期限利差)
     print("  [10/11] Yield spread (10Y-2Y)...")
     yspread_df = pd.read_sql(
@@ -435,16 +417,6 @@ def run_backtest():
                 pct = _pct_rank(hist_ma["ma_alignment_ratio"], cur_ma_val)
                 scores["ma_alignment"] = max(0, min(100, pct * 100))
                 raws["ma_alignment"] = cur_ma_val
-
-        # North ratio
-        cur_north = north_hist[north_hist["trade_date"] <= td]
-        if len(cur_north) > 0:
-            cur_nr = cur_north.iloc[-1]["ratio"]
-            hist_nr = north_hist[(north_hist["trade_date"] >= ten_years_ago) & (north_hist["ratio"].notna())]
-            if len(hist_nr) >= 60:
-                pct = _pct_rank(hist_nr["ratio"], cur_nr)
-                scores["north_ratio"] = max(0, min(100, pct * 100))
-                raws["north_ratio"] = cur_nr
 
         # Yield spread (10Y-2Y)
         cur_ys = yspread_df[yspread_df["trade_date"] <= td]
@@ -650,7 +622,6 @@ def run_backtest():
         "pe",
         "buffett",
         "margin_ratio",
-        "north_ratio",
         "yield_spread",
         "m1_m2_spread",
         "seal_rate",

@@ -414,7 +414,6 @@ def build_feishu_notification(result: Dict, history: list = None) -> Optional[st
         ("pe", "大盘PE"),
         ("buffett", "巴菲特指标"),
         ("margin_ratio_v2", "两融余额占比"),
-        ("north_ratio", "北向净流入占比"),
         ("yield_spread", "国债期限利差"),
         ("m1_m2_spread", "M1-M2剪刀差"),
         ("seal_rate", "涨停封板率"),

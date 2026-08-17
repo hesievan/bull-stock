@@ -380,37 +380,6 @@ def run_daily(trade_date=None):
 
     _run_step(step_status, "S24d_m1", _step24d)
 
-    # ── Step 2.4e: 北向资金 (tushare moneyflow_hsgt, 增量落库) ─────────────
-    # 修复: 北向资金此前仅在全量回填 fetch_tushare_history.py 中抓取,
-    # 但该脚本忘记 _save, 且 run_daily.py 日常流程从未抓取 -> Actions 库为空。
-    logger.info("Step 2.4e: Fetching northbound net inflow (incremental)...")
-
-    def _step24e():
-        from src.data.fetcher import fetch_northbound_history, _save
-        from src.data.database import read_dataframe
-        import datetime
-
-        latest = read_dataframe("SELECT MAX(trade_date) FROM northbound_history")
-        if not latest.empty and latest.iloc[0, 0] is not None:
-            latest_d = latest.iloc[0, 0]
-            if latest_d >= trade_date:
-                logger.info("Northbound already up-to-date (latest=%s)", latest_d)
-                return True
-            # 增量: 从上次最新日的次日抓到今日 (通常为 1~2 个月)
-            start = (datetime.date.fromisoformat(latest_d) + datetime.timedelta(days=1)).isoformat()
-        else:
-            # 空表: 回补起点 (沪股通/深股通开通日)
-            start = "2014-11-17"
-        df = fetch_northbound_history(start, trade_date)
-        if df is not None and not df.empty:
-            _save(df, "northbound_history")
-            logger.info("Northbound saved %d rows (%s ~ %s)", len(df), df["trade_date"].min(), df["trade_date"].max())
-        else:
-            logger.warning("Northbound fetch returned empty for %s ~ %s", start, trade_date)
-        return True
-
-    _run_step(step_status, "S24e_northbound", _step24e)
-
     # ── Step 3: tushare 融资融券/国债 (akshare) ────────────────────────────
     logger.info("Step 3: Tushare margin / bond_yield...")
 

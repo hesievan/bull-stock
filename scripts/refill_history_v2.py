@@ -36,7 +36,6 @@ COL2KEY = {
     "ind_pe": "pe",
     "ind_buffett": "buffett",
     "ind_margin_ratio": "margin_ratio",
-    "ind_north_ratio": "north_ratio",
     "ind_yield_spread": "yield_spread",
     "ind_m1_m2_spread": "m1_m2_spread",
     "ind_seal_rate": "seal_rate",
@@ -53,7 +52,6 @@ RAW_KEYS = [
     "turnover",
     "ma_alignment",
     "new_high",
-    "north_ratio",
     "yield_spread",
     "m1_m2_spread",
 ]

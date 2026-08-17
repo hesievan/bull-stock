@@ -44,11 +44,6 @@ m_mv = g("SELECT rzye+rqye FROM margin_history WHERE trade_date<=? ORDER BY trad
 c_mv = g("SELECT total_circ_mv FROM daily_circ_mv WHERE trade_date<=? ORDER BY trade_date DESC LIMIT 1")
 checks["margin_ratio_v2"] = (raw.get("margin_ratio_v2"), (m_mv, c_mv))
 
-# north_ratio: north_net / amount; 读两表
-nn = g("SELECT north_net FROM northbound_history WHERE trade_date<=? ORDER BY trade_date DESC LIMIT 1")
-amt = g("SELECT SUM(amount) FROM stock_daily WHERE trade_date=? AND amount>0")
-checks["north_ratio"] = (raw.get("north_ratio"), (nn, amt))
-
 # yield_spread: bond 10Y-2Y
 y10 = conn.execute("SELECT yield_rate FROM bond_yield WHERE trade_date=? AND curve_term=10.0", (TD,)).fetchone()
 y2 = conn.execute("SELECT yield_rate FROM bond_yield WHERE trade_date=? AND curve_term=2.0", (TD,)).fetchone()
@@ -96,7 +91,6 @@ for k in [
     "pe",
     "buffett",
     "margin_ratio_v2",
-    "north_ratio",
     "yield_spread",
     "m1_m2_spread",
     "seal_rate",
@@ -117,11 +111,6 @@ print("=" * 72)
 if m_mv and c_mv:
     print(
         f"margin_ratio_v2: 引擎={raw['margin_ratio_v2']:.4%}  复算={m_mv / c_mv:.4%}  两融余额={m_mv / 1e8:.0f}亿 流通市值={c_mv / 1e8:.0f}亿"
-    )
-# north_ratio 复算
-if nn is not None and amt:
-    print(
-        f"north_ratio: 引擎={raw['north_ratio']:.4%}  复算={nn / amt:.4%}  北向净={nn / 1e8:.2f}亿 成交={amt / 1e8:.0f}亿"
     )
 # yield_spread 复算
 if y10 and y2:
