@@ -1,36 +1,36 @@
 {
-  "trade_date": "2026-08-28",
-  "composite_score": 66.4,
-  "level": "red",
+  "trade_date": "2026-08-31",
+  "composite_score": 64.8,
+  "level": "orange",
   "dimensions": {
     "valuation": {
-      "score": 68.6,
+      "score": 64.3,
       "label": "估值"
     },
     "fund": {
-      "score": 75.4,
+      "score": 75.2,
       "label": "资金"
     },
     "sentiment": {
-      "score": 86.4,
+      "score": 80.6,
       "label": "情绪"
     },
     "structure": {
-      "score": 25.6,
+      "score": 33.1,
       "label": "结构"
     }
   },
   "indicators_v2": {
-    "pe": 23.0204,
-    "buffett": 0.38484656335558526,
-    "margin_ratio_v2": 0.026577253224762926,
-    "yield_spread": 0.44020000000000015,
+    "pe": 22.409,
+    "buffett": 0.3877643108369807,
+    "margin_ratio_v2": 0.026335063904741544,
+    "yield_spread": 0.43589999999999995,
     "m1_m2_spread": -4.0,
-    "seal_rate": 0.759259,
-    "turnover_m2": 0.0059368319685226675,
-    "turnover": 2.1118589940139847,
-    "new_high": 0.014242,
-    "ma_alignment": 0.182943
+    "seal_rate": 0.689922,
+    "turnover_m2": 0.006014272623139494,
+    "turnover": 2.1246988326941647,
+    "new_high": 0.016772,
+    "ma_alignment": 0.220075
   },
   "qvix_display": null,
   "qvix_components": {
@@ -40,24 +40,24 @@
     "concentration": null
   },
   "version": "v2",
-  "updated_at": "2026-08-28 00:00:00",
-  "composite_score_smoothed": 66.2,
+  "updated_at": "2026-08-31 00:00:00",
+  "composite_score_smoothed": 65.3,
   "level_smoothed": "red",
-  "display_up_down_ratio": 1.2607,
-  "display_limit_up_ratio": 0.0169,
-  "display_limit_ratio": 6.2667,
-  "display_below_net_rate": 0.0731,
+  "display_up_down_ratio": 1.4342,
+  "display_limit_up_ratio": 0.0218,
+  "display_limit_ratio": 6.3684,
+  "display_below_net_rate": 0.0732,
   "indicators": {
-    "pe": 41.325051759834366,
-    "buffett": 95.77639751552796,
-    "margin_ratio_v2": 98.30966569465707,
-    "yield_spread": 50.93962415033987,
-    "m1_m2_spread": 59.73597359735974,
-    "seal_rate": 86.09271523178808,
+    "pe": 31.993369249896396,
+    "buffett": 96.68462494819727,
+    "margin_ratio_v2": 97.32518214015,
+    "yield_spread": 51.959999999999994,
+    "m1_m2_spread": 59.801898472967395,
+    "seal_rate": 60.521955260977634,
     "turnover_m2": 85.5072463768116,
-    "turnover": 87.67066611501862,
-    "new_high": 15.687086092715234,
-    "ma_alignment": 43.04635761589404,
+    "turnover": 87.90890269151139,
+    "new_high": 19.925434962717482,
+    "ma_alignment": 56.130903065451534,
     "qvix": null,
     "qvix_components": {
       "qvix_50": 18.97,
