@@ -547,9 +547,7 @@ def run_daily(trade_date=None):
         if _row:
             result["display_below_net_rate"] = round(_row[0], 4)
         # P3 低频锚展示: 新增开户数 (月频) + 宽基ETF份额快照
-        _row = _conn.execute(
-            "SELECT month, new_accounts FROM monthly_accounts ORDER BY month DESC LIMIT 1"
-        ).fetchone()
+        _row = _conn.execute("SELECT month, new_accounts FROM monthly_accounts ORDER BY month DESC LIMIT 1").fetchone()
         if _row:
             result["display_new_accounts_month"] = _row[0]
             result["display_new_accounts"] = round(_row[1], 2)

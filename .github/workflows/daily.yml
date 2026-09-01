@@ -225,21 +225,7 @@ jobs:
           # (软失败靠 run_daily 的 data_quality 与数据新鲜度在通知正文中体现)。
           FAILED_STEPS=""
           if [ "${{ job.status }}" != "success" ]; then
-            FAILED_STEPS=$(curl -s -H "Authorization: Bearer $GH_TOKEN" \
-              "https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/jobs" \
-              | python3 -c '
-            import json, sys
-            try:
-                data = json.load(sys.stdin)
-                failed = []
-                for job in data.get("jobs", []):
-                    for step in job.get("steps", []):
-                        if step.get("conclusion") == "failure":
-                            failed.append(step.get("name", "?"))
-                print("; ".join(failed))
-            except Exception:
-                print("")
-            ')
+            FAILED_STEPS=$(python3 scripts/ci_failed_steps.py)
           fi
 
           MSG=""
