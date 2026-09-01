@@ -83,6 +83,34 @@ class TestInitDatabase:
             count = conn.execute("SELECT COUNT(*) FROM metadata").fetchone()[0]
             assert count == 1
 
+    def test_migrate_legacy_db_missing_l2_columns(self, tmp_path):
+        """回归: 旧种子库 stock_shenwan 缺 sw_l2_code/sw_l2_name 时,
+        init_database 必须先迁移补列再建索引, 不应抛 'no such column: sw_l2_code'
+        (对应 2026-09-01 CI rebuild_seed 失败场景)。"""
+        db_path = str(tmp_path / "legacy.db")
+        with get_conn(db_path) as conn:
+            # 模拟 v10 旧 schema: stock_shenwan 无二级行业列 + 已有旧数据
+            conn.execute(
+                "CREATE TABLE stock_shenwan ("
+                "stock_code TEXT NOT NULL PRIMARY KEY, sw_code TEXT, sw_name TEXT, update_date TEXT)"
+            )
+            conn.execute("INSERT INTO stock_shenwan VALUES ('600000', '801780', '银行', '2026-01-01')")
+            conn.execute("CREATE TABLE metadata (key TEXT PRIMARY KEY, value TEXT, updated_at TEXT)")
+            conn.execute(
+                "INSERT INTO metadata(key, value, updated_at) VALUES('schema_version', '10', datetime('now'))"
+            )
+        # 不应抛异常
+        init_database(db_path)
+        with get_conn(db_path) as conn:
+            cols = {r[1] for r in conn.execute("PRAGMA table_info(stock_shenwan)").fetchall()}
+            assert "sw_l2_code" in cols
+            assert "sw_l2_name" in cols
+            ver = conn.execute("SELECT value FROM metadata WHERE key='schema_version'").fetchone()
+            assert int(ver[0]) == SCHEMA_VERSION
+            # 旧数据保留
+            row = conn.execute("SELECT sw_name FROM stock_shenwan WHERE stock_code='600000'").fetchone()
+            assert row[0] == "银行"
+
 
 class TestSaveDataframe:
     def test_save_and_read(self, tmp_db):

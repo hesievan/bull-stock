@@ -379,15 +379,36 @@ def _migrate(conn: sqlite3.Connection, from_ver: int) -> None:
 def init_database(db_path: str = None) -> None:
     """初始化数据库表结构 + 版本迁移"""
     with get_conn(db_path) as conn:
-        conn.executescript(SCHEMA)
-        # 版本检查
+        # 版本检查 (metadata 表可能缺失, 视为 v1 全量迁移)
         try:
             ver = conn.execute("SELECT value FROM metadata WHERE key='schema_version'").fetchone()
             current_ver = int(ver[0]) if ver else 1
         except Exception:
             current_ver = 1
+
+        # 迁移先行, 后建表/索引:
+        # SCHEMA 含跨列索引 (如 stock_shenwan.sw_l2_code), 若旧库缺列, 先 executescript(SCHEMA)
+        # 会直接报 "no such column: sw_l2_code" (2026-09-01 CI rebuild 失败即此因)。
+        # 先跑迁移可补齐旧库缺列再建索引; 所有迁移块均有 try/except 保护, 全新库可安全通过。
+        migrated = False
         if current_ver < SCHEMA_VERSION:
             _migrate(conn, current_ver)
+            migrated = True
+
+        # 防御性补列: 个别旧种子库 metadata.schema_version >= v11 但实际缺列时,
+        # 版本迁移会跳过 v11 补列逻辑, 这里幂等地确保列存在 (缺表/缺列均安全跳过)。
+        try:
+            sw_cols = {r[1] for r in conn.execute("PRAGMA table_info(stock_shenwan)").fetchall()}
+            for col_name, col_type in (("sw_l2_code", "TEXT"), ("sw_l2_name", "TEXT")):
+                if col_name not in sw_cols:
+                    conn.execute(f"ALTER TABLE stock_shenwan ADD COLUMN {col_name} {col_type}")
+        except Exception as e:
+            logger.warning("stock_shenwan l2 column ensure skipped: %s", e)
+
+        # 建表 (IF NOT EXISTS) + 性能索引 (IF NOT EXISTS) — 幂等
+        conn.executescript(SCHEMA)
+
+        if migrated:
             conn.execute(
                 "INSERT OR REPLACE INTO metadata(key, value, updated_at) VALUES('schema_version', ?, datetime('now'))",
                 (str(SCHEMA_VERSION),),
