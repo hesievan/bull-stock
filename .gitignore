@@ -27,3 +27,4 @@ data/*.db.bak*
 data/*.bak*
 web/data/*.bak*
 web/data/notification.txt
+.tmp_pytest/

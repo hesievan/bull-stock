@@ -74,10 +74,13 @@ _EXPECTED_WEIGHT_KEYS = (
     "yield_spread",
     "m1_m2_spread",
     "southbound",
+    "margin_buy_ratio",
     "seal_rate",
     "turnover_m2",
     "turnover",
     "futures_discount",
+    "amplitude",
+    "realized_vol",
     "new_high",
     "ma_alignment",
     "breadth",
@@ -92,10 +95,13 @@ class EngineWeights:
     yield_spread: float = 0.0
     m1_m2_spread: float = 0.0
     southbound: float = 0.0
+    margin_buy_ratio: float = 0.0
     seal_rate: float = 0.0
     turnover_m2: float = 0.0
     turnover: float = 0.0
     futures_discount: float = 0.0
+    amplitude: float = 0.0
+    realized_vol: float = 0.0
     new_high: float = 0.0
     ma_alignment: float = 0.0
     breadth: float = 0.0

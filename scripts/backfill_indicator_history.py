@@ -11,9 +11,11 @@ import sys
 import os
 import json
 import logging
+import math
 import sqlite3
 import bisect as _bisect
 
+import numpy as np
 import pandas as pd
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -202,6 +204,53 @@ def main():
     fb = pd.read_sql("SELECT trade_date, basis_rate FROM daily_futures_basis WHERE basis_rate IS NOT NULL", conn)
     fb_d = dict(zip(fb["trade_date"], fb["basis_rate"].round(6)))
 
+    # 15. 振幅热度 (P3) — 沪深300 (high-low)/prev_close
+    logger.info("15/17 振幅热度...")
+    amp = pd.read_sql(
+        "SELECT trade_date, high, low, close FROM index_daily"
+        " WHERE index_code='sh000300' AND high>0 AND low>0 AND close>0 ORDER BY trade_date",
+        conn,
+    )
+    amp["prev_close"] = amp["close"].shift(1)
+    amp["amplitude"] = (amp["high"] - amp["low"]) / amp["prev_close"]
+    amp_d = {
+        r["trade_date"]: round(float(r["amplitude"]), 6)
+        for _, r in amp.iterrows()
+        if pd.notna(r["amplitude"]) and r["amplitude"] > 0
+    }
+
+    # 16. 已实现波动率 (P3) — 沪深300 20日对数收益std ×√250
+    logger.info("16/17 已实现波动率...")
+    vol = pd.read_sql(
+        "SELECT trade_date, close FROM index_daily WHERE index_code='sh000300' AND close>0 ORDER BY trade_date",
+        conn,
+    )
+    vol["ret"] = np.log(vol["close"]).diff()
+    vol["realized_vol"] = vol["ret"].rolling(20).std() * math.sqrt(250)
+    vol_d = {
+        r["trade_date"]: round(float(r["realized_vol"]), 6)
+        for _, r in vol.iterrows()
+        if pd.notna(r["realized_vol"]) and r["realized_vol"] > 0
+    }
+
+    # 17. 融资买入占比 (P3) — rzmre / (turnover_rate × circ_mv × 100)
+    logger.info("17/17 融资买入占比...")
+    mb = pd.read_sql(
+        """
+        SELECT m.trade_date, m.rzmre / (t.turnover_rate * c.total_circ_mv * 100) AS ratio
+        FROM margin_history m
+        JOIN daily_turnover t ON m.trade_date = t.trade_date AND t.turnover_rate > 0
+        JOIN daily_circ_mv c ON m.trade_date = c.trade_date AND c.total_circ_mv > 0
+        WHERE m.rzmre > 0 ORDER BY m.trade_date
+    """,
+        conn,
+    )
+    mb_d = {
+        r["trade_date"]: round(float(r["ratio"]), 6)
+        for _, r in mb.iterrows()
+        if pd.notna(r["ratio"]) and r["ratio"] > 0
+    }
+
     conn.close()
 
     # 合并输出
@@ -219,6 +268,9 @@ def main():
         | set(bd_d)
         | set(sb_d)
         | set(fb_d)
+        | set(amp_d)
+        | set(vol_d)
+        | set(mb_d)
     )
     result = {}
     for td in all_dates:
@@ -249,6 +301,12 @@ def main():
             entry["southbound"] = sb_d[td]
         if td in fb_d:
             entry["futures_discount"] = fb_d[td]
+        if td in amp_d:
+            entry["amplitude"] = amp_d[td]
+        if td in vol_d:
+            entry["realized_vol"] = vol_d[td]
+        if td in mb_d:
+            entry["margin_buy_ratio"] = mb_d[td]
         if entry:
             result[td] = entry
 
@@ -272,6 +330,9 @@ def main():
         "new_high",
         "ma_alignment",
         "breadth",
+        "amplitude",
+        "realized_vol",
+        "margin_buy_ratio",
     ]:
         cnt = sum(1 for v in result.values() if k in v)
         logger.info("  %s: %d dates", k, cnt)

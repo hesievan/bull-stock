@@ -402,6 +402,28 @@ def run_daily(trade_date=None):
 
     _run_step(step_status, "S24g_futures", _step24g)
 
+    # ── Step 2.4h: 新增投资者开户数 (P3, 月频, 仅展示不入分) ────────────────
+    logger.info("Step 2.4h: Fetching new investor accounts (monthly)...")
+
+    def _step24h():
+        from src.data.fetcher import fetch_account_statistics
+
+        df = fetch_account_statistics()
+        return True if (df is not None and not df.empty) else False
+
+    _run_step(step_status, "S24h_accounts", _step24h)
+
+    # ── Step 2.4i: 宽基ETF份额日快照 (P3, 仅收集不入分) ───────────────────
+    logger.info("Step 2.4i: Fetching broad ETF shares snapshot...")
+
+    def _step24i():
+        from src.data.fetcher import fetch_etf_flow_snapshot
+
+        df = fetch_etf_flow_snapshot(trade_date=trade_date)
+        return True if (df is not None and not df.empty) else False
+
+    _run_step(step_status, "S24i_etf_flow", _step24i)
+
     # ── Step 3: tushare 融资融券/国债 (akshare) ────────────────────────────
     logger.info("Step 3: Tushare margin / bond_yield...")
 
@@ -524,6 +546,19 @@ def run_daily(trade_date=None):
         _row = _conn.execute("SELECT below_net_rate FROM daily_below_net WHERE trade_date=?", (trade_date,)).fetchone()
         if _row:
             result["display_below_net_rate"] = round(_row[0], 4)
+        # P3 低频锚展示: 新增开户数 (月频) + 宽基ETF份额快照
+        _row = _conn.execute(
+            "SELECT month, new_accounts FROM monthly_accounts ORDER BY month DESC LIMIT 1"
+        ).fetchone()
+        if _row:
+            result["display_new_accounts_month"] = _row[0]
+            result["display_new_accounts"] = round(_row[1], 2)
+        _row = _conn.execute(
+            "SELECT total_shares FROM daily_etf_flow WHERE trade_date<=? ORDER BY trade_date DESC LIMIT 1",
+            (trade_date,),
+        ).fetchone()
+        if _row:
+            result["display_etf_shares"] = round(_row[0], 2)
         _conn.close()
     except Exception:
         pass

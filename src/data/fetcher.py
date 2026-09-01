@@ -417,6 +417,97 @@ def fetch_futures_basis_history(start: str | None = None, end: str | None = None
     return out
 
 
+# ── 新增投资者开户数 (P3, 月频, akshare 中国结算) ───────────────────────────
+
+# 宽基 ETF 跟踪清单 (P3 份额快照统计范围: 沪深主要宽基 + 双创)
+BROAD_ETF_CODES = [
+    "510050", "510300", "510500", "510880", "563300",  # 上证50/沪深300/中证500/红利/A500
+    "159901", "159915", "159922", "159949", "159952",  # 深100/创业板/中证500/创业板50/创投
+    "512100", "512500", "512880", "512400",            # 中证1000/中证500/证券/有色金属
+    "588000", "588080",                                # 科创50/科创50(华安)
+]
+
+
+def fetch_account_statistics(db_path: str = None) -> pd.DataFrame:
+    """月度新增投资者开户数 → monthly_accounts (单位: 万户)
+
+    P3 (2026-09): 散户 FOMO 低频锚, 仅展示不入分。
+    已知局限: 东财/中国结算源自 2023-08 停止更新, 采集到的最新月份以此为准。
+    """
+    from src.data.database import save_dataframe as _sv
+
+    try:
+        import akshare as ak
+    except ImportError:
+        logger.error("akshare not installed, cannot fetch account statistics")
+        return pd.DataFrame()
+    try:
+        df = ak.stock_account_statistics_em()
+    except Exception as e:
+        logger.error("fetch_account_statistics failed: %s", str(e)[:80])
+        return pd.DataFrame()
+    if df is None or df.empty or "数据日期" not in df.columns:
+        logger.warning("fetch_account_statistics: empty/invalid data")
+        return pd.DataFrame()
+    out = pd.DataFrame(
+        {
+            "month": df["数据日期"].astype(str).str[:7],
+            "new_accounts": pd.to_numeric(df["新增投资者-数量"], errors="coerce"),
+        }
+    ).dropna(subset=["new_accounts"])
+    if out.empty:
+        return pd.DataFrame()
+    _sv(out, "monthly_accounts")
+    logger.info("monthly_accounts saved: %d rows (%s ~ %s)", len(out), out["month"].min(), out["month"].max())
+    return out
+
+
+def fetch_etf_flow_snapshot(trade_date: str | None = None, db_path: str = None) -> pd.DataFrame:
+    """宽基 ETF 总份额日度快照 → daily_etf_flow (单位: 亿份)
+
+    P3 (2026-09): 份额历史无法免费回填, 自本日起每日快照积累;
+    份额变动×价格≈净申赎, 待历史 ≥180 日后再评估是否入分。
+    份额 = 总市值 / 最新价, 按只加总。
+    """
+    from src.data.database import save_dataframe as _sv
+
+    try:
+        import akshare as ak
+    except ImportError:
+        logger.error("akshare not installed, cannot fetch etf flow")
+        return pd.DataFrame()
+    try:
+        df = ak.fund_etf_spot_em()
+    except Exception as e:
+        logger.error("fetch_etf_flow_snapshot failed: %s", str(e)[:80])
+        return pd.DataFrame()
+    if df is None or df.empty or "代码" not in df.columns:
+        logger.warning("fetch_etf_flow_snapshot: empty/invalid data")
+        return pd.DataFrame()
+    sub = df[df["代码"].astype(str).str.zfill(6).isin(BROAD_ETF_CODES)].copy()
+    if sub.empty:
+        logger.warning("fetch_etf_flow_snapshot: no broad ETF matched")
+        return pd.DataFrame()
+    price = pd.to_numeric(sub["最新价"], errors="coerce")
+    mv = pd.to_numeric(sub.get("总市值"), errors="coerce")
+    shares = (mv / price).dropna()  # 总市值(元)/最新价(元) = 份额(份)
+    if shares.empty:
+        return pd.DataFrame()
+    total_shares = round(float(shares.sum()) / 1e8, 4)  # 份→亿份
+    out = pd.DataFrame(
+        [
+            {
+                "trade_date": trade_date or date.today().strftime("%Y-%m-%d"),
+                "total_shares": total_shares,
+                "n_funds": int(len(shares)),
+            }
+        ]
+    )
+    _sv(out, "daily_etf_flow")
+    logger.info("daily_etf_flow %s: %.2f 亿份 (%d funds)", out.iloc[0]["trade_date"], total_shares, len(shares))
+    return out
+
+
 # ── tushare: 全市场 PE/PB/市值 + K线 ────────────────────────────────────────
 
 

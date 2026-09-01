@@ -156,7 +156,15 @@ def save_results_v2(result_v2: Dict, output_dir: str = None) -> Dict:
             pass
 
     # 补充展示指标 (不参与V2计算, 仅用于日报和前端展示)
-    for _k in ("display_up_down_ratio", "display_limit_up_ratio", "display_limit_ratio", "display_below_net_rate"):
+    for _k in (
+        "display_up_down_ratio",
+        "display_limit_up_ratio",
+        "display_limit_ratio",
+        "display_below_net_rate",
+        "display_new_accounts",
+        "display_new_accounts_month",
+        "display_etf_shares",
+    ):
         if _k in result_v2:
             index_data[_k] = result_v2[_k]
 
@@ -418,10 +426,13 @@ def build_feishu_notification(result: Dict, history: list = None) -> Optional[st
         ("yield_spread", "国债期限利差"),
         ("m1_m2_spread", "M1-M2剪刀差"),
         ("southbound", "南向净买额"),
+        ("margin_buy_ratio", "融资买入占比"),
         ("seal_rate", "涨停封板率"),
         ("turnover_m2", "成交额M2比"),
         ("turnover", "换手率"),
         ("futures_discount", "IF基差"),
+        ("amplitude", "振幅热度"),
+        ("realized_vol", "已实现波动率"),
         ("breadth", "涨跌家数广度"),
     ]
     for _k, _label in v2_highlights:

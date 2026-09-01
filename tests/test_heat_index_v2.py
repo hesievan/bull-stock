@@ -26,6 +26,9 @@ from src.indicators.heat_index_v2 import (
     calc_breadth_v2,
     calc_southbound_v2,
     calc_futures_discount_v2,
+    calc_amplitude_v2,
+    calc_realized_vol_v2,
+    calc_margin_buy_ratio_v2,
     compute_index_v2,
     compute_regime,
     ROLLING_PCT_WINDOW,
@@ -725,11 +728,35 @@ class TestComputeIndexV2EndToEnd:
             )
         conn.execute("INSERT INTO bond_yield (trade_date, curve_term, yield_rate) VALUES (?, 2.0, 2.5)", (td,))
         conn.execute("INSERT INTO bond_yield (trade_date, curve_term, yield_rate) VALUES (?, 10.0, 2.95)", (td,))
+        # 13. 沪深300 指数日线 (P3: amplitude + realized_vol 共源, 100 条历史 + 当前)
+        #     realized_vol 需 20 日波动窗口 + 60 条 → 至少 80 条, 故用 100 条
+        for i, d in enumerate(_dates("2016-09-01", 100, step_days=30)):
+            c = 100.0 + i * 0.5 + (i % 5) * 0.3
+            conn.execute(
+                "INSERT INTO index_daily (index_code, trade_date, open, high, low, close)"
+                " VALUES ('sh000300', ?, ?, ?, ?, ?)",
+                (d, c, c + 1.0, c - 1.0, c),
+            )
+        # 当前日: 高振幅 (175-160)/135.7 ≈ 0.11, 远高于历史 ~0.015 → 高分
+        conn.execute(
+            "INSERT INTO index_daily (index_code, trade_date, open, high, low, close)"
+            " VALUES ('sh000300', ?, 170, 175, 160, 172)",
+            (td,),
+        )
+        # 14. 融资买入占比 (P3): 为 margin_history 已有日期补齐 rzmre + daily_turnover 对齐日期
+        for i, d in enumerate(_dates("2021-08-10", 65, step_days=30)):
+            conn.execute(
+                "INSERT INTO daily_turnover (trade_date, turnover_rate) VALUES (?, ?)",
+                (d, round(0.5 + i * 0.01, 4)),
+            )
+            conn.execute("UPDATE margin_history SET rzmre=? WHERE trade_date=?", (1e9 + i * 1e7, d))
+        conn.execute("INSERT INTO daily_turnover (trade_date, turnover_rate) VALUES (?, 1.5)", (td,))
+        conn.execute("UPDATE margin_history SET rzmre=? WHERE trade_date=?", (2e9, td))
         conn.commit()
         conn.close()
 
     def test_all_indicators_weighted_sum(self, tmp_path):
-        """全部 13 指标有分 → composite=Σ(w_i·score_i), 维度分按指标权重加权 (F10)"""
+        """全部 16 指标有分 → composite=Σ(w_i·score_i), 维度分按指标权重加权 (F10)"""
         db_path = str(tmp_path / "e2e.db")
         init_database(db_path)
         self._full_seed(db_path)
@@ -746,15 +773,18 @@ class TestComputeIndexV2EndToEnd:
             "yield_spread": "yield_spread",
             "m1_m2_spread": "m1_m2_spread",
             "southbound": "southbound",
+            "margin_buy_ratio": "margin_buy_ratio",
             "seal_rate": "seal_rate",
             "turnover_m2": "turnover_m2",
             "turnover": "turnover",
             "futures_discount": "futures_discount",
+            "amplitude": "amplitude",
+            "realized_vol": "realized_vol",
             "new_high": "new_high",
             "ma_alignment": "ma_alignment",
             "breadth": "breadth",
         }
-        # 全部 13 指标均有分数
+        # 全部 16 指标均有分数
         for rk in result_to_weight:
             assert ind[rk] is not None, f"{rk} 无分数"
         # 综合分 = 指标加权和 (权重总和=1.0)
@@ -768,9 +798,9 @@ class TestComputeIndexV2EndToEnd:
 
         val = _dim_weighted(["pe", "buffett"])
         assert res["dimensions"]["valuation"]["score"] == pytest.approx(round(val, 1), abs=0.1)
-        fund = _dim_weighted(["margin_ratio_v2", "yield_spread", "m1_m2_spread", "southbound"])
+        fund = _dim_weighted(["margin_ratio_v2", "yield_spread", "m1_m2_spread", "southbound", "margin_buy_ratio"])
         assert res["dimensions"]["fund"]["score"] == pytest.approx(round(fund, 1), abs=0.1)
-        sent = _dim_weighted(["seal_rate", "turnover_m2", "turnover", "futures_discount"])
+        sent = _dim_weighted(["seal_rate", "turnover_m2", "turnover", "futures_discount", "amplitude", "realized_vol"])
         assert res["dimensions"]["sentiment"]["score"] == pytest.approx(round(sent, 1), abs=0.1)
         struct = _dim_weighted(["new_high", "ma_alignment", "breadth"])
         assert res["dimensions"]["structure"]["score"] == pytest.approx(round(struct, 1), abs=0.1)
@@ -781,11 +811,11 @@ class TestComputeIndexV2EndToEnd:
             "valuation": sum(INDICATOR_WEIGHTS[result_to_weight[k]] for k in ("pe", "buffett")),
             "fund": sum(
                 INDICATOR_WEIGHTS[result_to_weight[k]]
-                for k in ("margin_ratio_v2", "yield_spread", "m1_m2_spread", "southbound")
+                for k in ("margin_ratio_v2", "yield_spread", "m1_m2_spread", "southbound", "margin_buy_ratio")
             ),
             "sentiment": sum(
                 INDICATOR_WEIGHTS[result_to_weight[k]]
-                for k in ("seal_rate", "turnover_m2", "turnover", "futures_discount")
+                for k in ("seal_rate", "turnover_m2", "turnover", "futures_discount", "amplitude", "realized_vol")
             ),
             "structure": sum(INDICATOR_WEIGHTS[result_to_weight[k]] for k in ("new_high", "ma_alignment", "breadth")),
         }
@@ -815,10 +845,13 @@ class TestComputeIndexV2EndToEnd:
             "yield_spread",
             "m1_m2_spread",
             "southbound",
+            "margin_buy_ratio",
             "seal_rate",
             "turnover_m2",
             "turnover",
             "futures_discount",
+            "amplitude",
+            "realized_vol",
             "new_high",
             "ma_alignment",
             "breadth",
@@ -1031,3 +1064,119 @@ class TestRegime:
         v2_db.commit()
         r = compute_regime(v2_db, self.TD, 50.0, {"structure": 20})
         assert r["structure_break_risk"] is False
+
+
+class TestP3Indicators:
+    """P3 (2026-09) 三个新指标: 计算正确性 + 方向性"""
+
+    TD = "2026-08-06"
+
+    def _seed_index(self, v2_db, closes):
+        """种 90 条沪深300 指数日线历史 (平滑上行 + 微扰, 保证 realized_vol>0 且 len>=80)"""
+        for i, d in enumerate(_dates("2016-09-01", 90, step_days=30)):
+            c = closes[i]
+            v2_db.execute(
+                "INSERT INTO index_daily (trade_date, index_code, open, high, low, close)"
+                " VALUES (?, 'sh000300', ?, ?, ?, ?)",
+                (d, c, c + 1.0, c - 1.0, c),
+            )
+        v2_db.commit()
+
+    def _smooth_closes(self, n=90):
+        """平滑上行收盘价 (每步+0.5, 加 (i%7)*0.01 微扰使 20 日波动率稳定 >0)"""
+        return [100.0 + i * 0.5 + (i % 7) * 0.01 for i in range(n)]
+
+    def test_calc_amplitude_direction(self, v2_db):
+        """振幅: 当前=历史最高振幅 → 高分; 历史最低振幅 → 低分"""
+        self._seed_index(v2_db, self._smooth_closes())
+        # 当前: 高振幅 (high-low=15, prev_close≈144.55 → amp≈0.10, 远超历史 ~0.014)
+        v2_db.execute(
+            "INSERT INTO index_daily (trade_date, index_code, open, high, low, close)"
+            " VALUES (?, 'sh000300', 138, 153, 138, 144)",
+            (self.TD,),
+        )
+        v2_db.commit()
+        high = calc_amplitude_v2(v2_db, self.TD)
+        assert high is not None
+        assert high[0] >= 95.0
+        # 当前: 低振幅 (high-low=0.02 → amp≈0.00014)
+        v2_db.execute(
+            "UPDATE index_daily SET high=144.01, low=143.99 WHERE trade_date=? AND index_code='sh000300'",
+            (self.TD,),
+        )
+        v2_db.commit()
+        low = calc_amplitude_v2(v2_db, self.TD)
+        assert low is not None
+        assert low[0] <= 5.0
+
+    def test_calc_realized_vol_direction(self, v2_db):
+        """已实现波动率 (neg): 低波动(从容自满) → 高分; 高波动 → 低分"""
+        self._seed_index(v2_db, self._smooth_closes())
+        # 当前: 延续平滑上行 (close 接续序列第 91 条 145.06) → 低波动 → 高分 (翻转)
+        v2_db.execute(
+            "INSERT INTO index_daily (trade_date, index_code, open, high, low, close)"
+            " VALUES (?, 'sh000300', 145.06, 145.16, 144.96, 145.06)",
+            (self.TD,),
+        )
+        v2_db.commit()
+        calm = calc_realized_vol_v2(v2_db, self.TD)
+        assert calm is not None
+        assert calm[0] >= 95.0
+        # 当前窗口内插入 25 天剧烈摆动 → 高波动 → 低分
+        for j, d in enumerate(_dates("2026-06-01", 25)):
+            v2_db.execute(
+                "INSERT INTO index_daily (trade_date, index_code, open, high, low, close)"
+                " VALUES (?, 'sh000300', 130, ?, ?, ?)",
+                (d, 150 + (j % 2) * 40, 110 - (j % 2) * 40, 130 + (j % 2) * 20),
+            )
+        # TD 行延续摆动 (极端上行), 否则回落值会稀释 cur_vol
+        v2_db.execute(
+            "UPDATE index_daily SET open=180, high=195, low=120, close=190"
+            " WHERE trade_date=? AND index_code='sh000300'",
+            (self.TD,),
+        )
+        v2_db.commit()
+        panic = calc_realized_vol_v2(v2_db, self.TD)
+        assert panic is not None
+        assert panic[0] <= 5.0
+
+    def test_calc_margin_buy_ratio_direction(self, v2_db):
+        """融资买入占比: 占比历史最高 → 高分; 历史最低 → 低分"""
+        for i, d in enumerate(_dates("2021-08-10", 70, step_days=30)):
+            v2_db.execute("INSERT INTO daily_circ_mv (trade_date, total_circ_mv) VALUES (?, 1e8)", (d,))
+            v2_db.execute("INSERT INTO daily_turnover (trade_date, turnover_rate) VALUES (?, 1.0)", (d,))
+            v2_db.execute(
+                "INSERT INTO margin_history (trade_date, rzye, rqye, rzmre) VALUES (?, 1e11, 0, ?)",
+                (d, 1e9 + i * 1e7),
+            )
+        v2_db.commit()
+        # 当前: 占比最高 → 高分
+        v2_db.execute("INSERT INTO daily_circ_mv (trade_date, total_circ_mv) VALUES (?, 1e8)", (self.TD,))
+        v2_db.execute("INSERT INTO daily_turnover (trade_date, turnover_rate) VALUES (?, 1.0)", (self.TD,))
+        v2_db.execute("INSERT INTO margin_history (trade_date, rzye, rqye, rzmre) VALUES (?, 1e11, 0, 5e9)", (self.TD,))
+        v2_db.commit()
+        high = calc_margin_buy_ratio_v2(v2_db, self.TD)
+        assert high is not None
+        assert high[0] >= 95.0
+        # 当前: 占比最低 → 低分
+        v2_db.execute("UPDATE margin_history SET rzmre=1e8 WHERE trade_date=?", (self.TD,))
+        v2_db.commit()
+        low = calc_margin_buy_ratio_v2(v2_db, self.TD)
+        assert low is not None
+        assert low[0] <= 5.0
+
+    def test_insufficient_history_returns_none(self, v2_db):
+        """三个新指标历史不足 60 条 → None (宁缺毋滥)"""
+        for d in _dates("2026-05-01", 30):
+            v2_db.execute(
+                "INSERT INTO index_daily (trade_date, index_code, open, high, low, close)"
+                " VALUES (?, 'sh000300', 100, 101, 99, 100)",
+                (d,),
+            )
+            v2_db.execute("INSERT INTO daily_circ_mv (trade_date, total_circ_mv) VALUES (?, 1e8)", (d,))
+            v2_db.execute("INSERT INTO daily_turnover (trade_date, turnover_rate) VALUES (?, 1.0)", (d,))
+            v2_db.execute("INSERT INTO margin_history (trade_date, rzye, rqye, rzmre) VALUES (?, 1e11, 0, 1e9)", (d,))
+        v2_db.commit()
+        assert calc_amplitude_v2(v2_db, self.TD) is None
+        assert calc_realized_vol_v2(v2_db, self.TD) is None
+        assert calc_margin_buy_ratio_v2(v2_db, self.TD) is None

@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 DB_PATH = os.environ.get("HEAT_INDEX_DB", os.path.join(os.path.dirname(__file__), "..", "..", "data", "heat_index.db"))
 
 # ── 建表 SQL ──────────────────────────────────────────────────────────────────
-SCHEMA_VERSION = 13
+SCHEMA_VERSION = 14
 
 SCHEMA = """
 -- 指数日行情 (tushare index_daily)
@@ -257,6 +257,22 @@ CREATE TABLE IF NOT EXISTS daily_futures_basis (
     basis_rate REAL                -- (fut-spot)/spot, 正=升水 负=贴水
 );
 
+-- 新增投资者开户数 (月频, akshare stock_account_statistics_em, 中国结算)
+-- P3 (2026-09): 散户 FOMO 低频锚, 仅展示不入分 (月频不硬塞日频合成)
+-- 注意: 中国结算/东财源 2023-08 后停止更新, 展示时附月份标签
+CREATE TABLE IF NOT EXISTS monthly_accounts (
+    month TEXT NOT NULL PRIMARY KEY,   -- YYYY-MM
+    new_accounts REAL                  -- 新增投资者数量 (万户)
+);
+
+-- 宽基 ETF 总份额日度快照 (akshare fund_etf_spot_em, P3 数据收集起点)
+-- P3 (2026-09): 份额历史无法免费回填, 自采集日起积累; 足够历史后再评估入分
+CREATE TABLE IF NOT EXISTS daily_etf_flow (
+    trade_date TEXT NOT NULL PRIMARY KEY,
+    total_shares REAL,                 -- 跟踪的宽基 ETF 份额合计 (亿份)
+    n_funds INTEGER                    -- 参与统计的 ETF 只数
+);
+
 -- ── 性能索引 (v12) ──────────────────────────────────────────────────────────
 -- 重点行业热度查询: 按 sw_code/sw_l2_code 过滤, 并经 stock_code JOIN stock_daily
 -- 取 365 天回看历史; 缺索引时退化为全表扫描。
@@ -476,6 +492,8 @@ _ALLOWED_TABLES = {
     "daily_seal_rate",
     "daily_hsgt_south",
     "daily_futures_basis",
+    "monthly_accounts",
+    "daily_etf_flow",
 }
 
 

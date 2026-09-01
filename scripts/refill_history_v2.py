@@ -42,10 +42,13 @@ COL2KEY = {
     "ind_yield_spread": "yield_spread",
     "ind_m1_m2_spread": "m1_m2_spread",
     "ind_southbound": "southbound",
+    "ind_margin_buy_ratio": "margin_buy_ratio",
     "ind_seal_rate": "seal_rate",
     "ind_turnover_m2": "turnover_m2",
     "ind_turnover": "turnover",
     "ind_futures_discount": "futures_discount",
+    "ind_amplitude": "amplitude",
+    "ind_realized_vol": "realized_vol",
     "ind_new_high": "new_high",
     "ind_ma_alignment": "ma_alignment",
     "ind_breadth": "breadth",
@@ -62,6 +65,8 @@ RAW_KEYS = [
     "m1_m2_spread",
     "southbound",
     "futures_discount",
+    "amplitude",
+    "realized_vol",
     "breadth",
 ]
 

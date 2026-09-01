@@ -86,10 +86,13 @@ IND_DIMS = {
     "yield_spread": "fund",
     "m1_m2_spread": "fund",
     "southbound": "fund",
+    "margin_buy_ratio": "fund",
     "seal_rate": "sentiment",
     "turnover_m2": "sentiment",
     "turnover": "sentiment",
     "futures_discount": "sentiment",
+    "amplitude": "sentiment",
+    "realized_vol": "sentiment",
     "new_high": "structure",
     "ma_alignment": "structure",
     "breadth": "structure",
@@ -103,10 +106,13 @@ IND_COLS = [
     "yield_spread",
     "m1_m2_spread",
     "southbound",
+    "margin_buy_ratio",
     "seal_rate",
     "turnover_m2",
     "turnover",
     "futures_discount",
+    "amplitude",
+    "realized_vol",
     "new_high",
     "ma_alignment",
     "breadth",
@@ -329,10 +335,51 @@ def run_backtest():
     print(f"        {len(south_df)} rows")
 
     # 14. futures basis (IF基差, P1)
-    print("  [14/14] Futures basis (daily_futures_basis)...")
+    print("  [14/17] Futures basis (daily_futures_basis)...")
     basis_df = pd.read_sql("SELECT trade_date, basis_rate FROM daily_futures_basis WHERE basis_rate IS NOT NULL", conn)
     basis_df["trade_date"] = basis_df["trade_date"].astype(str)
     print(f"        {len(basis_df)} rows")
+
+    # 15. amplitude (振幅热度, P3) — 沪深300 日内振幅 (high-low)/prev_close
+    print("  [15/17] Amplitude (sh000300 振幅)...")
+    amp_all = pd.read_sql(
+        "SELECT trade_date, high, low, close FROM index_daily"
+        " WHERE index_code='sh000300' AND high>0 AND low>0 AND close>0 ORDER BY trade_date",
+        conn,
+    )
+    amp_all["trade_date"] = amp_all["trade_date"].astype(str)
+    amp_all["prev_close"] = amp_all["close"].shift(1)
+    amp_all["amplitude"] = (amp_all["high"] - amp_all["low"]) / amp_all["prev_close"]
+    print(f"        {len(amp_all)} rows")
+
+    # 16. realized_vol (已实现波动率, P3) — 沪深300 20日对数收益std ×√250
+    print("  [16/17] Realized vol (sh000300 20日年化波动)...")
+    vol_all = pd.read_sql(
+        "SELECT trade_date, close FROM index_daily WHERE index_code='sh000300' AND close>0 ORDER BY trade_date",
+        conn,
+    )
+    vol_all["trade_date"] = vol_all["trade_date"].astype(str)
+    vol_all["ret"] = np.log(vol_all["close"]).diff()
+    vol_all["realized_vol"] = vol_all["ret"].rolling(20).std() * math.sqrt(250)
+    print(f"        {len(vol_all)} rows")
+
+    # 17. margin_buy_ratio (融资买入占比, P3) — rzmre / (turnover_rate × circ_mv × 100)
+    print("  [17/17] Margin buy ratio...")
+    mbuy_df = pd.read_sql(
+        """
+        SELECT m.trade_date, m.rzmre / (t.turnover_rate * c.total_circ_mv * 100) AS ratio
+        FROM margin_history m
+        JOIN daily_turnover t ON m.trade_date = t.trade_date AND t.turnover_rate > 0
+        JOIN daily_circ_mv c ON m.trade_date = c.trade_date AND c.total_circ_mv > 0
+        WHERE m.rzmre > 0
+        ORDER BY m.trade_date
+    """,
+        conn,
+    )
+    mbuy_df["trade_date"] = mbuy_df["trade_date"].astype(str)
+    mbuy_df["ratio"] = pd.to_numeric(mbuy_df["ratio"], errors="coerce")
+    mbuy_df = mbuy_df.dropna(subset=["ratio"])
+    print(f"        {len(mbuy_df)} rows")
 
     # 上证综指
     idx_df = pd.read_sql(
@@ -499,6 +546,34 @@ def run_backtest():
                 pct = _pctr(hist_bd["up_down_ratio"], cur_bd_val)
                 scores["breadth"] = max(0, min(100, pct * 100))
                 raws["breadth"] = cur_bd_val
+
+        # Amplitude (P3) — 方向 pos
+        hist_amp = amp_all[(amp_all["trade_date"] >= ten_years_ago) & (amp_all["trade_date"] <= td)]["amplitude"]
+        hist_amp = hist_amp.dropna()
+        if len(hist_amp) >= 60:
+            cur_amp = float(hist_amp.iloc[-1])
+            pct = _pctr(hist_amp, cur_amp)
+            scores["amplitude"] = max(0, min(100, pct * 100))
+            raws["amplitude"] = cur_amp
+
+        # Realized vol (P3) — 方向 neg (波动越低=越贪婪=热度越高, 翻转)
+        hist_vol = vol_all[(vol_all["trade_date"] >= ten_years_ago) & (vol_all["trade_date"] <= td)]["realized_vol"]
+        hist_vol = hist_vol.dropna()
+        if len(hist_vol) >= 60:
+            cur_vol = float(hist_vol.iloc[-1])
+            pct = _pctr(-hist_vol, -cur_vol)
+            scores["realized_vol"] = max(0, min(100, pct * 100))
+            raws["realized_vol"] = cur_vol
+
+        # Margin buy ratio (P3) — 方向 pos
+        cur_mb = mbuy_df[mbuy_df["trade_date"] <= td]
+        if len(cur_mb) > 0:
+            cur_mb_val = float(cur_mb.iloc[-1]["ratio"])
+            hist_mb = mbuy_df[(mbuy_df["trade_date"] >= ten_years_ago) & (mbuy_df["trade_date"] <= td)]["ratio"]
+            if len(hist_mb) >= 60:
+                pct = _pctr(hist_mb, cur_mb_val)
+                scores["margin_buy_ratio"] = max(0, min(100, pct * 100))
+                raws["margin_buy_ratio"] = cur_mb_val
 
         # 维度分
         dim_scores = {}
@@ -687,10 +762,13 @@ def run_backtest():
         "yield_spread",
         "m1_m2_spread",
         "southbound",
+        "margin_buy_ratio",
         "seal_rate",
         "turnover_m2",
         "turnover",
         "futures_discount",
+        "amplitude",
+        "realized_vol",
         "new_high",
         "ma_alignment",
         "breadth",

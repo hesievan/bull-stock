@@ -87,6 +87,45 @@ checks["futures_discount"] = (raw.get("futures_discount"), fbv)
 bdv = g("SELECT up_down_ratio FROM daily_updown WHERE trade_date<=? ORDER BY trade_date DESC LIMIT 1")
 checks["breadth"] = (raw.get("breadth"), bdv)
 
+# amplitude: 沪深300 (high-low)/prev_close (P3)
+import math
+import numpy as np
+import pandas as pd
+
+_amp_df = pd.read_sql(
+    "SELECT trade_date, high, low, close FROM index_daily"
+    " WHERE index_code='sh000300' AND high>0 AND low>0 AND close>0 AND trade_date<=? ORDER BY trade_date",
+    conn,
+    params=(TD,),
+)
+_amp_df["prev_close"] = _amp_df["close"].shift(1)
+_amp_cur = float(((_amp_df["high"] - _amp_df["low"]) / _amp_df["prev_close"]).dropna().iloc[-1])
+checks["amplitude"] = (raw.get("amplitude"), _amp_cur)
+
+# realized_vol: 沪深300 20日对数收益std ×√250 (P3)
+_vol_df = pd.read_sql(
+    "SELECT trade_date, close FROM index_daily"
+    " WHERE index_code='sh000300' AND close>0 AND trade_date<=? ORDER BY trade_date",
+    conn,
+    params=(TD,),
+)
+_vol_ret = np.log(_vol_df["close"]).diff()
+_vol_cur = float((_vol_ret.rolling(20).std() * math.sqrt(250)).dropna().iloc[-1])
+checks["realized_vol"] = (raw.get("realized_vol"), _vol_cur)
+
+# margin_buy_ratio: rzmre / (turnover_rate × circ_mv × 100) (P3)
+_mb_row = conn.execute(
+    """
+    SELECT m.rzmre / (t.turnover_rate * c.total_circ_mv * 100)
+    FROM margin_history m
+    JOIN daily_turnover t ON m.trade_date = t.trade_date AND t.turnover_rate > 0
+    JOIN daily_circ_mv c ON m.trade_date = c.trade_date AND c.total_circ_mv > 0
+    WHERE m.rzmre > 0 AND m.trade_date <= ? ORDER BY m.trade_date DESC LIMIT 1
+    """,
+    (TD,),
+).fetchone()
+checks["margin_buy_ratio"] = (raw.get("margin_buy_ratio"), _mb_row[0] if _mb_row else None)
+
 
 # 打印对比
 def fmt(v):
@@ -113,6 +152,9 @@ for k in [
     "new_high",
     "ma_alignment",
     "breadth",
+    "amplitude",
+    "realized_vol",
+    "margin_buy_ratio",
 ]:
     eng = raw.get(k)
     print(f"{k:<16}{fmt(eng):<16}{fmt(checks[k][1]):<16}{scores.get(k):<7}")
