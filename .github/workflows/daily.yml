@@ -216,15 +216,49 @@ jobs:
 
       # ── 飞书通知 ───────────────────────────────────────────────────────────
       - name: Send Feishu notification if red
-        if: success()
+        if: always() && !cancelled()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          # 收集本次 job 已执行步骤中结论为 failure 的步骤名。
+          # 被 `|| echo skipped` 吞掉的软失败在 GitHub 侧仍是 success, 不在其中
+          # (软失败靠 run_daily 的 data_quality 与数据新鲜度在通知正文中体现)。
+          FAILED_STEPS=""
+          if [ "${{ job.status }}" != "success" ]; then
+            FAILED_STEPS=$(curl -s -H "Authorization: Bearer $GH_TOKEN" \
+              "https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/jobs" \
+              | python3 -c '
+            import json, sys
+            try:
+                data = json.load(sys.stdin)
+                failed = []
+                for job in data.get("jobs", []):
+                    for step in job.get("steps", []):
+                        if step.get("conclusion") == "failure":
+                            failed.append(step.get("name", "?"))
+                print("; ".join(failed))
+            except Exception:
+                print("")
+            ')
+          fi
+
+          MSG=""
           if [ -f web/data/notification.txt ]; then
             MSG=$(cat web/data/notification.txt)
-            if [ -n "${{ secrets.FEISHU_WEBHOOK }}" ]; then
-              curl -s -X POST "${{ secrets.FEISHU_WEBHOOK }}" \
-                -H "Content-Type: application/json" \
-                -d "{\"msg_type\":\"text\",\"content\":{\"text\":\"$MSG\"}}"
+          fi
+
+          if [ "${{ job.status }}" != "success" ]; then
+            HEADER="⚠️ A股热度指数每日流水线: ${{ job.status }}"
+            if [ -n "$FAILED_STEPS" ]; then
+              HEADER="$HEADER | 失败步骤: $FAILED_STEPS"
             fi
+            MSG=$(printf '%s\n%s' "$HEADER" "$MSG")
+          fi
+
+          if [ -n "${{ secrets.FEISHU_WEBHOOK }}" ] && [ -n "$MSG" ]; then
+            curl -s -X POST "${{ secrets.FEISHU_WEBHOOK }}" \
+              -H "Content-Type: application/json" \
+              -d "{\"msg_type\":\"text\",\"content\":{\"text\":\"$MSG\"}}"
           fi
 
   # ── P0.3: Lighthouse 质量门禁 (对已部署的 Pages 站评分; 失败不阻断数据流水线) ──

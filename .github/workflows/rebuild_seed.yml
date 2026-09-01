@@ -36,6 +36,7 @@ jobs:
           path: data/heat_index.db
           key: heat-db-${{ hashFiles('src/data/database.py') }}-
           restore-keys: |
+            heat-db-${{ hashFiles('src/data/database.py') }}-
             heat-db-
 
       - name: Fetch historical data
