@@ -1,0 +1,214 @@
+{
+  "label": "baseline",
+  "generated_at": "2026-08-09 17:17:56",
+  "results": [
+    {
+      "trade_date": "2015-06-12",
+      "composite_score": 83.9,
+      "dimensions": {
+        "valuation": 100.0,
+        "fund": 64.0,
+        "sentiment": 91.1,
+        "structure": 69.8
+      },
+      "indicators": {
+        "pe": 99.96408045977012,
+        "erp": 99.96382054992765,
+        "buffett": 99.96432393863718,
+        "margin_ratio_v2": 28.02798006899192,
+        "deposit_ratio": 100,
+        "turnover_m2": 100,
+        "turnover": 82.2429906542056,
+        "new_high": 47.3976109215017,
+        "ma_alignment": 92.29671897289586,
+        "qvix": null
+      },
+      "elapsed_s": 7.6,
+      "state": "BULL_PEAK",
+      "desc": "2015牛市顶",
+      "baseline_composite": 83.8
+    },
+    {
+      "trade_date": "2018-12-28",
+      "composite_score": 5.3,
+      "dimensions": {
+        "valuation": 4.0,
+        "fund": 1.6,
+        "sentiment": 10.8,
+        "structure": 13.2
+      },
+      "indicators": {
+        "pe": 0.43103448275862066,
+        "erp": 10.311143270622292,
+        "buffett": 1.2843382090617197,
+        "margin_ratio_v2": 2.414718282866999,
+        "deposit_ratio": 0.7246376811594235,
+        "turnover_m2": 0,
+        "turnover": 21.6,
+        "new_high": 0.6756756756756757,
+        "ma_alignment": 25.677603423680456,
+        "qvix": null
+      },
+      "elapsed_s": 3.9,
+      "state": "BEAR_BOTTOM",
+      "desc": "2018熊底",
+      "baseline_composite": 5.2
+    },
+    {
+      "trade_date": "2020-07-10",
+      "composite_score": 70.2,
+      "dimensions": {
+        "valuation": 75.3,
+        "fund": 69.2,
+        "sentiment": 75.8,
+        "structure": 46.7
+      },
+      "indicators": {
+        "pe": 78.8074712643678,
+        "erp": 74.45730824891461,
+        "buffett": 72.56510881198716,
+        "margin_ratio_v2": 54.24889246878776,
+        "deposit_ratio": 84.05797101449275,
+        "turnover_m2": 74.20289855072464,
+        "turnover": 77.45762711864407,
+        "new_high": 19.668307851775072,
+        "ma_alignment": 73.75178316690443,
+        "qvix": null
+      },
+      "elapsed_s": 4.0,
+      "state": "BULL_START",
+      "desc": "2020牛市启动",
+      "baseline_composite": 70.4
+    },
+    {
+      "trade_date": "2021-02-18",
+      "composite_score": 74.0,
+      "dimensions": {
+        "valuation": 78.8,
+        "fund": 83.3,
+        "sentiment": 79.7,
+        "structure": 19.0
+      },
+      "indicators": {
+        "pe": 72.5933908045977,
+        "erp": 74.92764109985528,
+        "buffett": 88.79771673207279,
+        "margin_ratio_v2": 69.53359007274284,
+        "deposit_ratio": 97.10144927536231,
+        "turnover_m2": 76.81159420289855,
+        "turnover": 82.5,
+        "new_high": 4.389541856560326,
+        "ma_alignment": 33.63052781740371,
+        "qvix": null
+      },
+      "elapsed_s": 4.0,
+      "state": "BULL_PEAK",
+      "desc": "2021牛市顶",
+      "baseline_composite": 74.1
+    },
+    {
+      "trade_date": "2024-02-05",
+      "composite_score": 24.1,
+      "dimensions": {
+        "valuation": 1.1,
+        "fund": 35.2,
+        "sentiment": 63.2,
+        "structure": 5.4
+      },
+      "indicators": {
+        "pe": 1.0775862068965518,
+        "erp": 0.795947901591898,
+        "buffett": 1.3556903317873708,
+        "margin_ratio_v2": 70.39999999999999,
+        "deposit_ratio": 0,
+        "turnover_m2": 29.71014492753623,
+        "turnover": 96.7479674796748,
+        "new_high": 0.8627450980392156,
+        "ma_alignment": 9.985734664764621,
+        "qvix": 26.282
+      },
+      "elapsed_s": 4.6,
+      "state": "BEAR_BOTTOM",
+      "desc": "2024熊底",
+      "baseline_composite": 23.5
+    },
+    {
+      "trade_date": "2024-10-08",
+      "composite_score": 48.9,
+      "dimensions": {
+        "valuation": 49.3,
+        "fund": 20.7,
+        "sentiment": 99.3,
+        "structure": 28.3
+      },
+      "indicators": {
+        "pe": 51.293103448275865,
+        "erp": 28.21997105643994,
+        "buffett": 68.39100963253657,
+        "margin_ratio_v2": 0.06153846153846154,
+        "deposit_ratio": 41.30434782608695,
+        "turnover_m2": 98.55072463768117,
+        "turnover": 100,
+        "new_high": 39.33975240715269,
+        "ma_alignment": 17.33238231098431,
+        "qvix": 26.376
+      },
+      "elapsed_s": 4.6,
+      "state": "PULSE_PEAK",
+      "desc": "2024脉冲顶",
+      "baseline_composite": 49.1
+    },
+    {
+      "trade_date": "2026-06-24",
+      "composite_score": 54.6,
+      "dimensions": {
+        "valuation": 53.6,
+        "fund": 44.4,
+        "sentiment": 92.7,
+        "structure": 15.3
+      },
+      "indicators": {
+        "pe": 50.57283142389526,
+        "erp": 11.138613861386137,
+        "buffett": 98.97708674304418,
+        "margin_ratio_v2": 6.285949055053452,
+        "deposit_ratio": 82.6086956521739,
+        "turnover_m2": 97.10144927536231,
+        "turnover": 88.39285714285714,
+        "new_high": 6.803338171262699,
+        "ma_alignment": 23.803680981595093,
+        "qvix": null
+      },
+      "elapsed_s": 4.6,
+      "state": "CHOP",
+      "desc": "2026震荡市",
+      "baseline_composite": 53.9
+    },
+    {
+      "trade_date": "2026-06-25",
+      "composite_score": 54.6,
+      "dimensions": {
+        "valuation": 51.8,
+        "fund": 43.7,
+        "sentiment": 97.1,
+        "structure": 15.3
+      },
+      "indicators": {
+        "pe": 46.663937781416294,
+        "erp": 9.409822534048695,
+        "buffett": 99.30413426115432,
+        "margin_ratio_v2": 4.810855263157931,
+        "deposit_ratio": 82.6086956521739,
+        "turnover_m2": 97.82608695652173,
+        "turnover": 96.42857142857143,
+        "new_high": 6.731990564325893,
+        "ma_alignment": 23.81342062193126,
+        "qvix": null
+      },
+      "elapsed_s": 4.2,
+      "state": "CHOP",
+      "desc": "2026震荡市",
+      "baseline_composite": 54.6
+    }
+  ]
+}
