@@ -111,10 +111,10 @@ def main():
     print(f"✓ 已重写 index.json/detail.json ({trade_date})")
     print(f"  composite = {_round_score(composite)}  level = {index_data['level']}")
     print(f"  dimensions = {dims}")
-    print("  fund 4 子项 = {")
+    print("  fund 4 子项 / sentiment / structure 新增子项 = {")
     ind = res["indicators"]
-    for k in ["margin_ratio_v2", "yield_spread", "m1_m2_spread"]:
-        print(f"    {k}: {ind[k]}")
+    for k in ["margin_ratio_v2", "yield_spread", "m1_m2_spread", "southbound", "futures_discount", "breadth"]:
+        print(f"    {k}: {ind.get(k)}")
     print("  }}")
 
 

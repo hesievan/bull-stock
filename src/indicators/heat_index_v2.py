@@ -1,25 +1,28 @@
 """
 牛市热度指数 V2 — 精简版计算引擎
 
-11 个核心指标 + QVIX 仅展示不计分
+核心指标 + QVIX 仅展示不计分
 
-P0-1 去同源加权: 剔除与 PE/Buffett 共线的 ERP、存款市值比,
-腾出权重接入「涨停封板率」(市场追涨情绪的独立信号)。
-
-指标:
+指标 (P1 扩容 2026-09: 10 → 13 指标, 四维度总权重不变):
    估值(28%):  大盘PE(14%), 巴菲特指标(14%)
-   资金(15%):  两融余额市值比(7%), 国债期限利差(4%), M1-M2剪刀差(4%)
-   情绪(42%):  涨停封板率(15%), 成交额M2比(15%), 换手率(12%)
-   结构(15%):  创新高占比(10%), MA排列比(5%)
+   资金(15%):  两融余额市值比(6%), 国债期限利差(4%), M1-M2剪刀差(4%), 南向净买额(1%)
+   情绪(35%):  涨停封板率(7%), 成交额M2比(16%), 换手率(10%), IF基差(2%)
+   结构(22%):  创新高占比(12%), MA排列比(6%), 涨跌家数广度(4%)
+
+退役记录:
+   北向净流入比 (2026-08): 港交所 2024-08-19 停止披露北向净买入额, tushare
+   moneyflow_hsgt 返回失真量级且 CI 抓取长期不稳定, 已退役; 跨境资金信号由
+   南向净买额 (仍正常披露) 接棒。
 
 展示(不计分): QVIX恐慌指数
 
-资金维度扩容 (2026-08): 原单一 margin_ratio(15%) 拆分为 3 个低相关标准化指标
-(2026-08 北向净流入比因港交所停止披露北向净买入额、且 CI 抓取长期不稳定, 已退役),
-总权重仍为 15%。所有指标均为比率/差分形式, 避免绝对额体量漂移。
-  margin_ratio = 两融余额 / 流通市值
-  yield_spread  = 10Y国债收益率 - 2Y国债收益率 (2s10s 期限利差; 1Y 历史不可用故用 2Y, 覆盖 2010~今)
-  m1_m2_spread  = M1同比 - M2同比            (货币活化程度)
+所有指标均为比率/差分形式, 避免绝对额体量漂移。
+  margin_ratio       = 两融余额 / 流通市值
+  yield_spread       = 10Y国债收益率 - 2Y国债收益率 (2s10s 期限利差; 1Y 历史不可用故用 2Y, 覆盖 2010~今)
+  m1_m2_spread       = M1同比 - M2同比            (货币活化程度)
+  southbound         = 南向通当日净买额(亿元)      (跨境聪明钱情绪代理)
+  futures_discount   = (IF主力收盘-沪深300现货收盘)/现货收盘  (机构/杠杆资金立场)
+  breadth            = 上涨家数/下跌家数           (市场宽度)
 """
 
 import logging
@@ -40,14 +43,17 @@ logger = logging.getLogger(__name__)
 DEFAULT_WEIGHTS = {
     "pe": 0.14,  # 大盘PE
     "buffett": 0.14,  # 巴菲特指标
-    "margin_ratio": 0.07,  # 两融余额市值比 (北向净流入比退役后 5%→7%)
-    "yield_spread": 0.04,  # 国债期限利差 10Y-2Y (北向退役后 3%→4%)
-    "m1_m2_spread": 0.04,  # M1-M2剪刀差 (北向退役后 3%→4%)
-    "seal_rate": 0.08,  # 涨停封板率 (降权: 15%→8%, 区分度3.1最低且日内噪声大)         # 涨停封板率 (回测调权: 28%→15%, 区分度3.1偏低)
-    "turnover_m2": 0.15,  # 成交额M2比 (回测调权: 10%→15%, 区分度21.0最高)
-    "turnover": 0.12,  # 换手率 (回测调权: 10%→12%, 区分度21.0)
-    "new_high": 0.14,  # 创新高占比 (升权: 10%→14%, 区分度19.4)          # 创新高占比 (回测调权: 6%→10%, 区分度19.4)
-    "ma_alignment": 0.08,  # MA排列比 (升权: 5%→8%, 区分度15.1)      # MA排列比 (回测调权: 4%→5%, 区分度15.1)
+    "margin_ratio": 0.06,  # 两融余额市值比 (P1: 7%→6%, 让位南向净买额)
+    "yield_spread": 0.04,  # 国债期限利差 10Y-2Y
+    "m1_m2_spread": 0.04,  # M1-M2剪刀差
+    "southbound": 0.01,  # 南向通净买额 (P1 新增, 补北向退役缺口)
+    "seal_rate": 0.07,  # 涨停封板率 (P1: 8%→7%)
+    "turnover_m2": 0.16,  # 成交额M2比 (P1: 15%→16%, 区分度21.5最高, 接收IF基差让出的2%)
+    "turnover": 0.10,  # 换手率 (P1: 12%→10%)
+    "futures_discount": 0.02,  # IF基差 (P1 新增; 回测区分度≈0(-1.8,p=0.135), 权重由拟定的4%降为2%)
+    "new_high": 0.12,  # 创新高占比 (P1: 14%→12%, 让位涨跌家数广度)
+    "ma_alignment": 0.06,  # MA排列比 (P1: 8%→6%)
+    "breadth": 0.04,  # 涨跌家数广度 (P1 新增, 市场宽度信号)
 }
 
 # 背离检测参数 (内置默认值, 可被 v2_engine.divergence 覆盖)
@@ -105,11 +111,14 @@ INDICATOR_DIMENSIONS = {
     "margin_ratio": "fund",
     "yield_spread": "fund",
     "m1_m2_spread": "fund",
+    "southbound": "fund",
     "seal_rate": "sentiment",
     "turnover_m2": "sentiment",
     "turnover": "sentiment",
+    "futures_discount": "sentiment",
     "new_high": "structure",
     "ma_alignment": "structure",
+    "breadth": "structure",
 }
 
 
@@ -701,6 +710,114 @@ def calc_m1_m2_spread_v2(conn, trade_date: str) -> Optional[float]:
         return None
 
 
+def calc_breadth_v2(conn, trade_date: str) -> Optional[tuple]:
+    """涨跌家数广度 = 上涨家数/下跌家数 (daily_updown 预计算表, 历史百分位赋分)
+
+    P1 新增 (2026-09): 补"宽度"信号 — new_high 看"高度", breadth 看"宽度"。
+    指数新高但广度不跟随是牛市顶部最经典的背离警告。
+    方向: 广度越高=上涨越普涨=热度越高 (pos)。
+    """
+    try:
+        td = trade_date
+        row = conn.execute(
+            "SELECT up_down_ratio FROM daily_updown WHERE trade_date<=? AND up_down_ratio IS NOT NULL"
+            " ORDER BY trade_date DESC LIMIT 1",
+            (td,),
+        ).fetchone()
+        if not row:
+            return None
+        cur = float(row[0])
+        if cur <= 0:
+            return None
+
+        hist = pd.read_sql(
+            "SELECT up_down_ratio FROM daily_updown"
+            " WHERE trade_date >= ? AND up_down_ratio IS NOT NULL AND up_down_ratio > 0",
+            conn,
+            params=[str(int(td[:4]) - 10) + td[4:]],
+        )
+        if hist.empty or len(hist) < 60:
+            logger.warning("Breadth: insufficient history (%d records)", len(hist))
+            return None
+        pct = _pct_rank(hist["up_down_ratio"], cur)
+        score = pct * 100
+        logger.info("涨跌家数广度: %.4f, pct=%.2f, score=%.1f (n=%d)", cur, pct, score, len(hist))
+        return max(0, min(100, score)), cur
+    except Exception as e:
+        logger.warning("Breadth calc failed: %s", e)
+        return None
+
+
+def calc_southbound_v2(conn, trade_date: str) -> Optional[tuple]:
+    """南向通当日净买额 (daily_hsgt_south, 单位亿元, 历史百分位赋分)
+
+    P1 新增 (2026-09): north_ratio 退役后的跨境资金情绪代理。
+    南向代表内地资金南下港股, 仍每日正常披露 (北向 2024-08 停止)。
+    方向: 净买额越高=内地资金越活跃/风险偏好越强=热度越高 (pos)。
+    """
+    try:
+        td = trade_date
+        row = conn.execute(
+            "SELECT south_net FROM daily_hsgt_south WHERE trade_date<=? AND south_net IS NOT NULL"
+            " ORDER BY trade_date DESC LIMIT 1",
+            (td,),
+        ).fetchone()
+        if not row:
+            return None
+        cur = float(row[0])
+
+        hist = pd.read_sql(
+            "SELECT south_net FROM daily_hsgt_south WHERE trade_date >= ? AND south_net IS NOT NULL",
+            conn,
+            params=[str(int(td[:4]) - 10) + td[4:]],
+        )
+        if hist.empty or len(hist) < 60:
+            logger.warning("Southbound: insufficient history (%d records)", len(hist))
+            return None
+        pct = _pct_rank(hist["south_net"], cur)
+        score = pct * 100
+        logger.info("南向净买额: %.2f亿, pct=%.2f, score=%.1f (n=%d)", cur, pct, score, len(hist))
+        return max(0, min(100, score)), cur
+    except Exception as e:
+        logger.warning("Southbound calc failed: %s", e)
+        return None
+
+
+def calc_futures_discount_v2(conn, trade_date: str) -> Optional[tuple]:
+    """股指期货基差 = (IF主力收盘 - 沪深300现货收盘) / 现货收盘 (daily_futures_basis)
+
+    P1 新增 (2026-09): 机构/杠杆资金对后市的真实立场, 盘面之外的前瞻信号,
+    与零售情绪 (封板率/换手) 低相关。雪球恐贪6因子、多个 GitHub 同类项目共识成分。
+    方向: 升水(基差高)=机构乐观=热度越高; 深度贴水=对冲需求强=低分 (pos)。
+    """
+    try:
+        td = trade_date
+        row = conn.execute(
+            "SELECT basis_rate FROM daily_futures_basis WHERE trade_date<=? AND basis_rate IS NOT NULL"
+            " ORDER BY trade_date DESC LIMIT 1",
+            (td,),
+        ).fetchone()
+        if not row:
+            return None
+        cur = float(row[0])
+
+        hist = pd.read_sql(
+            "SELECT basis_rate FROM daily_futures_basis WHERE trade_date >= ? AND basis_rate IS NOT NULL",
+            conn,
+            params=[str(int(td[:4]) - 10) + td[4:]],
+        )
+        if hist.empty or len(hist) < 60:
+            logger.warning("Futures basis: insufficient history (%d records)", len(hist))
+            return None
+        pct = _pct_rank(hist["basis_rate"], cur)
+        score = pct * 100
+        logger.info("IF基差率: %.6f, pct=%.2f, score=%.1f (n=%d)", cur, pct, score, len(hist))
+        return max(0, min(100, score)), cur
+    except Exception as e:
+        logger.warning("Futures basis calc failed: %s", e)
+        return None
+
+
 def calc_qvix_v2(conn, trade_date: str) -> Optional[float]:
     """QVIX恐慌指数 — 仅展示不计分"""
     try:
@@ -810,11 +927,14 @@ def compute_index_v2(trade_date: str = None, db_path: str = None) -> dict:
             ("margin_ratio", calc_margin_ratio_v2),
             ("yield_spread", calc_yield_spread_v2),
             ("m1_m2_spread", calc_m1_m2_spread_v2),
+            ("southbound", calc_southbound_v2),
             ("seal_rate", calc_seal_rate_v2),
             ("turnover_m2", calc_turnover_m2),
             ("turnover", calc_turnover_v2),
+            ("futures_discount", calc_futures_discount_v2),
             ("new_high", calc_new_high_v2),
             ("ma_alignment", calc_ma_alignment_v2),
+            ("breadth", calc_breadth_v2),
         ]:
             scores[k] = _unpack(k, fn(conn, td))
 
@@ -885,11 +1005,14 @@ def compute_index_v2(trade_date: str = None, db_path: str = None) -> dict:
                 "margin_ratio_v2": scores["margin_ratio"],
                 "yield_spread": scores.get("yield_spread"),
                 "m1_m2_spread": scores.get("m1_m2_spread"),
+                "southbound": scores.get("southbound"),
                 "seal_rate": scores["seal_rate"],
                 "turnover_m2": scores["turnover_m2"],
                 "turnover": scores["turnover"],
+                "futures_discount": scores.get("futures_discount"),
                 "new_high": scores["new_high"],
                 "ma_alignment": scores["ma_alignment"],
+                "breadth": scores.get("breadth"),
                 "qvix": qvix,
                 "qvix_components": qvix_components,
             },

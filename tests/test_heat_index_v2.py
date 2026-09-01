@@ -23,6 +23,9 @@ from src.indicators.heat_index_v2 import (
     calc_turnover_v2,
     calc_yield_spread_v2,
     calc_m1_m2_spread_v2,
+    calc_breadth_v2,
+    calc_southbound_v2,
+    calc_futures_discount_v2,
     compute_index_v2,
     _apply_sentiment_divergence,
     _pct_rank,
@@ -690,7 +693,28 @@ class TestComputeIndexV2EndToEnd:
                 (d, round(0.1 + i * 0.008, 4)),
             )
         conn.execute("INSERT INTO daily_ma_alignment (trade_date, ma_alignment_ratio) VALUES (?, 0.9)", (td,))
-        # 10. 国债收益率 2Y/10Y (与 stock_daily 同日, 用于期限利差)
+        # 9. 涨跌家数广度 (70条 + 当前, P1)
+        for i, d in enumerate(_dates("2016-09-01", 70, step_days=30)):
+            conn.execute(
+                "INSERT INTO daily_updown (trade_date, up_down_ratio) VALUES (?, ?)",
+                (d, round(0.3 + i * 0.008, 4)),
+            )
+        conn.execute("INSERT INTO daily_updown (trade_date, up_down_ratio) VALUES (?, 1.5)", (td,))
+        # 10. 南向净买额 (70条 + 当前, P1)
+        for i, d in enumerate(_dates("2016-09-01", 70, step_days=30)):
+            conn.execute(
+                "INSERT INTO daily_hsgt_south (trade_date, south_net) VALUES (?, ?)",
+                (d, round(10.0 + i * 0.5, 2)),
+            )
+        conn.execute("INSERT INTO daily_hsgt_south (trade_date, south_net) VALUES (?, 80.0)", (td,))
+        # 11. IF基差 (70条 + 当前, P1)
+        for i, d in enumerate(_dates("2016-09-01", 70, step_days=30)):
+            conn.execute(
+                "INSERT INTO daily_futures_basis (trade_date, basis_rate) VALUES (?, ?)",
+                (d, round(-0.010 + i * 0.0002, 6)),
+            )
+        conn.execute("INSERT INTO daily_futures_basis (trade_date, basis_rate) VALUES (?, 0.020)", (td,))
+        # 12. 国债收益率 2Y/10Y (与 stock_daily 同日, 用于期限利差)
         for i, d in enumerate(_dates("2016-09-01", 70, step_days=30)):
             conn.execute("INSERT INTO bond_yield (trade_date, curve_term, yield_rate) VALUES (?, 2.0, 2.5)", (d,))
             conn.execute(
@@ -703,7 +727,7 @@ class TestComputeIndexV2EndToEnd:
         conn.close()
 
     def test_all_indicators_weighted_sum(self, tmp_path):
-        """全部 11 指标有分 → composite=Σ(w_i·score_i), 维度分按指标权重加权 (F10)"""
+        """全部 13 指标有分 → composite=Σ(w_i·score_i), 维度分按指标权重加权 (F10)"""
         db_path = str(tmp_path / "e2e.db")
         init_database(db_path)
         self._full_seed(db_path)
@@ -719,13 +743,16 @@ class TestComputeIndexV2EndToEnd:
             "margin_ratio_v2": "margin_ratio",
             "yield_spread": "yield_spread",
             "m1_m2_spread": "m1_m2_spread",
+            "southbound": "southbound",
             "seal_rate": "seal_rate",
             "turnover_m2": "turnover_m2",
             "turnover": "turnover",
+            "futures_discount": "futures_discount",
             "new_high": "new_high",
             "ma_alignment": "ma_alignment",
+            "breadth": "breadth",
         }
-        # 全部 11 指标均有分数
+        # 全部 13 指标均有分数
         for rk in result_to_weight:
             assert ind[rk] is not None, f"{rk} 无分数"
         # 综合分 = 指标加权和 (权重总和=1.0)
@@ -739,11 +766,11 @@ class TestComputeIndexV2EndToEnd:
 
         val = _dim_weighted(["pe", "buffett"])
         assert res["dimensions"]["valuation"]["score"] == pytest.approx(round(val, 1), abs=0.1)
-        fund = _dim_weighted(["margin_ratio_v2", "yield_spread", "m1_m2_spread"])
+        fund = _dim_weighted(["margin_ratio_v2", "yield_spread", "m1_m2_spread", "southbound"])
         assert res["dimensions"]["fund"]["score"] == pytest.approx(round(fund, 1), abs=0.1)
-        sent = _dim_weighted(["seal_rate", "turnover_m2", "turnover"])
+        sent = _dim_weighted(["seal_rate", "turnover_m2", "turnover", "futures_discount"])
         assert res["dimensions"]["sentiment"]["score"] == pytest.approx(round(sent, 1), abs=0.1)
-        struct = _dim_weighted(["new_high", "ma_alignment"])
+        struct = _dim_weighted(["new_high", "ma_alignment", "breadth"])
         assert res["dimensions"]["structure"]["score"] == pytest.approx(round(struct, 1), abs=0.1)
 
         # F10 关键不变量: Σ(维度分 × 维度权重占比) ≈ 综合分
@@ -751,10 +778,14 @@ class TestComputeIndexV2EndToEnd:
         dim_weights = {
             "valuation": sum(INDICATOR_WEIGHTS[result_to_weight[k]] for k in ("pe", "buffett")),
             "fund": sum(
-                INDICATOR_WEIGHTS[result_to_weight[k]] for k in ("margin_ratio_v2", "yield_spread", "m1_m2_spread")
+                INDICATOR_WEIGHTS[result_to_weight[k]]
+                for k in ("margin_ratio_v2", "yield_spread", "m1_m2_spread", "southbound")
             ),
-            "sentiment": sum(INDICATOR_WEIGHTS[result_to_weight[k]] for k in ("seal_rate", "turnover_m2", "turnover")),
-            "structure": sum(INDICATOR_WEIGHTS[result_to_weight[k]] for k in ("new_high", "ma_alignment")),
+            "sentiment": sum(
+                INDICATOR_WEIGHTS[result_to_weight[k]]
+                for k in ("seal_rate", "turnover_m2", "turnover", "futures_discount")
+            ),
+            "structure": sum(INDICATOR_WEIGHTS[result_to_weight[k]] for k in ("new_high", "ma_alignment", "breadth")),
         }
         recon = sum(res["dimensions"][d]["score"] * w for d, w in dim_weights.items())
         assert res["composite_score"] == pytest.approx(recon, abs=0.2)
@@ -781,11 +812,14 @@ class TestComputeIndexV2EndToEnd:
             "margin_ratio_v2",
             "yield_spread",
             "m1_m2_spread",
+            "southbound",
             "seal_rate",
             "turnover_m2",
             "turnover",
+            "futures_discount",
             "new_high",
             "ma_alignment",
+            "breadth",
         ):
             assert res["indicators"][k] is None, f"{k} 应无数据"
         # 仅 PE 有效 → 综合分=PE 分 (total_weight 归一化)
@@ -847,3 +881,80 @@ class TestNewFundIndicators:
         assert 0 <= score <= 100
         # 原始差 = 4.0 - 8.0 = -4.0 (ffill 到 TD 所在月)
         assert raw == pytest.approx(-4.0, abs=1e-6)
+
+
+# ── P1 新增指标: breadth / southbound / futures_discount 方向校验 ────────────
+
+
+class TestP1Indicators:
+    """P1 (2026-09) 三个新指标: 计算正确性 + 方向性"""
+
+    TD = "2026-08-06"
+
+    def test_calc_breadth_direction(self, v2_db):
+        """广度: 当前=历史最高 → 高分; 历史最低 → 低分"""
+        for i, d in enumerate(_dates("2016-09-01", 70, step_days=30)):
+            v2_db.execute(
+                "INSERT INTO daily_updown (trade_date, up_down_ratio) VALUES (?, ?)",
+                (d, round(0.3 + i * 0.008, 4)),
+            )
+        v2_db.commit()
+        v2_db.execute("INSERT INTO daily_updown (trade_date, up_down_ratio) VALUES (?, 2.0)", (self.TD,))
+        v2_db.commit()
+        high = calc_breadth_v2(v2_db, self.TD)
+        assert high is not None
+        assert high[0] >= 95.0
+        v2_db.execute("UPDATE daily_updown SET up_down_ratio=0.1 WHERE trade_date=?", (self.TD,))
+        v2_db.commit()
+        low = calc_breadth_v2(v2_db, self.TD)
+        assert low is not None
+        assert low[0] <= 5.0
+
+    def test_calc_southbound_direction(self, v2_db):
+        """南向: 净买额历史最高 → 高分; 大幅净卖出 → 低分"""
+        for i, d in enumerate(_dates("2016-09-01", 70, step_days=30)):
+            v2_db.execute(
+                "INSERT INTO daily_hsgt_south (trade_date, south_net) VALUES (?, ?)",
+                (d, round(10.0 + i * 0.5, 2)),
+            )
+        v2_db.commit()
+        v2_db.execute("INSERT INTO daily_hsgt_south (trade_date, south_net) VALUES (?, 100.0)", (self.TD,))
+        v2_db.commit()
+        high = calc_southbound_v2(v2_db, self.TD)
+        assert high is not None
+        assert high[0] >= 95.0
+        v2_db.execute("UPDATE daily_hsgt_south SET south_net=-50.0 WHERE trade_date=?", (self.TD,))
+        v2_db.commit()
+        low = calc_southbound_v2(v2_db, self.TD)
+        assert low is not None
+        assert low[0] <= 5.0
+
+    def test_calc_futures_direction(self, v2_db):
+        """IF基差: 深度升水 → 高分; 深度贴水 → 低分"""
+        for i, d in enumerate(_dates("2016-09-01", 70, step_days=30)):
+            v2_db.execute(
+                "INSERT INTO daily_futures_basis (trade_date, basis_rate) VALUES (?, ?)",
+                (d, round(-0.010 + i * 0.0002, 6)),
+            )
+        v2_db.commit()
+        v2_db.execute("INSERT INTO daily_futures_basis (trade_date, basis_rate) VALUES (?, 0.05)", (self.TD,))
+        v2_db.commit()
+        high = calc_futures_discount_v2(v2_db, self.TD)
+        assert high is not None
+        assert high[0] >= 95.0
+        v2_db.execute("UPDATE daily_futures_basis SET basis_rate=-0.03 WHERE trade_date=?", (self.TD,))
+        v2_db.commit()
+        low = calc_futures_discount_v2(v2_db, self.TD)
+        assert low is not None
+        assert low[0] <= 5.0
+
+    def test_insufficient_history_returns_none(self, v2_db):
+        """三个新指标历史不足 60 条 → None (宁缺毋滥)"""
+        for i, d in enumerate(_dates("2026-05-01", 30)):
+            v2_db.execute("INSERT INTO daily_updown (trade_date, up_down_ratio) VALUES (?, 1.0)", (d,))
+            v2_db.execute("INSERT INTO daily_hsgt_south (trade_date, south_net) VALUES (?, 10.0)", (d,))
+            v2_db.execute("INSERT INTO daily_futures_basis (trade_date, basis_rate) VALUES (?, 0.001)", (d,))
+        v2_db.commit()
+        assert calc_breadth_v2(v2_db, self.TD) is None
+        assert calc_southbound_v2(v2_db, self.TD) is None
+        assert calc_futures_discount_v2(v2_db, self.TD) is None

@@ -80,11 +80,14 @@ IND_DIMS = {
     "margin_ratio": "fund",
     "yield_spread": "fund",
     "m1_m2_spread": "fund",
+    "southbound": "fund",
     "seal_rate": "sentiment",
     "turnover_m2": "sentiment",
     "turnover": "sentiment",
+    "futures_discount": "sentiment",
     "new_high": "structure",
     "ma_alignment": "structure",
+    "breadth": "structure",
 }
 DIMS = ["valuation", "fund", "sentiment", "structure"]
 
@@ -94,11 +97,14 @@ IND_COLS = [
     "margin_ratio",
     "yield_spread",
     "m1_m2_spread",
+    "southbound",
     "seal_rate",
     "turnover_m2",
     "turnover",
+    "futures_discount",
     "new_high",
     "ma_alignment",
+    "breadth",
 ]
 
 SATURATION_CUTOFF = 0.85
@@ -302,6 +308,27 @@ def run_backtest():
     _m1m2["trade_date"] = _m1m2["trade_date"].astype(str)
     print(f"        {len(_m1m2)} rows")
 
+    # 12. breadth (涨跌家数广度, P1)
+    print("  [12/13] Breadth (daily_updown)...")
+    breadth_df = pd.read_sql(
+        "SELECT trade_date, up_down_ratio FROM daily_updown WHERE up_down_ratio IS NOT NULL AND up_down_ratio > 0",
+        conn,
+    )
+    breadth_df["trade_date"] = breadth_df["trade_date"].astype(str)
+    print(f"        {len(breadth_df)} rows")
+
+    # 13. southbound (南向净买额, P1)
+    print("  [13/13] Southbound (daily_hsgt_south)...")
+    south_df = pd.read_sql("SELECT trade_date, south_net FROM daily_hsgt_south WHERE south_net IS NOT NULL", conn)
+    south_df["trade_date"] = south_df["trade_date"].astype(str)
+    print(f"        {len(south_df)} rows")
+
+    # 14. futures basis (IF基差, P1)
+    print("  [14/14] Futures basis (daily_futures_basis)...")
+    basis_df = pd.read_sql("SELECT trade_date, basis_rate FROM daily_futures_basis WHERE basis_rate IS NOT NULL", conn)
+    basis_df["trade_date"] = basis_df["trade_date"].astype(str)
+    print(f"        {len(basis_df)} rows")
+
     # 上证综指
     idx_df = pd.read_sql(
         "SELECT trade_date, close FROM index_daily WHERE index_code='sh000001' ORDER BY trade_date", conn
@@ -437,6 +464,36 @@ def run_backtest():
                 pct = _pct_rank(hist_mm["spread"], cur_mm_val)
                 scores["m1_m2_spread"] = max(0, min(100, pct * 100))
                 raws["m1_m2_spread"] = cur_mm_val
+
+        # Southbound (P1)
+        cur_sb = south_df[south_df["trade_date"] <= td]
+        if len(cur_sb) > 0:
+            cur_sb_val = cur_sb.iloc[-1]["south_net"]
+            hist_sb = south_df[(south_df["trade_date"] >= ten_years_ago) & (south_df["south_net"].notna())]
+            if len(hist_sb) >= 60:
+                pct = _pct_rank(hist_sb["south_net"], cur_sb_val)
+                scores["southbound"] = max(0, min(100, pct * 100))
+                raws["southbound"] = cur_sb_val
+
+        # Futures basis (P1)
+        cur_fb = basis_df[basis_df["trade_date"] <= td]
+        if len(cur_fb) > 0:
+            cur_fb_val = cur_fb.iloc[-1]["basis_rate"]
+            hist_fb = basis_df[(basis_df["trade_date"] >= ten_years_ago) & (basis_df["basis_rate"].notna())]
+            if len(hist_fb) >= 60:
+                pct = _pct_rank(hist_fb["basis_rate"], cur_fb_val)
+                scores["futures_discount"] = max(0, min(100, pct * 100))
+                raws["futures_discount"] = cur_fb_val
+
+        # Breadth (P1)
+        cur_bd = breadth_df[breadth_df["trade_date"] == td]
+        if len(cur_bd) > 0:
+            cur_bd_val = cur_bd.iloc[0]["up_down_ratio"]
+            hist_bd = breadth_df[(breadth_df["trade_date"] >= ten_years_ago) & (breadth_df["up_down_ratio"].notna())]
+            if len(hist_bd) >= 60:
+                pct = _pct_rank(hist_bd["up_down_ratio"], cur_bd_val)
+                scores["breadth"] = max(0, min(100, pct * 100))
+                raws["breadth"] = cur_bd_val
 
         # 维度分
         dim_scores = {}
@@ -624,11 +681,14 @@ def run_backtest():
         "margin_ratio",
         "yield_spread",
         "m1_m2_spread",
+        "southbound",
         "seal_rate",
         "turnover_m2",
         "turnover",
+        "futures_discount",
         "new_high",
         "ma_alignment",
+        "breadth",
     ]
     print(f"\n{'指标':15s} | {'牛市均值':>8s} | {'熊市均值':>8s} | {'区分度':>8s} | {'t统计量':>8s} | {'p值':>10s}")
     print("-" * 75)

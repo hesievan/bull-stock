@@ -183,6 +183,25 @@ def main():
     mm_merged["spread"] = mm_merged["spread"].ffill()
     m1m2_d = {r["trade_date"]: round(float(r["spread"]), 4) for _, r in mm_merged.iterrows() if pd.notna(r["spread"])}
 
+    # 12. 涨跌家数广度 (P1)
+    logger.info("12/13 涨跌家数广度...")
+    bd = pd.read_sql(
+        "SELECT trade_date, up_down_ratio FROM daily_updown"
+        " WHERE up_down_ratio IS NOT NULL AND up_down_ratio > 0 ORDER BY trade_date",
+        conn,
+    )
+    bd_d = dict(zip(bd["trade_date"], bd["up_down_ratio"].round(4)))
+
+    # 13. 南向净买额 (P1)
+    logger.info("13/13 南向净买额...")
+    sb = pd.read_sql("SELECT trade_date, south_net FROM daily_hsgt_south WHERE south_net IS NOT NULL", conn)
+    sb_d = dict(zip(sb["trade_date"], sb["south_net"].round(2)))
+
+    # 14. IF基差率 (P1)
+    logger.info("14/14 IF基差率...")
+    fb = pd.read_sql("SELECT trade_date, basis_rate FROM daily_futures_basis WHERE basis_rate IS NOT NULL", conn)
+    fb_d = dict(zip(fb["trade_date"], fb["basis_rate"].round(6)))
+
     conn.close()
 
     # 合并输出
@@ -197,6 +216,9 @@ def main():
         | set(nh_d)
         | set(ys_d)
         | set(m1m2_d)
+        | set(bd_d)
+        | set(sb_d)
+        | set(fb_d)
     )
     result = {}
     for td in all_dates:
@@ -221,6 +243,12 @@ def main():
             entry["yield_spread"] = ys_d[td]
         if td in m1m2_d:
             entry["m1_m2_spread"] = m1m2_d[td]
+        if td in bd_d:
+            entry["breadth"] = bd_d[td]
+        if td in sb_d:
+            entry["southbound"] = sb_d[td]
+        if td in fb_d:
+            entry["futures_discount"] = fb_d[td]
         if entry:
             result[td] = entry
 
@@ -237,10 +265,13 @@ def main():
         "margin_ratio_v2",
         "yield_spread",
         "m1_m2_spread",
+        "southbound",
         "turnover_m2",
         "turnover",
+        "futures_discount",
         "new_high",
         "ma_alignment",
+        "breadth",
     ]:
         cnt = sum(1 for v in result.values() if k in v)
         logger.info("  %s: %d dates", k, cnt)

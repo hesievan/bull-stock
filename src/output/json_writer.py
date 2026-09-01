@@ -416,9 +416,12 @@ def build_feishu_notification(result: Dict, history: list = None) -> Optional[st
         ("margin_ratio_v2", "两融余额占比"),
         ("yield_spread", "国债期限利差"),
         ("m1_m2_spread", "M1-M2剪刀差"),
+        ("southbound", "南向净买额"),
         ("seal_rate", "涨停封板率"),
         ("turnover_m2", "成交额M2比"),
         ("turnover", "换手率"),
+        ("futures_discount", "IF基差"),
+        ("breadth", "涨跌家数广度"),
     ]
     for _k, _label in v2_highlights:
         _v = sub_indicators.get(_k)

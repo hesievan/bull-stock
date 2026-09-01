@@ -380,6 +380,28 @@ def run_daily(trade_date=None):
 
     _run_step(step_status, "S24d_m1", _step24d)
 
+    # ── Step 2.4f: 南向通净买额 (P1.2, akshare 全量 upsert) ────────────────
+    logger.info("Step 2.4f: Fetching southbound net flow...")
+
+    def _step24f():
+        from src.data.fetcher import fetch_southbound_history
+
+        df = fetch_southbound_history()
+        return True if (df is not None and not df.empty) else False
+
+    _run_step(step_status, "S24f_south", _step24f)
+
+    # ── Step 2.4g: 股指期货基差 (P1.3, akshare IF0 + 库内沪深300) ──────────
+    logger.info("Step 2.4g: Fetching futures basis...")
+
+    def _step24g():
+        from src.data.fetcher import fetch_futures_basis_history
+
+        df = fetch_futures_basis_history()
+        return True if (df is not None and not df.empty) else False
+
+    _run_step(step_status, "S24g_futures", _step24g)
+
     # ── Step 3: tushare 融资融券/国债 (akshare) ────────────────────────────
     logger.info("Step 3: Tushare margin / bond_yield...")
 

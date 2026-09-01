@@ -58,11 +58,14 @@ class TestV2EngineConfig:
                 "margin_ratio",
                 "yield_spread",
                 "m1_m2_spread",
+                "southbound",
                 "seal_rate",
                 "turnover_m2",
                 "turnover",
+                "futures_discount",
                 "new_high",
                 "ma_alignment",
+                "breadth",
             }
 
     def test_v2_engine_matches_code_defaults(self):
@@ -141,14 +144,17 @@ class TestValidateConfig:
                 "weights": {
                     "pe": 0.14,
                     "buffett": 0.14,
-                    "margin_ratio": 0.07,
+                    "margin_ratio": 0.06,
                     "yield_spread": 0.04,
                     "m1_m2_spread": 0.04,
-                    "seal_rate": 0.08,
-                    "turnover_m2": 0.15,
-                    "turnover": 0.12,
-                    "new_high": 0.14,
-                    "ma_alignment": 0.08,
+                    "southbound": 0.01,
+                    "seal_rate": 0.07,
+                    "turnover_m2": 0.14,
+                    "turnover": 0.10,
+                    "futures_discount": 0.04,
+                    "new_high": 0.12,
+                    "ma_alignment": 0.06,
+                    "breadth": 0.04,
                 }
             },
             "heat_levels": {

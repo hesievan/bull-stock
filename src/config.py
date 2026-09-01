@@ -73,11 +73,14 @@ _EXPECTED_WEIGHT_KEYS = (
     "margin_ratio",
     "yield_spread",
     "m1_m2_spread",
+    "southbound",
     "seal_rate",
     "turnover_m2",
     "turnover",
+    "futures_discount",
     "new_high",
     "ma_alignment",
+    "breadth",
 )
 
 
@@ -88,11 +91,14 @@ class EngineWeights:
     margin_ratio: float = 0.0
     yield_spread: float = 0.0
     m1_m2_spread: float = 0.0
+    southbound: float = 0.0
     seal_rate: float = 0.0
     turnover_m2: float = 0.0
     turnover: float = 0.0
+    futures_discount: float = 0.0
     new_high: float = 0.0
     ma_alignment: float = 0.0
+    breadth: float = 0.0
 
     @classmethod
     def from_dict(cls, d: Dict[str, Any]) -> "EngineWeights":

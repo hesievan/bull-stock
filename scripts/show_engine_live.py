@@ -31,14 +31,17 @@ IND_META = {
     "margin_ratio": ("两融余额市值比", lambda v: f"{v:.4%}" if v is not None else "—"),
     "yield_spread": ("国债期限利差(10Y-2Y)", lambda v: f"{v:.4f}" if v is not None else "—"),
     "m1_m2_spread": ("M1-M2剪刀差", lambda v: f"{v:.2f}%" if v is not None else "—"),
+    "southbound": ("南向净买额(亿元)", lambda v: f"{v:.2f}" if v is not None else "—"),
     "seal_rate": ("涨停封板率", lambda v: f"{v:.2%}" if v is not None else "—"),
     "turnover_m2": ("成交额M2比", lambda v: f"{v:.4%}" if v is not None else "—"),
     "turnover": (
         "换手率",
         lambda v: f"{v:.2f}%" if v is not None else "—",
     ),  # raw 已是百分比数值(2.33 表示 2.33%), 与 app.html 一致
+    "futures_discount": ("IF基差率", lambda v: f"{v:.4%}" if v is not None else "—"),
     "new_high": ("创新高占比", lambda v: f"{v:.2%}" if v is not None else "—"),
     "ma_alignment": ("MA排列比", lambda v: f"{v:.2%}" if v is not None else "—"),
+    "breadth": ("涨跌家数广度", lambda v: f"{v:.3f}" if v is not None else "—"),
 }
 DIM_LABEL = {"valuation": "估值", "fund": "资金", "sentiment": "情绪", "structure": "结构"}
 

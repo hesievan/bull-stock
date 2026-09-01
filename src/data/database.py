@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 DB_PATH = os.environ.get("HEAT_INDEX_DB", os.path.join(os.path.dirname(__file__), "..", "..", "data", "heat_index.db"))
 
 # ── 建表 SQL ──────────────────────────────────────────────────────────────────
-SCHEMA_VERSION = 12
+SCHEMA_VERSION = 13
 
 SCHEMA = """
 -- 指数日行情 (tushare index_daily)
@@ -240,6 +240,23 @@ CREATE TABLE IF NOT EXISTS daily_seal_rate (
     sealed_count INTEGER           -- 封板成功数 (open_times==0)
 );
 
+-- 南向通当日净买额 (akshare stock_hsgt_hist_em '南向资金', 单位亿元)
+-- P1.2 (2026-09): 补 north_ratio 退役后的跨境资金信号; 南向 2024-08 后仍正常披露
+CREATE TABLE IF NOT EXISTS daily_hsgt_south (
+    trade_date TEXT NOT NULL PRIMARY KEY,
+    south_net REAL                 -- 当日成交净买额 (亿元)
+);
+
+-- 股指期货基差 (akshare futures_main_sina IF0 主力连续 + index_daily sh000300 现货)
+-- P1.3 (2026-09): basis_rate = (IF主力收盘 - 沪深300现货收盘) / 沪深300现货收盘
+-- 注: 主力连续在换月日存在小幅跳变 (移仓成本), 百分位口径下可接受
+CREATE TABLE IF NOT EXISTS daily_futures_basis (
+    trade_date TEXT NOT NULL PRIMARY KEY,
+    fut_close REAL,                -- IF 主力连续收盘价
+    spot_close REAL,               -- 沪深300 现货收盘价
+    basis_rate REAL                -- (fut-spot)/spot, 正=升水 负=贴水
+);
+
 -- ── 性能索引 (v12) ──────────────────────────────────────────────────────────
 -- 重点行业热度查询: 按 sw_code/sw_l2_code 过滤, 并经 stock_code JOIN stock_daily
 -- 取 365 天回看历史; 缺索引时退化为全表扫描。
@@ -372,6 +389,8 @@ STALENESS_CONFIG = [
     {"table": "daily_turnover", "step": "S30c", "fallback": True, "max_gap_days": 5, "desc": "换手率(10年窗口)"},
     {"table": "daily_seal_rate", "step": "S31b", "fallback": True, "max_gap_days": 5, "desc": "涨停封板率"},
     {"table": "daily_circ_mv", "step": "S26", "fallback": False, "max_gap_days": 5, "desc": "流通市值"},
+    {"table": "daily_hsgt_south", "step": "S24f", "fallback": True, "max_gap_days": 5, "desc": "南向净买额"},
+    {"table": "daily_futures_basis", "step": "S24g", "fallback": True, "max_gap_days": 5, "desc": "IF基差"},
     {"table": "qvix_daily", "step": "manual", "fallback": False, "max_gap_days": 5, "desc": "QVIX恐慌"},
     {"table": "index_daily_pe", "step": "S25", "fallback": False, "max_gap_days": 5, "desc": "指数PE中位数"},
 ]
@@ -455,6 +474,8 @@ _ALLOWED_TABLES = {
     "index_constituents_hist",
     "stock_shenwan",
     "daily_seal_rate",
+    "daily_hsgt_south",
+    "daily_futures_basis",
 }
 
 

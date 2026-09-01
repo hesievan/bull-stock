@@ -317,6 +317,106 @@ def fetch_bond_yield_history(start: str, end: str) -> pd.DataFrame:
     return _fetch_bond_yield_akshare()
 
 
+# ── 南向通净买额 (P1.2, akshare 东方财富) ──────────────────────────────────
+
+
+def fetch_southbound_history(start: str | None = None, end: str | None = None) -> pd.DataFrame:
+    """南向通当日净买额 → daily_hsgt_south (单位: 亿元)
+
+    akshare stock_hsgt_hist_em(symbol='南向资金') 返回全历史 (2014-11-17~今),
+    南向 2024-08 港交所停止披露北向后仍正常披露。全量抓取 + upsert, 无需增量逻辑。
+    """
+    from src.data.database import save_dataframe as _sv
+
+    try:
+        import akshare as ak
+    except ImportError:
+        logger.error("akshare not installed, cannot fetch southbound")
+        return pd.DataFrame()
+    try:
+        df = ak.stock_hsgt_hist_em(symbol="南向资金")
+    except Exception as e:
+        logger.error("fetch_southbound_history failed: %s", str(e)[:80])
+        return pd.DataFrame()
+    if df is None or df.empty or "日期" not in df.columns:
+        logger.warning("fetch_southbound_history: empty/invalid data")
+        return pd.DataFrame()
+    out = pd.DataFrame(
+        {
+            "trade_date": pd.to_datetime(df["日期"]).dt.strftime("%Y-%m-%d"),
+            "south_net": pd.to_numeric(df["当日成交净买额"], errors="coerce"),
+        }
+    ).dropna(subset=["south_net"])
+    if start:
+        out = out[out["trade_date"] >= start]
+    if end:
+        out = out[out["trade_date"] <= end]
+    if out.empty:
+        return pd.DataFrame()
+    _sv(out, "daily_hsgt_south")
+    logger.info("southbound saved: %d rows (%s ~ %s)", len(out), out["trade_date"].min(), out["trade_date"].max())
+    return out
+
+
+# ── 股指期货基差 (P1.3, akshare 新浪 IF0 + 本库沪深300现货) ─────────────────
+
+
+def fetch_futures_basis_history(start: str | None = None, end: str | None = None, db_path: str = None) -> pd.DataFrame:
+    """IF 主力连续 vs 沪深300 现货基差率 → daily_futures_basis
+
+    期货: akshare futures_main_sina(symbol='IF0') 全历史 (2017-01~今)。
+    现货: 库内 index_daily(index_code='sh000300'), 由 tushare/akshare 日常步骤维护。
+    basis_rate = (期货收盘 - 现货收盘) / 现货收盘; 正=升水(乐观) 负=贴水(对冲/谨慎)。
+    换月日主力跳变带来的 ±0.1% 级噪声在 10 年百分位下可接受。
+    """
+    from src.data.database import save_dataframe as _sv, get_conn, DB_PATH as _DB
+
+    try:
+        import akshare as ak
+    except ImportError:
+        logger.error("akshare not installed, cannot fetch futures basis")
+        return pd.DataFrame()
+    try:
+        fut = ak.futures_main_sina(symbol="IF0")
+    except Exception as e:
+        logger.error("fetch_futures_basis_history (futures) failed: %s", str(e)[:80])
+        return pd.DataFrame()
+    if fut is None or fut.empty or "日期" not in fut.columns:
+        logger.warning("fetch_futures_basis_history: futures empty/invalid")
+        return pd.DataFrame()
+    fut["trade_date"] = pd.to_datetime(fut["日期"]).dt.strftime("%Y-%m-%d")
+    fut_close = pd.to_numeric(fut["收盘价"], errors="coerce")
+    fut = pd.DataFrame({"trade_date": fut["trade_date"], "fut_close": fut_close}).dropna()
+
+    with get_conn(db_path or _DB) as conn:
+        spot_rows = conn.execute(
+            "SELECT trade_date, close FROM index_daily WHERE index_code='sh000300' ORDER BY trade_date"
+        ).fetchall()
+    spot = pd.DataFrame(spot_rows, columns=["trade_date", "spot_close"])
+    if spot.empty:
+        logger.warning("fetch_futures_basis_history: no sh000300 in index_daily")
+        return pd.DataFrame()
+    spot["trade_date"] = spot["trade_date"].astype(str)
+    spot["spot_close"] = pd.to_numeric(spot["spot_close"], errors="coerce")
+
+    merged = fut.merge(spot, on="trade_date", how="inner")
+    merged = merged[(merged["fut_close"] > 0) & (merged["spot_close"] > 0)]
+    if merged.empty:
+        logger.warning("fetch_futures_basis_history: no overlapping dates")
+        return pd.DataFrame()
+    merged["basis_rate"] = (merged["fut_close"] - merged["spot_close"]) / merged["spot_close"]
+    out = merged[["trade_date", "fut_close", "spot_close", "basis_rate"]].round(6)
+    if start:
+        out = out[out["trade_date"] >= start]
+    if end:
+        out = out[out["trade_date"] <= end]
+    if out.empty:
+        return pd.DataFrame()
+    _sv(out, "daily_futures_basis")
+    logger.info("futures basis saved: %d rows (%s ~ %s)", len(out), out["trade_date"].min(), out["trade_date"].max())
+    return out
+
+
 # ── tushare: 全市场 PE/PB/市值 + K线 ────────────────────────────────────────
 
 

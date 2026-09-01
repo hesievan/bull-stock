@@ -14,7 +14,10 @@ import csv
 import json
 import os
 import sqlite3
+import sys
 from datetime import date
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from src.indicators.heat_index_v2 import (
     INDICATOR_WEIGHTS,
@@ -38,11 +41,14 @@ COL2KEY = {
     "ind_margin_ratio": "margin_ratio",
     "ind_yield_spread": "yield_spread",
     "ind_m1_m2_spread": "m1_m2_spread",
+    "ind_southbound": "southbound",
     "ind_seal_rate": "seal_rate",
     "ind_turnover_m2": "turnover_m2",
     "ind_turnover": "turnover",
+    "ind_futures_discount": "futures_discount",
     "ind_new_high": "new_high",
     "ind_ma_alignment": "ma_alignment",
+    "ind_breadth": "breadth",
 }
 # indicator_history.json 中可直接取的原始值键
 RAW_KEYS = [
@@ -54,6 +60,9 @@ RAW_KEYS = [
     "new_high",
     "yield_spread",
     "m1_m2_spread",
+    "southbound",
+    "futures_discount",
+    "breadth",
 ]
 
 

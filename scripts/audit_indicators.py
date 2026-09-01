@@ -75,6 +75,18 @@ checks["new_high"] = (raw.get("new_high"), nh)
 ma = g("SELECT ma_alignment_ratio FROM daily_ma_alignment WHERE trade_date=?")
 checks["ma_alignment"] = (raw.get("ma_alignment"), ma)
 
+# southbound: daily_hsgt_south.south_net (P1)
+sbv = g("SELECT south_net FROM daily_hsgt_south WHERE trade_date<=? ORDER BY trade_date DESC LIMIT 1")
+checks["southbound"] = (raw.get("southbound"), sbv)
+
+# futures_discount: daily_futures_basis.basis_rate (P1)
+fbv = g("SELECT basis_rate FROM daily_futures_basis WHERE trade_date<=? ORDER BY trade_date DESC LIMIT 1")
+checks["futures_discount"] = (raw.get("futures_discount"), fbv)
+
+# breadth: daily_updown.up_down_ratio (P1)
+bdv = g("SELECT up_down_ratio FROM daily_updown WHERE trade_date<=? ORDER BY trade_date DESC LIMIT 1")
+checks["breadth"] = (raw.get("breadth"), bdv)
+
 
 # 打印对比
 def fmt(v):
@@ -93,11 +105,14 @@ for k in [
     "margin_ratio_v2",
     "yield_spread",
     "m1_m2_spread",
+    "southbound",
     "seal_rate",
     "turnover_m2",
     "turnover",
+    "futures_discount",
     "new_high",
     "ma_alignment",
+    "breadth",
 ]:
     eng = raw.get(k)
     print(f"{k:<16}{fmt(eng):<16}{fmt(checks[k][1]):<16}{scores.get(k):<7}")
