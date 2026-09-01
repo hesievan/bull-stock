@@ -59,7 +59,7 @@
   "display_below_net_rate": 0.0697,
   "display_new_accounts": 99.59,
   "display_new_accounts_month": "2023-08",
-  "display_etf_shares": 2440.51,
+  "display_etf_shares": 2437.59,
   "indicators": {
     "pe": 39.76190476190476,
     "buffett": 92.85714285714286,
@@ -70,7 +70,7 @@
     "margin_buy_ratio": 66.5079365079365,
     "seal_rate": 98.17460317460316,
     "turnover_m2": 84.17266187050359,
-    "turnover": 76.42857142857142,
+    "turnover": 76.34920634920634,
     "futures_discount": 37.301587301587304,
     "amplitude": 16.03174603174603,
     "realized_vol": 42.142857142857146,
