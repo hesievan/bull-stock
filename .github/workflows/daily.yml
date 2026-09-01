@@ -226,3 +226,25 @@ jobs:
                 -d "{\"msg_type\":\"text\",\"content\":{\"text\":\"$MSG\"}}"
             fi
           fi
+
+  # ── P0.3: Lighthouse 质量门禁 (对已部署的 Pages 站评分; 失败不阻断数据流水线) ──
+  lighthouse:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: update
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Wait for Pages deployment
+        run: sleep 60
+
+      - name: Run Lighthouse CI
+        run: |
+          npm install -g @lhci/cli@0.15.x
+          lhci autorun --config-file=lighthouserc.json || echo "Warning: Lighthouse assertions failed (non-blocking, review scores)"
