@@ -99,6 +99,10 @@ jobs:
 
       # ── 日常计算 ────────────────────────────────────────────────────────────
       - name: Run daily update
+        # 步骤级超时: 2026-09-01 schedule run 在 runner 出口 IP 被 tushare 限流时
+        # 该步骤挂起 20min+ (本地复现仅需 64s)。35min 兜底避免拖满整个 job(55min),
+        # 超时后立即失败, 通知步骤仍会执行且日志可快速定位。
+        timeout-minutes: 35
         env:
           TUSHARE_TOKEN: ${{ secrets.TUSHARE_TOKEN }}
         run: |

@@ -106,7 +106,10 @@ def ts_to_ak(ts_code: str) -> str:
 def _get_pro() -> Any:
     import tushare as ts
 
-    return ts.pro_api(TUSHARE_TOKEN)
+    # timeout=15: tushare SDK 默认 30s/请求, GitHub runner 出口 IP 被限流时
+    # 每个请求拖满 30s, 20+ 个请求累积 10+ 分钟 (2026-09-01 schedule run 踩坑)。
+    # 缩短超时让慢请求快速失败, 由 _retry 兜底, 避免整个 run_daily 长时间挂起。
+    return ts.pro_api(TUSHARE_TOKEN, timeout=15)
 
 
 # ── tushare: 指数日行情 ──────────────────────────────────────────────────────
