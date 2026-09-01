@@ -53,10 +53,6 @@ jobs:
         run: |
           # 补充换手率
           python scripts/fix_turnover.py || echo "Turnover fix skipped"
-          # 补充QVIX
-          python scripts/fetch_qvix.py || echo "QVIX fetch skipped"
-          # 补充国债收益率
-          python scripts/backfill_bond_yield.py || echo "Bond yield backfill skipped"
           # 拉取历史成分股 (用于 PE/PB 中位数)
           python scripts/fetch_hist_constituents.py || echo "Hist constituents fetch skipped"
           # GDP数据
