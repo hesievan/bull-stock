@@ -64,7 +64,31 @@ def _iter_trade_dates(start: str, end: str):
         d += timedelta(days=1)
 
 
-def main(start: str = "2015-01-01"):
+def _default_start() -> str:
+    """增量回补起点: 取 stock_daily 最新交易日回推 30 天。
+
+    空库时回退 2015-01-01 (首次全量建库)。
+    修复 (2026-09-01): 原固定 2015-01-01 起逐日检查, 而跳过条件 (existing>7000)
+    在单日全市场 ~5400 只的情况下永远不成立, 导致每次 rebuild 都全量重拉
+    (~2.6s/日 × 3044 日 ≈ 2.2h), 超过 workflow 120min 超时被 cancel。
+    """
+    from src.data.database import DB_PATH, get_conn
+
+    try:
+        with get_conn(DB_PATH) as conn:
+            row = conn.execute("SELECT MAX(trade_date) FROM stock_daily").fetchone()
+            latest = row[0] if row else None
+        if latest:
+            start = (date.fromisoformat(latest) - timedelta(days=30)).isoformat()
+            logger.info("增量模式: stock_daily 最新 %s, 从 %s 起回补 (回推 30 天)", latest, start)
+            return start
+        logger.info("stock_daily 为空, 走全量首建")
+    except Exception as e:
+        logger.warning("增量起点计算失败, 回退全量: %s", str(e)[:80])
+    return "2015-01-01"
+
+
+def main(start: str = None):
     from src.data.database import init_database, get_conn, DB_PATH
     from src.data.fetcher import (
         fetch_all_index_incremental,
@@ -82,8 +106,10 @@ def main(start: str = "2015-01-01"):
 
     init_database()
 
+    if start is None:
+        start = _default_start()
     end = date.today().strftime("%Y-%m-%d")
-    logger.info("=== 全量历史回补: %s ~ %s ===", start, end)
+    logger.info("=== 历史回补: %s ~ %s ===", start, end)
 
     # ── 1. 指数日行情 (全量, 按 index 增量) ───────────────────────────────
     logger.info("=== 1/6: index_daily ===")
