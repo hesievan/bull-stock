@@ -87,9 +87,7 @@ class TestMainDefaultStart:
         monkeypatch.setenv("TUSHARE_TOKEN", "test-token")
         init_database(db_path)
         with get_conn(db_path) as conn:
-            conn.execute(
-                "INSERT INTO stock_daily (trade_date, stock_code) VALUES ('2026-08-11', '600000')"
-            )
+            conn.execute("INSERT INTO stock_daily (trade_date, stock_code) VALUES ('2026-08-11', '600000')")
 
         fetcher = self._mock_main_deps(monkeypatch)
         first_day = {}
@@ -127,4 +125,3 @@ class TestMainDefaultStart:
         main(start="2015-01-01")
 
         assert first_day["td"] == "2015-01-01"
-

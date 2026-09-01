@@ -96,9 +96,7 @@ class TestInitDatabase:
             )
             conn.execute("INSERT INTO stock_shenwan VALUES ('600000', '801780', '银行', '2026-01-01')")
             conn.execute("CREATE TABLE metadata (key TEXT PRIMARY KEY, value TEXT, updated_at TEXT)")
-            conn.execute(
-                "INSERT INTO metadata(key, value, updated_at) VALUES('schema_version', '10', datetime('now'))"
-            )
+            conn.execute("INSERT INTO metadata(key, value, updated_at) VALUES('schema_version', '10', datetime('now'))")
         # 不应抛异常
         init_database(db_path)
         with get_conn(db_path) as conn:
