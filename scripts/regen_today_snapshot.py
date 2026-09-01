@@ -52,6 +52,7 @@ def main():
         sys.exit(1)
 
     composite = res["composite_score"]
+    regime = res.get("regime")
 
     # 顶部卡片的分数/等级/维度分 对齐到周频回测走势末点 (history.json)，
     # 保证与走势线口径一致；原始值与百分位仍取自引擎实时计算。
@@ -67,6 +68,20 @@ def main():
             if he is not None:
                 composite = he["composite_score"]
                 dims = he["dimensions"]
+                if he.get("regime"):
+                    regime = he["regime"]
+                # 标签按对齐后的综合分重算, 避免分数/标签口径不一致
+                if regime and composite is not None:
+                    regime = dict(regime)
+                    regime["label"] = (
+                        "过热"
+                        if composite >= 65
+                        else "分歧"
+                        if composite >= 45
+                        else "修复"
+                        if composite >= 30
+                        else "冰点"
+                    )
                 print(f"  (卡片分数对齐走势线末点 {trade_date}: composite={composite}, level={he.get('level')})")
         except Exception as e:
             print("  history 对齐跳过:", e)
@@ -75,6 +90,7 @@ def main():
         "trade_date": trade_date,
         "composite_score": _round_score(composite),
         "level": get_heat_level(composite) if composite is not None else "unknown",
+        "regime": regime,
         "dimensions": dims,
         "indicators_v2": {
             k: res.get("indicator_raw", {}).get(k) for k in res["indicators"] if k not in ("qvix", "qvix_components")

@@ -27,6 +27,8 @@ from src.indicators.heat_index_v2 import (
     calc_southbound_v2,
     calc_futures_discount_v2,
     compute_index_v2,
+    compute_regime,
+    ROLLING_PCT_WINDOW,
     _apply_sentiment_divergence,
     _pct_rank,
 )
@@ -958,3 +960,74 @@ class TestP1Indicators:
         assert calc_breadth_v2(v2_db, self.TD) is None
         assert calc_southbound_v2(v2_db, self.TD) is None
         assert calc_futures_discount_v2(v2_db, self.TD) is None
+
+
+# ── P2.1: 滚动窗口分位 / P2.2: 市态标签 ─────────────────────────────────────
+
+
+class TestRollingPctWindow:
+    def test_out_of_window_values_ignored(self):
+        """窗口外的陈旧数据不再影响分位 (regime drift 修复的核心行为)"""
+        # 740 条陈旧低值 + 1260 条近期序列; tail(1260) 只保留近期段
+        series = [-1000.0] * 740 + [float(x) for x in range(1, 1261)]
+        cur = 600.0
+        r = _pct_rank(series, cur)
+        # 窗口内 <=600 的个数 = 600 (整段 1..1260 中), 窗口大小 = 1260
+        assert r == pytest.approx(600.0 / ROLLING_PCT_WINDOW, abs=1e-6)
+
+    def test_short_series_falls_back_to_full(self):
+        """序列短于窗口 → 等价于全历史分位 (头部日期行为不变)"""
+        series = [1.0, 2.0, 3.0, 4.0, 5.0]
+        assert _pct_rank(series, 3.0) == pytest.approx(0.6)
+
+    def test_window_size_from_config(self):
+        """窗口常量 = 1260 (与 YAML percentile.rolling_window 同步, 见 test_config)"""
+        assert ROLLING_PCT_WINDOW == 1260
+
+
+class TestRegime:
+    """compute_regime — 市态标签 + 结构破位风险"""
+
+    TD = "2026-08-06"
+
+    def test_labels_by_composite(self, v2_db):
+        assert compute_regime(v2_db, self.TD, 70.0, {"structure": 50})["label"] == "过热"
+        assert compute_regime(v2_db, self.TD, 55.0, {"structure": 50})["label"] == "分歧"
+        assert compute_regime(v2_db, self.TD, 44.0, {"structure": 50})["label"] == "修复"
+        assert compute_regime(v2_db, self.TD, 20.0, {"structure": 50})["label"] == "冰点"
+        assert compute_regime(v2_db, self.TD, None, {"structure": 50})["label"] is None
+
+    def test_no_risk_without_index_data(self, v2_db):
+        """无指数数据 → 风险=False (不误报)"""
+        r = compute_regime(v2_db, self.TD, 50.0, {"structure": 20})
+        assert r["structure_break_risk"] is False
+
+    def test_structure_break_risk_triggered(self, v2_db):
+        """结构分<30 且 指数20日跌幅<-3% → 风险=True"""
+        v2_db.executemany(
+            "INSERT INTO index_daily (trade_date, index_code, close) VALUES (?, 'sh000001', ?)",
+            [("2026-07-17", 100.0), (self.TD, 96.0)],  # -4% < -3%
+        )
+        v2_db.commit()
+        r = compute_regime(v2_db, self.TD, 50.0, {"structure": 20})
+        assert r["structure_break_risk"] is True
+
+    def test_no_risk_when_structure_strong(self, v2_db):
+        """结构分>=30 → 不触发"""
+        v2_db.executemany(
+            "INSERT INTO index_daily (trade_date, index_code, close) VALUES (?, 'sh000001', ?)",
+            [("2026-07-17", 100.0), (self.TD, 96.0)],
+        )
+        v2_db.commit()
+        r = compute_regime(v2_db, self.TD, 50.0, {"structure": 50})
+        assert r["structure_break_risk"] is False
+
+    def test_no_risk_when_index_rising(self, v2_db):
+        """指数上涨 → 不触发 (即使结构分低)"""
+        v2_db.executemany(
+            "INSERT INTO index_daily (trade_date, index_code, close) VALUES (?, 'sh000001', ?)",
+            [("2026-07-17", 100.0), (self.TD, 105.0)],
+        )
+        v2_db.commit()
+        r = compute_regime(v2_db, self.TD, 50.0, {"structure": 20})
+        assert r["structure_break_risk"] is False

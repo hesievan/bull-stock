@@ -126,6 +126,7 @@ def save_results_v2(result_v2: Dict, output_dir: str = None) -> Dict:
         "trade_date": trade_date,
         "composite_score": _round_score(composite),
         "level": get_heat_level(composite) if composite is not None else "unknown",
+        "regime": result_v2.get("regime"),
         "dimensions": result_v2["dimensions"],
         "indicators_v2": {
             k: result_v2.get("indicator_raw", {}).get(k)

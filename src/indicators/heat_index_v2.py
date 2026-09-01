@@ -27,6 +27,7 @@
 
 import logging
 import math
+import os
 import sqlite3
 import pandas as pd
 import numpy as np
@@ -122,14 +123,24 @@ INDICATOR_DIMENSIONS = {
 }
 
 
+# P2.1: 滚动窗口分位 (替代全历史分位, 解决 regime drift — 10 年前的极值点稀释当下信号)
+# window=1260 ≈ 5 年交易日; 序列短于窗口时退化为全历史。
+# 环境变量 HEAT_PCT_WINDOW 可覆盖 (回测对比用); YAML v2_engine.percentile.rolling_window 为正式配置。
+ROLLING_PCT_WINDOW = int(
+    os.environ.get("HEAT_PCT_WINDOW") or (_cfg.get("percentile") or {}).get("rolling_window", 1260)
+)
+
+
 def _pct_rank(series, value) -> float:
     """百分位排名 (0~1) — 含自身的 <= 比较 (P1-3: 与 utils._pct_rank 口径统一)
 
+    P2.1 (2026-09): 只取最近 ROLLING_PCT_WINDOW 条 (≈5年) 计算分位,
+    使分数对近期状态更敏感, 顶部/底部区分更尖锐。
     委托 utils._pct_rank 计算, 仅在空序列/NaN 时回退到 0.5 (防御性,
     正常流程各 calc_* 会在调用前保证序列非空)。
     """
     s = series if isinstance(series, pd.Series) else pd.Series(series)
-    r = _utils_pct_rank(s, value)
+    r = _utils_pct_rank(s.tail(ROLLING_PCT_WINDOW), value)
     if r is None or (isinstance(r, float) and np.isnan(r)):
         return 0.5
     return float(r)
@@ -856,6 +867,59 @@ def calc_qvix_components_v2(conn, trade_date: str) -> Optional[dict]:
 
 
 # ═══════════════════════════════════════════════════════════════════════════
+# 市态标签 + 结构破位风险 (P2.2)
+# ═══════════════════════════════════════════════════════════════════════════
+
+
+def compute_regime(conn, trade_date: str, composite: Optional[float], dim_scores: dict) -> dict:
+    """在综合分之上叠加市态标签与结构破位风险线 (P2.2, 2026-09)
+
+    标签 (综合分阈值):
+      >=65 过热 | 45-64 分歧 | 30-44 修复 | <30 冰点
+    结构破位风险 (structure_break_risk):
+      结构维度分 < 30 且 近20日指数跌幅 < -3% → True
+      (MA排列/新高占比双双走弱 + 指数技术性破位, 对标 MarketMonitoring 双轨中的"破位"线)
+
+    返回 {"label": str|None, "structure_break_risk": bool}
+    """
+    label = None
+    if composite is not None:
+        if composite >= 65:
+            label = "过热"
+        elif composite >= 45:
+            label = "分歧"
+        elif composite >= 30:
+            label = "修复"
+        else:
+            label = "冰点"
+
+    risk = False
+    try:
+        struct = dim_scores.get("structure")
+        if struct is not None and struct < 30:
+            td = trade_date
+            prev_td = (pd.Timestamp(td) - pd.DateOffset(days=20)).strftime("%Y-%m-%d")
+            cur_row = conn.execute(
+                "SELECT close FROM index_daily WHERE index_code='sh000001' AND trade_date<=?"
+                " ORDER BY trade_date DESC LIMIT 1",
+                (td,),
+            ).fetchone()
+            prev_row = conn.execute(
+                "SELECT close FROM index_daily WHERE index_code='sh000001' AND trade_date<=?"
+                " ORDER BY trade_date DESC LIMIT 1",
+                (prev_td,),
+            ).fetchone()
+            if cur_row and prev_row and cur_row[0] and prev_row[0]:
+                ret20 = (float(cur_row[0]) / float(prev_row[0]) - 1) * 100
+                if ret20 < -3:
+                    risk = True
+                    logger.info("结构破位风险: struct=%.1f, 指数20日 %.1f%%", struct, ret20)
+    except Exception as e:
+        logger.warning("regime risk check failed: %s", e)
+    return {"label": label, "structure_break_risk": risk}
+
+
+# ═══════════════════════════════════════════════════════════════════════════
 # 主计算引擎
 # ═══════════════════════════════════════════════════════════════════════════
 
@@ -978,9 +1042,11 @@ def compute_index_v2(trade_date: str = None, db_path: str = None) -> dict:
                 composite = None
 
         # 构建输出
+        regime = compute_regime(conn, td, composite, dim_scores)
         result = {
             "trade_date": td,
             "composite_score": round(composite, 1) if composite is not None else None,
+            "regime": regime,
             "dimensions": {
                 "valuation": {
                     "score": round(dim_scores.get("valuation"), 1) if dim_scores.get("valuation") is not None else None,

@@ -22,6 +22,8 @@ v2_engine:
     penalty_factor: 0.2
     lookback_days: 20
     new_high_penalty: 15
+  percentile:
+    rolling_window: 1260
   turnover:
     percentile_window_years: 10
   pe:

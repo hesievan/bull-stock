@@ -74,6 +74,7 @@ class TestV2EngineConfig:
             DEFAULT_DIVERGENCE,
             DEFAULT_WEIGHTS,
             NEW_HIGH_THRESHOLD,
+            ROLLING_PCT_WINDOW,
             TURNOVER_WINDOW_YEARS,
             PE_N_STOCKS_RATIO,
             PE_N_STOCKS_MIN,
@@ -86,6 +87,7 @@ class TestV2EngineConfig:
         assert cfg["divergence"] == DEFAULT_DIVERGENCE
         assert cfg["new_high"]["threshold"] == NEW_HIGH_THRESHOLD
         assert cfg["turnover"]["percentile_window_years"] == TURNOVER_WINDOW_YEARS
+        assert cfg["percentile"]["rolling_window"] == ROLLING_PCT_WINDOW
         assert tuple(cfg["pe"]["n_stocks_filter_ratio"]) == PE_N_STOCKS_RATIO
         assert cfg["pe"]["n_stocks_filter_min"] == PE_N_STOCKS_MIN
         assert cfg["margin"]["saturation_cutoff"] == SATURATION_CUTOFF
