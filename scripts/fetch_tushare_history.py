@@ -212,6 +212,10 @@ def main(start: str = None):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="拉取 tushare 全量历史数据")
-    parser.add_argument("--start", default="2015-01-01", help="起始日期 (默认 2015-01-01)")
+    parser.add_argument(
+        "--start",
+        default=None,
+        help="起始日期。不传则走增量模式(取 stock_daily 最新交易日回推30天); 传 2015-01-01 强制全量",
+    )
     args = parser.parse_args()
     main(start=args.start)
