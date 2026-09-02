@@ -20,7 +20,13 @@ import pandas as pd
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from src.data.database import DB_PATH
 from src.indicators.utils import _pct_rank
-from src.indicators.heat_index_v2 import INDICATOR_WEIGHTS, ROLLING_PCT_WINDOW, _detrend
+from src.indicators.heat_index_v2 import (
+    INDICATOR_WEIGHTS,
+    ROLLING_PCT_WINDOW,
+    _apply_new_high_divergence,
+    _apply_sentiment_divergence,
+    _detrend,
+)
 from src.output.json_writer import get_heat_level
 from src.common import timed
 
@@ -262,6 +268,16 @@ def run_backtest():
     )
     turnover_df["trade_date"] = turnover_df["trade_date"].astype(str)
     print(f"        {len(turnover_df)} rows")
+    # M2b-0: 当日值同引擎口径 (stock_daily 当日 Σamount/Σcirc_mv×10, 而非 daily_turnover 存储值 —
+    # 两者系统性差 ~0.8 分; 单次 GROUP BY 预计算, 逐日用 .get(td))
+    _cur_rate = pd.read_sql(
+        "SELECT trade_date, SUM(amount)/SUM(circ_mv)*10 AS r FROM stock_daily"
+        " WHERE amount > 0 AND circ_mv > 0 GROUP BY trade_date",
+        conn,
+    )
+    _cur_rate["trade_date"] = _cur_rate["trade_date"].astype(str)
+    cur_rate_map = _cur_rate.set_index("trade_date")["r"]
+    print(f"        cur_rate_map {len(cur_rate_map)} rows")
 
     # 7. new_high
     print("  [7/8] New high ratio...")
@@ -386,6 +402,32 @@ def run_backtest():
     conn.close()
     print("\n预计算完成。开始逐日计算百分位得分...")
 
+    # ── M2b-0 (2026-09-02): 统一按 trade_date 排序 ──────────────────────
+    # 此前各表加载无 ORDER BY → pandas 位置语义(滚动中位数 / ≤td 取最近行 .iloc[-1])
+    # 全部跑在物理乱序上: ma_alignment 2023-05-15 差 33 分(_detrend 顺序敏感),
+    # pe cur 取错行(2026-08-03 取 24.3477 而真当日 24.2072) → composite 与引擎逐日
+    # 差 0.2~2.8 (个别日更大)。排序后与引擎 calc_* 的 SQL 上界查询(天然 PK=trade_date
+    # 序) 完全同构。amp_all/vol_all/idx/_m1m2 已在 SQL 内 ORDER BY, 无需处理。
+    for _df in (
+        pe_df,
+        mvcap_df,
+        margin_hist,
+        seal_df,
+        turnover_df,
+        daily_amt,
+        newhigh_df,
+        ma_align_df,
+        yspread_df,
+        breadth_df,
+        south_df,
+        basis_df,
+        mbuy_df,
+    ):
+        _df.sort_values("trade_date", inplace=True, kind="mergesort")
+
+    # 背离惩罚需按日查 index_daily/daily_new_high → 重开专用只读连接 (预加载 conn 已关)
+    dv_conn = sqlite3.connect(DB_PATH)
+
     # ── 逐日计算百分位得分 ────────────────────────────────────────────────
     results = []
     t_start = time.time()
@@ -405,16 +447,19 @@ def run_backtest():
             hist_pe = pe_df[
                 (pe_df["trade_date"] >= ten_years_ago) & (pe_df["trade_date"] <= td) & (pe_df["pe_med"].notna())
             ].copy()
-            if cur_n > 0 and len(hist_pe) > 60:
-                lo, hi = cur_n * 0.5, cur_n * 1.5
-                if cur_n >= 600:
-                    lo = max(lo, 450)
-                hist_pe = hist_pe[hist_pe["n_stocks"].between(lo, hi)]
-            if len(hist_pe) >= 60:
-                # M2a D2: 回退 M1.3 去趋势 — 原始 pe_med 分位 (与引擎同口径)
-                pct = _pctr(hist_pe["pe_med"], cur_pe)
-                scores["pe"] = max(0, min(100, pct * 100))
-                raws["pe"] = cur_pe
+            # M2b-0: 与引擎 calc_pe 门限一致 — 过滤前 hist≥120 否则 None (2015 早期
+            # 引擎 None vs 回测有值, 权重 21.2% 直接改变综合分), cur_n>0 即启用过滤
+            if len(hist_pe) >= 120:
+                if cur_n > 0:
+                    lo, hi = cur_n * 0.5, cur_n * 1.5
+                    if cur_n >= 600:
+                        lo = max(lo, 450)
+                    hist_pe = hist_pe[hist_pe["n_stocks"].between(lo, hi)]
+                if len(hist_pe) >= 60:
+                    # M2a D2: 回退 M1.3 去趋势 — 原始 pe_med 分位 (与引擎同口径)
+                    pct = _pctr(hist_pe["pe_med"], cur_pe)
+                    scores["pe"] = max(0, min(100, pct * 100))
+                    raws["pe"] = cur_pe
 
         # Buffett
         cur_buffett_row = mvcap_df[mvcap_df["trade_date"] <= td]
@@ -473,10 +518,9 @@ def run_backtest():
                 scores["turnover_m2"] = max(0, min(100, pct * 100))
                 raws["turnover_m2"] = cur_tm2_val
 
-        # Turnover rate
-        cur_turnover = turnover_df[turnover_df["trade_date"] == td]
-        if len(cur_turnover) > 0:
-            cur_tr = cur_turnover.iloc[0]["turnover_rate"]
+        # Turnover rate — cur 用引擎同口径 (stock_daily 当日 Σamt/Σmv×10)
+        cur_tr = cur_rate_map.get(td)
+        if cur_tr is not None and not np.isnan(cur_tr):
             hist_tr = turnover_df[
                 (turnover_df["trade_date"] >= ten_years_ago)
                 & (turnover_df["trade_date"] <= td)
@@ -520,6 +564,11 @@ def run_backtest():
                 else:
                     pct = _pctr(det.dropna(), cur_det)
                 scores["ma_alignment"] = max(0, min(100, pct * 100))
+                raws["ma_alignment"] = cur_ma_val
+            else:
+                # M2b-0: 与引擎 calc_ma_alignment_v2 同口径 — 历史不足 60 条时 clamp [20,80]
+                # (原实现直接跳过=NaN, 早期 2015 段 composite 与引擎差 1.3~15 分)
+                scores["ma_alignment"] = max(20, min(cur_ma_val * 100, 80))
                 raws["ma_alignment"] = cur_ma_val
 
         # Yield spread (10Y-2Y)
@@ -615,6 +664,16 @@ def run_backtest():
                 pct = _pctr(-hist_mb, -cur_mb_val)
                 scores["margin_buy_ratio"] = max(0, min(100, pct * 100))
                 raws["margin_buy_ratio"] = cur_mb_val
+
+        # ── 背离惩罚 (M2b-0: 复刻引擎, 回测此前缺失 → 触发日 composite 差 ~2.7 分) ──
+        sk = {"turnover_m2": scores.get("turnover_m2"), "turnover": scores.get("turnover")}
+        sk = _apply_sentiment_divergence(dv_conn, td, sk)
+        if sk.get("turnover") is not None:
+            scores["turnover"] = sk["turnover"]
+        if sk.get("turnover_m2") is not None:
+            scores["turnover_m2"] = sk["turnover_m2"]
+        if scores.get("new_high") is not None:
+            scores["new_high"] = _apply_new_high_divergence(dv_conn, td, scores["new_high"])
 
         # 维度分
         dim_scores = {}

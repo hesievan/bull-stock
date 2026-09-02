@@ -1,7 +1,7 @@
 [
  {
   "trade_date": "2015-01-09",
-  "composite_score": 22.5,
+  "composite_score": 21.2,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -17,7 +17,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": null,
+    "score": 20.0,
     "label": "结构"
    }
   },
@@ -46,7 +46,7 @@
  },
  {
   "trade_date": "2015-01-16",
-  "composite_score": 16.9,
+  "composite_score": 18.4,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -62,7 +62,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": null,
+    "score": 20.0,
     "label": "结构"
    }
   },
@@ -91,7 +91,7 @@
  },
  {
   "trade_date": "2015-01-23",
-  "composite_score": 16.3,
+  "composite_score": 18.2,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -107,7 +107,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": null,
+    "score": 20.0,
     "label": "结构"
    }
   },
@@ -136,7 +136,7 @@
  },
  {
   "trade_date": "2015-01-30",
-  "composite_score": 21.0,
+  "composite_score": 20.5,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -152,7 +152,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": null,
+    "score": 20.0,
     "label": "结构"
    }
   },
@@ -181,8 +181,8 @@
  },
  {
   "trade_date": "2015-02-06",
-  "composite_score": 42.9,
-  "level": "yellow",
+  "composite_score": 31.4,
+  "level": "green",
   "dimensions": {
    "valuation": {
     "score": null,
@@ -197,7 +197,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": null,
+    "score": 20.0,
     "label": "结构"
    }
   },
@@ -226,7 +226,7 @@
  },
  {
   "trade_date": "2015-02-13",
-  "composite_score": 39.3,
+  "composite_score": 29.7,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -242,7 +242,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": null,
+    "score": 20.0,
     "label": "结构"
    }
   },
@@ -271,7 +271,7 @@
  },
  {
   "trade_date": "2015-02-17",
-  "composite_score": 39.2,
+  "composite_score": 29.6,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -287,7 +287,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": null,
+    "score": 20.0,
     "label": "结构"
    }
   },
@@ -316,8 +316,8 @@
  },
  {
   "trade_date": "2015-02-27",
-  "composite_score": 40.8,
-  "level": "yellow",
+  "composite_score": 30.4,
+  "level": "green",
   "dimensions": {
    "valuation": {
     "score": null,
@@ -332,7 +332,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": null,
+    "score": 20.0,
     "label": "结构"
    }
   },
@@ -361,8 +361,8 @@
  },
  {
   "trade_date": "2015-03-06",
-  "composite_score": 49.8,
-  "level": "yellow",
+  "composite_score": 34.9,
+  "level": "green",
   "dimensions": {
    "valuation": {
     "score": null,
@@ -377,7 +377,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": null,
+    "score": 20.0,
     "label": "结构"
    }
   },
@@ -406,8 +406,8 @@
  },
  {
   "trade_date": "2015-03-13",
-  "composite_score": 51.3,
-  "level": "yellow",
+  "composite_score": 35.7,
+  "level": "green",
   "dimensions": {
    "valuation": {
     "score": null,
@@ -422,7 +422,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": null,
+    "score": 20.0,
     "label": "结构"
    }
   },
@@ -451,8 +451,8 @@
  },
  {
   "trade_date": "2015-03-20",
-  "composite_score": 52.0,
-  "level": "yellow",
+  "composite_score": 36.0,
+  "level": "green",
   "dimensions": {
    "valuation": {
     "score": null,
@@ -467,7 +467,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": null,
+    "score": 20.0,
     "label": "结构"
    }
   },
@@ -496,8 +496,8 @@
  },
  {
   "trade_date": "2015-03-27",
-  "composite_score": 53.5,
-  "level": "yellow",
+  "composite_score": 36.8,
+  "level": "green",
   "dimensions": {
    "valuation": {
     "score": null,
@@ -512,7 +512,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": null,
+    "score": 20.0,
     "label": "结构"
    }
   },
@@ -586,7 +586,7 @@
  },
  {
   "trade_date": "2015-04-10",
-  "composite_score": 77.1,
+  "composite_score": 76.8,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -598,7 +598,7 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 78.1,
+    "score": 76.6,
     "label": "情绪"
    },
    "structure": {
@@ -631,7 +631,7 @@
  },
  {
   "trade_date": "2015-04-17",
-  "composite_score": 70.7,
+  "composite_score": 67.1,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -647,7 +647,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 39.6,
+    "score": 29.6,
     "label": "结构"
    }
   },
@@ -721,7 +721,7 @@
  },
  {
   "trade_date": "2015-04-30",
-  "composite_score": 61.7,
+  "composite_score": 57.8,
   "level": "orange",
   "dimensions": {
    "valuation": {
@@ -733,11 +733,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 65.4,
+    "score": 64.1,
     "label": "情绪"
    },
    "structure": {
-    "score": 37.6,
+    "score": 27.6,
     "label": "结构"
    }
   },
@@ -766,11 +766,11 @@
  },
  {
   "trade_date": "2015-05-08",
-  "composite_score": 60.5,
+  "composite_score": 57.3,
   "level": "orange",
   "dimensions": {
    "valuation": {
-    "score": 78.7,
+    "score": 85.5,
     "label": "估值"
    },
    "fund": {
@@ -811,11 +811,11 @@
  },
  {
   "trade_date": "2015-05-15",
-  "composite_score": 73.8,
+  "composite_score": 67.3,
   "level": "red",
   "dimensions": {
    "valuation": {
-    "score": 94.0,
+    "score": 90.9,
     "label": "估值"
    },
    "fund": {
@@ -856,7 +856,7 @@
  },
  {
   "trade_date": "2015-05-22",
-  "composite_score": 91.3,
+  "composite_score": 88.7,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -868,7 +868,7 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 98.9,
+    "score": 97.8,
     "label": "情绪"
    },
    "structure": {
@@ -901,11 +901,11 @@
  },
  {
   "trade_date": "2015-05-29",
-  "composite_score": 79.1,
+  "composite_score": 73.9,
   "level": "red",
   "dimensions": {
    "valuation": {
-    "score": 96.7,
+    "score": 95.9,
     "label": "估值"
    },
    "fund": {
@@ -946,11 +946,11 @@
  },
  {
   "trade_date": "2015-06-05",
-  "composite_score": 86.3,
+  "composite_score": 83.1,
   "level": "red",
   "dimensions": {
    "valuation": {
-    "score": 98.8,
+    "score": 100.0,
     "label": "估值"
    },
    "fund": {
@@ -991,7 +991,7 @@
  },
  {
   "trade_date": "2015-06-12",
-  "composite_score": 86.4,
+  "composite_score": 82.5,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -1003,7 +1003,7 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 82.4,
+    "score": 81.5,
     "label": "情绪"
    },
    "structure": {
@@ -1036,11 +1036,11 @@
  },
  {
   "trade_date": "2015-06-19",
-  "composite_score": 59.7,
-  "level": "orange",
+  "composite_score": 53.0,
+  "level": "yellow",
   "dimensions": {
    "valuation": {
-    "score": 82.2,
+    "score": 81.4,
     "label": "估值"
    },
    "fund": {
@@ -1048,7 +1048,7 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 46.0,
+    "score": 45.1,
     "label": "情绪"
    },
    "structure": {
@@ -1081,11 +1081,11 @@
  },
  {
   "trade_date": "2015-06-26",
-  "composite_score": 55.6,
-  "level": "orange",
+  "composite_score": 50.4,
+  "level": "yellow",
   "dimensions": {
    "valuation": {
-    "score": 69.2,
+    "score": 65.0,
     "label": "估值"
    },
    "fund": {
@@ -1093,7 +1093,7 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 59.8,
+    "score": 59.0,
     "label": "情绪"
    },
    "structure": {
@@ -1126,11 +1126,11 @@
  },
  {
   "trade_date": "2015-07-03",
-  "composite_score": 40.7,
+  "composite_score": 44.2,
   "level": "yellow",
   "dimensions": {
    "valuation": {
-    "score": 34.6,
+    "score": 41.0,
     "label": "估值"
    },
    "fund": {
@@ -1171,7 +1171,7 @@
  },
  {
   "trade_date": "2015-07-10",
-  "composite_score": 30.1,
+  "composite_score": 30.0,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -1183,7 +1183,7 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 49.6,
+    "score": 48.8,
     "label": "情绪"
    },
    "structure": {
@@ -1216,11 +1216,11 @@
  },
  {
   "trade_date": "2015-07-17",
-  "composite_score": 40.6,
+  "composite_score": 41.2,
   "level": "yellow",
   "dimensions": {
    "valuation": {
-    "score": 45.6,
+    "score": 53.0,
     "label": "估值"
    },
    "fund": {
@@ -1228,7 +1228,7 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 43.2,
+    "score": 42.4,
     "label": "情绪"
    },
    "structure": {
@@ -1261,11 +1261,11 @@
  },
  {
   "trade_date": "2015-07-24",
-  "composite_score": 54.2,
+  "composite_score": 54.8,
   "level": "yellow",
   "dimensions": {
    "valuation": {
-    "score": 55.8,
+    "score": 59.9,
     "label": "估值"
    },
    "fund": {
@@ -1273,7 +1273,7 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 92.7,
+    "score": 92.0,
     "label": "情绪"
    },
    "structure": {
@@ -1306,7 +1306,7 @@
  },
  {
   "trade_date": "2015-07-31",
-  "composite_score": 39.2,
+  "composite_score": 39.1,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -1318,7 +1318,7 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 30.3,
+    "score": 29.6,
     "label": "情绪"
    },
    "structure": {
@@ -1351,7 +1351,7 @@
  },
  {
   "trade_date": "2015-08-07",
-  "composite_score": 39.9,
+  "composite_score": 39.8,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -1363,7 +1363,7 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 30.6,
+    "score": 29.9,
     "label": "情绪"
    },
    "structure": {
@@ -1396,7 +1396,7 @@
  },
  {
   "trade_date": "2015-08-14",
-  "composite_score": 52.3,
+  "composite_score": 52.2,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -1408,7 +1408,7 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 53.9,
+    "score": 53.3,
     "label": "情绪"
    },
    "structure": {
@@ -1486,7 +1486,7 @@
  },
  {
   "trade_date": "2015-08-28",
-  "composite_score": 25.9,
+  "composite_score": 25.8,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -1498,7 +1498,7 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 43.2,
+    "score": 42.6,
     "label": "情绪"
    },
    "structure": {
@@ -1576,7 +1576,7 @@
  },
  {
   "trade_date": "2015-09-11",
-  "composite_score": 21.0,
+  "composite_score": 20.9,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -1588,7 +1588,7 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 8.8,
+    "score": 8.2,
     "label": "情绪"
    },
    "structure": {
@@ -1621,7 +1621,7 @@
  },
  {
   "trade_date": "2015-09-18",
-  "composite_score": 14.5,
+  "composite_score": 14.4,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -1633,7 +1633,7 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 6.3,
+    "score": 5.7,
     "label": "情绪"
    },
    "structure": {
@@ -1711,7 +1711,7 @@
  },
  {
   "trade_date": "2015-09-30",
-  "composite_score": 16.1,
+  "composite_score": 16.0,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -1723,7 +1723,7 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 0.5,
+    "score": 0.0,
     "label": "情绪"
    },
    "structure": {
@@ -1768,7 +1768,7 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 18.9,
+    "score": 18.4,
     "label": "情绪"
    },
    "structure": {
@@ -1801,7 +1801,7 @@
  },
  {
   "trade_date": "2015-10-16",
-  "composite_score": 40.9,
+  "composite_score": 40.8,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -1813,7 +1813,7 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 53.7,
+    "score": 53.2,
     "label": "情绪"
    },
    "structure": {
@@ -1891,7 +1891,7 @@
  },
  {
   "trade_date": "2015-10-30",
-  "composite_score": 42.0,
+  "composite_score": 41.9,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -1903,7 +1903,7 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 31.5,
+    "score": 31.0,
     "label": "情绪"
    },
    "structure": {
@@ -2116,7 +2116,7 @@
  },
  {
   "trade_date": "2015-12-04",
-  "composite_score": 47.9,
+  "composite_score": 47.8,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -2128,7 +2128,7 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 24.0,
+    "score": 23.6,
     "label": "情绪"
    },
    "structure": {
@@ -2218,7 +2218,7 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 36.6,
+    "score": 36.2,
     "label": "情绪"
    },
    "structure": {
@@ -2263,7 +2263,7 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 9.6,
+    "score": 9.2,
     "label": "情绪"
    },
    "structure": {
@@ -2353,7 +2353,7 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 30.5,
+    "score": 30.1,
     "label": "情绪"
    },
    "structure": {
@@ -2398,7 +2398,7 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 12.2,
+    "score": 11.8,
     "label": "情绪"
    },
    "structure": {
@@ -2566,7 +2566,7 @@
  },
  {
   "trade_date": "2016-02-19",
-  "composite_score": 30.7,
+  "composite_score": 30.6,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -2578,7 +2578,7 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 8.4,
+    "score": 8.0,
     "label": "情绪"
    },
    "structure": {
@@ -2926,7 +2926,7 @@
  },
  {
   "trade_date": "2016-04-15",
-  "composite_score": 50.9,
+  "composite_score": 50.8,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -2938,7 +2938,7 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 16.9,
+    "score": 16.6,
     "label": "情绪"
    },
    "structure": {
@@ -3028,7 +3028,7 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 1.2,
+    "score": 0.9,
     "label": "情绪"
    },
    "structure": {
@@ -3073,7 +3073,7 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 38.2,
+    "score": 37.9,
     "label": "情绪"
    },
    "structure": {
@@ -3253,7 +3253,7 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 35.7,
+    "score": 35.4,
     "label": "情绪"
    },
    "structure": {
@@ -3286,7 +3286,7 @@
  },
  {
   "trade_date": "2016-06-08",
-  "composite_score": 53.7,
+  "composite_score": 53.6,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -3298,7 +3298,7 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 18.9,
+    "score": 18.6,
     "label": "情绪"
    },
    "structure": {
@@ -3343,7 +3343,7 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 25.9,
+    "score": 25.6,
     "label": "情绪"
    },
    "structure": {
@@ -3388,7 +3388,7 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 40.3,
+    "score": 40.0,
     "label": "情绪"
    },
    "structure": {
@@ -3613,7 +3613,7 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 5.5,
+    "score": 5.2,
     "label": "情绪"
    },
    "structure": {
@@ -3748,7 +3748,7 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 15.5,
+    "score": 15.2,
     "label": "情绪"
    },
    "structure": {
@@ -3781,7 +3781,7 @@
  },
  {
   "trade_date": "2016-08-26",
-  "composite_score": 57.3,
+  "composite_score": 57.2,
   "level": "orange",
   "dimensions": {
    "valuation": {
@@ -3793,7 +3793,7 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 9.9,
+    "score": 9.6,
     "label": "情绪"
    },
    "structure": {
@@ -3883,7 +3883,7 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 11.6,
+    "score": 11.3,
     "label": "情绪"
    },
    "structure": {
@@ -4006,7 +4006,7 @@
  },
  {
   "trade_date": "2016-09-30",
-  "composite_score": 51.1,
+  "composite_score": 51.0,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -4018,7 +4018,7 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 0.5,
+    "score": 0.2,
     "label": "情绪"
    },
    "structure": {
@@ -4063,7 +4063,7 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 5.3,
+    "score": 5.1,
     "label": "情绪"
    },
    "structure": {
@@ -4108,7 +4108,7 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 18.5,
+    "score": 18.3,
     "label": "情绪"
    },
    "structure": {
@@ -4153,7 +4153,7 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 18.7,
+    "score": 18.5,
     "label": "情绪"
    },
    "structure": {
@@ -4288,7 +4288,7 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 21.4,
+    "score": 21.2,
     "label": "情绪"
    },
    "structure": {
@@ -4333,7 +4333,7 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 27.9,
+    "score": 27.6,
     "label": "情绪"
    },
    "structure": {
@@ -4366,7 +4366,7 @@
  },
  {
   "trade_date": "2016-12-02",
-  "composite_score": 52.5,
+  "composite_score": 52.4,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -4378,7 +4378,7 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 27.4,
+    "score": 27.1,
     "label": "情绪"
    },
    "structure": {
@@ -4468,7 +4468,7 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 6.5,
+    "score": 6.3,
     "label": "情绪"
    },
    "structure": {
@@ -4558,7 +4558,7 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 1.0,
+    "score": 0.8,
     "label": "情绪"
    },
    "structure": {
@@ -4603,7 +4603,7 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 11.4,
+    "score": 11.2,
     "label": "情绪"
    },
    "structure": {
@@ -4648,7 +4648,7 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 3.6,
+    "score": 3.4,
     "label": "情绪"
    },
    "structure": {
@@ -4738,7 +4738,7 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 0.4,
+    "score": 0.2,
     "label": "情绪"
    },
    "structure": {
@@ -5098,7 +5098,7 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 30.4,
+    "score": 30.3,
     "label": "情绪"
    },
    "structure": {
@@ -5143,7 +5143,7 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 13.3,
+    "score": 13.2,
     "label": "情绪"
    },
    "structure": {
@@ -5188,7 +5188,7 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 31.3,
+    "score": 31.1,
     "label": "情绪"
    },
    "structure": {
@@ -5323,7 +5323,7 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 12.6,
+    "score": 12.5,
     "label": "情绪"
    },
    "structure": {
@@ -5491,7 +5491,7 @@
  },
  {
   "trade_date": "2017-05-26",
-  "composite_score": 26.0,
+  "composite_score": 25.9,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -5503,7 +5503,7 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 21.9,
+    "score": 21.8,
     "label": "情绪"
    },
    "structure": {
@@ -5818,7 +5818,7 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 20.9,
+    "score": 20.8,
     "label": "情绪"
    },
    "structure": {
@@ -5851,7 +5851,7 @@
  },
  {
   "trade_date": "2017-07-21",
-  "composite_score": 37.8,
+  "composite_score": 37.7,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -5863,7 +5863,7 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 30.5,
+    "score": 30.3,
     "label": "情绪"
    },
    "structure": {
@@ -5908,7 +5908,7 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 24.2,
+    "score": 24.1,
     "label": "情绪"
    },
    "structure": {
@@ -5941,7 +5941,7 @@
  },
  {
   "trade_date": "2017-08-04",
-  "composite_score": 39.8,
+  "composite_score": 39.7,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -5953,7 +5953,7 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 41.6,
+    "score": 41.4,
     "label": "情绪"
    },
    "structure": {
@@ -5986,7 +5986,7 @@
  },
  {
   "trade_date": "2017-08-11",
-  "composite_score": 31.9,
+  "composite_score": 31.8,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -5998,7 +5998,7 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 36.6,
+    "score": 36.5,
     "label": "情绪"
    },
    "structure": {
@@ -6031,7 +6031,7 @@
  },
  {
   "trade_date": "2017-08-18",
-  "composite_score": 40.6,
+  "composite_score": 40.5,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -6043,7 +6043,7 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 25.2,
+    "score": 24.9,
     "label": "情绪"
    },
    "structure": {
@@ -6088,7 +6088,7 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 28.9,
+    "score": 28.7,
     "label": "情绪"
    },
    "structure": {
@@ -6178,7 +6178,7 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 41.3,
+    "score": 41.1,
     "label": "情绪"
    },
    "structure": {
@@ -6268,7 +6268,7 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 24.9,
+    "score": 24.8,
     "label": "情绪"
    },
    "structure": {
@@ -6358,7 +6358,7 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 26.2,
+    "score": 26.0,
     "label": "情绪"
    },
    "structure": {
@@ -6403,7 +6403,7 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 9.0,
+    "score": 8.9,
     "label": "情绪"
    },
    "structure": {
@@ -6448,7 +6448,7 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 24.3,
+    "score": 24.2,
     "label": "情绪"
    },
    "structure": {
@@ -6493,7 +6493,7 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 11.8,
+    "score": 11.7,
     "label": "情绪"
    },
    "structure": {
@@ -6526,7 +6526,7 @@
  },
  {
   "trade_date": "2017-11-10",
-  "composite_score": 57.3,
+  "composite_score": 57.1,
   "level": "orange",
   "dimensions": {
    "valuation": {
@@ -6542,7 +6542,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 74.5,
+    "score": 73.8,
     "label": "结构"
    }
   },
@@ -6571,7 +6571,7 @@
  },
  {
   "trade_date": "2017-11-17",
-  "composite_score": 45.8,
+  "composite_score": 45.6,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -6583,11 +6583,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 52.8,
+    "score": 52.7,
     "label": "情绪"
    },
    "structure": {
-    "score": 47.2,
+    "score": 46.3,
     "label": "结构"
    }
   },
@@ -6616,7 +6616,7 @@
  },
  {
   "trade_date": "2017-11-24",
-  "composite_score": 35.9,
+  "composite_score": 35.5,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -6628,11 +6628,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 20.0,
+    "score": 19.8,
     "label": "情绪"
    },
    "structure": {
-    "score": 37.0,
+    "score": 35.9,
     "label": "结构"
    }
   },
@@ -6661,7 +6661,7 @@
  },
  {
   "trade_date": "2017-12-01",
-  "composite_score": 34.5,
+  "composite_score": 34.2,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -6673,11 +6673,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 8.3,
+    "score": 8.2,
     "label": "情绪"
    },
    "structure": {
-    "score": 43.0,
+    "score": 41.8,
     "label": "结构"
    }
   },
@@ -6706,7 +6706,7 @@
  },
  {
   "trade_date": "2017-12-08",
-  "composite_score": 31.2,
+  "composite_score": 30.7,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -6722,7 +6722,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 29.0,
+    "score": 27.2,
     "label": "结构"
    }
   },
@@ -6751,7 +6751,7 @@
  },
  {
   "trade_date": "2017-12-15",
-  "composite_score": 32.3,
+  "composite_score": 32.0,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -6767,7 +6767,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 31.3,
+    "score": 30.2,
     "label": "结构"
    }
   },
@@ -6796,7 +6796,7 @@
  },
  {
   "trade_date": "2017-12-22",
-  "composite_score": 34.3,
+  "composite_score": 34.0,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -6812,7 +6812,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 38.3,
+    "score": 37.3,
     "label": "结构"
    }
   },
@@ -6841,7 +6841,7 @@
  },
  {
   "trade_date": "2017-12-29",
-  "composite_score": 35.4,
+  "composite_score": 35.1,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -6857,7 +6857,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 36.8,
+    "score": 35.8,
     "label": "结构"
    }
   },
@@ -6902,7 +6902,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 46.8,
+    "score": 46.7,
     "label": "结构"
    }
   },
@@ -6931,7 +6931,7 @@
  },
  {
   "trade_date": "2018-01-12",
-  "composite_score": 34.3,
+  "composite_score": 34.2,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -6943,11 +6943,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 26.1,
+    "score": 26.0,
     "label": "情绪"
    },
    "structure": {
-    "score": 43.4,
+    "score": 43.1,
     "label": "结构"
    }
   },
@@ -6992,7 +6992,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 38.5,
+    "score": 38.7,
     "label": "结构"
    }
   },
@@ -7021,7 +7021,7 @@
  },
  {
   "trade_date": "2018-01-26",
-  "composite_score": 39.7,
+  "composite_score": 39.8,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -7037,7 +7037,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 49.2,
+    "score": 49.7,
     "label": "结构"
    }
   },
@@ -7066,7 +7066,7 @@
  },
  {
   "trade_date": "2018-02-02",
-  "composite_score": 28.6,
+  "composite_score": 28.4,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -7082,7 +7082,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 30.0,
+    "score": 29.4,
     "label": "结构"
    }
   },
@@ -7111,7 +7111,7 @@
  },
  {
   "trade_date": "2018-02-09",
-  "composite_score": 17.6,
+  "composite_score": 17.4,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -7127,7 +7127,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 10.6,
+    "score": 9.7,
     "label": "结构"
    }
   },
@@ -7156,7 +7156,7 @@
  },
  {
   "trade_date": "2018-02-14",
-  "composite_score": 19.1,
+  "composite_score": 18.8,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -7172,7 +7172,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 15.3,
+    "score": 14.0,
     "label": "结构"
    }
   },
@@ -7201,7 +7201,7 @@
  },
  {
   "trade_date": "2018-02-23",
-  "composite_score": 19.5,
+  "composite_score": 19.1,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -7217,7 +7217,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 20.0,
+    "score": 18.2,
     "label": "结构"
    }
   },
@@ -7246,7 +7246,7 @@
  },
  {
   "trade_date": "2018-03-02",
-  "composite_score": 25.6,
+  "composite_score": 25.0,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -7258,11 +7258,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 18.6,
+    "score": 18.5,
     "label": "情绪"
    },
    "structure": {
-    "score": 22.5,
+    "score": 20.4,
     "label": "结构"
    }
   },
@@ -7291,7 +7291,7 @@
  },
  {
   "trade_date": "2018-03-09",
-  "composite_score": 36.3,
+  "composite_score": 35.7,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -7303,11 +7303,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 34.3,
+    "score": 34.2,
     "label": "情绪"
    },
    "structure": {
-    "score": 42.1,
+    "score": 40.0,
     "label": "结构"
    }
   },
@@ -7336,7 +7336,7 @@
  },
  {
   "trade_date": "2018-03-16",
-  "composite_score": 27.6,
+  "composite_score": 27.2,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -7348,11 +7348,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 23.0,
+    "score": 22.9,
     "label": "情绪"
    },
    "structure": {
-    "score": 26.1,
+    "score": 24.7,
     "label": "结构"
    }
   },
@@ -7381,7 +7381,7 @@
  },
  {
   "trade_date": "2018-03-23",
-  "composite_score": 25.3,
+  "composite_score": 25.0,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -7397,7 +7397,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 14.6,
+    "score": 13.5,
     "label": "结构"
    }
   },
@@ -7426,7 +7426,7 @@
  },
  {
   "trade_date": "2018-03-30",
-  "composite_score": 34.2,
+  "composite_score": 34.0,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -7438,11 +7438,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 30.8,
+    "score": 30.5,
     "label": "情绪"
    },
    "structure": {
-    "score": 48.9,
+    "score": 48.3,
     "label": "结构"
    }
   },
@@ -7471,7 +7471,7 @@
  },
  {
   "trade_date": "2018-04-04",
-  "composite_score": 28.9,
+  "composite_score": 28.7,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -7487,7 +7487,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 34.5,
+    "score": 33.7,
     "label": "结构"
    }
   },
@@ -7516,7 +7516,7 @@
  },
  {
   "trade_date": "2018-04-13",
-  "composite_score": 27.9,
+  "composite_score": 27.6,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -7532,7 +7532,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 31.8,
+    "score": 30.9,
     "label": "结构"
    }
   },
@@ -7561,7 +7561,7 @@
  },
  {
   "trade_date": "2018-04-20",
-  "composite_score": 26.3,
+  "composite_score": 26.0,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -7577,7 +7577,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 24.6,
+    "score": 23.6,
     "label": "结构"
    }
   },
@@ -7606,7 +7606,7 @@
  },
  {
   "trade_date": "2018-04-27",
-  "composite_score": 27.5,
+  "composite_score": 27.3,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -7622,7 +7622,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 34.9,
+    "score": 34.0,
     "label": "结构"
    }
   },
@@ -7651,7 +7651,7 @@
  },
  {
   "trade_date": "2018-05-04",
-  "composite_score": 29.3,
+  "composite_score": 29.2,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -7667,7 +7667,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 43.4,
+    "score": 42.9,
     "label": "结构"
    }
   },
@@ -7696,7 +7696,7 @@
  },
  {
   "trade_date": "2018-05-11",
-  "composite_score": 31.3,
+  "composite_score": 31.4,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -7712,7 +7712,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 36.1,
+    "score": 36.3,
     "label": "结构"
    }
   },
@@ -7741,7 +7741,7 @@
  },
  {
   "trade_date": "2018-05-18",
-  "composite_score": 33.6,
+  "composite_score": 33.8,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -7757,7 +7757,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 46.9,
+    "score": 47.5,
     "label": "结构"
    }
   },
@@ -7786,7 +7786,7 @@
  },
  {
   "trade_date": "2018-05-25",
-  "composite_score": 30.2,
+  "composite_score": 30.6,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -7798,11 +7798,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 8.6,
+    "score": 8.5,
     "label": "情绪"
    },
    "structure": {
-    "score": 48.6,
+    "score": 50.1,
     "label": "结构"
    }
   },
@@ -7831,7 +7831,7 @@
  },
  {
   "trade_date": "2018-06-01",
-  "composite_score": 23.8,
+  "composite_score": 24.3,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -7843,11 +7843,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 10.6,
+    "score": 10.5,
     "label": "情绪"
    },
    "structure": {
-    "score": 32.1,
+    "score": 33.7,
     "label": "结构"
    }
   },
@@ -7876,7 +7876,7 @@
  },
  {
   "trade_date": "2018-06-08",
-  "composite_score": 23.4,
+  "composite_score": 23.9,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -7892,7 +7892,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 32.5,
+    "score": 34.2,
     "label": "结构"
    }
   },
@@ -7921,7 +7921,7 @@
  },
  {
   "trade_date": "2018-06-15",
-  "composite_score": 18.8,
+  "composite_score": 19.2,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -7937,7 +7937,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 21.0,
+    "score": 22.4,
     "label": "结构"
    }
   },
@@ -7966,7 +7966,7 @@
  },
  {
   "trade_date": "2018-06-22",
-  "composite_score": 14.6,
+  "composite_score": 14.4,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -7978,11 +7978,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 1.1,
+    "score": 1.0,
     "label": "情绪"
    },
    "structure": {
-    "score": 16.1,
+    "score": 15.4,
     "label": "结构"
    }
   },
@@ -8011,7 +8011,7 @@
  },
  {
   "trade_date": "2018-06-29",
-  "composite_score": 15.0,
+  "composite_score": 14.7,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -8023,11 +8023,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 6.0,
+    "score": 5.9,
     "label": "情绪"
    },
    "structure": {
-    "score": 13.5,
+    "score": 12.5,
     "label": "结构"
    }
   },
@@ -8056,7 +8056,7 @@
  },
  {
   "trade_date": "2018-07-06",
-  "composite_score": 13.6,
+  "composite_score": 13.4,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -8068,11 +8068,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 10.5,
+    "score": 10.4,
     "label": "情绪"
    },
    "structure": {
-    "score": 5.2,
+    "score": 4.2,
     "label": "结构"
    }
   },
@@ -8101,7 +8101,7 @@
  },
  {
   "trade_date": "2018-07-13",
-  "composite_score": 19.6,
+  "composite_score": 19.5,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -8113,11 +8113,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 15.9,
+    "score": 15.8,
     "label": "情绪"
    },
    "structure": {
-    "score": 16.2,
+    "score": 16.0,
     "label": "结构"
    }
   },
@@ -8146,7 +8146,7 @@
  },
  {
   "trade_date": "2018-07-20",
-  "composite_score": 17.4,
+  "composite_score": 17.3,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -8158,11 +8158,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 11.2,
+    "score": 11.1,
     "label": "情绪"
    },
    "structure": {
-    "score": 11.5,
+    "score": 11.4,
     "label": "结构"
    }
   },
@@ -8191,7 +8191,7 @@
  },
  {
   "trade_date": "2018-07-27",
-  "composite_score": 20.1,
+  "composite_score": 20.2,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -8207,7 +8207,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 9.9,
+    "score": 10.1,
     "label": "结构"
    }
   },
@@ -8236,7 +8236,7 @@
  },
  {
   "trade_date": "2018-08-03",
-  "composite_score": 13.4,
+  "composite_score": 13.6,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -8252,7 +8252,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 3.1,
+    "score": 4.0,
     "label": "结构"
    }
   },
@@ -8281,7 +8281,7 @@
  },
  {
   "trade_date": "2018-08-10",
-  "composite_score": 17.1,
+  "composite_score": 17.2,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -8297,7 +8297,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 7.2,
+    "score": 7.4,
     "label": "结构"
    }
   },
@@ -8371,7 +8371,7 @@
  },
  {
   "trade_date": "2018-08-24",
-  "composite_score": 13.7,
+  "composite_score": 13.6,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -8383,11 +8383,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 6.7,
+    "score": 6.5,
     "label": "情绪"
    },
    "structure": {
-    "score": 2.1,
+    "score": 1.8,
     "label": "结构"
    }
   },
@@ -8416,7 +8416,7 @@
  },
  {
   "trade_date": "2018-08-31",
-  "composite_score": 13.7,
+  "composite_score": 13.5,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -8432,7 +8432,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 1.8,
+    "score": 1.2,
     "label": "结构"
    }
   },
@@ -8461,7 +8461,7 @@
  },
  {
   "trade_date": "2018-09-07",
-  "composite_score": 14.9,
+  "composite_score": 14.7,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -8477,7 +8477,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 2.1,
+    "score": 1.5,
     "label": "结构"
    }
   },
@@ -8506,7 +8506,7 @@
  },
  {
   "trade_date": "2018-09-14",
-  "composite_score": 15.3,
+  "composite_score": 15.1,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -8522,7 +8522,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 3.9,
+    "score": 3.2,
     "label": "结构"
    }
   },
@@ -8551,7 +8551,7 @@
  },
  {
   "trade_date": "2018-09-21",
-  "composite_score": 18.1,
+  "composite_score": 17.7,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -8563,11 +8563,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 24.0,
+    "score": 23.9,
     "label": "情绪"
    },
    "structure": {
-    "score": 9.8,
+    "score": 8.5,
     "label": "结构"
    }
   },
@@ -8596,7 +8596,7 @@
  },
  {
   "trade_date": "2018-09-28",
-  "composite_score": 19.1,
+  "composite_score": 18.8,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -8612,7 +8612,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 13.3,
+    "score": 11.9,
     "label": "结构"
    }
   },
@@ -8641,7 +8641,7 @@
  },
  {
   "trade_date": "2018-10-12",
-  "composite_score": 16.0,
+  "composite_score": 15.6,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -8653,11 +8653,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 22.1,
+    "score": 21.9,
     "label": "情绪"
    },
    "structure": {
-    "score": 4.6,
+    "score": 3.1,
     "label": "结构"
    }
   },
@@ -8686,7 +8686,7 @@
  },
  {
   "trade_date": "2018-10-19",
-  "composite_score": 13.6,
+  "composite_score": 13.1,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -8702,7 +8702,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 5.6,
+    "score": 3.6,
     "label": "结构"
    }
   },
@@ -8731,7 +8731,7 @@
  },
  {
   "trade_date": "2018-10-26",
-  "composite_score": 15.0,
+  "composite_score": 14.4,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -8743,11 +8743,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 14.5,
+    "score": 14.4,
     "label": "情绪"
    },
    "structure": {
-    "score": 7.3,
+    "score": 5.2,
     "label": "结构"
    }
   },
@@ -8776,7 +8776,7 @@
  },
  {
   "trade_date": "2018-11-02",
-  "composite_score": 24.2,
+  "composite_score": 23.5,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -8788,11 +8788,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 54.3,
+    "score": 54.2,
     "label": "情绪"
    },
    "structure": {
-    "score": 10.8,
+    "score": 8.5,
     "label": "结构"
    }
   },
@@ -8821,7 +8821,7 @@
  },
  {
   "trade_date": "2018-11-09",
-  "composite_score": 18.0,
+  "composite_score": 17.7,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -8833,11 +8833,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 19.2,
+    "score": 19.1,
     "label": "情绪"
    },
    "structure": {
-    "score": 9.6,
+    "score": 8.5,
     "label": "结构"
    }
   },
@@ -8866,7 +8866,7 @@
  },
  {
   "trade_date": "2018-11-16",
-  "composite_score": 29.0,
+  "composite_score": 29.2,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -8882,7 +8882,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 22.0,
+    "score": 22.5,
     "label": "结构"
    }
   },
@@ -8911,7 +8911,7 @@
  },
  {
   "trade_date": "2018-11-23",
-  "composite_score": 20.0,
+  "composite_score": 20.7,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -8927,7 +8927,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 9.0,
+    "score": 11.3,
     "label": "结构"
    }
   },
@@ -8956,7 +8956,7 @@
  },
  {
   "trade_date": "2018-11-30",
-  "composite_score": 20.5,
+  "composite_score": 21.3,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -8972,7 +8972,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 16.4,
+    "score": 19.5,
     "label": "结构"
    }
   },
@@ -9001,7 +9001,7 @@
  },
  {
   "trade_date": "2018-12-07",
-  "composite_score": 21.6,
+  "composite_score": 22.9,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -9017,7 +9017,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 20.0,
+    "score": 24.7,
     "label": "结构"
    }
   },
@@ -9046,7 +9046,7 @@
  },
  {
   "trade_date": "2018-12-14",
-  "composite_score": 22.5,
+  "composite_score": 23.9,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -9062,7 +9062,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 20.4,
+    "score": 25.6,
     "label": "结构"
    }
   },
@@ -9091,7 +9091,7 @@
  },
  {
   "trade_date": "2018-12-21",
-  "composite_score": 19.3,
+  "composite_score": 20.8,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -9107,7 +9107,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 16.2,
+    "score": 21.7,
     "label": "结构"
    }
   },
@@ -9136,7 +9136,7 @@
  },
  {
   "trade_date": "2018-12-28",
-  "composite_score": 19.6,
+  "composite_score": 21.0,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -9152,7 +9152,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 23.8,
+    "score": 29.0,
     "label": "结构"
    }
   },
@@ -9181,7 +9181,7 @@
  },
  {
   "trade_date": "2019-01-04",
-  "composite_score": 24.0,
+  "composite_score": 25.4,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -9193,11 +9193,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 30.1,
+    "score": 30.0,
     "label": "情绪"
    },
    "structure": {
-    "score": 26.7,
+    "score": 31.6,
     "label": "结构"
    }
   },
@@ -9226,7 +9226,7 @@
  },
  {
   "trade_date": "2019-01-11",
-  "composite_score": 26.3,
+  "composite_score": 28.0,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -9238,11 +9238,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 23.5,
+    "score": 23.3,
     "label": "情绪"
    },
    "structure": {
-    "score": 33.6,
+    "score": 39.9,
     "label": "结构"
    }
   },
@@ -9271,7 +9271,7 @@
  },
  {
   "trade_date": "2019-01-18",
-  "composite_score": 26.4,
+  "composite_score": 28.3,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -9287,7 +9287,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 34.5,
+    "score": 41.7,
     "label": "结构"
    }
   },
@@ -9316,7 +9316,7 @@
  },
  {
   "trade_date": "2019-01-25",
-  "composite_score": 29.0,
+  "composite_score": 30.9,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -9328,11 +9328,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 25.7,
+    "score": 25.5,
     "label": "情绪"
    },
    "structure": {
-    "score": 39.5,
+    "score": 46.7,
     "label": "结构"
    }
   },
@@ -9361,7 +9361,7 @@
  },
  {
   "trade_date": "2019-02-01",
-  "composite_score": 28.3,
+  "composite_score": 30.2,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -9373,11 +9373,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 21.6,
+    "score": 21.5,
     "label": "情绪"
    },
    "structure": {
-    "score": 43.8,
+    "score": 50.9,
     "label": "结构"
    }
   },
@@ -9406,8 +9406,8 @@
  },
  {
   "trade_date": "2019-02-15",
-  "composite_score": 39.0,
-  "level": "green",
+  "composite_score": 41.0,
+  "level": "yellow",
   "dimensions": {
    "valuation": {
     "score": 8.1,
@@ -9418,11 +9418,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 45.2,
+    "score": 45.1,
     "label": "情绪"
    },
    "structure": {
-    "score": 62.4,
+    "score": 69.7,
     "label": "结构"
    }
   },
@@ -9451,7 +9451,7 @@
  },
  {
   "trade_date": "2019-02-22",
-  "composite_score": 51.5,
+  "composite_score": 53.4,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -9467,7 +9467,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 82.4,
+    "score": 89.2,
     "label": "结构"
    }
   },
@@ -9496,7 +9496,7 @@
  },
  {
   "trade_date": "2019-03-01",
-  "composite_score": 56.1,
+  "composite_score": 57.3,
   "level": "orange",
   "dimensions": {
    "valuation": {
@@ -9508,11 +9508,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 66.9,
+    "score": 66.8,
     "label": "情绪"
    },
    "structure": {
-    "score": 87.2,
+    "score": 91.8,
     "label": "结构"
    }
   },
@@ -9541,7 +9541,7 @@
  },
  {
   "trade_date": "2019-03-08",
-  "composite_score": 59.0,
+  "composite_score": 57.2,
   "level": "orange",
   "dimensions": {
    "valuation": {
@@ -9553,11 +9553,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 89.9,
+    "score": 73.5,
     "label": "情绪"
    },
    "structure": {
-    "score": 84.0,
+    "score": 87.4,
     "label": "结构"
    }
   },
@@ -9586,7 +9586,7 @@
  },
  {
   "trade_date": "2019-03-15",
-  "composite_score": 57.0,
+  "composite_score": 57.7,
   "level": "orange",
   "dimensions": {
    "valuation": {
@@ -9598,11 +9598,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 67.8,
+    "score": 67.7,
     "label": "情绪"
    },
    "structure": {
-    "score": 88.2,
+    "score": 90.7,
     "label": "结构"
    }
   },
@@ -9631,7 +9631,7 @@
  },
  {
   "trade_date": "2019-03-22",
-  "composite_score": 61.2,
+  "composite_score": 61.8,
   "level": "orange",
   "dimensions": {
    "valuation": {
@@ -9643,11 +9643,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 76.1,
+    "score": 76.0,
     "label": "情绪"
    },
    "structure": {
-    "score": 91.8,
+    "score": 93.8,
     "label": "结构"
    }
   },
@@ -9676,7 +9676,7 @@
  },
  {
   "trade_date": "2019-03-29",
-  "composite_score": 60.2,
+  "composite_score": 60.7,
   "level": "orange",
   "dimensions": {
    "valuation": {
@@ -9692,7 +9692,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 89.8,
+    "score": 91.4,
     "label": "结构"
    }
   },
@@ -9721,7 +9721,7 @@
  },
  {
   "trade_date": "2019-04-04",
-  "composite_score": 66.9,
+  "composite_score": 67.4,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -9737,7 +9737,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 93.4,
+    "score": 94.9,
     "label": "结构"
    }
   },
@@ -9766,7 +9766,7 @@
  },
  {
   "trade_date": "2019-04-12",
-  "composite_score": 59.1,
+  "composite_score": 59.5,
   "level": "orange",
   "dimensions": {
    "valuation": {
@@ -9778,11 +9778,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 64.3,
+    "score": 64.2,
     "label": "情绪"
    },
    "structure": {
-    "score": 87.7,
+    "score": 89.1,
     "label": "结构"
    }
   },
@@ -9811,7 +9811,7 @@
  },
  {
   "trade_date": "2019-04-19",
-  "composite_score": 63.4,
+  "composite_score": 63.7,
   "level": "orange",
   "dimensions": {
    "valuation": {
@@ -9823,11 +9823,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 67.1,
+    "score": 67.0,
     "label": "情绪"
    },
    "structure": {
-    "score": 90.3,
+    "score": 91.6,
     "label": "结构"
    }
   },
@@ -9856,7 +9856,7 @@
  },
  {
   "trade_date": "2019-04-26",
-  "composite_score": 51.2,
+  "composite_score": 51.6,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -9868,11 +9868,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 59.9,
+    "score": 59.8,
     "label": "情绪"
    },
    "structure": {
-    "score": 67.7,
+    "score": 68.9,
     "label": "结构"
    }
   },
@@ -9901,7 +9901,7 @@
  },
  {
   "trade_date": "2019-04-30",
-  "composite_score": 47.3,
+  "composite_score": 47.6,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -9913,11 +9913,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 40.5,
+    "score": 40.4,
     "label": "情绪"
    },
    "structure": {
-    "score": 66.0,
+    "score": 67.1,
     "label": "结构"
    }
   },
@@ -9946,7 +9946,7 @@
  },
  {
   "trade_date": "2019-05-10",
-  "composite_score": 42.6,
+  "composite_score": 43.2,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -9962,7 +9962,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 55.9,
+    "score": 58.2,
     "label": "结构"
    }
   },
@@ -9991,7 +9991,7 @@
  },
  {
   "trade_date": "2019-05-17",
-  "composite_score": 36.9,
+  "composite_score": 38.4,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -10007,7 +10007,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 47.0,
+    "score": 52.3,
     "label": "结构"
    }
   },
@@ -10036,7 +10036,7 @@
  },
  {
   "trade_date": "2019-05-24",
-  "composite_score": 26.9,
+  "composite_score": 28.1,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -10052,7 +10052,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 27.5,
+    "score": 31.7,
     "label": "结构"
    }
   },
@@ -10081,7 +10081,7 @@
  },
  {
   "trade_date": "2019-05-31",
-  "composite_score": 32.5,
+  "composite_score": 33.1,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -10097,7 +10097,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 38.1,
+    "score": 40.4,
     "label": "结构"
    }
   },
@@ -10126,7 +10126,7 @@
  },
  {
   "trade_date": "2019-06-06",
-  "composite_score": 23.7,
+  "composite_score": 24.4,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -10142,7 +10142,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 18.0,
+    "score": 20.7,
     "label": "结构"
    }
   },
@@ -10171,7 +10171,7 @@
  },
  {
   "trade_date": "2019-06-14",
-  "composite_score": 28.5,
+  "composite_score": 29.0,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -10187,7 +10187,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 27.4,
+    "score": 29.3,
     "label": "结构"
    }
   },
@@ -10216,8 +10216,8 @@
  },
  {
   "trade_date": "2019-06-21",
-  "composite_score": 39.4,
-  "level": "green",
+  "composite_score": 40.0,
+  "level": "yellow",
   "dimensions": {
    "valuation": {
     "score": 26.1,
@@ -10232,7 +10232,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 39.4,
+    "score": 41.6,
     "label": "结构"
    }
   },
@@ -10261,7 +10261,7 @@
  },
  {
   "trade_date": "2019-06-28",
-  "composite_score": 34.1,
+  "composite_score": 35.1,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -10277,7 +10277,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 37.0,
+    "score": 40.9,
     "label": "结构"
    }
   },
@@ -10306,7 +10306,7 @@
  },
  {
   "trade_date": "2019-07-05",
-  "composite_score": 33.8,
+  "composite_score": 35.0,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -10322,7 +10322,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 39.8,
+    "score": 43.9,
     "label": "结构"
    }
   },
@@ -10351,7 +10351,7 @@
  },
  {
   "trade_date": "2019-07-12",
-  "composite_score": 31.1,
+  "composite_score": 32.4,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -10367,7 +10367,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 36.6,
+    "score": 41.2,
     "label": "结构"
    }
   },
@@ -10396,7 +10396,7 @@
  },
  {
   "trade_date": "2019-07-19",
-  "composite_score": 30.7,
+  "composite_score": 31.7,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -10412,7 +10412,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 32.1,
+    "score": 35.6,
     "label": "结构"
    }
   },
@@ -10441,7 +10441,7 @@
  },
  {
   "trade_date": "2019-07-26",
-  "composite_score": 33.2,
+  "composite_score": 34.2,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -10457,7 +10457,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 37.8,
+    "score": 41.7,
     "label": "结构"
    }
   },
@@ -10486,7 +10486,7 @@
  },
  {
   "trade_date": "2019-08-02",
-  "composite_score": 33.0,
+  "composite_score": 33.5,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -10502,7 +10502,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 35.2,
+    "score": 36.7,
     "label": "结构"
    }
   },
@@ -10531,7 +10531,7 @@
  },
  {
   "trade_date": "2019-08-09",
-  "composite_score": 25.5,
+  "composite_score": 25.8,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -10547,7 +10547,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 26.9,
+    "score": 27.8,
     "label": "结构"
    }
   },
@@ -10576,7 +10576,7 @@
  },
  {
   "trade_date": "2019-08-16",
-  "composite_score": 31.7,
+  "composite_score": 31.9,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -10592,7 +10592,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 40.7,
+    "score": 41.6,
     "label": "结构"
    }
   },
@@ -10621,7 +10621,7 @@
  },
  {
   "trade_date": "2019-08-23",
-  "composite_score": 36.8,
+  "composite_score": 37.1,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -10637,7 +10637,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 42.4,
+    "score": 43.8,
     "label": "结构"
    }
   },
@@ -10666,8 +10666,8 @@
  },
  {
   "trade_date": "2019-08-30",
-  "composite_score": 39.4,
-  "level": "green",
+  "composite_score": 40.0,
+  "level": "yellow",
   "dimensions": {
    "valuation": {
     "score": 26.2,
@@ -10682,7 +10682,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 38.8,
+    "score": 40.9,
     "label": "结构"
    }
   },
@@ -10711,7 +10711,7 @@
  },
  {
   "trade_date": "2019-09-06",
-  "composite_score": 50.5,
+  "composite_score": 51.7,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -10727,7 +10727,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 58.1,
+    "score": 62.5,
     "label": "结构"
    }
   },
@@ -10756,7 +10756,7 @@
  },
  {
   "trade_date": "2019-09-12",
-  "composite_score": 46.2,
+  "composite_score": 47.5,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -10772,7 +10772,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 46.5,
+    "score": 51.3,
     "label": "结构"
    }
   },
@@ -10801,7 +10801,7 @@
  },
  {
   "trade_date": "2019-09-20",
-  "composite_score": 49.5,
+  "composite_score": 50.9,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -10817,7 +10817,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 61.1,
+    "score": 66.2,
     "label": "结构"
    }
   },
@@ -10846,8 +10846,8 @@
  },
  {
   "trade_date": "2019-09-27",
-  "composite_score": 39.9,
-  "level": "green",
+  "composite_score": 41.2,
+  "level": "yellow",
   "dimensions": {
    "valuation": {
     "score": 29.5,
@@ -10858,11 +10858,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 28.5,
+    "score": 28.3,
     "label": "情绪"
    },
    "structure": {
-    "score": 45.4,
+    "score": 50.3,
     "label": "结构"
    }
   },
@@ -10891,7 +10891,7 @@
  },
  {
   "trade_date": "2019-09-30",
-  "composite_score": 34.7,
+  "composite_score": 36.1,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -10907,7 +10907,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 43.0,
+    "score": 48.1,
     "label": "结构"
    }
   },
@@ -10936,7 +10936,7 @@
  },
  {
   "trade_date": "2019-10-11",
-  "composite_score": 46.3,
+  "composite_score": 47.7,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -10952,7 +10952,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 58.2,
+    "score": 63.1,
     "label": "结构"
    }
   },
@@ -10981,7 +10981,7 @@
  },
  {
   "trade_date": "2019-10-18",
-  "composite_score": 41.9,
+  "composite_score": 43.1,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -10997,7 +10997,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 49.7,
+    "score": 54.3,
     "label": "结构"
    }
   },
@@ -11026,7 +11026,7 @@
  },
  {
   "trade_date": "2019-10-25",
-  "composite_score": 38.0,
+  "composite_score": 39.3,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -11042,7 +11042,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 49.9,
+    "score": 54.6,
     "label": "结构"
    }
   },
@@ -11071,8 +11071,8 @@
  },
  {
   "trade_date": "2019-11-01",
-  "composite_score": 39.2,
-  "level": "green",
+  "composite_score": 40.5,
+  "level": "yellow",
   "dimensions": {
    "valuation": {
     "score": 29.5,
@@ -11083,11 +11083,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 34.5,
+    "score": 34.4,
     "label": "情绪"
    },
    "structure": {
-    "score": 51.4,
+    "score": 56.5,
     "label": "结构"
    }
   },
@@ -11116,7 +11116,7 @@
  },
  {
   "trade_date": "2019-11-08",
-  "composite_score": 41.6,
+  "composite_score": 43.1,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -11128,11 +11128,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 31.0,
+    "score": 30.9,
     "label": "情绪"
    },
    "structure": {
-    "score": 57.8,
+    "score": 63.1,
     "label": "结构"
    }
   },
@@ -11161,7 +11161,7 @@
  },
  {
   "trade_date": "2019-11-15",
-  "composite_score": 34.3,
+  "composite_score": 35.7,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -11177,7 +11177,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 45.3,
+    "score": 50.7,
     "label": "结构"
    }
   },
@@ -11206,7 +11206,7 @@
  },
  {
   "trade_date": "2019-11-22",
-  "composite_score": 33.2,
+  "composite_score": 34.6,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -11218,11 +11218,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 32.9,
+    "score": 32.8,
     "label": "情绪"
    },
    "structure": {
-    "score": 37.4,
+    "score": 42.6,
     "label": "结构"
    }
   },
@@ -11251,7 +11251,7 @@
  },
  {
   "trade_date": "2019-11-29",
-  "composite_score": 29.5,
+  "composite_score": 30.9,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -11263,11 +11263,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 17.5,
+    "score": 17.4,
     "label": "情绪"
    },
    "structure": {
-    "score": 34.6,
+    "score": 39.9,
     "label": "结构"
    }
   },
@@ -11296,8 +11296,8 @@
  },
  {
   "trade_date": "2019-12-06",
-  "composite_score": 38.9,
-  "level": "green",
+  "composite_score": 40.4,
+  "level": "yellow",
   "dimensions": {
    "valuation": {
     "score": 31.5,
@@ -11308,11 +11308,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 31.6,
+    "score": 31.5,
     "label": "情绪"
    },
    "structure": {
-    "score": 51.2,
+    "score": 56.9,
     "label": "结构"
    }
   },
@@ -11341,7 +11341,7 @@
  },
  {
   "trade_date": "2019-12-13",
-  "composite_score": 47.6,
+  "composite_score": 49.2,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -11357,7 +11357,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 58.2,
+    "score": 64.2,
     "label": "结构"
    }
   },
@@ -11386,7 +11386,7 @@
  },
  {
   "trade_date": "2019-12-20",
-  "composite_score": 51.4,
+  "composite_score": 53.0,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -11398,11 +11398,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 57.8,
+    "score": 57.7,
     "label": "情绪"
    },
    "structure": {
-    "score": 61.4,
+    "score": 67.3,
     "label": "结构"
    }
   },
@@ -11431,8 +11431,8 @@
  },
  {
   "trade_date": "2019-12-27",
-  "composite_score": 53.4,
-  "level": "yellow",
+  "composite_score": 55.0,
+  "level": "orange",
   "dimensions": {
    "valuation": {
     "score": 42.6,
@@ -11447,7 +11447,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 63.1,
+    "score": 69.0,
     "label": "结构"
    }
   },
@@ -11476,7 +11476,7 @@
  },
  {
   "trade_date": "2020-01-03",
-  "composite_score": 57.0,
+  "composite_score": 58.4,
   "level": "orange",
   "dimensions": {
    "valuation": {
@@ -11492,7 +11492,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 80.9,
+    "score": 85.8,
     "label": "结构"
    }
   },
@@ -11521,7 +11521,7 @@
  },
  {
   "trade_date": "2020-01-10",
-  "composite_score": 56.9,
+  "composite_score": 57.9,
   "level": "orange",
   "dimensions": {
    "valuation": {
@@ -11537,7 +11537,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 83.7,
+    "score": 87.3,
     "label": "结构"
    }
   },
@@ -11566,7 +11566,7 @@
  },
  {
   "trade_date": "2020-01-17",
-  "composite_score": 56.2,
+  "composite_score": 57.1,
   "level": "orange",
   "dimensions": {
    "valuation": {
@@ -11582,7 +11582,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 83.1,
+    "score": 86.3,
     "label": "结构"
    }
   },
@@ -11611,7 +11611,7 @@
  },
  {
   "trade_date": "2020-01-23",
-  "composite_score": 51.2,
+  "composite_score": 49.3,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -11623,11 +11623,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 66.8,
+    "score": 50.3,
     "label": "情绪"
    },
    "structure": {
-    "score": 67.3,
+    "score": 70.4,
     "label": "结构"
    }
   },
@@ -11656,7 +11656,7 @@
  },
  {
   "trade_date": "2020-02-07",
-  "composite_score": 51.8,
+  "composite_score": 52.6,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -11668,11 +11668,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 74.9,
+    "score": 74.8,
     "label": "情绪"
    },
    "structure": {
-    "score": 80.0,
+    "score": 83.1,
     "label": "结构"
    }
   },
@@ -11701,7 +11701,7 @@
  },
  {
   "trade_date": "2020-02-14",
-  "composite_score": 51.8,
+  "composite_score": 52.6,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -11717,7 +11717,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 74.6,
+    "score": 77.7,
     "label": "结构"
    }
   },
@@ -11746,7 +11746,7 @@
  },
  {
   "trade_date": "2020-02-21",
-  "composite_score": 62.0,
+  "composite_score": 62.8,
   "level": "orange",
   "dimensions": {
    "valuation": {
@@ -11762,7 +11762,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 83.5,
+    "score": 86.5,
     "label": "结构"
    }
   },
@@ -11791,7 +11791,7 @@
  },
  {
   "trade_date": "2020-02-28",
-  "composite_score": 44.2,
+  "composite_score": 42.2,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -11803,11 +11803,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 75.8,
+    "score": 59.5,
     "label": "情绪"
    },
    "structure": {
-    "score": 45.8,
+    "score": 48.4,
     "label": "结构"
    }
   },
@@ -11836,7 +11836,7 @@
  },
  {
   "trade_date": "2020-03-06",
-  "composite_score": 58.2,
+  "composite_score": 58.9,
   "level": "orange",
   "dimensions": {
    "valuation": {
@@ -11852,7 +11852,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 82.0,
+    "score": 84.6,
     "label": "结构"
    }
   },
@@ -11881,7 +11881,7 @@
  },
  {
   "trade_date": "2020-03-13",
-  "composite_score": 52.0,
+  "composite_score": 52.7,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -11897,7 +11897,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 68.9,
+    "score": 71.4,
     "label": "结构"
    }
   },
@@ -11926,7 +11926,7 @@
  },
  {
   "trade_date": "2020-03-20",
-  "composite_score": 40.7,
+  "composite_score": 41.3,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -11942,7 +11942,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 58.3,
+    "score": 60.5,
     "label": "结构"
    }
   },
@@ -11971,7 +11971,7 @@
  },
  {
   "trade_date": "2020-03-27",
-  "composite_score": 36.8,
+  "composite_score": 37.3,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -11987,7 +11987,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 47.0,
+    "score": 48.9,
     "label": "结构"
    }
   },
@@ -12016,7 +12016,7 @@
  },
  {
   "trade_date": "2020-04-03",
-  "composite_score": 36.5,
+  "composite_score": 37.1,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -12032,7 +12032,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 48.0,
+    "score": 50.2,
     "label": "结构"
    }
   },
@@ -12061,7 +12061,7 @@
  },
  {
   "trade_date": "2020-04-10",
-  "composite_score": 41.8,
+  "composite_score": 42.3,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -12077,7 +12077,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 46.2,
+    "score": 47.9,
     "label": "结构"
    }
   },
@@ -12106,7 +12106,7 @@
  },
  {
   "trade_date": "2020-04-17",
-  "composite_score": 47.0,
+  "composite_score": 47.5,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -12122,7 +12122,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 52.2,
+    "score": 54.0,
     "label": "结构"
    }
   },
@@ -12151,7 +12151,7 @@
  },
  {
   "trade_date": "2020-04-24",
-  "composite_score": 43.3,
+  "composite_score": 43.8,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -12167,7 +12167,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 52.5,
+    "score": 54.4,
     "label": "结构"
    }
   },
@@ -12196,7 +12196,7 @@
  },
  {
   "trade_date": "2020-04-30",
-  "composite_score": 46.5,
+  "composite_score": 47.1,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -12212,7 +12212,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 46.0,
+    "score": 48.0,
     "label": "结构"
    }
   },
@@ -12241,7 +12241,7 @@
  },
  {
   "trade_date": "2020-05-08",
-  "composite_score": 52.8,
+  "composite_score": 53.3,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -12257,7 +12257,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 68.5,
+    "score": 70.4,
     "label": "结构"
    }
   },
@@ -12286,7 +12286,7 @@
  },
  {
   "trade_date": "2020-05-15",
-  "composite_score": 50.7,
+  "composite_score": 51.2,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -12302,7 +12302,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 68.3,
+    "score": 70.1,
     "label": "结构"
    }
   },
@@ -12331,7 +12331,7 @@
  },
  {
   "trade_date": "2020-05-22",
-  "composite_score": 41.6,
+  "composite_score": 42.0,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -12347,7 +12347,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 43.3,
+    "score": 44.9,
     "label": "结构"
    }
   },
@@ -12376,7 +12376,7 @@
  },
  {
   "trade_date": "2020-05-29",
-  "composite_score": 49.9,
+  "composite_score": 50.3,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -12392,7 +12392,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 71.6,
+    "score": 72.9,
     "label": "结构"
    }
   },
@@ -12421,7 +12421,7 @@
  },
  {
   "trade_date": "2020-06-05",
-  "composite_score": 54.0,
+  "composite_score": 54.3,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -12437,7 +12437,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 71.7,
+    "score": 72.4,
     "label": "结构"
    }
   },
@@ -12466,7 +12466,7 @@
  },
  {
   "trade_date": "2020-06-12",
-  "composite_score": 55.9,
+  "composite_score": 56.0,
   "level": "orange",
   "dimensions": {
    "valuation": {
@@ -12482,7 +12482,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 72.4,
+    "score": 72.9,
     "label": "结构"
    }
   },
@@ -12511,7 +12511,7 @@
  },
  {
   "trade_date": "2020-06-19",
-  "composite_score": 57.8,
+  "composite_score": 57.7,
   "level": "orange",
   "dimensions": {
    "valuation": {
@@ -12556,7 +12556,7 @@
  },
  {
   "trade_date": "2020-06-24",
-  "composite_score": 58.3,
+  "composite_score": 58.2,
   "level": "orange",
   "dimensions": {
    "valuation": {
@@ -12568,11 +12568,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 56.2,
+    "score": 56.1,
     "label": "情绪"
    },
    "structure": {
-    "score": 75.0,
+    "score": 74.7,
     "label": "结构"
    }
   },
@@ -12601,7 +12601,7 @@
  },
  {
   "trade_date": "2020-07-03",
-  "composite_score": 68.7,
+  "composite_score": 68.6,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -12617,7 +12617,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 81.3,
+    "score": 80.9,
     "label": "结构"
    }
   },
@@ -12646,7 +12646,7 @@
  },
  {
   "trade_date": "2020-07-10",
-  "composite_score": 78.3,
+  "composite_score": 75.5,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -12658,11 +12658,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 85.7,
+    "score": 69.3,
     "label": "情绪"
    },
    "structure": {
-    "score": 90.8,
+    "score": 90.4,
     "label": "结构"
    }
   },
@@ -12691,7 +12691,7 @@
  },
  {
   "trade_date": "2020-07-17",
-  "composite_score": 69.4,
+  "composite_score": 69.6,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -12707,7 +12707,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 73.7,
+    "score": 74.1,
     "label": "结构"
    }
   },
@@ -12736,8 +12736,8 @@
  },
  {
   "trade_date": "2020-07-24",
-  "composite_score": 66.1,
-  "level": "red",
+  "composite_score": 63.4,
+  "level": "orange",
   "dimensions": {
    "valuation": {
     "score": 70.1,
@@ -12748,11 +12748,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 74.6,
+    "score": 58.2,
     "label": "情绪"
    },
    "structure": {
-    "score": 65.4,
+    "score": 65.7,
     "label": "结构"
    }
   },
@@ -12797,7 +12797,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 93.0,
+    "score": 93.3,
     "label": "结构"
    }
   },
@@ -12838,7 +12838,7 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 76.1,
+    "score": 76.0,
     "label": "情绪"
    },
    "structure": {
@@ -12871,7 +12871,7 @@
  },
  {
   "trade_date": "2020-08-14",
-  "composite_score": 72.6,
+  "composite_score": 72.5,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -12883,11 +12883,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 71.5,
+    "score": 71.4,
     "label": "情绪"
    },
    "structure": {
-    "score": 83.9,
+    "score": 83.7,
     "label": "结构"
    }
   },
@@ -12932,7 +12932,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 87.5,
+    "score": 87.3,
     "label": "结构"
    }
   },
@@ -12961,7 +12961,7 @@
  },
  {
   "trade_date": "2020-08-28",
-  "composite_score": 73.6,
+  "composite_score": 73.5,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -12977,7 +12977,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 89.3,
+    "score": 89.0,
     "label": "结构"
    }
   },
@@ -13006,7 +13006,7 @@
  },
  {
   "trade_date": "2020-09-04",
-  "composite_score": 71.3,
+  "composite_score": 71.1,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -13022,7 +13022,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 88.0,
+    "score": 87.4,
     "label": "结构"
    }
   },
@@ -13051,7 +13051,7 @@
  },
  {
   "trade_date": "2020-09-11",
-  "composite_score": 56.1,
+  "composite_score": 55.8,
   "level": "orange",
   "dimensions": {
    "valuation": {
@@ -13063,11 +13063,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 43.5,
+    "score": 43.4,
     "label": "情绪"
    },
    "structure": {
-    "score": 54.1,
+    "score": 53.0,
     "label": "结构"
    }
   },
@@ -13096,7 +13096,7 @@
  },
  {
   "trade_date": "2020-09-18",
-  "composite_score": 68.0,
+  "composite_score": 67.8,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -13112,7 +13112,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 75.6,
+    "score": 74.8,
     "label": "结构"
    }
   },
@@ -13141,7 +13141,7 @@
  },
  {
   "trade_date": "2020-09-25",
-  "composite_score": 50.3,
+  "composite_score": 49.8,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -13157,7 +13157,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 41.0,
+    "score": 39.5,
     "label": "结构"
    }
   },
@@ -13186,7 +13186,7 @@
  },
  {
   "trade_date": "2020-09-30",
-  "composite_score": 50.3,
+  "composite_score": 49.5,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -13198,11 +13198,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 19.3,
+    "score": 19.2,
     "label": "情绪"
    },
    "structure": {
-    "score": 49.8,
+    "score": 47.0,
     "label": "结构"
    }
   },
@@ -13231,7 +13231,7 @@
  },
  {
   "trade_date": "2020-10-09",
-  "composite_score": 60.5,
+  "composite_score": 59.7,
   "level": "orange",
   "dimensions": {
    "valuation": {
@@ -13243,11 +13243,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 44.6,
+    "score": 44.5,
     "label": "情绪"
    },
    "structure": {
-    "score": 70.6,
+    "score": 67.8,
     "label": "结构"
    }
   },
@@ -13276,7 +13276,7 @@
  },
  {
   "trade_date": "2020-10-16",
-  "composite_score": 64.1,
+  "composite_score": 63.3,
   "level": "orange",
   "dimensions": {
    "valuation": {
@@ -13288,11 +13288,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 48.2,
+    "score": 48.1,
     "label": "情绪"
    },
    "structure": {
-    "score": 72.5,
+    "score": 69.4,
     "label": "结构"
    }
   },
@@ -13321,7 +13321,7 @@
  },
  {
   "trade_date": "2020-10-23",
-  "composite_score": 56.1,
+  "composite_score": 55.2,
   "level": "orange",
   "dimensions": {
    "valuation": {
@@ -13337,7 +13337,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 50.6,
+    "score": 47.2,
     "label": "结构"
    }
   },
@@ -13366,7 +13366,7 @@
  },
  {
   "trade_date": "2020-10-30",
-  "composite_score": 57.6,
+  "composite_score": 56.4,
   "level": "orange",
   "dimensions": {
    "valuation": {
@@ -13382,7 +13382,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 49.7,
+    "score": 45.4,
     "label": "结构"
    }
   },
@@ -13411,7 +13411,7 @@
  },
  {
   "trade_date": "2020-11-06",
-  "composite_score": 66.6,
+  "composite_score": 65.6,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -13427,7 +13427,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 75.7,
+    "score": 72.2,
     "label": "结构"
    }
   },
@@ -13456,7 +13456,7 @@
  },
  {
   "trade_date": "2020-11-13",
-  "composite_score": 60.8,
+  "composite_score": 59.7,
   "level": "orange",
   "dimensions": {
    "valuation": {
@@ -13472,7 +13472,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 66.2,
+    "score": 62.1,
     "label": "结构"
    }
   },
@@ -13501,7 +13501,7 @@
  },
  {
   "trade_date": "2020-11-20",
-  "composite_score": 64.4,
+  "composite_score": 63.1,
   "level": "orange",
   "dimensions": {
    "valuation": {
@@ -13513,11 +13513,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 52.3,
+    "score": 52.2,
     "label": "情绪"
    },
    "structure": {
-    "score": 75.8,
+    "score": 71.2,
     "label": "结构"
    }
   },
@@ -13546,7 +13546,7 @@
  },
  {
   "trade_date": "2020-11-27",
-  "composite_score": 58.3,
+  "composite_score": 56.9,
   "level": "orange",
   "dimensions": {
    "valuation": {
@@ -13558,11 +13558,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 52.6,
+    "score": 52.5,
     "label": "情绪"
    },
    "structure": {
-    "score": 53.2,
+    "score": 48.3,
     "label": "结构"
    }
   },
@@ -13591,7 +13591,7 @@
  },
  {
   "trade_date": "2020-12-04",
-  "composite_score": 59.7,
+  "composite_score": 58.2,
   "level": "orange",
   "dimensions": {
    "valuation": {
@@ -13603,11 +13603,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 54.6,
+    "score": 54.5,
     "label": "情绪"
    },
    "structure": {
-    "score": 56.7,
+    "score": 51.0,
     "label": "结构"
    }
   },
@@ -13636,7 +13636,7 @@
  },
  {
   "trade_date": "2020-12-11",
-  "composite_score": 57.3,
+  "composite_score": 55.9,
   "level": "orange",
   "dimensions": {
    "valuation": {
@@ -13652,7 +13652,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 43.4,
+    "score": 38.0,
     "label": "结构"
    }
   },
@@ -13681,7 +13681,7 @@
  },
  {
   "trade_date": "2020-12-18",
-  "composite_score": 61.0,
+  "composite_score": 59.9,
   "level": "orange",
   "dimensions": {
    "valuation": {
@@ -13697,7 +13697,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 59.5,
+    "score": 55.3,
     "label": "结构"
    }
   },
@@ -13726,7 +13726,7 @@
  },
  {
   "trade_date": "2020-12-25",
-  "composite_score": 63.4,
+  "composite_score": 62.3,
   "level": "orange",
   "dimensions": {
    "valuation": {
@@ -13742,7 +13742,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 67.2,
+    "score": 63.2,
     "label": "结构"
    }
   },
@@ -13771,7 +13771,7 @@
  },
  {
   "trade_date": "2020-12-31",
-  "composite_score": 67.9,
+  "composite_score": 66.8,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -13787,7 +13787,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 63.0,
+    "score": 59.0,
     "label": "结构"
    }
   },
@@ -13816,7 +13816,7 @@
  },
  {
   "trade_date": "2021-01-08",
-  "composite_score": 68.4,
+  "composite_score": 67.3,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -13832,7 +13832,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 56.3,
+    "score": 52.4,
     "label": "结构"
    }
   },
@@ -13861,7 +13861,7 @@
  },
  {
   "trade_date": "2021-01-15",
-  "composite_score": 58.1,
+  "composite_score": 57.1,
   "level": "orange",
   "dimensions": {
    "valuation": {
@@ -13877,7 +13877,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 35.0,
+    "score": 31.2,
     "label": "结构"
    }
   },
@@ -13906,7 +13906,7 @@
  },
  {
   "trade_date": "2021-01-22",
-  "composite_score": 66.7,
+  "composite_score": 65.7,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -13922,7 +13922,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 63.3,
+    "score": 59.4,
     "label": "结构"
    }
   },
@@ -13951,7 +13951,7 @@
  },
  {
   "trade_date": "2021-01-29",
-  "composite_score": 54.2,
+  "composite_score": 53.1,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -13967,7 +13967,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 29.6,
+    "score": 25.6,
     "label": "结构"
    }
   },
@@ -13996,7 +13996,7 @@
  },
  {
   "trade_date": "2021-02-05",
-  "composite_score": 53.9,
+  "composite_score": 52.7,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -14008,11 +14008,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 65.1,
+    "score": 65.0,
     "label": "情绪"
    },
    "structure": {
-    "score": 29.4,
+    "score": 24.9,
     "label": "结构"
    }
   },
@@ -14041,7 +14041,7 @@
  },
  {
   "trade_date": "2021-02-10",
-  "composite_score": 63.3,
+  "composite_score": 62.1,
   "level": "orange",
   "dimensions": {
    "valuation": {
@@ -14057,7 +14057,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 57.1,
+    "score": 52.6,
     "label": "结构"
    }
   },
@@ -14086,7 +14086,7 @@
  },
  {
   "trade_date": "2021-02-19",
-  "composite_score": 64.7,
+  "composite_score": 63.5,
   "level": "orange",
   "dimensions": {
    "valuation": {
@@ -14098,11 +14098,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 65.9,
+    "score": 65.8,
     "label": "情绪"
    },
    "structure": {
-    "score": 52.8,
+    "score": 48.2,
     "label": "结构"
    }
   },
@@ -14131,8 +14131,8 @@
  },
  {
   "trade_date": "2021-02-26",
-  "composite_score": 55.2,
-  "level": "orange",
+  "composite_score": 53.9,
+  "level": "yellow",
   "dimensions": {
    "valuation": {
     "score": 72.2,
@@ -14143,11 +14143,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 61.6,
+    "score": 61.5,
     "label": "情绪"
    },
    "structure": {
-    "score": 27.6,
+    "score": 22.8,
     "label": "结构"
    }
   },
@@ -14176,8 +14176,8 @@
  },
  {
   "trade_date": "2021-03-05",
-  "composite_score": 55.9,
-  "level": "orange",
+  "composite_score": 54.5,
+  "level": "yellow",
   "dimensions": {
    "valuation": {
     "score": 72.6,
@@ -14192,7 +14192,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 32.7,
+    "score": 27.7,
     "label": "结构"
    }
   },
@@ -14221,7 +14221,7 @@
  },
  {
   "trade_date": "2021-03-12",
-  "composite_score": 52.9,
+  "composite_score": 51.5,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -14237,7 +14237,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 37.5,
+    "score": 32.4,
     "label": "结构"
    }
   },
@@ -14266,7 +14266,7 @@
  },
  {
   "trade_date": "2021-03-19",
-  "composite_score": 52.8,
+  "composite_score": 51.4,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -14282,7 +14282,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 37.1,
+    "score": 31.9,
     "label": "结构"
    }
   },
@@ -14311,7 +14311,7 @@
  },
  {
   "trade_date": "2021-03-26",
-  "composite_score": 51.0,
+  "composite_score": 49.5,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -14323,11 +14323,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 43.3,
+    "score": 43.2,
     "label": "情绪"
    },
    "structure": {
-    "score": 37.7,
+    "score": 32.4,
     "label": "结构"
    }
   },
@@ -14356,7 +14356,7 @@
  },
  {
   "trade_date": "2021-04-02",
-  "composite_score": 51.6,
+  "composite_score": 50.0,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -14368,11 +14368,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 36.7,
+    "score": 36.6,
     "label": "情绪"
    },
    "structure": {
-    "score": 39.5,
+    "score": 33.9,
     "label": "结构"
    }
   },
@@ -14401,7 +14401,7 @@
  },
  {
   "trade_date": "2021-04-09",
-  "composite_score": 54.4,
+  "composite_score": 53.2,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -14417,7 +14417,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 52.4,
+    "score": 47.7,
     "label": "结构"
    }
   },
@@ -14446,7 +14446,7 @@
  },
  {
   "trade_date": "2021-04-16",
-  "composite_score": 51.7,
+  "composite_score": 50.6,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -14458,11 +14458,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 33.3,
+    "score": 33.2,
     "label": "情绪"
    },
    "structure": {
-    "score": 47.3,
+    "score": 43.5,
     "label": "结构"
    }
   },
@@ -14491,7 +14491,7 @@
  },
  {
   "trade_date": "2021-04-23",
-  "composite_score": 58.9,
+  "composite_score": 57.8,
   "level": "orange",
   "dimensions": {
    "valuation": {
@@ -14507,7 +14507,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 56.6,
+    "score": 52.5,
     "label": "结构"
    }
   },
@@ -14536,7 +14536,7 @@
  },
  {
   "trade_date": "2021-04-30",
-  "composite_score": 59.8,
+  "composite_score": 58.5,
   "level": "orange",
   "dimensions": {
    "valuation": {
@@ -14552,7 +14552,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 60.0,
+    "score": 55.4,
     "label": "结构"
    }
   },
@@ -14581,7 +14581,7 @@
  },
  {
   "trade_date": "2021-05-07",
-  "composite_score": 60.2,
+  "composite_score": 58.8,
   "level": "orange",
   "dimensions": {
    "valuation": {
@@ -14593,11 +14593,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 64.7,
+    "score": 64.6,
     "label": "情绪"
    },
    "structure": {
-    "score": 62.7,
+    "score": 57.5,
     "label": "结构"
    }
   },
@@ -14626,7 +14626,7 @@
  },
  {
   "trade_date": "2021-05-14",
-  "composite_score": 64.2,
+  "composite_score": 62.4,
   "level": "orange",
   "dimensions": {
    "valuation": {
@@ -14638,11 +14638,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 73.6,
+    "score": 73.5,
     "label": "情绪"
    },
    "structure": {
-    "score": 66.6,
+    "score": 60.0,
     "label": "结构"
    }
   },
@@ -14671,7 +14671,7 @@
  },
  {
   "trade_date": "2021-05-21",
-  "composite_score": 58.9,
+  "composite_score": 57.0,
   "level": "orange",
   "dimensions": {
    "valuation": {
@@ -14683,11 +14683,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 47.9,
+    "score": 47.8,
     "label": "情绪"
    },
    "structure": {
-    "score": 62.0,
+    "score": 55.1,
     "label": "结构"
    }
   },
@@ -14716,7 +14716,7 @@
  },
  {
   "trade_date": "2021-05-28",
-  "composite_score": 67.2,
+  "composite_score": 65.5,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -14732,7 +14732,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 75.3,
+    "score": 68.9,
     "label": "结构"
    }
   },
@@ -14761,8 +14761,8 @@
  },
  {
   "trade_date": "2021-06-04",
-  "composite_score": 65.6,
-  "level": "red",
+  "composite_score": 64.4,
+  "level": "orange",
   "dimensions": {
    "valuation": {
     "score": 68.1,
@@ -14773,11 +14773,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 64.9,
+    "score": 64.8,
     "label": "情绪"
    },
    "structure": {
-    "score": 75.2,
+    "score": 70.5,
     "label": "结构"
    }
   },
@@ -14806,7 +14806,7 @@
  },
  {
   "trade_date": "2021-06-11",
-  "composite_score": 67.0,
+  "composite_score": 66.0,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -14818,11 +14818,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 80.8,
+    "score": 80.7,
     "label": "情绪"
    },
    "structure": {
-    "score": 70.5,
+    "score": 66.7,
     "label": "结构"
    }
   },
@@ -14851,7 +14851,7 @@
  },
  {
   "trade_date": "2021-06-18",
-  "composite_score": 64.6,
+  "composite_score": 63.7,
   "level": "orange",
   "dimensions": {
    "valuation": {
@@ -14867,7 +14867,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 67.8,
+    "score": 64.7,
     "label": "结构"
    }
   },
@@ -14896,7 +14896,7 @@
  },
  {
   "trade_date": "2021-06-25",
-  "composite_score": 67.7,
+  "composite_score": 67.0,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -14912,7 +14912,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 76.8,
+    "score": 73.9,
     "label": "结构"
    }
   },
@@ -14941,7 +14941,7 @@
  },
  {
   "trade_date": "2021-07-02",
-  "composite_score": 63.3,
+  "composite_score": 59.8,
   "level": "orange",
   "dimensions": {
    "valuation": {
@@ -14953,11 +14953,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 66.2,
+    "score": 49.9,
     "label": "情绪"
    },
    "structure": {
-    "score": 64.6,
+    "score": 62.0,
     "label": "结构"
    }
   },
@@ -14986,7 +14986,7 @@
  },
  {
   "trade_date": "2021-07-09",
-  "composite_score": 70.7,
+  "composite_score": 69.8,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -15002,7 +15002,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 83.4,
+    "score": 80.3,
     "label": "结构"
    }
   },
@@ -15031,7 +15031,7 @@
  },
  {
   "trade_date": "2021-07-16",
-  "composite_score": 68.9,
+  "composite_score": 68.1,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -15043,11 +15043,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 78.2,
+    "score": 78.1,
     "label": "情绪"
    },
    "structure": {
-    "score": 77.8,
+    "score": 74.9,
     "label": "结构"
    }
   },
@@ -15076,7 +15076,7 @@
  },
  {
   "trade_date": "2021-07-23",
-  "composite_score": 71.5,
+  "composite_score": 70.5,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -15088,11 +15088,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 84.8,
+    "score": 84.7,
     "label": "情绪"
    },
    "structure": {
-    "score": 85.5,
+    "score": 81.9,
     "label": "结构"
    }
   },
@@ -15121,7 +15121,7 @@
  },
  {
   "trade_date": "2021-07-30",
-  "composite_score": 67.8,
+  "composite_score": 66.5,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -15137,7 +15137,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 81.9,
+    "score": 77.1,
     "label": "结构"
    }
   },
@@ -15166,7 +15166,7 @@
  },
  {
   "trade_date": "2021-08-06",
-  "composite_score": 67.8,
+  "composite_score": 66.4,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -15178,11 +15178,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 77.4,
+    "score": 77.3,
     "label": "情绪"
    },
    "structure": {
-    "score": 82.8,
+    "score": 77.6,
     "label": "结构"
    }
   },
@@ -15211,7 +15211,7 @@
  },
  {
   "trade_date": "2021-08-13",
-  "composite_score": 71.8,
+  "composite_score": 70.3,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -15223,11 +15223,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 83.4,
+    "score": 83.3,
     "label": "情绪"
    },
    "structure": {
-    "score": 88.3,
+    "score": 82.7,
     "label": "结构"
    }
   },
@@ -15256,8 +15256,8 @@
  },
  {
   "trade_date": "2021-08-20",
-  "composite_score": 66.0,
-  "level": "red",
+  "composite_score": 64.3,
+  "level": "orange",
   "dimensions": {
    "valuation": {
     "score": 64.5,
@@ -15272,7 +15272,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 74.6,
+    "score": 68.6,
     "label": "结构"
    }
   },
@@ -15301,7 +15301,7 @@
  },
  {
   "trade_date": "2021-08-27",
-  "composite_score": 71.3,
+  "composite_score": 69.8,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -15313,11 +15313,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 79.3,
+    "score": 79.2,
     "label": "情绪"
    },
    "structure": {
-    "score": 90.5,
+    "score": 85.3,
     "label": "结构"
    }
   },
@@ -15346,7 +15346,7 @@
  },
  {
   "trade_date": "2021-09-03",
-  "composite_score": 71.7,
+  "composite_score": 70.2,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -15358,11 +15358,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 90.2,
+    "score": 90.1,
     "label": "情绪"
    },
    "structure": {
-    "score": 83.9,
+    "score": 78.6,
     "label": "结构"
    }
   },
@@ -15391,7 +15391,7 @@
  },
  {
   "trade_date": "2021-09-10",
-  "composite_score": 74.1,
+  "composite_score": 72.6,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -15407,7 +15407,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 87.4,
+    "score": 81.9,
     "label": "结构"
    }
   },
@@ -15436,7 +15436,7 @@
  },
  {
   "trade_date": "2021-09-17",
-  "composite_score": 71.3,
+  "composite_score": 69.9,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -15452,7 +15452,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 80.0,
+    "score": 74.9,
     "label": "结构"
    }
   },
@@ -15481,7 +15481,7 @@
  },
  {
   "trade_date": "2021-09-24",
-  "composite_score": 66.8,
+  "composite_score": 65.1,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -15493,11 +15493,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 89.9,
+    "score": 89.8,
     "label": "情绪"
    },
    "structure": {
-    "score": 60.1,
+    "score": 54.1,
     "label": "结构"
    }
   },
@@ -15526,7 +15526,7 @@
  },
  {
   "trade_date": "2021-09-30",
-  "composite_score": 58.8,
+  "composite_score": 56.9,
   "level": "orange",
   "dimensions": {
    "valuation": {
@@ -15542,7 +15542,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 51.1,
+    "score": 43.9,
     "label": "结构"
    }
   },
@@ -15571,8 +15571,8 @@
  },
  {
   "trade_date": "2021-10-08",
-  "composite_score": 65.4,
-  "level": "red",
+  "composite_score": 63.4,
+  "level": "orange",
   "dimensions": {
    "valuation": {
     "score": 65.2,
@@ -15587,7 +15587,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 62.5,
+    "score": 55.1,
     "label": "结构"
    }
   },
@@ -15616,7 +15616,7 @@
  },
  {
   "trade_date": "2021-10-15",
-  "composite_score": 58.7,
+  "composite_score": 56.0,
   "level": "orange",
   "dimensions": {
    "valuation": {
@@ -15632,7 +15632,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 43.3,
+    "score": 33.4,
     "label": "结构"
    }
   },
@@ -15661,7 +15661,7 @@
  },
  {
   "trade_date": "2021-10-22",
-  "composite_score": 57.6,
+  "composite_score": 55.2,
   "level": "orange",
   "dimensions": {
    "valuation": {
@@ -15677,7 +15677,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 37.4,
+    "score": 28.6,
     "label": "结构"
    }
   },
@@ -15706,7 +15706,7 @@
  },
  {
   "trade_date": "2021-10-29",
-  "composite_score": 59.3,
+  "composite_score": 57.6,
   "level": "orange",
   "dimensions": {
    "valuation": {
@@ -15718,11 +15718,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 83.5,
+    "score": 83.4,
     "label": "情绪"
    },
    "structure": {
-    "score": 40.4,
+    "score": 34.1,
     "label": "结构"
    }
   },
@@ -15751,7 +15751,7 @@
  },
  {
   "trade_date": "2021-11-05",
-  "composite_score": 61.9,
+  "composite_score": 59.9,
   "level": "orange",
   "dimensions": {
    "valuation": {
@@ -15763,11 +15763,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 85.9,
+    "score": 85.8,
     "label": "情绪"
    },
    "structure": {
-    "score": 48.9,
+    "score": 41.5,
     "label": "结构"
    }
   },
@@ -15796,7 +15796,7 @@
  },
  {
   "trade_date": "2021-11-12",
-  "composite_score": 69.8,
+  "composite_score": 68.1,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -15808,11 +15808,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 81.9,
+    "score": 81.8,
     "label": "情绪"
    },
    "structure": {
-    "score": 74.0,
+    "score": 67.8,
     "label": "结构"
    }
   },
@@ -15841,7 +15841,7 @@
  },
  {
   "trade_date": "2021-11-19",
-  "composite_score": 68.8,
+  "composite_score": 67.1,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -15857,7 +15857,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 67.5,
+    "score": 61.3,
     "label": "结构"
    }
   },
@@ -15886,7 +15886,7 @@
  },
  {
   "trade_date": "2021-11-26",
-  "composite_score": 68.4,
+  "composite_score": 66.1,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -15902,7 +15902,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 69.6,
+    "score": 61.3,
     "label": "结构"
    }
   },
@@ -15931,7 +15931,7 @@
  },
  {
   "trade_date": "2021-12-03",
-  "composite_score": 69.8,
+  "composite_score": 67.1,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -15947,7 +15947,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 71.3,
+    "score": 61.6,
     "label": "结构"
    }
   },
@@ -15976,7 +15976,7 @@
  },
  {
   "trade_date": "2021-12-10",
-  "composite_score": 69.8,
+  "composite_score": 67.4,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -15992,7 +15992,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 62.9,
+    "score": 54.1,
     "label": "结构"
    }
   },
@@ -16021,7 +16021,7 @@
  },
  {
   "trade_date": "2021-12-17",
-  "composite_score": 71.9,
+  "composite_score": 69.8,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -16037,7 +16037,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 73.9,
+    "score": 66.3,
     "label": "结构"
    }
   },
@@ -16066,7 +16066,7 @@
  },
  {
   "trade_date": "2021-12-24",
-  "composite_score": 67.3,
+  "composite_score": 65.4,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -16078,11 +16078,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 82.1,
+    "score": 81.9,
     "label": "情绪"
    },
    "structure": {
-    "score": 62.7,
+    "score": 55.5,
     "label": "结构"
    }
   },
@@ -16111,7 +16111,7 @@
  },
  {
   "trade_date": "2021-12-31",
-  "composite_score": 75.5,
+  "composite_score": 73.7,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -16127,7 +16127,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 84.8,
+    "score": 78.0,
     "label": "结构"
    }
   },
@@ -16156,7 +16156,7 @@
  },
  {
   "trade_date": "2022-01-07",
-  "composite_score": 69.0,
+  "composite_score": 67.2,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -16168,11 +16168,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 85.7,
+    "score": 85.6,
     "label": "情绪"
    },
    "structure": {
-    "score": 67.6,
+    "score": 61.3,
     "label": "结构"
    }
   },
@@ -16201,7 +16201,7 @@
  },
  {
   "trade_date": "2022-01-14",
-  "composite_score": 68.1,
+  "composite_score": 66.3,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -16217,7 +16217,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 75.1,
+    "score": 68.7,
     "label": "结构"
    }
   },
@@ -16246,7 +16246,7 @@
  },
  {
   "trade_date": "2022-01-21",
-  "composite_score": 58.9,
+  "composite_score": 57.0,
   "level": "orange",
   "dimensions": {
    "valuation": {
@@ -16258,11 +16258,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 65.1,
+    "score": 65.0,
     "label": "情绪"
    },
    "structure": {
-    "score": 46.2,
+    "score": 39.3,
     "label": "结构"
    }
   },
@@ -16291,7 +16291,7 @@
  },
  {
   "trade_date": "2022-01-28",
-  "composite_score": 47.4,
+  "composite_score": 44.8,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -16303,11 +16303,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 42.6,
+    "score": 42.4,
     "label": "情绪"
    },
    "structure": {
-    "score": 36.7,
+    "score": 27.5,
     "label": "结构"
    }
   },
@@ -16336,7 +16336,7 @@
  },
  {
   "trade_date": "2022-02-11",
-  "composite_score": 54.7,
+  "composite_score": 51.5,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -16352,7 +16352,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 54.7,
+    "score": 42.7,
     "label": "结构"
    }
   },
@@ -16381,7 +16381,7 @@
  },
  {
   "trade_date": "2022-02-18",
-  "composite_score": 51.3,
+  "composite_score": 48.8,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -16393,11 +16393,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 44.6,
+    "score": 44.5,
     "label": "情绪"
    },
    "structure": {
-    "score": 53.1,
+    "score": 43.9,
     "label": "结构"
    }
   },
@@ -16426,7 +16426,7 @@
  },
  {
   "trade_date": "2022-02-25",
-  "composite_score": 52.0,
+  "composite_score": 49.5,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -16442,7 +16442,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 39.1,
+    "score": 29.9,
     "label": "结构"
    }
   },
@@ -16471,7 +16471,7 @@
  },
  {
   "trade_date": "2022-03-04",
-  "composite_score": 52.8,
+  "composite_score": 50.2,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -16487,7 +16487,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 42.1,
+    "score": 32.3,
     "label": "结构"
    }
   },
@@ -16516,7 +16516,7 @@
  },
  {
   "trade_date": "2022-03-11",
-  "composite_score": 49.2,
+  "composite_score": 46.6,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -16532,7 +16532,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 38.8,
+    "score": 29.2,
     "label": "结构"
    }
   },
@@ -16561,7 +16561,7 @@
  },
  {
   "trade_date": "2022-03-18",
-  "composite_score": 44.2,
+  "composite_score": 41.3,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -16577,7 +16577,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 39.1,
+    "score": 28.7,
     "label": "结构"
    }
   },
@@ -16606,8 +16606,8 @@
  },
  {
   "trade_date": "2022-03-25",
-  "composite_score": 42.1,
-  "level": "yellow",
+  "composite_score": 39.1,
+  "level": "green",
   "dimensions": {
    "valuation": {
     "score": 31.1,
@@ -16622,7 +16622,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 41.3,
+    "score": 30.5,
     "label": "结构"
    }
   },
@@ -16651,7 +16651,7 @@
  },
  {
   "trade_date": "2022-04-01",
-  "composite_score": 48.0,
+  "composite_score": 45.1,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -16667,7 +16667,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 51.0,
+    "score": 40.4,
     "label": "结构"
    }
   },
@@ -16696,7 +16696,7 @@
  },
  {
   "trade_date": "2022-04-08",
-  "composite_score": 45.1,
+  "composite_score": 42.1,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -16708,11 +16708,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 70.3,
+    "score": 70.2,
     "label": "情绪"
    },
    "structure": {
-    "score": 40.0,
+    "score": 29.4,
     "label": "结构"
    }
   },
@@ -16741,8 +16741,8 @@
  },
  {
   "trade_date": "2022-04-15",
-  "composite_score": 40.5,
-  "level": "yellow",
+  "composite_score": 37.8,
+  "level": "green",
   "dimensions": {
    "valuation": {
     "score": 28.7,
@@ -16757,7 +16757,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 26.3,
+    "score": 16.1,
     "label": "结构"
    }
   },
@@ -16786,7 +16786,7 @@
  },
  {
   "trade_date": "2022-04-22",
-  "composite_score": 35.3,
+  "composite_score": 32.4,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -16798,11 +16798,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 51.0,
+    "score": 50.9,
     "label": "情绪"
    },
    "structure": {
-    "score": 24.4,
+    "score": 13.9,
     "label": "结构"
    }
   },
@@ -16831,7 +16831,7 @@
  },
  {
   "trade_date": "2022-04-29",
-  "composite_score": 37.0,
+  "composite_score": 35.4,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -16847,7 +16847,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 17.7,
+    "score": 12.1,
     "label": "结构"
    }
   },
@@ -16876,7 +16876,7 @@
  },
  {
   "trade_date": "2022-05-06",
-  "composite_score": 29.4,
+  "composite_score": 27.9,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -16892,7 +16892,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 15.1,
+    "score": 9.6,
     "label": "结构"
    }
   },
@@ -16921,7 +16921,7 @@
  },
  {
   "trade_date": "2022-05-13",
-  "composite_score": 34.0,
+  "composite_score": 32.6,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -16933,11 +16933,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 44.8,
+    "score": 44.7,
     "label": "情绪"
    },
    "structure": {
-    "score": 21.1,
+    "score": 16.1,
     "label": "结构"
    }
   },
@@ -16966,7 +16966,7 @@
  },
  {
   "trade_date": "2022-05-20",
-  "composite_score": 37.9,
+  "composite_score": 36.6,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -16982,7 +16982,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 18.0,
+    "score": 13.1,
     "label": "结构"
    }
   },
@@ -17011,7 +17011,7 @@
  },
  {
   "trade_date": "2022-05-27",
-  "composite_score": 35.5,
+  "composite_score": 34.1,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -17027,7 +17027,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 21.4,
+    "score": 16.3,
     "label": "结构"
    }
   },
@@ -17056,7 +17056,7 @@
  },
  {
   "trade_date": "2022-06-02",
-  "composite_score": 39.2,
+  "composite_score": 37.8,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -17072,7 +17072,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 26.0,
+    "score": 20.8,
     "label": "结构"
    }
   },
@@ -17101,7 +17101,7 @@
  },
  {
   "trade_date": "2022-06-10",
-  "composite_score": 47.2,
+  "composite_score": 45.7,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -17117,7 +17117,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 37.1,
+    "score": 31.8,
     "label": "结构"
    }
   },
@@ -17146,7 +17146,7 @@
  },
  {
   "trade_date": "2022-06-17",
-  "composite_score": 47.9,
+  "composite_score": 46.4,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -17162,7 +17162,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 28.5,
+    "score": 23.2,
     "label": "结构"
    }
   },
@@ -17191,7 +17191,7 @@
  },
  {
   "trade_date": "2022-06-24",
-  "composite_score": 50.3,
+  "composite_score": 48.7,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -17207,7 +17207,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 36.7,
+    "score": 31.2,
     "label": "结构"
    }
   },
@@ -17236,7 +17236,7 @@
  },
  {
   "trade_date": "2022-07-01",
-  "composite_score": 49.1,
+  "composite_score": 47.5,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -17252,7 +17252,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 34.1,
+    "score": 28.1,
     "label": "结构"
    }
   },
@@ -17281,7 +17281,7 @@
  },
  {
   "trade_date": "2022-07-08",
-  "composite_score": 48.5,
+  "composite_score": 46.4,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -17297,7 +17297,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 36.2,
+    "score": 28.5,
     "label": "结构"
    }
   },
@@ -17326,7 +17326,7 @@
  },
  {
   "trade_date": "2022-07-15",
-  "composite_score": 51.1,
+  "composite_score": 45.6,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -17338,11 +17338,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 85.9,
+    "score": 69.5,
     "label": "情绪"
    },
    "structure": {
-    "score": 40.3,
+    "score": 30.0,
     "label": "结构"
    }
   },
@@ -17371,7 +17371,7 @@
  },
  {
   "trade_date": "2022-07-22",
-  "composite_score": 49.1,
+  "composite_score": 46.1,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -17387,7 +17387,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 50.5,
+    "score": 39.6,
     "label": "结构"
    }
   },
@@ -17416,8 +17416,8 @@
  },
  {
   "trade_date": "2022-07-29",
-  "composite_score": 56.7,
-  "level": "orange",
+  "composite_score": 53.3,
+  "level": "yellow",
   "dimensions": {
    "valuation": {
     "score": 41.9,
@@ -17432,7 +17432,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 67.3,
+    "score": 55.1,
     "label": "结构"
    }
   },
@@ -17461,8 +17461,8 @@
  },
  {
   "trade_date": "2022-08-05",
-  "composite_score": 55.1,
-  "level": "orange",
+  "composite_score": 51.6,
+  "level": "yellow",
   "dimensions": {
    "valuation": {
     "score": 42.8,
@@ -17473,11 +17473,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 71.3,
+    "score": 71.2,
     "label": "情绪"
    },
    "structure": {
-    "score": 54.0,
+    "score": 41.2,
     "label": "结构"
    }
   },
@@ -17506,8 +17506,8 @@
  },
  {
   "trade_date": "2022-08-12",
-  "composite_score": 56.6,
-  "level": "orange",
+  "composite_score": 53.7,
+  "level": "yellow",
   "dimensions": {
    "valuation": {
     "score": 47.1,
@@ -17522,7 +17522,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 54.9,
+    "score": 44.4,
     "label": "结构"
    }
   },
@@ -17551,7 +17551,7 @@
  },
  {
   "trade_date": "2022-08-19",
-  "composite_score": 58.2,
+  "composite_score": 56.1,
   "level": "orange",
   "dimensions": {
    "valuation": {
@@ -17563,11 +17563,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 76.0,
+    "score": 75.9,
     "label": "情绪"
    },
    "structure": {
-    "score": 62.3,
+    "score": 54.4,
     "label": "结构"
    }
   },
@@ -17596,7 +17596,7 @@
  },
  {
   "trade_date": "2022-08-26",
-  "composite_score": 50.8,
+  "composite_score": 49.1,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -17612,7 +17612,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 45.7,
+    "score": 39.5,
     "label": "结构"
    }
   },
@@ -17641,7 +17641,7 @@
  },
  {
   "trade_date": "2022-09-02",
-  "composite_score": 45.3,
+  "composite_score": 43.7,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -17653,11 +17653,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 38.2,
+    "score": 38.1,
     "label": "情绪"
    },
    "structure": {
-    "score": 43.3,
+    "score": 37.4,
     "label": "结构"
    }
   },
@@ -17686,7 +17686,7 @@
  },
  {
   "trade_date": "2022-09-09",
-  "composite_score": 50.6,
+  "composite_score": 48.4,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -17702,7 +17702,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 50.9,
+    "score": 42.8,
     "label": "结构"
    }
   },
@@ -17731,8 +17731,8 @@
  },
  {
   "trade_date": "2022-09-16",
-  "composite_score": 42.6,
-  "level": "yellow",
+  "composite_score": 39.3,
+  "level": "green",
   "dimensions": {
    "valuation": {
     "score": 31.4,
@@ -17743,11 +17743,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 53.6,
+    "score": 53.5,
     "label": "情绪"
    },
    "structure": {
-    "score": 36.2,
+    "score": 24.0,
     "label": "结构"
    }
   },
@@ -17776,7 +17776,7 @@
  },
  {
   "trade_date": "2022-09-23",
-  "composite_score": 38.1,
+  "composite_score": 35.3,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -17792,7 +17792,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 30.3,
+    "score": 19.9,
     "label": "结构"
    }
   },
@@ -17821,7 +17821,7 @@
  },
  {
   "trade_date": "2022-09-30",
-  "composite_score": 33.9,
+  "composite_score": 30.8,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -17837,7 +17837,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 24.5,
+    "score": 13.1,
     "label": "结构"
    }
   },
@@ -17866,7 +17866,7 @@
  },
  {
   "trade_date": "2022-10-14",
-  "composite_score": 43.3,
+  "composite_score": 41.2,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -17878,11 +17878,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 57.6,
+    "score": 57.5,
     "label": "情绪"
    },
    "structure": {
-    "score": 37.7,
+    "score": 30.3,
     "label": "结构"
    }
   },
@@ -17911,8 +17911,8 @@
  },
  {
   "trade_date": "2022-10-21",
-  "composite_score": 40.6,
-  "level": "yellow",
+  "composite_score": 38.8,
+  "level": "green",
   "dimensions": {
    "valuation": {
     "score": 29.7,
@@ -17927,7 +17927,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 41.3,
+    "score": 34.7,
     "label": "结构"
    }
   },
@@ -17956,7 +17956,7 @@
  },
  {
   "trade_date": "2022-10-28",
-  "composite_score": 38.4,
+  "composite_score": 33.6,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -17968,11 +17968,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 73.7,
+    "score": 57.4,
     "label": "情绪"
    },
    "structure": {
-    "score": 20.5,
+    "score": 13.2,
     "label": "结构"
    }
   },
@@ -18001,8 +18001,8 @@
  },
  {
   "trade_date": "2022-11-04",
-  "composite_score": 57.2,
-  "level": "orange",
+  "composite_score": 54.5,
+  "level": "yellow",
   "dimensions": {
    "valuation": {
     "score": 40.9,
@@ -18017,7 +18017,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 56.5,
+    "score": 46.6,
     "label": "结构"
    }
   },
@@ -18046,7 +18046,7 @@
  },
  {
   "trade_date": "2022-11-11",
-  "composite_score": 53.0,
+  "composite_score": 49.9,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -18062,7 +18062,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 39.9,
+    "score": 28.4,
     "label": "结构"
    }
   },
@@ -18091,8 +18091,8 @@
  },
  {
   "trade_date": "2022-11-18",
-  "composite_score": 55.4,
-  "level": "orange",
+  "composite_score": 52.4,
+  "level": "yellow",
   "dimensions": {
    "valuation": {
     "score": 42.1,
@@ -18103,11 +18103,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 75.8,
+    "score": 75.6,
     "label": "情绪"
    },
    "structure": {
-    "score": 59.5,
+    "score": 48.7,
     "label": "结构"
    }
   },
@@ -18136,7 +18136,7 @@
  },
  {
   "trade_date": "2022-11-25",
-  "composite_score": 43.3,
+  "composite_score": 40.5,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -18152,7 +18152,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 35.9,
+    "score": 25.9,
     "label": "结构"
    }
   },
@@ -18181,8 +18181,8 @@
  },
  {
   "trade_date": "2022-12-02",
-  "composite_score": 56.0,
-  "level": "orange",
+  "composite_score": 53.2,
+  "level": "yellow",
   "dimensions": {
    "valuation": {
     "score": 45.6,
@@ -18193,11 +18193,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 59.6,
+    "score": 59.4,
     "label": "情绪"
    },
    "structure": {
-    "score": 61.3,
+    "score": 51.1,
     "label": "结构"
    }
   },
@@ -18226,7 +18226,7 @@
  },
  {
   "trade_date": "2022-12-09",
-  "composite_score": 58.9,
+  "composite_score": 56.1,
   "level": "orange",
   "dimensions": {
    "valuation": {
@@ -18238,11 +18238,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 74.1,
+    "score": 74.0,
     "label": "情绪"
    },
    "structure": {
-    "score": 58.9,
+    "score": 48.8,
     "label": "结构"
    }
   },
@@ -18271,7 +18271,7 @@
  },
  {
   "trade_date": "2022-12-16",
-  "composite_score": 46.0,
+  "composite_score": 43.2,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -18283,11 +18283,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 32.8,
+    "score": 32.7,
     "label": "情绪"
    },
    "structure": {
-    "score": 44.9,
+    "score": 34.4,
     "label": "结构"
    }
   },
@@ -18316,7 +18316,7 @@
  },
  {
   "trade_date": "2022-12-23",
-  "composite_score": 37.2,
+  "composite_score": 34.4,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -18332,7 +18332,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 30.2,
+    "score": 20.0,
     "label": "结构"
    }
   },
@@ -18361,7 +18361,7 @@
  },
  {
   "trade_date": "2022-12-30",
-  "composite_score": 47.5,
+  "composite_score": 44.7,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -18373,11 +18373,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 30.9,
+    "score": 30.8,
     "label": "情绪"
    },
    "structure": {
-    "score": 48.5,
+    "score": 38.2,
     "label": "结构"
    }
   },
@@ -18406,7 +18406,7 @@
  },
  {
   "trade_date": "2023-01-06",
-  "composite_score": 51.6,
+  "composite_score": 48.8,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -18418,11 +18418,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 54.3,
+    "score": 54.2,
     "label": "情绪"
    },
    "structure": {
-    "score": 53.0,
+    "score": 42.5,
     "label": "结构"
    }
   },
@@ -18451,7 +18451,7 @@
  },
  {
   "trade_date": "2023-01-13",
-  "composite_score": 53.5,
+  "composite_score": 50.4,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -18467,7 +18467,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 60.6,
+    "score": 49.2,
     "label": "结构"
    }
   },
@@ -18496,7 +18496,7 @@
  },
  {
   "trade_date": "2023-01-20",
-  "composite_score": 57.8,
+  "composite_score": 55.2,
   "level": "orange",
   "dimensions": {
    "valuation": {
@@ -18512,7 +18512,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 74.1,
+    "score": 64.6,
     "label": "结构"
    }
   },
@@ -18541,8 +18541,8 @@
  },
  {
   "trade_date": "2023-02-03",
-  "composite_score": 66.7,
-  "level": "red",
+  "composite_score": 63.2,
+  "level": "orange",
   "dimensions": {
    "valuation": {
     "score": 56.8,
@@ -18557,7 +18557,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 92.0,
+    "score": 79.5,
     "label": "结构"
    }
   },
@@ -18586,8 +18586,8 @@
  },
  {
   "trade_date": "2023-02-10",
-  "composite_score": 66.1,
-  "level": "red",
+  "composite_score": 63.7,
+  "level": "orange",
   "dimensions": {
    "valuation": {
     "score": 57.2,
@@ -18598,11 +18598,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 51.7,
+    "score": 51.6,
     "label": "情绪"
    },
    "structure": {
-    "score": 92.0,
+    "score": 83.4,
     "label": "结构"
    }
   },
@@ -18631,7 +18631,7 @@
  },
  {
   "trade_date": "2023-02-17",
-  "composite_score": 59.4,
+  "composite_score": 58.2,
   "level": "orange",
   "dimensions": {
    "valuation": {
@@ -18643,11 +18643,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 55.1,
+    "score": 55.0,
     "label": "情绪"
    },
    "structure": {
-    "score": 68.5,
+    "score": 63.9,
     "label": "结构"
    }
   },
@@ -18676,7 +18676,7 @@
  },
  {
   "trade_date": "2023-02-24",
-  "composite_score": 62.4,
+  "composite_score": 61.2,
   "level": "orange",
   "dimensions": {
    "valuation": {
@@ -18692,7 +18692,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 88.8,
+    "score": 84.4,
     "label": "结构"
    }
   },
@@ -18721,7 +18721,7 @@
  },
  {
   "trade_date": "2023-03-03",
-  "composite_score": 67.4,
+  "composite_score": 66.3,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -18737,7 +18737,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 92.9,
+    "score": 88.8,
     "label": "结构"
    }
   },
@@ -18766,7 +18766,7 @@
  },
  {
   "trade_date": "2023-03-10",
-  "composite_score": 58.7,
+  "composite_score": 57.6,
   "level": "orange",
   "dimensions": {
    "valuation": {
@@ -18778,11 +18778,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 41.1,
+    "score": 41.0,
     "label": "情绪"
    },
    "structure": {
-    "score": 74.9,
+    "score": 71.0,
     "label": "结构"
    }
   },
@@ -18811,7 +18811,7 @@
  },
  {
   "trade_date": "2023-03-17",
-  "composite_score": 67.0,
+  "composite_score": 65.8,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -18823,11 +18823,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 67.1,
+    "score": 67.0,
     "label": "情绪"
    },
    "structure": {
-    "score": 91.1,
+    "score": 86.9,
     "label": "结构"
    }
   },
@@ -18856,7 +18856,7 @@
  },
  {
   "trade_date": "2023-03-24",
-  "composite_score": 71.8,
+  "composite_score": 70.5,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -18872,7 +18872,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 94.9,
+    "score": 90.1,
     "label": "结构"
    }
   },
@@ -18901,7 +18901,7 @@
  },
  {
   "trade_date": "2023-03-31",
-  "composite_score": 68.5,
+  "composite_score": 67.1,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -18913,11 +18913,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 61.6,
+    "score": 61.5,
     "label": "情绪"
    },
    "structure": {
-    "score": 86.8,
+    "score": 81.6,
     "label": "结构"
    }
   },
@@ -18946,7 +18946,7 @@
  },
  {
   "trade_date": "2023-04-07",
-  "composite_score": 73.6,
+  "composite_score": 71.5,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -18962,7 +18962,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 93.7,
+    "score": 85.9,
     "label": "结构"
    }
   },
@@ -18991,7 +18991,7 @@
  },
  {
   "trade_date": "2023-04-14",
-  "composite_score": 74.3,
+  "composite_score": 71.7,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -19003,11 +19003,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 76.2,
+    "score": 76.1,
     "label": "情绪"
    },
    "structure": {
-    "score": 91.0,
+    "score": 81.7,
     "label": "结构"
    }
   },
@@ -19036,8 +19036,8 @@
  },
  {
   "trade_date": "2023-04-21",
-  "composite_score": 68.1,
-  "level": "red",
+  "composite_score": 62.6,
+  "level": "orange",
   "dimensions": {
    "valuation": {
     "score": 62.8,
@@ -19048,11 +19048,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 88.5,
+    "score": 72.1,
     "label": "情绪"
    },
    "structure": {
-    "score": 71.2,
+    "score": 61.0,
     "label": "结构"
    }
   },
@@ -19081,7 +19081,7 @@
  },
  {
   "trade_date": "2023-04-28",
-  "composite_score": 71.1,
+  "composite_score": 67.4,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -19097,7 +19097,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 85.9,
+    "score": 72.4,
     "label": "结构"
    }
   },
@@ -19126,8 +19126,8 @@
  },
  {
   "trade_date": "2023-05-05",
-  "composite_score": 68.2,
-  "level": "red",
+  "composite_score": 64.6,
+  "level": "orange",
   "dimensions": {
    "valuation": {
     "score": 58.6,
@@ -19142,7 +19142,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 87.2,
+    "score": 73.9,
     "label": "结构"
    }
   },
@@ -19171,7 +19171,7 @@
  },
  {
   "trade_date": "2023-05-12",
-  "composite_score": 54.3,
+  "composite_score": 51.3,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -19183,11 +19183,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 43.4,
+    "score": 43.3,
     "label": "情绪"
    },
    "structure": {
-    "score": 58.8,
+    "score": 47.5,
     "label": "结构"
    }
   },
@@ -19216,8 +19216,8 @@
  },
  {
   "trade_date": "2023-05-19",
-  "composite_score": 56.4,
-  "level": "orange",
+  "composite_score": 53.5,
+  "level": "yellow",
   "dimensions": {
    "valuation": {
     "score": 57.1,
@@ -19228,11 +19228,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 38.6,
+    "score": 38.5,
     "label": "情绪"
    },
    "structure": {
-    "score": 65.8,
+    "score": 54.9,
     "label": "结构"
    }
   },
@@ -19261,7 +19261,7 @@
  },
  {
   "trade_date": "2023-05-26",
-  "composite_score": 54.8,
+  "composite_score": 51.9,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -19277,7 +19277,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 68.3,
+    "score": 57.4,
     "label": "结构"
    }
   },
@@ -19306,8 +19306,8 @@
  },
  {
   "trade_date": "2023-06-02",
-  "composite_score": 55.9,
-  "level": "orange",
+  "composite_score": 52.8,
+  "level": "yellow",
   "dimensions": {
    "valuation": {
     "score": 53.0,
@@ -19318,11 +19318,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 48.6,
+    "score": 48.5,
     "label": "情绪"
    },
    "structure": {
-    "score": 56.8,
+    "score": 45.7,
     "label": "结构"
    }
   },
@@ -19351,8 +19351,8 @@
  },
  {
   "trade_date": "2023-06-09",
-  "composite_score": 56.7,
-  "level": "orange",
+  "composite_score": 53.6,
+  "level": "yellow",
   "dimensions": {
    "valuation": {
     "score": 50.6,
@@ -19363,11 +19363,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 60.2,
+    "score": 60.1,
     "label": "情绪"
    },
    "structure": {
-    "score": 53.7,
+    "score": 42.4,
     "label": "结构"
    }
   },
@@ -19396,7 +19396,7 @@
  },
  {
   "trade_date": "2023-06-16",
-  "composite_score": 63.0,
+  "composite_score": 59.9,
   "level": "orange",
   "dimensions": {
    "valuation": {
@@ -19408,11 +19408,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 65.8,
+    "score": 65.7,
     "label": "情绪"
    },
    "structure": {
-    "score": 69.9,
+    "score": 58.6,
     "label": "结构"
    }
   },
@@ -19441,8 +19441,8 @@
  },
  {
   "trade_date": "2023-06-21",
-  "composite_score": 55.9,
-  "level": "orange",
+  "composite_score": 52.8,
+  "level": "yellow",
   "dimensions": {
    "valuation": {
     "score": 51.3,
@@ -19457,7 +19457,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 57.0,
+    "score": 45.7,
     "label": "结构"
    }
   },
@@ -19486,7 +19486,7 @@
  },
  {
   "trade_date": "2023-06-30",
-  "composite_score": 60.5,
+  "composite_score": 57.1,
   "level": "orange",
   "dimensions": {
    "valuation": {
@@ -19502,7 +19502,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 75.1,
+    "score": 62.7,
     "label": "结构"
    }
   },
@@ -19531,7 +19531,7 @@
  },
  {
   "trade_date": "2023-07-07",
-  "composite_score": 53.6,
+  "composite_score": 49.9,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -19547,7 +19547,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 58.6,
+    "score": 45.0,
     "label": "结构"
    }
   },
@@ -19576,8 +19576,8 @@
  },
  {
   "trade_date": "2023-07-14",
-  "composite_score": 57.8,
-  "level": "orange",
+  "composite_score": 54.0,
+  "level": "yellow",
   "dimensions": {
    "valuation": {
     "score": 56.1,
@@ -19592,7 +19592,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 60.2,
+    "score": 46.0,
     "label": "结构"
    }
   },
@@ -19621,7 +19621,7 @@
  },
  {
   "trade_date": "2023-07-21",
-  "composite_score": 47.1,
+  "composite_score": 43.2,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -19637,7 +19637,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 35.2,
+    "score": 20.8,
     "label": "结构"
    }
   },
@@ -19666,7 +19666,7 @@
  },
  {
   "trade_date": "2023-07-28",
-  "composite_score": 62.1,
+  "composite_score": 58.3,
   "level": "orange",
   "dimensions": {
    "valuation": {
@@ -19682,7 +19682,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 63.5,
+    "score": 49.8,
     "label": "结构"
    }
   },
@@ -19711,7 +19711,7 @@
  },
  {
   "trade_date": "2023-08-04",
-  "composite_score": 64.2,
+  "composite_score": 60.7,
   "level": "orange",
   "dimensions": {
    "valuation": {
@@ -19727,7 +19727,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 60.4,
+    "score": 47.4,
     "label": "结构"
    }
   },
@@ -19756,7 +19756,7 @@
  },
  {
   "trade_date": "2023-08-11",
-  "composite_score": 44.3,
+  "composite_score": 40.5,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -19772,7 +19772,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 28.3,
+    "score": 14.3,
     "label": "结构"
    }
   },
@@ -19801,8 +19801,8 @@
  },
  {
   "trade_date": "2023-08-18",
-  "composite_score": 41.9,
-  "level": "yellow",
+  "composite_score": 38.1,
+  "level": "green",
   "dimensions": {
    "valuation": {
     "score": 44.9,
@@ -19817,7 +19817,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 28.8,
+    "score": 14.8,
     "label": "结构"
    }
   },
@@ -19846,7 +19846,7 @@
  },
  {
   "trade_date": "2023-08-25",
-  "composite_score": 38.5,
+  "composite_score": 35.0,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -19858,11 +19858,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 40.6,
+    "score": 40.5,
     "label": "情绪"
    },
    "structure": {
-    "score": 26.2,
+    "score": 13.3,
     "label": "结构"
    }
   },
@@ -19891,8 +19891,8 @@
  },
  {
   "trade_date": "2023-09-01",
-  "composite_score": 42.5,
-  "level": "yellow",
+  "composite_score": 39.2,
+  "level": "green",
   "dimensions": {
    "valuation": {
     "score": 44.1,
@@ -19907,7 +19907,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 35.6,
+    "score": 23.3,
     "label": "结构"
    }
   },
@@ -19936,7 +19936,7 @@
  },
  {
   "trade_date": "2023-09-08",
-  "composite_score": 39.3,
+  "composite_score": 35.7,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -19952,7 +19952,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 34.7,
+    "score": 21.4,
     "label": "结构"
    }
   },
@@ -19981,7 +19981,7 @@
  },
  {
   "trade_date": "2023-09-15",
-  "composite_score": 38.2,
+  "composite_score": 34.5,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -19997,7 +19997,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 32.8,
+    "score": 19.3,
     "label": "结构"
    }
   },
@@ -20026,7 +20026,7 @@
  },
  {
   "trade_date": "2023-09-22",
-  "composite_score": 39.7,
+  "composite_score": 36.0,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -20038,11 +20038,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 38.9,
+    "score": 38.8,
     "label": "情绪"
    },
    "structure": {
-    "score": 31.2,
+    "score": 17.7,
     "label": "结构"
    }
   },
@@ -20071,8 +20071,8 @@
  },
  {
   "trade_date": "2023-09-28",
-  "composite_score": 41.6,
-  "level": "yellow",
+  "composite_score": 37.9,
+  "level": "green",
   "dimensions": {
    "valuation": {
     "score": 40.4,
@@ -20087,7 +20087,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 41.1,
+    "score": 27.4,
     "label": "结构"
    }
   },
@@ -20116,8 +20116,8 @@
  },
  {
   "trade_date": "2023-10-13",
-  "composite_score": 42.5,
-  "level": "yellow",
+  "composite_score": 38.6,
+  "level": "green",
   "dimensions": {
    "valuation": {
     "score": 39.2,
@@ -20132,7 +20132,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 45.6,
+    "score": 31.1,
     "label": "结构"
    }
   },
@@ -20161,7 +20161,7 @@
  },
  {
   "trade_date": "2023-10-20",
-  "composite_score": 30.5,
+  "composite_score": 26.6,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -20177,7 +20177,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 23.1,
+    "score": 8.8,
     "label": "结构"
    }
   },
@@ -20206,7 +20206,7 @@
  },
  {
   "trade_date": "2023-10-27",
-  "composite_score": 43.9,
+  "composite_score": 40.3,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -20218,11 +20218,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 68.7,
+    "score": 68.6,
     "label": "情绪"
    },
    "structure": {
-    "score": 42.8,
+    "score": 29.6,
     "label": "结构"
    }
   },
@@ -20251,7 +20251,7 @@
  },
  {
   "trade_date": "2023-11-03",
-  "composite_score": 38.0,
+  "composite_score": 34.4,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -20267,7 +20267,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 39.4,
+    "score": 26.1,
     "label": "结构"
    }
   },
@@ -20296,8 +20296,8 @@
  },
  {
   "trade_date": "2023-11-10",
-  "composite_score": 43.8,
-  "level": "yellow",
+  "composite_score": 39.9,
+  "level": "green",
   "dimensions": {
    "valuation": {
     "score": 38.1,
@@ -20312,7 +20312,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 53.8,
+    "score": 39.6,
     "label": "结构"
    }
   },
@@ -20341,7 +20341,7 @@
  },
  {
   "trade_date": "2023-11-17",
-  "composite_score": 50.5,
+  "composite_score": 47.5,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -20357,7 +20357,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 76.1,
+    "score": 65.0,
     "label": "结构"
    }
   },
@@ -20386,7 +20386,7 @@
  },
  {
   "trade_date": "2023-11-24",
-  "composite_score": 49.0,
+  "composite_score": 45.9,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -20402,7 +20402,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 74.7,
+    "score": 63.1,
     "label": "结构"
    }
   },
@@ -20431,7 +20431,7 @@
  },
  {
   "trade_date": "2023-12-01",
-  "composite_score": 47.7,
+  "composite_score": 44.5,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -20447,7 +20447,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 74.3,
+    "score": 62.7,
     "label": "结构"
    }
   },
@@ -20476,7 +20476,7 @@
  },
  {
   "trade_date": "2023-12-08",
-  "composite_score": 39.7,
+  "composite_score": 36.6,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -20492,7 +20492,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 40.7,
+    "score": 29.7,
     "label": "结构"
    }
   },
@@ -20521,7 +20521,7 @@
  },
  {
   "trade_date": "2023-12-15",
-  "composite_score": 37.3,
+  "composite_score": 34.1,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -20537,7 +20537,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 55.1,
+    "score": 43.6,
     "label": "结构"
    }
   },
@@ -20566,7 +20566,7 @@
  },
  {
   "trade_date": "2023-12-22",
-  "composite_score": 32.8,
+  "composite_score": 29.3,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -20578,11 +20578,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 43.2,
+    "score": 43.1,
     "label": "情绪"
    },
    "structure": {
-    "score": 36.6,
+    "score": 24.0,
     "label": "结构"
    }
   },
@@ -20611,8 +20611,8 @@
  },
  {
   "trade_date": "2023-12-29",
-  "composite_score": 42.9,
-  "level": "yellow",
+  "composite_score": 39.9,
+  "level": "green",
   "dimensions": {
    "valuation": {
     "score": 24.2,
@@ -20627,7 +20627,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 64.6,
+    "score": 53.2,
     "label": "结构"
    }
   },
@@ -20656,7 +20656,7 @@
  },
  {
   "trade_date": "2024-01-05",
-  "composite_score": 29.6,
+  "composite_score": 26.3,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -20672,7 +20672,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 52.1,
+    "score": 40.2,
     "label": "结构"
    }
   },
@@ -20701,7 +20701,7 @@
  },
  {
   "trade_date": "2024-01-12",
-  "composite_score": 23.9,
+  "composite_score": 20.3,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -20717,7 +20717,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 40.2,
+    "score": 27.1,
     "label": "结构"
    }
   },
@@ -20746,7 +20746,7 @@
  },
  {
   "trade_date": "2024-01-19",
-  "composite_score": 16.1,
+  "composite_score": 11.9,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -20758,11 +20758,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 14.9,
+    "score": 14.7,
     "label": "情绪"
    },
    "structure": {
-    "score": 23.4,
+    "score": 8.1,
     "label": "结构"
    }
   },
@@ -20791,7 +20791,7 @@
  },
  {
   "trade_date": "2024-01-26",
-  "composite_score": 20.5,
+  "composite_score": 17.9,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -20807,7 +20807,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 23.8,
+    "score": 14.1,
     "label": "结构"
    }
   },
@@ -20836,7 +20836,7 @@
  },
  {
   "trade_date": "2024-02-02",
-  "composite_score": 18.4,
+  "composite_score": 16.8,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -20852,7 +20852,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 7.9,
+    "score": 2.3,
     "label": "结构"
    }
   },
@@ -20881,7 +20881,7 @@
  },
  {
   "trade_date": "2024-02-08",
-  "composite_score": 25.2,
+  "composite_score": 24.2,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -20897,7 +20897,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 10.8,
+    "score": 7.1,
     "label": "结构"
    }
   },
@@ -20926,7 +20926,7 @@
  },
  {
   "trade_date": "2024-02-23",
-  "composite_score": 25.6,
+  "composite_score": 24.6,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -20942,7 +20942,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 21.2,
+    "score": 17.8,
     "label": "结构"
    }
   },
@@ -20971,7 +20971,7 @@
  },
  {
   "trade_date": "2024-03-01",
-  "composite_score": 30.6,
+  "composite_score": 29.4,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -20987,7 +20987,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 25.2,
+    "score": 20.8,
     "label": "结构"
    }
   },
@@ -21016,7 +21016,7 @@
  },
  {
   "trade_date": "2024-03-08",
-  "composite_score": 30.2,
+  "composite_score": 28.5,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -21028,11 +21028,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 43.0,
+    "score": 42.9,
     "label": "情绪"
    },
    "structure": {
-    "score": 42.6,
+    "score": 36.3,
     "label": "结构"
    }
   },
@@ -21061,7 +21061,7 @@
  },
  {
   "trade_date": "2024-03-15",
-  "composite_score": 32.6,
+  "composite_score": 30.2,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -21077,7 +21077,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 40.7,
+    "score": 32.0,
     "label": "结构"
    }
   },
@@ -21106,7 +21106,7 @@
  },
  {
   "trade_date": "2024-03-22",
-  "composite_score": 35.1,
+  "composite_score": 32.2,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -21122,7 +21122,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 35.9,
+    "score": 25.2,
     "label": "结构"
    }
   },
@@ -21151,7 +21151,7 @@
  },
  {
   "trade_date": "2024-03-29",
-  "composite_score": 34.4,
+  "composite_score": 31.1,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -21167,7 +21167,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 50.1,
+    "score": 38.0,
     "label": "结构"
    }
   },
@@ -21196,8 +21196,8 @@
  },
  {
   "trade_date": "2024-04-03",
-  "composite_score": 41.8,
-  "level": "yellow",
+  "composite_score": 38.3,
+  "level": "green",
   "dimensions": {
    "valuation": {
     "score": 20.2,
@@ -21212,7 +21212,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 60.3,
+    "score": 47.3,
     "label": "结构"
    }
   },
@@ -21241,7 +21241,7 @@
  },
  {
   "trade_date": "2024-04-12",
-  "composite_score": 37.1,
+  "composite_score": 33.4,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -21253,11 +21253,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 34.0,
+    "score": 33.9,
     "label": "情绪"
    },
    "structure": {
-    "score": 60.7,
+    "score": 47.2,
     "label": "结构"
    }
   },
@@ -21286,8 +21286,8 @@
  },
  {
   "trade_date": "2024-04-19",
-  "composite_score": 40.2,
-  "level": "yellow",
+  "composite_score": 36.4,
+  "level": "green",
   "dimensions": {
    "valuation": {
     "score": 16.5,
@@ -21298,11 +21298,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 43.9,
+    "score": 43.8,
     "label": "情绪"
    },
    "structure": {
-    "score": 66.8,
+    "score": 53.0,
     "label": "结构"
    }
   },
@@ -21331,8 +21331,8 @@
  },
  {
   "trade_date": "2024-04-26",
-  "composite_score": 42.3,
-  "level": "yellow",
+  "composite_score": 38.1,
+  "level": "green",
   "dimensions": {
    "valuation": {
     "score": 21.3,
@@ -21347,7 +21347,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 46.8,
+    "score": 31.5,
     "label": "结构"
    }
   },
@@ -21376,7 +21376,7 @@
  },
  {
   "trade_date": "2024-04-30",
-  "composite_score": 46.2,
+  "composite_score": 41.9,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -21388,11 +21388,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 71.4,
+    "score": 71.3,
     "label": "情绪"
    },
    "structure": {
-    "score": 57.2,
+    "score": 41.3,
     "label": "结构"
    }
   },
@@ -21421,7 +21421,7 @@
  },
  {
   "trade_date": "2024-05-10",
-  "composite_score": 50.5,
+  "composite_score": 46.0,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -21433,11 +21433,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 45.5,
+    "score": 45.4,
     "label": "情绪"
    },
    "structure": {
-    "score": 77.3,
+    "score": 60.6,
     "label": "结构"
    }
   },
@@ -21466,7 +21466,7 @@
  },
  {
   "trade_date": "2024-05-17",
-  "composite_score": 46.4,
+  "composite_score": 42.2,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -21478,11 +21478,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 36.6,
+    "score": 36.5,
     "label": "情绪"
    },
    "structure": {
-    "score": 67.1,
+    "score": 51.7,
     "label": "结构"
    }
   },
@@ -21511,7 +21511,7 @@
  },
  {
   "trade_date": "2024-05-24",
-  "composite_score": 31.1,
+  "composite_score": 27.5,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -21527,7 +21527,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 36.7,
+    "score": 23.5,
     "label": "结构"
    }
   },
@@ -21556,7 +21556,7 @@
  },
  {
   "trade_date": "2024-05-31",
-  "composite_score": 29.6,
+  "composite_score": 26.2,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -21572,7 +21572,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 34.1,
+    "score": 21.7,
     "label": "结构"
    }
   },
@@ -21601,7 +21601,7 @@
  },
  {
   "trade_date": "2024-06-07",
-  "composite_score": 29.4,
+  "composite_score": 26.1,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -21617,7 +21617,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 34.9,
+    "score": 22.6,
     "label": "结构"
    }
   },
@@ -21646,7 +21646,7 @@
  },
  {
   "trade_date": "2024-06-14",
-  "composite_score": 30.6,
+  "composite_score": 26.9,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -21658,11 +21658,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 38.2,
+    "score": 38.1,
     "label": "情绪"
    },
    "structure": {
-    "score": 28.8,
+    "score": 15.3,
     "label": "结构"
    }
   },
@@ -21691,7 +21691,7 @@
  },
  {
   "trade_date": "2024-06-21",
-  "composite_score": 24.2,
+  "composite_score": 19.9,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -21707,7 +21707,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 23.8,
+    "score": 8.3,
     "label": "结构"
    }
   },
@@ -21736,7 +21736,7 @@
  },
  {
   "trade_date": "2024-06-28",
-  "composite_score": 22.0,
+  "composite_score": 18.8,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -21752,7 +21752,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 20.8,
+    "score": 9.1,
     "label": "结构"
    }
   },
@@ -21781,7 +21781,7 @@
  },
  {
   "trade_date": "2024-07-05",
-  "composite_score": 18.8,
+  "composite_score": 16.1,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -21797,7 +21797,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 15.7,
+    "score": 5.7,
     "label": "结构"
    }
   },
@@ -21826,7 +21826,7 @@
  },
  {
   "trade_date": "2024-07-12",
-  "composite_score": 22.0,
+  "composite_score": 19.4,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -21842,7 +21842,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 16.2,
+    "score": 6.9,
     "label": "结构"
    }
   },
@@ -21871,7 +21871,7 @@
  },
  {
   "trade_date": "2024-07-19",
-  "composite_score": 21.0,
+  "composite_score": 18.7,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -21887,7 +21887,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 12.3,
+    "score": 3.9,
     "label": "结构"
    }
   },
@@ -21916,7 +21916,7 @@
  },
  {
   "trade_date": "2024-07-26",
-  "composite_score": 17.7,
+  "composite_score": 15.5,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -21928,11 +21928,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 10.9,
+    "score": 10.8,
     "label": "情绪"
    },
    "structure": {
-    "score": 10.3,
+    "score": 2.3,
     "label": "结构"
    }
   },
@@ -21961,7 +21961,7 @@
  },
  {
   "trade_date": "2024-08-02",
-  "composite_score": 20.0,
+  "composite_score": 17.8,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -21977,7 +21977,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 12.4,
+    "score": 4.2,
     "label": "结构"
    }
   },
@@ -22006,7 +22006,7 @@
  },
  {
   "trade_date": "2024-08-09",
-  "composite_score": 16.1,
+  "composite_score": 14.3,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -22018,11 +22018,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 10.7,
+    "score": 10.6,
     "label": "情绪"
    },
    "structure": {
-    "score": 7.6,
+    "score": 1.1,
     "label": "结构"
    }
   },
@@ -22051,7 +22051,7 @@
  },
  {
   "trade_date": "2024-08-16",
-  "composite_score": 15.7,
+  "composite_score": 14.1,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -22063,11 +22063,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 10.1,
+    "score": 10.0,
     "label": "情绪"
    },
    "structure": {
-    "score": 7.8,
+    "score": 2.1,
     "label": "结构"
    }
   },
@@ -22096,7 +22096,7 @@
  },
  {
   "trade_date": "2024-08-23",
-  "composite_score": 16.2,
+  "composite_score": 14.8,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -22108,11 +22108,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 9.8,
+    "score": 9.7,
     "label": "情绪"
    },
    "structure": {
-    "score": 7.1,
+    "score": 1.9,
     "label": "结构"
    }
   },
@@ -22141,7 +22141,7 @@
  },
  {
   "trade_date": "2024-08-30",
-  "composite_score": 23.0,
+  "composite_score": 21.8,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -22157,7 +22157,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 5.5,
+    "score": 0.9,
     "label": "结构"
    }
   },
@@ -22186,7 +22186,7 @@
  },
  {
   "trade_date": "2024-09-06",
-  "composite_score": 15.2,
+  "composite_score": 13.9,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -22202,7 +22202,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 5.6,
+    "score": 1.1,
     "label": "结构"
    }
   },
@@ -22231,7 +22231,7 @@
  },
  {
   "trade_date": "2024-09-13",
-  "composite_score": 16.5,
+  "composite_score": 15.3,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -22243,11 +22243,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 14.1,
+    "score": 14.0,
     "label": "情绪"
    },
    "structure": {
-    "score": 5.6,
+    "score": 1.1,
     "label": "结构"
    }
   },
@@ -22276,7 +22276,7 @@
  },
  {
   "trade_date": "2024-09-20",
-  "composite_score": 15.5,
+  "composite_score": 14.3,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -22292,7 +22292,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 6.2,
+    "score": 1.8,
     "label": "结构"
    }
   },
@@ -22321,7 +22321,7 @@
  },
  {
   "trade_date": "2024-09-27",
-  "composite_score": 50.6,
+  "composite_score": 48.9,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -22333,11 +22333,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 97.4,
+    "score": 97.3,
     "label": "情绪"
    },
    "structure": {
-    "score": 57.1,
+    "score": 50.9,
     "label": "结构"
    }
   },
@@ -22366,7 +22366,7 @@
  },
  {
   "trade_date": "2024-09-30",
-  "composite_score": 68.5,
+  "composite_score": 66.3,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -22382,7 +22382,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 76.5,
+    "score": 68.5,
     "label": "结构"
    }
   },
@@ -22411,7 +22411,7 @@
  },
  {
   "trade_date": "2024-10-11",
-  "composite_score": 47.1,
+  "composite_score": 40.9,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -22423,11 +22423,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 97.7,
+    "score": 81.3,
     "label": "情绪"
    },
    "structure": {
-    "score": 24.0,
+    "score": 11.3,
     "label": "结构"
    }
   },
@@ -22456,7 +22456,7 @@
  },
  {
   "trade_date": "2024-10-18",
-  "composite_score": 62.7,
+  "composite_score": 60.1,
   "level": "orange",
   "dimensions": {
    "valuation": {
@@ -22472,7 +22472,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 77.4,
+    "score": 67.7,
     "label": "结构"
    }
   },
@@ -22501,7 +22501,7 @@
  },
  {
   "trade_date": "2024-10-25",
-  "composite_score": 69.1,
+  "composite_score": 67.3,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -22517,7 +22517,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 90.8,
+    "score": 84.2,
     "label": "结构"
    }
   },
@@ -22546,7 +22546,7 @@
  },
  {
   "trade_date": "2024-11-01",
-  "composite_score": 66.6,
+  "composite_score": 66.0,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -22562,7 +22562,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 80.7,
+    "score": 78.5,
     "label": "结构"
    }
   },
@@ -22591,7 +22591,7 @@
  },
  {
   "trade_date": "2024-11-08",
-  "composite_score": 80.7,
+  "composite_score": 80.3,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -22607,7 +22607,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 99.4,
+    "score": 97.9,
     "label": "结构"
    }
   },
@@ -22636,7 +22636,7 @@
  },
  {
   "trade_date": "2024-11-15",
-  "composite_score": 63.4,
+  "composite_score": 63.3,
   "level": "orange",
   "dimensions": {
    "valuation": {
@@ -22652,7 +22652,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 59.5,
+    "score": 59.2,
     "label": "结构"
    }
   },
@@ -22681,7 +22681,7 @@
  },
  {
   "trade_date": "2024-11-22",
-  "composite_score": 60.5,
+  "composite_score": 57.8,
   "level": "orange",
   "dimensions": {
    "valuation": {
@@ -22693,7 +22693,7 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 87.8,
+    "score": 71.3,
     "label": "情绪"
    },
    "structure": {
@@ -22816,7 +22816,7 @@
  },
  {
   "trade_date": "2024-12-13",
-  "composite_score": 77.5,
+  "composite_score": 74.7,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -22828,11 +22828,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 92.5,
+    "score": 76.1,
     "label": "情绪"
    },
    "structure": {
-    "score": 97.0,
+    "score": 96.9,
     "label": "结构"
    }
   },
@@ -22861,7 +22861,7 @@
  },
  {
   "trade_date": "2024-12-20",
-  "composite_score": 70.5,
+  "composite_score": 70.3,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -22877,7 +22877,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 83.9,
+    "score": 83.4,
     "label": "结构"
    }
   },
@@ -22906,7 +22906,7 @@
  },
  {
   "trade_date": "2024-12-27",
-  "composite_score": 64.9,
+  "composite_score": 64.7,
   "level": "orange",
   "dimensions": {
    "valuation": {
@@ -22918,11 +22918,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 86.4,
+    "score": 86.3,
     "label": "情绪"
    },
    "structure": {
-    "score": 66.8,
+    "score": 66.1,
     "label": "结构"
    }
   },
@@ -22951,7 +22951,7 @@
  },
  {
   "trade_date": "2025-01-03",
-  "composite_score": 43.7,
+  "composite_score": 40.6,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -22963,11 +22963,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 82.6,
+    "score": 66.2,
     "label": "情绪"
    },
    "structure": {
-    "score": 36.2,
+    "score": 35.0,
     "label": "结构"
    }
   },
@@ -22996,7 +22996,7 @@
  },
  {
   "trade_date": "2025-01-10",
-  "composite_score": 34.9,
+  "composite_score": 33.8,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -23008,11 +23008,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 70.5,
+    "score": 70.4,
     "label": "情绪"
    },
    "structure": {
-    "score": 32.9,
+    "score": 28.8,
     "label": "结构"
    }
   },
@@ -23041,8 +23041,8 @@
  },
  {
   "trade_date": "2025-01-17",
-  "composite_score": 40.9,
-  "level": "yellow",
+  "composite_score": 39.1,
+  "level": "green",
   "dimensions": {
    "valuation": {
     "score": 30.3,
@@ -23057,7 +23057,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 45.7,
+    "score": 39.2,
     "label": "结构"
    }
   },
@@ -23086,7 +23086,7 @@
  },
  {
   "trade_date": "2025-01-24",
-  "composite_score": 46.2,
+  "composite_score": 44.0,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -23098,11 +23098,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 81.1,
+    "score": 81.0,
     "label": "情绪"
    },
    "structure": {
-    "score": 53.6,
+    "score": 45.5,
     "label": "结构"
    }
   },
@@ -23131,7 +23131,7 @@
  },
  {
   "trade_date": "2025-01-27",
-  "composite_score": 38.1,
+  "composite_score": 35.8,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -23147,7 +23147,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 38.1,
+    "score": 29.8,
     "label": "结构"
    }
   },
@@ -23176,7 +23176,7 @@
  },
  {
   "trade_date": "2025-02-07",
-  "composite_score": 54.0,
+  "composite_score": 51.7,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -23192,7 +23192,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 65.4,
+    "score": 57.1,
     "label": "结构"
    }
   },
@@ -23221,8 +23221,8 @@
  },
  {
   "trade_date": "2025-02-14",
-  "composite_score": 55.5,
-  "level": "orange",
+  "composite_score": 53.8,
+  "level": "yellow",
   "dimensions": {
    "valuation": {
     "score": 40.9,
@@ -23237,7 +23237,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 70.4,
+    "score": 64.2,
     "label": "结构"
    }
   },
@@ -23266,7 +23266,7 @@
  },
  {
   "trade_date": "2025-02-21",
-  "composite_score": 62.9,
+  "composite_score": 62.1,
   "level": "orange",
   "dimensions": {
    "valuation": {
@@ -23278,11 +23278,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 93.9,
+    "score": 93.8,
     "label": "情绪"
    },
    "structure": {
-    "score": 91.8,
+    "score": 89.2,
     "label": "结构"
    }
   },
@@ -23311,7 +23311,7 @@
  },
  {
   "trade_date": "2025-02-28",
-  "composite_score": 48.4,
+  "composite_score": 45.3,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -23323,11 +23323,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 95.9,
+    "score": 79.5,
     "label": "情绪"
    },
    "structure": {
-    "score": 51.5,
+    "score": 50.0,
     "label": "结构"
    }
   },
@@ -23356,7 +23356,7 @@
  },
  {
   "trade_date": "2025-03-07",
-  "composite_score": 60.9,
+  "composite_score": 60.6,
   "level": "orange",
   "dimensions": {
    "valuation": {
@@ -23372,7 +23372,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 91.8,
+    "score": 90.7,
     "label": "结构"
    }
   },
@@ -23401,7 +23401,7 @@
  },
  {
   "trade_date": "2025-03-14",
-  "composite_score": 63.3,
+  "composite_score": 62.9,
   "level": "orange",
   "dimensions": {
    "valuation": {
@@ -23417,7 +23417,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 88.6,
+    "score": 87.3,
     "label": "结构"
    }
   },
@@ -23446,7 +23446,7 @@
  },
  {
   "trade_date": "2025-03-21",
-  "composite_score": 53.3,
+  "composite_score": 52.8,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -23462,7 +23462,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 72.6,
+    "score": 70.9,
     "label": "结构"
    }
   },
@@ -23491,7 +23491,7 @@
  },
  {
   "trade_date": "2025-03-28",
-  "composite_score": 42.6,
+  "composite_score": 42.4,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -23503,11 +23503,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 45.0,
+    "score": 44.9,
     "label": "情绪"
    },
    "structure": {
-    "score": 51.4,
+    "score": 50.7,
     "label": "结构"
    }
   },
@@ -23536,7 +23536,7 @@
  },
  {
   "trade_date": "2025-04-03",
-  "composite_score": 44.2,
+  "composite_score": 44.0,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -23552,7 +23552,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 62.2,
+    "score": 61.6,
     "label": "结构"
    }
   },
@@ -23581,7 +23581,7 @@
  },
  {
   "trade_date": "2025-04-11",
-  "composite_score": 36.5,
+  "composite_score": 35.5,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -23593,11 +23593,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 68.2,
+    "score": 68.1,
     "label": "情绪"
    },
    "structure": {
-    "score": 40.7,
+    "score": 36.8,
     "label": "结构"
    }
   },
@@ -23626,7 +23626,7 @@
  },
  {
   "trade_date": "2025-04-18",
-  "composite_score": 28.4,
+  "composite_score": 26.9,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -23638,11 +23638,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 21.5,
+    "score": 21.4,
     "label": "情绪"
    },
    "structure": {
-    "score": 39.5,
+    "score": 34.0,
     "label": "结构"
    }
   },
@@ -23671,7 +23671,7 @@
  },
  {
   "trade_date": "2025-04-25",
-  "composite_score": 34.3,
+  "composite_score": 32.6,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -23683,11 +23683,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 48.4,
+    "score": 48.3,
     "label": "情绪"
    },
    "structure": {
-    "score": 44.5,
+    "score": 38.6,
     "label": "结构"
    }
   },
@@ -23716,7 +23716,7 @@
  },
  {
   "trade_date": "2025-04-30",
-  "composite_score": 33.8,
+  "composite_score": 32.2,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -23728,11 +23728,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 56.3,
+    "score": 56.2,
     "label": "情绪"
    },
    "structure": {
-    "score": 38.1,
+    "score": 32.1,
     "label": "结构"
    }
   },
@@ -23761,8 +23761,8 @@
  },
  {
   "trade_date": "2025-05-09",
-  "composite_score": 41.1,
-  "level": "yellow",
+  "composite_score": 39.6,
+  "level": "green",
   "dimensions": {
    "valuation": {
     "score": 28.2,
@@ -23777,7 +23777,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 59.2,
+    "score": 53.6,
     "label": "结构"
    }
   },
@@ -23806,7 +23806,7 @@
  },
  {
   "trade_date": "2025-05-16",
-  "composite_score": 43.3,
+  "composite_score": 41.9,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -23822,7 +23822,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 70.8,
+    "score": 65.7,
     "label": "结构"
    }
   },
@@ -23851,7 +23851,7 @@
  },
  {
   "trade_date": "2025-05-23",
-  "composite_score": 42.4,
+  "composite_score": 41.3,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -23867,7 +23867,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 59.4,
+    "score": 55.5,
     "label": "结构"
    }
   },
@@ -23896,7 +23896,7 @@
  },
  {
   "trade_date": "2025-05-30",
-  "composite_score": 44.4,
+  "composite_score": 43.6,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -23912,7 +23912,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 69.7,
+    "score": 67.0,
     "label": "结构"
    }
   },
@@ -23941,7 +23941,7 @@
  },
  {
   "trade_date": "2025-06-06",
-  "composite_score": 47.3,
+  "composite_score": 46.7,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -23957,7 +23957,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 79.8,
+    "score": 77.7,
     "label": "结构"
    }
   },
@@ -23986,7 +23986,7 @@
  },
  {
   "trade_date": "2025-06-13",
-  "composite_score": 51.7,
+  "composite_score": 51.3,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -23998,11 +23998,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 78.4,
+    "score": 78.3,
     "label": "情绪"
    },
    "structure": {
-    "score": 69.8,
+    "score": 68.5,
     "label": "结构"
    }
   },
@@ -24031,7 +24031,7 @@
  },
  {
   "trade_date": "2025-06-20",
-  "composite_score": 36.9,
+  "composite_score": 36.3,
   "level": "green",
   "dimensions": {
    "valuation": {
@@ -24047,7 +24047,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 47.1,
+    "score": 45.2,
     "label": "结构"
    }
   },
@@ -24076,7 +24076,7 @@
  },
  {
   "trade_date": "2025-06-27",
-  "composite_score": 52.9,
+  "composite_score": 52.5,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -24092,7 +24092,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 72.6,
+    "score": 71.0,
     "label": "结构"
    }
   },
@@ -24121,7 +24121,7 @@
  },
  {
   "trade_date": "2025-07-04",
-  "composite_score": 59.2,
+  "composite_score": 58.9,
   "level": "orange",
   "dimensions": {
    "valuation": {
@@ -24133,11 +24133,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 68.8,
+    "score": 68.7,
     "label": "情绪"
    },
    "structure": {
-    "score": 79.9,
+    "score": 78.9,
     "label": "结构"
    }
   },
@@ -24166,7 +24166,7 @@
  },
  {
   "trade_date": "2025-07-11",
-  "composite_score": 63.9,
+  "composite_score": 63.6,
   "level": "orange",
   "dimensions": {
    "valuation": {
@@ -24182,7 +24182,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 85.9,
+    "score": 84.8,
     "label": "结构"
    }
   },
@@ -24211,7 +24211,7 @@
  },
  {
   "trade_date": "2025-07-18",
-  "composite_score": 66.4,
+  "composite_score": 66.0,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -24227,7 +24227,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 93.2,
+    "score": 91.8,
     "label": "结构"
    }
   },
@@ -24256,7 +24256,7 @@
  },
  {
   "trade_date": "2025-07-25",
-  "composite_score": 70.8,
+  "composite_score": 70.5,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -24272,7 +24272,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 96.3,
+    "score": 95.1,
     "label": "结构"
    }
   },
@@ -24301,8 +24301,8 @@
  },
  {
   "trade_date": "2025-08-01",
-  "composite_score": 65.0,
-  "level": "red",
+  "composite_score": 64.6,
+  "level": "orange",
   "dimensions": {
    "valuation": {
     "score": 61.5,
@@ -24317,7 +24317,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 90.7,
+    "score": 89.5,
     "label": "结构"
    }
   },
@@ -24346,7 +24346,7 @@
  },
  {
   "trade_date": "2025-08-08",
-  "composite_score": 69.8,
+  "composite_score": 69.6,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -24362,7 +24362,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 97.1,
+    "score": 96.1,
     "label": "结构"
    }
   },
@@ -24391,7 +24391,7 @@
  },
  {
   "trade_date": "2025-08-15",
-  "composite_score": 76.2,
+  "composite_score": 75.9,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -24403,11 +24403,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 95.7,
+    "score": 95.6,
     "label": "情绪"
    },
    "structure": {
-    "score": 97.3,
+    "score": 96.3,
     "label": "结构"
    }
   },
@@ -24436,7 +24436,7 @@
  },
  {
   "trade_date": "2025-08-22",
-  "composite_score": 79.5,
+  "composite_score": 79.2,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -24452,7 +24452,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 98.0,
+    "score": 97.0,
     "label": "结构"
    }
   },
@@ -24481,7 +24481,7 @@
  },
  {
   "trade_date": "2025-08-29",
-  "composite_score": 80.3,
+  "composite_score": 80.1,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -24493,11 +24493,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 97.5,
+    "score": 97.4,
     "label": "情绪"
    },
    "structure": {
-    "score": 96.2,
+    "score": 95.5,
     "label": "结构"
    }
   },
@@ -24526,7 +24526,7 @@
  },
  {
   "trade_date": "2025-09-05",
-  "composite_score": 77.1,
+  "composite_score": 76.9,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -24538,11 +24538,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 88.2,
+    "score": 88.1,
     "label": "情绪"
    },
    "structure": {
-    "score": 93.2,
+    "score": 92.7,
     "label": "结构"
    }
   },
@@ -24571,7 +24571,7 @@
  },
  {
   "trade_date": "2025-09-12",
-  "composite_score": 79.9,
+  "composite_score": 79.7,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -24583,11 +24583,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 92.0,
+    "score": 91.9,
     "label": "情绪"
    },
    "structure": {
-    "score": 95.2,
+    "score": 94.4,
     "label": "结构"
    }
   },
@@ -24616,7 +24616,7 @@
  },
  {
   "trade_date": "2025-09-19",
-  "composite_score": 73.3,
+  "composite_score": 73.1,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -24632,7 +24632,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 84.5,
+    "score": 83.5,
     "label": "结构"
    }
   },
@@ -24661,7 +24661,7 @@
  },
  {
   "trade_date": "2025-09-26",
-  "composite_score": 71.6,
+  "composite_score": 71.3,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -24673,11 +24673,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 80.0,
+    "score": 79.9,
     "label": "情绪"
    },
    "structure": {
-    "score": 79.7,
+    "score": 78.8,
     "label": "结构"
    }
   },
@@ -24706,7 +24706,7 @@
  },
  {
   "trade_date": "2025-09-30",
-  "composite_score": 76.8,
+  "composite_score": 76.6,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -24718,11 +24718,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 80.6,
+    "score": 80.5,
     "label": "情绪"
    },
    "structure": {
-    "score": 92.3,
+    "score": 91.5,
     "label": "结构"
    }
   },
@@ -24751,7 +24751,7 @@
  },
  {
   "trade_date": "2025-10-10",
-  "composite_score": 76.4,
+  "composite_score": 76.2,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -24767,7 +24767,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 89.1,
+    "score": 88.4,
     "label": "结构"
    }
   },
@@ -24796,7 +24796,7 @@
  },
  {
   "trade_date": "2025-10-17",
-  "composite_score": 64.6,
+  "composite_score": 61.8,
   "level": "orange",
   "dimensions": {
    "valuation": {
@@ -24808,11 +24808,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 75.9,
+    "score": 59.5,
     "label": "情绪"
    },
    "structure": {
-    "score": 56.8,
+    "score": 56.5,
     "label": "结构"
    }
   },
@@ -24841,7 +24841,7 @@
  },
  {
   "trade_date": "2025-10-24",
-  "composite_score": 72.7,
+  "composite_score": 72.8,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -24857,7 +24857,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 82.2,
+    "score": 82.4,
     "label": "结构"
    }
   },
@@ -24886,7 +24886,7 @@
  },
  {
   "trade_date": "2025-10-31",
-  "composite_score": 74.7,
+  "composite_score": 74.8,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -24898,11 +24898,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 84.7,
+    "score": 84.6,
     "label": "情绪"
    },
    "structure": {
-    "score": 82.6,
+    "score": 83.2,
     "label": "结构"
    }
   },
@@ -24931,7 +24931,7 @@
  },
  {
   "trade_date": "2025-11-07",
-  "composite_score": 77.5,
+  "composite_score": 77.7,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -24947,7 +24947,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 91.3,
+    "score": 92.1,
     "label": "结构"
    }
   },
@@ -24976,7 +24976,7 @@
  },
  {
   "trade_date": "2025-11-14",
-  "composite_score": 76.6,
+  "composite_score": 76.7,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -24988,11 +24988,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 74.4,
+    "score": 74.3,
     "label": "情绪"
    },
    "structure": {
-    "score": 92.1,
+    "score": 92.5,
     "label": "结构"
    }
   },
@@ -25021,8 +25021,8 @@
  },
  {
   "trade_date": "2025-11-21",
-  "composite_score": 57.0,
-  "level": "orange",
+  "composite_score": 54.4,
+  "level": "yellow",
   "dimensions": {
    "valuation": {
     "score": 74.1,
@@ -25033,11 +25033,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 76.8,
+    "score": 60.4,
     "label": "情绪"
    },
    "structure": {
-    "score": 34.8,
+    "score": 35.3,
     "label": "结构"
    }
   },
@@ -25066,8 +25066,8 @@
  },
  {
   "trade_date": "2025-11-28",
-  "composite_score": 65.0,
-  "level": "red",
+  "composite_score": 64.9,
+  "level": "orange",
   "dimensions": {
    "valuation": {
     "score": 79.3,
@@ -25111,7 +25111,7 @@
  },
  {
   "trade_date": "2025-12-05",
-  "composite_score": 70.4,
+  "composite_score": 70.0,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -25127,7 +25127,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 71.0,
+    "score": 69.6,
     "label": "结构"
    }
   },
@@ -25156,7 +25156,7 @@
  },
  {
   "trade_date": "2025-12-12",
-  "composite_score": 69.8,
+  "composite_score": 69.1,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -25172,7 +25172,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 63.3,
+    "score": 60.7,
     "label": "结构"
    }
   },
@@ -25201,7 +25201,7 @@
  },
  {
   "trade_date": "2025-12-19",
-  "composite_score": 66.5,
+  "composite_score": 65.7,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -25217,7 +25217,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 63.2,
+    "score": 60.3,
     "label": "结构"
    }
   },
@@ -25246,7 +25246,7 @@
  },
  {
   "trade_date": "2025-12-26",
-  "composite_score": 76.7,
+  "composite_score": 75.9,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -25258,11 +25258,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 79.8,
+    "score": 79.7,
     "label": "情绪"
    },
    "structure": {
-    "score": 78.5,
+    "score": 75.4,
     "label": "结构"
    }
   },
@@ -25291,7 +25291,7 @@
  },
  {
   "trade_date": "2025-12-31",
-  "composite_score": 75.3,
+  "composite_score": 74.4,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -25307,7 +25307,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 73.5,
+    "score": 70.3,
     "label": "结构"
    }
   },
@@ -25336,7 +25336,7 @@
  },
  {
   "trade_date": "2026-01-09",
-  "composite_score": 81.2,
+  "composite_score": 80.3,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -25348,11 +25348,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 86.4,
+    "score": 86.3,
     "label": "情绪"
    },
    "structure": {
-    "score": 87.6,
+    "score": 84.5,
     "label": "结构"
    }
   },
@@ -25381,7 +25381,7 @@
  },
  {
   "trade_date": "2026-01-16",
-  "composite_score": 81.2,
+  "composite_score": 80.5,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -25393,11 +25393,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 88.1,
+    "score": 88.0,
     "label": "情绪"
    },
    "structure": {
-    "score": 85.5,
+    "score": 83.1,
     "label": "结构"
    }
   },
@@ -25426,7 +25426,7 @@
  },
  {
   "trade_date": "2026-01-23",
-  "composite_score": 86.1,
+  "composite_score": 85.5,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -25442,7 +25442,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 91.9,
+    "score": 89.9,
     "label": "结构"
    }
   },
@@ -25471,7 +25471,7 @@
  },
  {
   "trade_date": "2026-01-30",
-  "composite_score": 82.0,
+  "composite_score": 81.8,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -25487,7 +25487,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 81.4,
+    "score": 80.6,
     "label": "结构"
    }
   },
@@ -25516,7 +25516,7 @@
  },
  {
   "trade_date": "2026-02-06",
-  "composite_score": 77.0,
+  "composite_score": 76.8,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -25528,11 +25528,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 80.9,
+    "score": 80.8,
     "label": "情绪"
    },
    "structure": {
-    "score": 73.9,
+    "score": 73.3,
     "label": "结构"
    }
   },
@@ -25561,7 +25561,7 @@
  },
  {
   "trade_date": "2026-02-13",
-  "composite_score": 75.6,
+  "composite_score": 75.5,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -25577,7 +25577,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 73.1,
+    "score": 72.6,
     "label": "结构"
    }
   },
@@ -25606,7 +25606,7 @@
  },
  {
   "trade_date": "2026-02-27",
-  "composite_score": 84.7,
+  "composite_score": 84.6,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -25622,7 +25622,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 91.7,
+    "score": 91.5,
     "label": "结构"
    }
   },
@@ -25651,7 +25651,7 @@
  },
  {
   "trade_date": "2026-03-06",
-  "composite_score": 81.2,
+  "composite_score": 80.9,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -25663,11 +25663,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 77.5,
+    "score": 77.4,
     "label": "情绪"
    },
    "structure": {
-    "score": 85.1,
+    "score": 84.1,
     "label": "结构"
    }
   },
@@ -25696,7 +25696,7 @@
  },
  {
   "trade_date": "2026-03-13",
-  "composite_score": 78.2,
+  "composite_score": 78.0,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -25712,7 +25712,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 74.4,
+    "score": 73.8,
     "label": "结构"
    }
   },
@@ -25741,8 +25741,8 @@
  },
  {
   "trade_date": "2026-03-20",
-  "composite_score": 65.2,
-  "level": "red",
+  "composite_score": 64.7,
+  "level": "orange",
   "dimensions": {
    "valuation": {
     "score": 87.2,
@@ -25757,7 +25757,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 36.6,
+    "score": 34.8,
     "label": "结构"
    }
   },
@@ -25786,8 +25786,8 @@
  },
  {
   "trade_date": "2026-03-27",
-  "composite_score": 65.3,
-  "level": "red",
+  "composite_score": 64.8,
+  "level": "orange",
   "dimensions": {
    "valuation": {
     "score": 85.7,
@@ -25802,7 +25802,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 45.4,
+    "score": 43.4,
     "label": "结构"
    }
   },
@@ -25831,7 +25831,7 @@
  },
  {
   "trade_date": "2026-04-03",
-  "composite_score": 58.4,
+  "composite_score": 57.9,
   "level": "orange",
   "dimensions": {
    "valuation": {
@@ -25843,11 +25843,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 58.5,
+    "score": 58.4,
     "label": "情绪"
    },
    "structure": {
-    "score": 30.1,
+    "score": 28.2,
     "label": "结构"
    }
   },
@@ -25876,7 +25876,7 @@
  },
  {
   "trade_date": "2026-04-10",
-  "composite_score": 68.6,
+  "composite_score": 67.9,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -25888,11 +25888,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 74.8,
+    "score": 74.7,
     "label": "情绪"
    },
    "structure": {
-    "score": 50.6,
+    "score": 48.1,
     "label": "结构"
    }
   },
@@ -25921,7 +25921,7 @@
  },
  {
   "trade_date": "2026-04-17",
-  "composite_score": 74.4,
+  "composite_score": 73.7,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -25937,7 +25937,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 64.8,
+    "score": 62.4,
     "label": "结构"
    }
   },
@@ -25966,7 +25966,7 @@
  },
  {
   "trade_date": "2026-04-24",
-  "composite_score": 75.4,
+  "composite_score": 75.2,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -25982,7 +25982,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 62.1,
+    "score": 61.4,
     "label": "结构"
    }
   },
@@ -26011,7 +26011,7 @@
  },
  {
   "trade_date": "2026-04-30",
-  "composite_score": 79.0,
+  "composite_score": 78.8,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -26023,11 +26023,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 79.7,
+    "score": 79.6,
     "label": "情绪"
    },
    "structure": {
-    "score": 73.0,
+    "score": 72.5,
     "label": "结构"
    }
   },
@@ -26056,7 +26056,7 @@
  },
  {
   "trade_date": "2026-05-08",
-  "composite_score": 82.6,
+  "composite_score": 82.1,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -26072,7 +26072,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 84.1,
+    "score": 82.5,
     "label": "结构"
    }
   },
@@ -26101,7 +26101,7 @@
  },
  {
   "trade_date": "2026-05-15",
-  "composite_score": 79.7,
+  "composite_score": 79.3,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -26117,7 +26117,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 75.9,
+    "score": 74.2,
     "label": "结构"
    }
   },
@@ -26146,7 +26146,7 @@
  },
  {
   "trade_date": "2026-05-22",
-  "composite_score": 78.8,
+  "composite_score": 78.3,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -26162,7 +26162,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 76.0,
+    "score": 74.3,
     "label": "结构"
    }
   },
@@ -26191,7 +26191,7 @@
  },
  {
   "trade_date": "2026-05-29",
-  "composite_score": 69.5,
+  "composite_score": 69.0,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -26207,7 +26207,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 41.7,
+    "score": 40.2,
     "label": "结构"
    }
   },
@@ -26236,7 +26236,7 @@
  },
  {
   "trade_date": "2026-06-02",
-  "composite_score": 70.5,
+  "composite_score": 70.1,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -26252,7 +26252,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 47.2,
+    "score": 45.8,
     "label": "结构"
    }
   },
@@ -26281,7 +26281,7 @@
  },
  {
   "trade_date": "2026-06-03",
-  "composite_score": 71.2,
+  "composite_score": 70.8,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -26297,7 +26297,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 50.0,
+    "score": 48.4,
     "label": "结构"
    }
   },
@@ -26326,7 +26326,7 @@
  },
  {
   "trade_date": "2026-06-04",
-  "composite_score": 77.5,
+  "composite_score": 77.0,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -26342,7 +26342,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 80.0,
+    "score": 78.1,
     "label": "结构"
    }
   },
@@ -26371,7 +26371,7 @@
  },
  {
   "trade_date": "2026-06-08",
-  "composite_score": 72.0,
+  "composite_score": 68.9,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -26383,11 +26383,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 81.3,
+    "score": 64.9,
     "label": "情绪"
    },
    "structure": {
-    "score": 73.1,
+    "score": 71.8,
     "label": "结构"
    }
   },
@@ -26416,7 +26416,7 @@
  },
  {
   "trade_date": "2026-06-10",
-  "composite_score": 67.7,
+  "composite_score": 67.4,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -26432,7 +26432,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 59.5,
+    "score": 58.4,
     "label": "结构"
    }
   },
@@ -26461,7 +26461,7 @@
  },
  {
   "trade_date": "2026-06-15",
-  "composite_score": 67.6,
+  "composite_score": 67.4,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -26473,11 +26473,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 79.2,
+    "score": 79.1,
     "label": "情绪"
    },
    "structure": {
-    "score": 47.1,
+    "score": 46.5,
     "label": "结构"
    }
   },
@@ -26506,7 +26506,7 @@
  },
  {
   "trade_date": "2026-06-16",
-  "composite_score": 68.3,
+  "composite_score": 68.1,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -26518,11 +26518,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 79.3,
+    "score": 79.2,
     "label": "情绪"
    },
    "structure": {
-    "score": 53.4,
+    "score": 52.7,
     "label": "结构"
    }
   },
@@ -26551,8 +26551,8 @@
  },
  {
   "trade_date": "2026-06-17",
-  "composite_score": 65.0,
-  "level": "red",
+  "composite_score": 64.8,
+  "level": "orange",
   "dimensions": {
    "valuation": {
     "score": 86.3,
@@ -26567,7 +26567,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 56.6,
+    "score": 56.0,
     "label": "结构"
    }
   },
@@ -26596,7 +26596,7 @@
  },
  {
   "trade_date": "2026-06-18",
-  "composite_score": 69.0,
+  "composite_score": 68.9,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -26612,7 +26612,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 55.9,
+    "score": 55.4,
     "label": "结构"
    }
   },
@@ -26641,7 +26641,7 @@
  },
  {
   "trade_date": "2026-06-22",
-  "composite_score": 74.3,
+  "composite_score": 74.1,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -26657,7 +26657,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 68.4,
+    "score": 67.7,
     "label": "结构"
    }
   },
@@ -26686,7 +26686,7 @@
  },
  {
   "trade_date": "2026-06-23",
-  "composite_score": 71.1,
+  "composite_score": 70.9,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -26702,7 +26702,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 64.3,
+    "score": 63.6,
     "label": "结构"
    }
   },
@@ -26731,7 +26731,7 @@
  },
  {
   "trade_date": "2026-06-24",
-  "composite_score": 68.6,
+  "composite_score": 68.4,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -26747,7 +26747,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 57.9,
+    "score": 57.3,
     "label": "结构"
    }
   },
@@ -26776,7 +26776,7 @@
  },
  {
   "trade_date": "2026-06-25",
-  "composite_score": 67.0,
+  "composite_score": 66.8,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -26792,7 +26792,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 57.5,
+    "score": 56.8,
     "label": "结构"
    }
   },
@@ -26821,7 +26821,7 @@
  },
  {
   "trade_date": "2026-06-26",
-  "composite_score": 60.5,
+  "composite_score": 57.6,
   "level": "orange",
   "dimensions": {
    "valuation": {
@@ -26833,11 +26833,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 81.4,
+    "score": 65.0,
     "label": "情绪"
    },
    "structure": {
-    "score": 46.3,
+    "score": 45.6,
     "label": "结构"
    }
   },
@@ -26866,7 +26866,7 @@
  },
  {
   "trade_date": "2026-06-29",
-  "composite_score": 62.2,
+  "composite_score": 62.0,
   "level": "orange",
   "dimensions": {
    "valuation": {
@@ -26878,11 +26878,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 81.2,
+    "score": 81.1,
     "label": "情绪"
    },
    "structure": {
-    "score": 41.2,
+    "score": 40.5,
     "label": "结构"
    }
   },
@@ -26911,7 +26911,7 @@
  },
  {
   "trade_date": "2026-06-30",
-  "composite_score": 65.8,
+  "composite_score": 65.6,
   "level": "red",
   "dimensions": {
    "valuation": {
@@ -26927,7 +26927,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 54.4,
+    "score": 53.7,
     "label": "结构"
    }
   },
@@ -26956,8 +26956,8 @@
  },
  {
   "trade_date": "2026-07-01",
-  "composite_score": 65.0,
-  "level": "red",
+  "composite_score": 64.8,
+  "level": "orange",
   "dimensions": {
    "valuation": {
     "score": 80.2,
@@ -26968,11 +26968,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 81.5,
+    "score": 81.4,
     "label": "情绪"
    },
    "structure": {
-    "score": 48.1,
+    "score": 47.6,
     "label": "结构"
    }
   },
@@ -27001,11 +27001,11 @@
  },
  {
   "trade_date": "2026-07-02",
-  "composite_score": 57.7,
-  "level": "orange",
+  "composite_score": 54.1,
+  "level": "yellow",
   "dimensions": {
    "valuation": {
-    "score": 78.5,
+    "score": 76.9,
     "label": "估值"
    },
    "fund": {
@@ -27013,11 +27013,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 81.2,
+    "score": 64.7,
     "label": "情绪"
    },
    "structure": {
-    "score": 20.8,
+    "score": 20.1,
     "label": "结构"
    }
   },
@@ -27046,11 +27046,11 @@
  },
  {
   "trade_date": "2026-07-03",
-  "composite_score": 59.3,
+  "composite_score": 60.6,
   "level": "orange",
   "dimensions": {
    "valuation": {
-    "score": 78.9,
+    "score": 82.5,
     "label": "估值"
    },
    "fund": {
@@ -27058,11 +27058,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 79.9,
+    "score": 79.8,
     "label": "情绪"
    },
    "structure": {
-    "score": 26.5,
+    "score": 25.8,
     "label": "结构"
    }
   },
@@ -27091,11 +27091,11 @@
  },
  {
   "trade_date": "2026-07-06",
-  "composite_score": 56.3,
+  "composite_score": 58.0,
   "level": "orange",
   "dimensions": {
    "valuation": {
-    "score": 78.4,
+    "score": 82.8,
     "label": "估值"
    },
    "fund": {
@@ -27103,11 +27103,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 79.6,
+    "score": 79.5,
     "label": "情绪"
    },
    "structure": {
-    "score": 16.3,
+    "score": 15.6,
     "label": "结构"
    }
   },
@@ -27136,11 +27136,11 @@
  },
  {
   "trade_date": "2026-07-07",
-  "composite_score": 52.9,
+  "composite_score": 51.1,
   "level": "yellow",
   "dimensions": {
    "valuation": {
-    "score": 77.2,
+    "score": 73.3,
     "label": "估值"
    },
    "fund": {
@@ -27152,7 +27152,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 7.4,
+    "score": 7.0,
     "label": "结构"
    }
   },
@@ -27193,7 +27193,7 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 75.4,
+    "score": 75.3,
     "label": "情绪"
    },
    "structure": {
@@ -27226,11 +27226,11 @@
  },
  {
   "trade_date": "2026-07-09",
-  "composite_score": 50.6,
+  "composite_score": 50.1,
   "level": "yellow",
   "dimensions": {
    "valuation": {
-    "score": 70.0,
+    "score": 68.9,
     "label": "估值"
    },
    "fund": {
@@ -27271,11 +27271,11 @@
  },
  {
   "trade_date": "2026-07-10",
-  "composite_score": 49.5,
+  "composite_score": 50.4,
   "level": "yellow",
   "dimensions": {
    "valuation": {
-    "score": 68.8,
+    "score": 70.9,
     "label": "估值"
    },
    "fund": {
@@ -27316,11 +27316,11 @@
  },
  {
   "trade_date": "2026-07-13",
-  "composite_score": 47.1,
+  "composite_score": 43.0,
   "level": "yellow",
   "dimensions": {
    "valuation": {
-    "score": 64.2,
+    "score": 60.8,
     "label": "估值"
    },
    "fund": {
@@ -27328,7 +27328,7 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 78.9,
+    "score": 62.5,
     "label": "情绪"
    },
    "structure": {
@@ -27373,7 +27373,7 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 76.3,
+    "score": 76.2,
     "label": "情绪"
    },
    "structure": {
@@ -27406,11 +27406,11 @@
  },
  {
   "trade_date": "2026-07-15",
-  "composite_score": 46.4,
+  "composite_score": 49.4,
   "level": "yellow",
   "dimensions": {
    "valuation": {
-    "score": 64.9,
+    "score": 71.8,
     "label": "估值"
    },
    "fund": {
@@ -27451,7 +27451,7 @@
  },
  {
   "trade_date": "2026-07-16",
-  "composite_score": 47.3,
+  "composite_score": 44.6,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -27463,7 +27463,7 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 74.4,
+    "score": 58.0,
     "label": "情绪"
    },
    "structure": {
@@ -27496,7 +27496,7 @@
  },
  {
   "trade_date": "2026-07-17",
-  "composite_score": 43.5,
+  "composite_score": 40.8,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -27508,7 +27508,7 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 78.5,
+    "score": 62.2,
     "label": "情绪"
    },
    "structure": {
@@ -27541,11 +27541,11 @@
  },
  {
   "trade_date": "2026-07-20",
-  "composite_score": 43.7,
+  "composite_score": 45.5,
   "level": "yellow",
   "dimensions": {
    "valuation": {
-    "score": 56.8,
+    "score": 61.0,
     "label": "估值"
    },
    "fund": {
@@ -27586,11 +27586,11 @@
  },
  {
   "trade_date": "2026-07-21",
-  "composite_score": 44.0,
+  "composite_score": 46.9,
   "level": "yellow",
   "dimensions": {
    "valuation": {
-    "score": 59.3,
+    "score": 66.1,
     "label": "估值"
    },
    "fund": {
@@ -27688,7 +27688,7 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 70.5,
+    "score": 70.4,
     "label": "情绪"
    },
    "structure": {
@@ -27721,11 +27721,11 @@
  },
  {
   "trade_date": "2026-07-24",
-  "composite_score": 45.2,
+  "composite_score": 40.0,
   "level": "yellow",
   "dimensions": {
    "valuation": {
-    "score": 68.0,
+    "score": 62.2,
     "label": "估值"
    },
    "fund": {
@@ -27733,7 +27733,7 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 65.0,
+    "score": 48.6,
     "label": "情绪"
    },
    "structure": {
@@ -27766,11 +27766,11 @@
  },
  {
   "trade_date": "2026-07-27",
-  "composite_score": 48.5,
+  "composite_score": 47.5,
   "level": "yellow",
   "dimensions": {
    "valuation": {
-    "score": 74.0,
+    "score": 71.6,
     "label": "估值"
    },
    "fund": {
@@ -27778,7 +27778,7 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 68.4,
+    "score": 68.3,
     "label": "情绪"
    },
    "structure": {
@@ -27811,11 +27811,11 @@
  },
  {
   "trade_date": "2026-07-28",
-  "composite_score": 47.4,
+  "composite_score": 45.6,
   "level": "yellow",
   "dimensions": {
    "valuation": {
-    "score": 70.8,
+    "score": 66.5,
     "label": "估值"
    },
    "fund": {
@@ -27856,11 +27856,11 @@
  },
  {
   "trade_date": "2026-07-29",
-  "composite_score": 49.2,
+  "composite_score": 49.5,
   "level": "yellow",
   "dimensions": {
    "valuation": {
-    "score": 72.2,
+    "score": 72.9,
     "label": "估值"
    },
    "fund": {
@@ -27868,7 +27868,7 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 73.3,
+    "score": 73.2,
     "label": "情绪"
    },
    "structure": {
@@ -27901,11 +27901,11 @@
  },
  {
   "trade_date": "2026-07-30",
-  "composite_score": 49.0,
+  "composite_score": 50.0,
   "level": "yellow",
   "dimensions": {
    "valuation": {
-    "score": 70.2,
+    "score": 72.5,
     "label": "估值"
    },
    "fund": {
@@ -27991,11 +27991,11 @@
  },
  {
   "trade_date": "2026-08-03",
-  "composite_score": 50.6,
+  "composite_score": 50.2,
   "level": "yellow",
   "dimensions": {
    "valuation": {
-    "score": 77.2,
+    "score": 76.1,
     "label": "估值"
    },
    "fund": {
@@ -28003,7 +28003,7 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 68.7,
+    "score": 68.6,
     "label": "情绪"
    },
    "structure": {
@@ -28036,11 +28036,11 @@
  },
  {
   "trade_date": "2026-08-04",
-  "composite_score": 50.6,
+  "composite_score": 49.8,
   "level": "yellow",
   "dimensions": {
    "valuation": {
-    "score": 79.1,
+    "score": 77.3,
     "label": "估值"
    },
    "fund": {
@@ -28052,7 +28052,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 3.3,
+    "score": 3.4,
     "label": "结构"
    }
   },
@@ -28081,7 +28081,7 @@
  },
  {
   "trade_date": "2026-08-05",
-  "composite_score": 52.8,
+  "composite_score": 52.9,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -28093,11 +28093,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 78.6,
+    "score": 78.5,
     "label": "情绪"
    },
    "structure": {
-    "score": 5.7,
+    "score": 5.9,
     "label": "结构"
    }
   },
@@ -28126,11 +28126,11 @@
  },
  {
   "trade_date": "2026-08-06",
-  "composite_score": 53.1,
+  "composite_score": 52.1,
   "level": "yellow",
   "dimensions": {
    "valuation": {
-    "score": 80.5,
+    "score": 77.9,
     "label": "估值"
    },
    "fund": {
@@ -28138,11 +28138,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 76.8,
+    "score": 76.7,
     "label": "情绪"
    },
    "structure": {
-    "score": 6.4,
+    "score": 6.8,
     "label": "结构"
    }
   },
@@ -28171,11 +28171,11 @@
  },
  {
   "trade_date": "2026-08-07",
-  "composite_score": 53.9,
+  "composite_score": 52.6,
   "level": "yellow",
   "dimensions": {
    "valuation": {
-    "score": 82.2,
+    "score": 78.8,
     "label": "估值"
    },
    "fund": {
@@ -28187,7 +28187,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 6.7,
+    "score": 7.3,
     "label": "结构"
    }
   },
@@ -28216,8 +28216,8 @@
  },
  {
   "trade_date": "2026-08-10",
-  "composite_score": 54.9,
-  "level": "yellow",
+  "composite_score": 55.0,
+  "level": "orange",
   "dimensions": {
    "valuation": {
     "score": 82.5,
@@ -28232,7 +28232,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 11.3,
+    "score": 11.8,
     "label": "结构"
    }
   },
@@ -28261,11 +28261,11 @@
  },
  {
   "trade_date": "2026-08-11",
-  "composite_score": 53.8,
+  "composite_score": 52.6,
   "level": "yellow",
   "dimensions": {
    "valuation": {
-    "score": 82.0,
+    "score": 79.0,
     "label": "估值"
    },
    "fund": {
@@ -28277,7 +28277,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 8.7,
+    "score": 8.9,
     "label": "结构"
    }
   },
@@ -28306,7 +28306,7 @@
  },
  {
   "trade_date": "2026-08-12",
-  "composite_score": 53.8,
+  "composite_score": 53.7,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -28322,7 +28322,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 12.7,
+    "score": 12.6,
     "label": "结构"
    }
   },
@@ -28351,7 +28351,7 @@
  },
  {
   "trade_date": "2026-08-13",
-  "composite_score": 53.9,
+  "composite_score": 53.8,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -28363,11 +28363,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 76.6,
+    "score": 76.5,
     "label": "情绪"
    },
    "structure": {
-    "score": 12.5,
+    "score": 12.0,
     "label": "结构"
    }
   },
@@ -28396,7 +28396,7 @@
  },
  {
   "trade_date": "2026-08-14",
-  "composite_score": 51.1,
+  "composite_score": 51.0,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -28412,7 +28412,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 12.4,
+    "score": 12.2,
     "label": "结构"
    }
   },
@@ -28453,7 +28453,7 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 73.1,
+    "score": 73.0,
     "label": "情绪"
    },
    "structure": {
@@ -28486,7 +28486,7 @@
  },
  {
   "trade_date": "2026-08-18",
-  "composite_score": 54.5,
+  "composite_score": 54.4,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -28502,7 +28502,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 18.9,
+    "score": 18.8,
     "label": "结构"
    }
   },
@@ -28531,7 +28531,7 @@
  },
  {
   "trade_date": "2026-08-19",
-  "composite_score": 49.8,
+  "composite_score": 47.0,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -28543,11 +28543,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 77.2,
+    "score": 60.8,
     "label": "情绪"
    },
    "structure": {
-    "score": 7.5,
+    "score": 7.4,
     "label": "结构"
    }
   },
@@ -28637,7 +28637,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 9.4,
+    "score": 9.3,
     "label": "结构"
    }
   },
@@ -28666,7 +28666,7 @@
  },
  {
   "trade_date": "2026-08-24",
-  "composite_score": 48.0,
+  "composite_score": 47.9,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -28678,11 +28678,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 66.1,
+    "score": 66.0,
     "label": "情绪"
    },
    "structure": {
-    "score": 9.1,
+    "score": 8.9,
     "label": "结构"
    }
   },
@@ -28711,7 +28711,7 @@
  },
  {
   "trade_date": "2026-08-25",
-  "composite_score": 46.5,
+  "composite_score": 46.4,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -28723,11 +28723,11 @@
     "label": "资金"
    },
    "sentiment": {
-    "score": 61.6,
+    "score": 61.5,
     "label": "情绪"
    },
    "structure": {
-    "score": 7.5,
+    "score": 7.2,
     "label": "结构"
    }
   },
@@ -28756,7 +28756,7 @@
  },
  {
   "trade_date": "2026-08-26",
-  "composite_score": 47.5,
+  "composite_score": 47.4,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -28772,7 +28772,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 12.2,
+    "score": 11.9,
     "label": "结构"
    }
   },
@@ -28846,7 +28846,7 @@
  },
  {
   "trade_date": "2026-08-28",
-  "composite_score": 53.0,
+  "composite_score": 53.2,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -28862,7 +28862,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 21.6,
+    "score": 22.3,
     "label": "结构"
    }
   },
@@ -28891,7 +28891,7 @@
  },
  {
   "trade_date": "2026-08-31",
-  "composite_score": 52.1,
+  "composite_score": 52.4,
   "level": "yellow",
   "dimensions": {
    "valuation": {
@@ -28907,7 +28907,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 27.9,
+    "score": 29.3,
     "label": "结构"
    }
   },
@@ -28936,11 +28936,11 @@
  },
  {
   "trade_date": "2026-09-01",
-  "composite_score": 54.8,
-  "level": "yellow",
+  "composite_score": 55.5,
+  "level": "orange",
   "dimensions": {
    "valuation": {
-    "score": 66.5,
+    "score": 67.6,
     "label": "估值"
    },
    "fund": {
@@ -28952,7 +28952,7 @@
     "label": "情绪"
    },
    "structure": {
-    "score": 37.5,
+    "score": 38.1,
     "label": "结构"
    }
   },
