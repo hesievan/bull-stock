@@ -153,9 +153,23 @@ print("\n===== D. Leave-one-out 消融 (重归一化综合分 → IC60) =====")
 
 
 def composite(sub):
-    num = sum(df[COL[k]] * W[k] for k in sub if k in COL)
-    den = sum(W[k] for k in sub)
-    return num / den if den > 0 else pd.Series(np.nan, index=df.index)
+    """综合分 = 可用键按行重归一化加权平均 (M2a 修正: 对齐引擎真实口径)。
+
+    原实现用全局分母 sum(W[sub]) + pandas Series 加法的 NaN 传播 — 任一键缺失
+    (如 futures_discount 2015-16 缺 557 行 / pe 缺 140 行) 会让整行 composite 为 NaN,
+    导致基线 IC 系统性偏低 (实测 −0.0364 vs 引擎真实 −0.0520), 且与引擎
+    heat_index_v2.compute_index_v2 的"可用键加权/可用权重和"口径不一致。
+    现按行: num = Σ(非NaN键 v·w), den = Σ(非NaN键 w), composite = num/den。
+    """
+    ws = {k: W[k] for k in sub if k in COL}
+    if not ws:
+        return pd.Series(np.nan, index=df.index)
+    wmap = {COL[k]: w for k, w in ws.items()}  # {'ind_pe': 权重, ...}
+    cols = df[list(wmap)]
+    num = cols.mul(wmap).sum(axis=1)  # dict 按列名广播; NaN 项被 sum(skipna) 跳过
+    den = cols.notna().mul(wmap).sum(axis=1)
+    comp = num / den.replace(0, np.nan)
+    return comp.where(den > 0)
 
 
 base = composite(KEYS)
