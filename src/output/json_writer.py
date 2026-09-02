@@ -15,7 +15,10 @@ import urllib.request
 import urllib.error
 import numpy as np
 from datetime import date
-from typing import Dict, Optional, Tuple
+from typing import TYPE_CHECKING, Dict, Optional, Tuple
+
+if TYPE_CHECKING:  # 仅类型检查; 运行期函数内惰性 import, 避免循环依赖
+    from src.config import HeatConfig
 
 logger = logging.getLogger(__name__)
 
@@ -56,42 +59,45 @@ def _atomic_write_json(filepath: str, data) -> None:
         raise
 
 
-# 加载配置（惰性)
+# 加载配置（惰性; P3-B1: 与引擎同源, 统一走 HeatConfig 强类型视图）
 _config_cache = None
 
 
-def _get_config() -> dict:
+def _get_config() -> HeatConfig:
     global _config_cache
     if _config_cache is None:
         try:
-            from src.config import load_config
+            from src.config import HeatConfig, load_config_typed
 
-            _config_cache = load_config()
+            _config_cache = load_config_typed()
         except Exception:
-            _config_cache = {}
+            # 加载失败: 全默认 HeatConfig (引擎同源兜底, 避免掩盖配置错误)
+            from src.config import HeatConfig
+
+            _config_cache = HeatConfig()
     return _config_cache
 
 
 def _get_thresholds() -> dict:
-    hl = _get_config().get("heat_levels", {})
+    hl = _get_config().heat_levels  # 恒含 6 档默认切点 (YAML 覆盖), 无需判缺键
     return {
-        "red": hl.get("red", {}).get("min", 65),
-        "orange": hl.get("orange", {}).get("min", 55),
-        "yellow": hl.get("yellow", {}).get("min", 40),
+        "red": hl["red"].min,
+        "orange": hl["orange"].min,
+        "yellow": hl["yellow"].min,
     }
 
 
 def _get_debounce() -> Tuple[int, int]:
-    db = _get_config().get("debounce", {})
+    db = _get_config().raw.get("debounce", {})
     return db.get("red_days", 2), db.get("recover_days", 1)
 
 
 def _get_notify_rules() -> list:
-    return _get_config().get("notification", {}).get("notify_rules", [])
+    return _get_config().raw.get("notification", {}).get("notify_rules", [])
 
 
 def _get_quiet_hours() -> dict:
-    return _get_config().get("notification", {}).get("quiet_hours", {})
+    return _get_config().raw.get("notification", {}).get("quiet_hours", {})
 
 
 # 飞书 Webhook（可选，通过环境变量）

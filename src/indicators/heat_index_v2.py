@@ -39,12 +39,16 @@ from datetime import date
 from typing import Optional
 
 from src.data.database import DB_PATH
-from src.config import load_config
+from src.config import HeatConfig, load_config_typed
 from src.indicators.utils import _pct_rank as _utils_pct_rank
 
 logger = logging.getLogger(__name__)
 
-# ── 指标权重配置 (内置默认值, 可被 config/*.yaml 的 v2_engine 覆盖) ─────────────
+# ── 指标权重 / 背离参数内置默认 (P3-B1 后角色: 防漂移基准字面量) ─────────────
+# 消费路径已改为 HeatConfig 强类型 (YAML 为唯一事实源, 引擎模块级常量读
+# _ENGINE_CFG/_TYPED_CFG); config.py 的 EngineWeights/_DIVERGENCE_DEFAULTS 持
+# 同值兜底。下方 DEFAULT_* 保留供 tests/test_config.py 防漂移断言
+# (yaml == DEFAULT_* == config 内置) 与文档参考, 引擎运行不再直接消费。
 # M1.4+M1.5 (2026-09): 16 → 9 计分收敛 (依附录 A + 出口判据)。移出 7 项保留
 # 计算与展示、不再计分:
 #   margin_ratio(风险修饰, M2 恢复共振逻辑) / breadth(背离检测) / turnover_m2(与
@@ -67,7 +71,7 @@ DEFAULT_WEIGHTS = {
     "ma_alignment": 0.090909,  # MA排列比 (结构确认, 原6%)
 }
 
-# 背离检测参数 (内置默认值, 可被 v2_engine.divergence 覆盖)
+# 背离检测参数 (防漂移基准字面量, 与 config.py _DIVERGENCE_DEFAULTS 同值)
 DEFAULT_DIVERGENCE = {
     "turnover_threshold": 70,  # 换手率超过此值才触发背离检查
     "decline_threshold": -1.5,  # 指数跌幅超过此值(%)触发惩罚
@@ -77,16 +81,19 @@ DEFAULT_DIVERGENCE = {
 }
 
 
-def _load_v2_config() -> dict:
-    """加载 config/*.yaml 的 v2_engine 配置块; 缺失/异常时返回空 dict 走默认值"""
+def _load_typed_config() -> HeatConfig:
+    """加载强类型配置 (P3-B1); 缺失/异常时返回全默认 HeatConfig (引擎内置兜底)"""
     try:
-        return load_config().get("v2_engine", {}) or {}
+        return load_config_typed()
     except Exception:
-        logger.warning("v2_engine config missing, using built-in defaults")
-        return {}
+        logger.warning("config load failed, using built-in defaults")
+        return HeatConfig()
 
 
-_cfg = _load_v2_config()
+# P3-B1 (#103): 引擎全模块级常量统一消费 HeatConfig 强类型视图 (替代散落
+# `_cfg.get(...)` raw dict 访问) — YAML 为唯一事实源, 字段缺失回落内置默认。
+_TYPED_CFG = _load_typed_config()
+_ENGINE_CFG = _TYPED_CFG.engine  # v2_engine 块强类型视图 (mode/weights/各参数子块)
 
 # 引擎规格版本: v3.0 = M2a 方向修正 + 去趋势回退 (D1~D3, 2026-09-02)
 #   - v2.9 (M1.4+M1.5): 9 计分收敛单层引擎 (权重 16→9, 移出 7 键仅展示)
@@ -110,7 +117,7 @@ SINGLE6_DROP_KEYS = ("turnover", "ma_alignment", "new_high")
 
 
 def _resolve_mode() -> str:
-    mode = os.environ.get("HEAT_ENGINE_MODE") or (_cfg.get("mode") or "single9")
+    mode = os.environ.get("HEAT_ENGINE_MODE") or (_ENGINE_CFG.mode or "single9")
     if mode not in ENGINE_MODES:
         logger.warning("unknown engine_mode=%r, fallback single9", mode)
         mode = "single9"
@@ -130,7 +137,7 @@ def _weights_for(mode: str = None) -> dict:
     return dict(INDICATOR_WEIGHTS)
 
 
-INDICATOR_WEIGHTS = _cfg.get("weights") or DEFAULT_WEIGHTS
+INDICATOR_WEIGHTS = _ENGINE_CFG.weights.to_dict()
 
 # 验证权重总和为1.0
 assert abs(sum(INDICATOR_WEIGHTS.values()) - 1.0) < 0.001, (
@@ -140,22 +147,20 @@ assert abs(sum(INDICATOR_WEIGHTS.values()) - 1.0) < 0.001, (
 DIMENSIONS = ["valuation", "fund", "sentiment", "structure"]
 
 # 新高占比判定: 收盘价达到250日最高价的此比例即视为"新高"（2%容差，过滤盘中冲高回落噪声）
-NEW_HIGH_THRESHOLD = (_cfg.get("new_high") or {}).get("threshold", 0.98)
+NEW_HIGH_THRESHOLD = _ENGINE_CFG.new_high_threshold
 
-DIVERGENCE_CONFIG = {**DEFAULT_DIVERGENCE, **(_cfg.get("divergence") or {})}
+DIVERGENCE_CONFIG = dict(_ENGINE_CFG.divergence)  # 已含内置默认 + YAML 覆盖 (P3-B1)
 
 # F3: 换手率历史百分位窗口 (年)
-TURNOVER_WINDOW_YEARS = (_cfg.get("turnover") or {}).get("percentile_window_years", 10)
+TURNOVER_WINDOW_YEARS = _ENGINE_CFG.turnover_window_years
 
 # F5: PE 历史序列 n_stocks 口径过滤 (比例范围 + 绝对下限)
-_pe_cfg = _cfg.get("pe") or {}
-PE_N_STOCKS_RATIO = tuple(_pe_cfg.get("n_stocks_filter_ratio", [0.5, 1.5]))
-PE_N_STOCKS_MIN = int(_pe_cfg.get("n_stocks_filter_min", 450))
+PE_N_STOCKS_RATIO = _ENGINE_CFG.pe_n_stocks_ratio  # (lo, hi)
+PE_N_STOCKS_MIN = _ENGINE_CFG.pe_n_stocks_min
 
 # F4: 两融高分位平滑饱和参数
-_margin_cfg = _cfg.get("margin") or {}
-SATURATION_CUTOFF = float(_margin_cfg.get("saturation_cutoff", 0.85))
-SATURATION_HEADROOM = float(_margin_cfg.get("saturation_headroom", 0.15))
+SATURATION_CUTOFF = _ENGINE_CFG.margin_saturation_cutoff
+SATURATION_HEADROOM = _ENGINE_CFG.margin_saturation_headroom
 
 # 各指标所属维度 (M1.4+M1.5: 收敛至 9 计分键; 移出 7 键的维度归属仅存于展示层)
 INDICATOR_DIMENSIONS = {
@@ -174,9 +179,7 @@ INDICATOR_DIMENSIONS = {
 # P2.1: 滚动窗口分位 (替代全历史分位, 解决 regime drift — 10 年前的极值点稀释当下信号)
 # window=1260 ≈ 5 年交易日; 序列短于窗口时退化为全历史。
 # 环境变量 HEAT_PCT_WINDOW 可覆盖 (回测对比用); YAML v2_engine.percentile.rolling_window 为正式配置。
-ROLLING_PCT_WINDOW = int(
-    os.environ.get("HEAT_PCT_WINDOW") or (_cfg.get("percentile") or {}).get("rolling_window", 1260)
-)
+ROLLING_PCT_WINDOW = int(os.environ.get("HEAT_PCT_WINDOW") or _ENGINE_CFG.percentile_window)
 
 
 # ── M1.6: 统一阈值数据源 (heat_levels 顶层块 — 引擎 regime/极值档、json_writer
@@ -184,29 +187,18 @@ ROLLING_PCT_WINDOW = int(
 # 的数字漂移) ──────────────────────────────────────────────────────────────────
 
 
-def _load_heat_levels() -> dict:
-    """读取 config 顶层 heat_levels 块; 缺失/异常返回空 dict (走内置默认切点)"""
-    try:
-        cfg = load_config()
-        return (cfg.get("heat_levels") or {}) if cfg else {}
-    except Exception:
-        logger.warning("heat_levels config missing, using built-in regime cutoffs")
-        return {}
-
-
-_hl = _load_heat_levels()
-
-# regime label 切点 = heat_levels 连续四档下限 (与 json_writer 颜色档严格同源同值:
-# 过热=red / 分歧=orange / 修复=yellow / 冰点=green)。原硬编码 45/30 切点退役 —
-# 40-54(黄档) 归"修复"、<40(绿档) 归"冰点", 标签与颜色档一一对应。
+# regime label 切点 = heat_levels 连续四档下限 (typed 恒含 6 档默认切点, YAML 同名档
+# 覆盖; 与 json_writer 颜色档严格同源同值: 过热=red / 分歧=orange / 修复=yellow /
+# 冰点=green)。原硬编码 45/30 切点退役、独立 _load_heat_levels loader 退役
+# (P3-B1 并入 _load_typed_config 单源加载)。
 REGIME_CUTOFFS = {
-    "过热": float((_hl.get("red") or {}).get("min", 65)),
-    "分歧": float((_hl.get("orange") or {}).get("min", 55)),
-    "修复": float((_hl.get("yellow") or {}).get("min", 40)),
+    "过热": float(_TYPED_CFG.heat_levels["red"].min),
+    "分歧": float(_TYPED_CFG.heat_levels["orange"].min),
+    "修复": float(_TYPED_CFG.heat_levels["yellow"].min),
 }
 # 极值信号档 (叠加档, 不改变连续四档 label): extreme_hot ⊂ red 上沿 / extreme_cold ⊂ green 下沿
-EXTREME_HOT_MIN = float((_hl.get("extreme_hot") or {}).get("min", 80))
-EXTREME_COLD_MAX = float((_hl.get("extreme_cold") or {}).get("max", 29))
+EXTREME_HOT_MIN = float(_TYPED_CFG.heat_levels["extreme_hot"].min)
+EXTREME_COLD_MAX = float(_TYPED_CFG.heat_levels["extreme_cold"].max)
 
 
 # M1.2 (2026-09): 短序列 (长度 < 窗口) 按 label 只告警一次 — 消除"窗口静默退化
@@ -251,9 +243,9 @@ def _pct_rank(series, value, window: int | None = None, label: str = "", asof: s
 # turnover / ma_alignment / pe 存在结构性水平抬升 (2023-26 慢牛成交中枢上移、
 # 盈利/成分中枢漂移), 使原始值在 1260 日滚动窗口内长期贴顶 → 分位钝化失效。
 # 去趋势 = 原始值 ÷ 自身滚动中位数 (shift 1, 分母不含当日) 后再取分位。
-# YAML v2_engine.detrend.rolling_window 可覆盖 (默认 750 交易日≈3年)。
-DETREND_WINDOW = int((_cfg.get("detrend") or {}).get("rolling_window", 750))
-DETREND_MIN_PERIODS = int((_cfg.get("detrend") or {}).get("min_periods", 250))
+# YAML v2_engine.detrend.rolling_window 可覆盖 (默认 750 交易日≈3年; YAML 可缺省该子块)。
+DETREND_WINDOW = _ENGINE_CFG.detrend_rolling_window
+DETREND_MIN_PERIODS = _ENGINE_CFG.detrend_min_periods
 
 
 def _detrend(series: pd.Series, cur: float):

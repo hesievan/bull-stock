@@ -3,7 +3,15 @@
 import pytest
 from unittest.mock import patch
 
-from src.config import load_config, load_config_typed, validate_config, BASE_DIR
+from src.config import (
+    BASE_DIR,
+    EngineConfig,
+    EngineWeights,
+    HeatConfig,
+    load_config,
+    load_config_typed,
+    validate_config,
+)
 
 
 class TestLoadConfig:
@@ -90,48 +98,55 @@ class TestV2EngineConfig:
         assert cfg["margin"]["saturation_cutoff"] == SATURATION_CUTOFF
         assert cfg["margin"]["saturation_headroom"] == SATURATION_HEADROOM
 
-    def test_load_v2_config_from_yaml(self, tmp_path):
-        """修改 YAML 后 _load_v2_config 返回新值 (分数随之变化的基础)"""
-        from unittest.mock import patch as mpatch
-        import src.indicators.heat_index_v2 as h
-
+    def test_yaml_to_typed_engine(self, tmp_path):
+        """修改 YAML 后 HeatConfig 读出新值 (分数随之变化的基础; P3-B1 取代 _load_v2_config)"""
         yaml_file = tmp_path / "cfg.yaml"
         yaml_file.write_text(
             "v2_engine:\n"
+            "  mode: single6\n"
             "  weights:\n"
-            "    pe: 0.20\n"
-            "    buffett: 0.10\n"
-            "    margin_ratio: 0.15\n"
-            "    seal_rate: 0.25\n"
-            "    turnover_m2: 0.10\n"
+            "    pe: 0.30\n"
+            "    buffett: 0.20\n"
+            "    yield_spread: 0.05\n"
+            "    m1_m2_spread: 0.05\n"
+            "    margin_buy_ratio: 0.05\n"
             "    turnover: 0.10\n"
-            "    new_high: 0.06\n"
-            "    ma_alignment: 0.04\n",
+            "    futures_discount: 0.05\n"
+            "    new_high: 0.10\n"
+            "    ma_alignment: 0.10\n",
             encoding="utf-8",
         )
-        with mpatch.object(h, "load_config", lambda *a, **k: load_config(yaml_file)):
-            cfg = h._load_v2_config()
-        assert cfg["weights"]["pe"] == 0.20
-        assert abs(sum(cfg["weights"].values()) - 1.0) < 0.001
+        hc = HeatConfig.from_dict(load_config(yaml_file))
+        assert hc.engine.mode == "single6"
+        assert hc.engine.weights.to_dict()["pe"] == 0.30
+        assert abs(sum(hc.engine.weights.to_dict().values()) - 1.0) < 0.001
+        # YAML 未配 detrend 子块 → 回落内置默认
+        assert hc.engine.detrend_rolling_window == 750
 
     def test_fallback_defaults_on_missing_config(self):
-        """config 缺失/异常 → _load_v2_config 返回空 dict, 走内置默认值"""
+        """config 缺失/异常 → 引擎 _load_typed_config 返回全默认 HeatConfig (内置兜底)"""
         from unittest.mock import patch as mpatch
         import src.indicators.heat_index_v2 as h
 
         def _boom(*a, **k):
             raise FileNotFoundError("no config")
 
-        with mpatch.object(h, "load_config", _boom):
-            assert h._load_v2_config() == {}
+        with mpatch.object(h, "load_config_typed", _boom):
+            tc = h._load_typed_config()
+        assert isinstance(tc, HeatConfig)
+        assert tc.engine.mode == "single9"
+        assert abs(sum(tc.engine.weights.to_dict().values()) - 1.0) < 0.001
+        assert tc.heat_levels["red"].min == 65  # 默认切点兜底
 
-    def test_fallback_defaults_on_missing_block(self):
-        """config 存在但无 v2_engine 块 → 返回空 dict"""
-        from unittest.mock import patch as mpatch
+    def test_fallback_defaults_on_empty_config(self):
+        """config 存在但内容为空 → HeatConfig() 全默认构造 (引擎常量仍可导入)"""
         import src.indicators.heat_index_v2 as h
 
-        with mpatch.object(h, "load_config", lambda *a, **k: {"heat_levels": {}}):
-            assert h._load_v2_config() == {}
+        tc = HeatConfig()
+        assert tc.engine.weights.to_dict()["pe"] == h.DEFAULT_WEIGHTS["pe"]
+        assert tc.engine.mode == "single9"
+        # 引擎模块级常量在默认配置下与内置字面量同值 (可正常导入运行)
+        assert h.INDICATOR_WEIGHTS == h.DEFAULT_WEIGHTS
 
 
 class TestValidateConfig:
@@ -208,3 +223,36 @@ class TestLoadConfigTyped:
         assert cfg.heat_levels["extreme_hot"].min == 80
         assert cfg.heat_levels["extreme_cold"].max == 29
         assert cfg.raw["v2_engine"]["weights"]["pe"] > 0
+
+    def test_engine_typed_fields(self):
+        """P3-B1: v2_engine 全子块强类型覆盖 (含 M2b-3 mode 键) — YAML 有值断言"""
+        cfg = load_config_typed(BASE_DIR / "config" / "prod.yaml")
+        eng = cfg.engine
+        assert isinstance(eng, EngineConfig)
+        assert eng.mode == "single9"  # M2b-3 mode 键被强类型覆盖
+        assert eng.new_high_threshold == 0.98
+        assert eng.percentile_window == 1260
+        assert eng.turnover_window_years == 10.0
+        assert eng.pe_n_stocks_min == 450
+        assert eng.pe_n_stocks_ratio == (0.5, 1.5)
+        assert eng.margin_saturation_cutoff == 0.85
+        assert eng.margin_saturation_headroom == 0.15
+        # YAML 无 detrend 子块 → 回落内置默认
+        assert eng.detrend_rolling_window == 750
+        assert eng.detrend_min_periods == 250
+        # typed weights 与 raw dict 一致 (单一事实源穿透)
+        assert eng.weights.to_dict() == cfg.raw["v2_engine"]["weights"]
+        # YAML label/color 透传到 HeatLevel
+        assert cfg.heat_levels["red"].label == "红色预警"
+        assert cfg.heat_levels["red"].color == "#f85149"
+
+    def test_engine_defaults_match_engine_literals(self):
+        """防漂移: config.py 内置默认 (EngineWeights/EngineConfig) == 引擎 DEFAULT_* 字面量"""
+        from src.indicators.heat_index_v2 import DEFAULT_DIVERGENCE, DEFAULT_WEIGHTS
+
+        assert EngineWeights().to_dict() == DEFAULT_WEIGHTS
+        assert EngineConfig().divergence == {k: float(v) for k, v in DEFAULT_DIVERGENCE.items()}
+        assert EngineConfig().mode == "single9"
+        # heat_levels 默认切点 (缺配置时引擎兜底阈值)
+        assert HeatConfig().heat_levels["red"].min == 65
+        assert HeatConfig().heat_levels["extreme_cold"].max == 29
