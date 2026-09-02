@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""16 指标对牛熊状态预测贡献的系统评估（walk-forward / IC / 消融 / 转换敏感性）。
+"""计分指标对牛熊状态预测贡献的系统评估（walk-forward / IC / 消融 / 转换敏感性）。
 用法: python scripts/evaluate_indicators.py
 输入: reports/backtest_v2_detail.csv  输出: reports/indicators_eval_data.json + stdout 各分析表
 注意: 依赖 src.indicators.heat_index_v2 的权重配置, 权重变更后重跑即得新结论
 
-数据: reports/backtest_v2_detail.csv (2816 交易日 × 16 指标百分位 + close + phase)
+数据: reports/backtest_v2_detail.csv (交易日 × 计分指标百分位 + close + phase)
 方法:
   A. 单指标预测力: 全样本 + 3 段 walk-forward 的 IC(秩相关, 指标→未来20/60日收益)
   B. 领先/滞后: 指标与过去60日收益 vs 未来60日收益的秩相关
@@ -161,7 +161,7 @@ def composite(sub):
 base = composite(KEYS)
 base_ic60 = spearman(base, df["ret60"])
 base_ic20 = spearman(base, df["ret20"])
-print(f"基线 (16指标): IC20={base_ic20:.4f}  IC60={base_ic60:.4f}")
+print(f"基线 ({len(KEYS)}计分指标): IC20={base_ic20:.4f}  IC60={base_ic60:.4f}")
 rowsD = []
 for k in KEYS:
     sub = [x for x in KEYS if x != k]
