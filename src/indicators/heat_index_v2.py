@@ -144,16 +144,39 @@ ROLLING_PCT_WINDOW = int(
 )
 
 
-def _pct_rank(series, value) -> float:
+# M1.2 (2026-09): 短序列 (长度 < 窗口) 按 label 只告警一次 — 消除"窗口静默退化
+# 为全历史分位"的不可观测问题 (回测逐日循环时避免日志刷屏)。
+_SHORT_SERIES_WARNED: set[str] = set()
+
+
+def _pct_rank(series, value, window: int | None = None, label: str = "", asof: str = "") -> float:
     """百分位排名 (0~1) — 含自身的 <= 比较 (P1-3: 与 utils._pct_rank 口径统一)
 
     P2.1 (2026-09): 只取最近 ROLLING_PCT_WINDOW 条 (≈5年) 计算分位,
     使分数对近期状态更敏感, 顶部/底部区分更尖锐。
+    M1.1 (2026-09): 新增 window 参数 — 月频/低频序列按自身频率覆盖默认的
+    1260 交易日窗口 (如月频序列传 window=60 个月), 修 turnover_m2 /
+    m1_m2_spread 的窗口退化 (月频 n≈200 << 1260 时 .tail(1260) 静默失效,
+    退化为全历史分位而非"近5年")。
+    M1.2: 序列长度 < 窗口时打一次 WARN (label 去重, 含 asof/序列长度/窗口),
+    使退化可观测; 行为上仍按原逻辑用全历史 (tail(w) 超出即全量)。
     委托 utils._pct_rank 计算, 仅在空序列/NaN 时回退到 0.5 (防御性,
     正常流程各 calc_* 会在调用前保证序列非空)。
     """
     s = series if isinstance(series, pd.Series) else pd.Series(series)
-    r = _utils_pct_rank(s.tail(ROLLING_PCT_WINDOW), value)
+    w = ROLLING_PCT_WINDOW if window is None else int(window)
+    if len(s) < w:
+        key = label or "unknown"
+        if key not in _SHORT_SERIES_WARNED:
+            _SHORT_SERIES_WARNED.add(key)
+            logger.warning(
+                "percentile window degraded to full-history: label=%s asof=%s series_len=%d < window=%d",
+                key,
+                asof or "-",
+                len(s),
+                w,
+            )
+    r = _utils_pct_rank(s.tail(w), value)
     if r is None or (isinstance(r, float) and np.isnan(r)):
         return 0.5
     return float(r)
@@ -194,10 +217,12 @@ def calc_pe(conn, trade_date: str) -> Optional[tuple]:
         cur_n = cur[1] or 0
 
         # 历史序列 (10年), 过滤口径不一致的数据 (n_stocks相差超过50%)
+        # M1.8 (2026-09): 补 trade_date <= td 上界 — 修历史回填/回测时 tail(1260) 混入未来数据的前向泄漏
         hist = pd.read_sql(
-            "SELECT pe_med, n_stocks FROM index_daily_pe WHERE trade_date >= ? AND pe_med IS NOT NULL",
+            "SELECT pe_med, n_stocks FROM index_daily_pe"
+            " WHERE trade_date >= ? AND trade_date <= ? AND pe_med IS NOT NULL",
             conn,
-            params=[str(int(td[:4]) - 10) + td[4:]],
+            params=[str(int(td[:4]) - 10) + td[4:], td],
         )
         if hist.empty or len(hist) < 120:
             return None
@@ -216,7 +241,7 @@ def calc_pe(conn, trade_date: str) -> Optional[tuple]:
         if len(hist) < 60:
             return None
 
-        pct = _pct_rank(hist["pe_med"], cur_pe)
+        pct = _pct_rank(hist["pe_med"], cur_pe, label="pe", asof=trade_date)
         score = pct * 100  # PE越高=越贵=热度越高
         logger.info("大盘PE: %.2f, score=%.1f (n=%d, hist=%d)", cur_pe, score, cur_n, len(hist))
         return max(0, min(100, score)), cur_pe
@@ -248,9 +273,10 @@ def calc_seal_rate_v2(conn, trade_date: str) -> Optional[float]:
 
         # 历史序列 (10年窗口)
         hist = pd.read_sql(
-            "SELECT seal_rate FROM daily_seal_rate WHERE trade_date >= ? AND seal_rate IS NOT NULL ORDER BY trade_date",
+            "SELECT seal_rate FROM daily_seal_rate"
+            " WHERE trade_date >= ? AND trade_date <= ? AND seal_rate IS NOT NULL ORDER BY trade_date",
             conn,
-            params=[str(int(td[:4]) - 10) + td[4:]],
+            params=[str(int(td[:4]) - 10) + td[4:], td],
         )
         if hist.empty or len(hist) < 60:
             return None
@@ -258,7 +284,7 @@ def calc_seal_rate_v2(conn, trade_date: str) -> Optional[float]:
         if len(hist_vals) < 60:
             return None
 
-        pct = _pct_rank(hist_vals, cur)
+        pct = _pct_rank(hist_vals, cur, label="seal_rate", asof=trade_date)
         score = pct * 100  # 封板率越高=热度越高
         logger.info("涨停封板率: %.4f, pct=%.2f, score=%.1f (n=%d)", cur, pct, score, len(hist_vals))
         return max(0, min(100, score)), cur
@@ -329,9 +355,9 @@ def calc_buffett(conn, trade_date: str) -> Optional[float]:
         # 历史巴菲特指标 (使用 stock_market_cap 预计算表)
         mv_hist = pd.read_sql(
             "SELECT trade_date, total_mv FROM stock_market_cap "
-            "WHERE trade_date >= ? AND total_mv > 0 ORDER BY trade_date",
+            "WHERE trade_date >= ? AND trade_date <= ? AND total_mv > 0 ORDER BY trade_date",
             conn,
-            params=[str(td_year - 10) + td[4:]],
+            params=[str(td_year - 10) + td[4:], td],
         )
         if mv_hist.empty:
             return None
@@ -349,7 +375,7 @@ def calc_buffett(conn, trade_date: str) -> Optional[float]:
         if len(hist_ratios) < 60:
             return None
 
-        pct = _pct_rank(hist_ratios, buffett_ratio)
+        pct = _pct_rank(hist_ratios, buffett_ratio, label="buffett", asof=trade_date)
         score = pct * 100  # 巴菲特指标越高=越贵=热度越高
         logger.info(
             "巴菲特指标: %.4f (%s年GDP=%.0f亿), score=%.1f (n=%d)",
@@ -397,12 +423,12 @@ def calc_margin_ratio_v2(conn, trade_date: str) -> Optional[float]:
             JOIN (SELECT trade_date, MAX(total_circ_mv) as total_circ_mv FROM daily_circ_mv
                   WHERE total_circ_mv > 0 GROUP BY trade_date) c
               ON m.trade_date = c.trade_date
-            WHERE m.trade_date >= ? AND m.rzye > 0
+            WHERE m.trade_date >= ? AND m.trade_date <= ? AND m.rzye > 0
             GROUP BY m.trade_date
             ORDER BY m.trade_date
         """,
             conn,
-            params=[str(int(td[:4]) - 10) + td[4:]],
+            params=[str(int(td[:4]) - 10) + td[4:], td],
         )
 
         if hist.empty or len(hist) < 60:
@@ -412,7 +438,7 @@ def calc_margin_ratio_v2(conn, trade_date: str) -> Optional[float]:
         if len(hist_ratios) < 60:
             return None
 
-        pct = _pct_rank(hist_ratios, cur_ratio)
+        pct = _pct_rank(hist_ratios, cur_ratio, label="margin_ratio", asof=trade_date)
         # 杠杆上升=热度上升。F4修复: 高分位用平滑饱和函数保持单调递增,
         # 原线性递减(900*(1-pct))导致 pct=0.95 时分数骤降至45, 反直觉且与"顶部预警"设计矛盾
         # 0.85→85, 0.90→~94, 0.95→~98, 0.99→~99: 单调递增且平滑收敛
@@ -471,6 +497,8 @@ def calc_turnover_m2(conn, trade_date: str) -> Optional[float]:
         )
 
         merged = m2_all.merge(amt_monthly, on="month", how="inner")
+        # M1.8: 月频序列只保留 <= td 所在月 — 修回填/回测时历史分位混入未来月份
+        merged = merged[merged["month"] <= td_month]
         if merged.empty or len(merged) < 60:
             return None
 
@@ -478,7 +506,7 @@ def calc_turnover_m2(conn, trade_date: str) -> Optional[float]:
         merged["ratio"] = merged["avg_daily_amt"] / (merged["m2_billion"] * 1e8)
         hist_ratios = merged["ratio"].dropna()
 
-        pct = _pct_rank(hist_ratios, cur_ratio)
+        pct = _pct_rank(hist_ratios, cur_ratio, window=60, label="turnover_m2", asof=trade_date)
         score = pct * 100
         logger.info("成交额M2比: %.6f, score=%.1f (n=%d)", cur_ratio, score, len(hist_ratios))
         return max(0, min(100, score)), cur_ratio
@@ -525,7 +553,7 @@ def calc_turnover_v2(conn, trade_date: str) -> Optional[float]:
 
         cur_rate = today["amt"].iloc[0] / today["mv"].iloc[0] * 10
 
-        pct = _pct_rank(hist_rates, cur_rate)
+        pct = _pct_rank(hist_rates, cur_rate, label="turnover", asof=trade_date)
         score = pct * 100
         logger.info("换手率: %.4f%%, score=%.1f (n=%d)", cur_rate, score, len(hist_rates))
         return max(0, min(100, score)), cur_rate
@@ -574,16 +602,17 @@ def calc_new_high_v2(conn, trade_date: str) -> Optional[float]:
 
         # 历史序列 (10年, 预计算表)
         hist = pd.read_sql(
-            "SELECT new_high_ratio FROM daily_new_high WHERE trade_date >= ? AND new_high_ratio IS NOT NULL",
+            "SELECT new_high_ratio FROM daily_new_high"
+            " WHERE trade_date >= ? AND trade_date <= ? AND new_high_ratio IS NOT NULL",
             conn,
-            params=[str(int(td[:4]) - 10) + td[4:]],
+            params=[str(int(td[:4]) - 10) + td[4:], td],
         )
         if hist.empty or len(hist) < 60:
             # 历史不足时宁缺毋滥 (与 PE/ERP 行为一致), 不返回绝对分
             logger.warning("New high: insufficient historical data (%d records)", len(hist))
             return None
 
-        pct = _pct_rank(hist["new_high_ratio"].dropna(), cur_ratio)
+        pct = _pct_rank(hist["new_high_ratio"].dropna(), cur_ratio, label="new_high", asof=trade_date)
         score = pct * 100
         logger.info("创新高占比: %.4f, pct=%.2f, score=%.1f (n=%d)", cur_ratio, pct, score, len(hist))
         return max(0, min(100, score)), cur_ratio
@@ -609,9 +638,10 @@ def calc_ma_alignment_v2(conn, trade_date: str) -> Optional[float]:
 
         # 历史序列 (10年)
         hist = pd.read_sql(
-            "SELECT ma_alignment_ratio FROM daily_ma_alignment WHERE trade_date >= ? AND ma_alignment_ratio IS NOT NULL",
+            "SELECT ma_alignment_ratio FROM daily_ma_alignment"
+            " WHERE trade_date >= ? AND trade_date <= ? AND ma_alignment_ratio IS NOT NULL",
             conn,
-            params=[str(int(td[:4]) - 10) + td[4:]],
+            params=[str(int(td[:4]) - 10) + td[4:], td],
         )
         if hist.empty or len(hist) < 60:
             # F6修复: 历史不足时收敛到[20,80], 原实现 cur_val*100 会给出异常高分
@@ -619,7 +649,7 @@ def calc_ma_alignment_v2(conn, trade_date: str) -> Optional[float]:
             score = max(20, min(cur_val * 100, 80))
             return score, cur_val
 
-        pct = _pct_rank(hist["ma_alignment_ratio"], cur_val)
+        pct = _pct_rank(hist["ma_alignment_ratio"], cur_val, label="ma_alignment", asof=trade_date)
         score = pct * 100
         logger.info("MA排列比: %.4f, pct=%.2f, score=%.1f (n=%d)", cur_val, pct, score, len(hist))
         return max(0, min(100, score)), cur_val
@@ -656,11 +686,11 @@ def calc_yield_spread_v2(conn, trade_date: str) -> Optional[float]:
                    MAX(CASE WHEN curve_term=10.0 THEN yield_rate END) AS y10,
                    MAX(CASE WHEN curve_term=2.0 THEN yield_rate END) AS y2
             FROM bond_yield
-            WHERE trade_date >= ? AND curve_term IN (2.0, 10.0)
+            WHERE trade_date >= ? AND trade_date <= ? AND curve_term IN (2.0, 10.0)
             GROUP BY trade_date
         """,
             conn,
-            params=[str(int(td[:4]) - 10) + td[4:]],
+            params=[str(int(td[:4]) - 10) + td[4:], td],
         )
         if hist.empty or len(hist) < 60:
             return None
@@ -668,7 +698,7 @@ def calc_yield_spread_v2(conn, trade_date: str) -> Optional[float]:
         hist_ratios = hist["spread"].dropna()
         if len(hist_ratios) < 60:
             return None
-        pct = _pct_rank(-hist_ratios, -cur)
+        pct = _pct_rank(-hist_ratios, -cur, label="yield_spread", asof=trade_date)
         score = pct * 100
         logger.info("国债期限利差(10Y-2Y, 已翻转方向): %.4f, score=%.1f (n=%d)", cur, score, len(hist_ratios))
         return max(0, min(100, score)), cur
@@ -695,39 +725,32 @@ def calc_m1_m2_spread_v2(conn, trade_date: str) -> Optional[float]:
         ).fetchone()
         if not m1 or m1[0] is None or not m2 or m2[0] is None:
             return None
-        cur = float(m1[0]) - float(m2[0])
 
         mser = pd.read_sql(
             """
             SELECT a.month, a.m1_yoy - b.m2_yoy AS spread
             FROM m1_monthly a JOIN m2_monthly b ON a.month = b.month
-            WHERE a.m1_yoy IS NOT NULL AND b.m2_yoy IS NOT NULL
+            WHERE a.m1_yoy IS NOT NULL AND b.m2_yoy IS NOT NULL AND a.month <= ?
             ORDER BY a.month
         """,
             conn,
+            params=[td_month],
         )
         if mser.empty:
             return None
-        dates = pd.read_sql(
-            "SELECT DISTINCT trade_date FROM stock_daily WHERE trade_date >= ? ORDER BY trade_date",
-            conn,
-            params=[str(int(td[:4]) - 10) + td[4:]],
-        )
-        if dates.empty:
+        monthly = mser["spread"].dropna()
+        # 当前值: month <= td 所在月的最近一个月 (月频数据按日对齐, 用当月值)
+        cur_rows = mser[mser["month"] <= td_month]
+        if cur_rows.empty:
             return None
-        dates["month"] = dates["trade_date"].str[:7]
-        merged = dates.merge(mser, on="month", how="left").sort_values("trade_date")
-        merged["spread"] = merged["spread"].ffill()
-        cur_row = merged[merged["trade_date"] <= td]
-        if cur_row.empty:
+        cur = float(cur_rows.iloc[-1]["spread"])
+        if len(monthly) < 12:
             return None
-        cur = float(cur_row.iloc[-1]["spread"])
-        hist_ratios = merged["spread"].dropna()
-        if len(hist_ratios) < 60:
-            return None
-        pct = _pct_rank(hist_ratios, cur)
+        # M1.1: 分位在月频序列上按 60 个月窗口取 — 修原日频展开 (同一月值重复
+        # ~21 个交易日, 对分位重复加权) + 1260 交易日窗口与月频错配的静默退化。
+        pct = _pct_rank(monthly, cur, window=60, label="m1_m2_spread", asof=trade_date)
         score = pct * 100
-        logger.info("M1-M2剪刀差: %.4f, score=%.1f (n=%d)", cur, score, len(hist_ratios))
+        logger.info("M1-M2剪刀差: %.4f, score=%.1f (n=%d)", cur, score, len(monthly))
         return max(0, min(100, score)), cur
     except Exception as e:
         logger.warning("M1-M2 spread calc failed: %s", e)
@@ -756,14 +779,14 @@ def calc_breadth_v2(conn, trade_date: str) -> Optional[tuple]:
 
         hist = pd.read_sql(
             "SELECT up_down_ratio FROM daily_updown"
-            " WHERE trade_date >= ? AND up_down_ratio IS NOT NULL AND up_down_ratio > 0",
+            " WHERE trade_date >= ? AND trade_date <= ? AND up_down_ratio IS NOT NULL AND up_down_ratio > 0",
             conn,
-            params=[str(int(td[:4]) - 10) + td[4:]],
+            params=[str(int(td[:4]) - 10) + td[4:], td],
         )
         if hist.empty or len(hist) < 60:
             logger.warning("Breadth: insufficient history (%d records)", len(hist))
             return None
-        pct = _pct_rank(hist["up_down_ratio"], cur)
+        pct = _pct_rank(hist["up_down_ratio"], cur, label="breadth", asof=trade_date)
         score = pct * 100
         logger.info("涨跌家数广度: %.4f, pct=%.2f, score=%.1f (n=%d)", cur, pct, score, len(hist))
         return max(0, min(100, score)), cur
@@ -791,14 +814,15 @@ def calc_southbound_v2(conn, trade_date: str) -> Optional[tuple]:
         cur = float(row[0])
 
         hist = pd.read_sql(
-            "SELECT south_net FROM daily_hsgt_south WHERE trade_date >= ? AND south_net IS NOT NULL",
+            "SELECT south_net FROM daily_hsgt_south"
+            " WHERE trade_date >= ? AND trade_date <= ? AND south_net IS NOT NULL",
             conn,
-            params=[str(int(td[:4]) - 10) + td[4:]],
+            params=[str(int(td[:4]) - 10) + td[4:], td],
         )
         if hist.empty or len(hist) < 60:
             logger.warning("Southbound: insufficient history (%d records)", len(hist))
             return None
-        pct = _pct_rank(hist["south_net"], cur)
+        pct = _pct_rank(hist["south_net"], cur, label="southbound", asof=trade_date)
         score = pct * 100
         logger.info("南向净买额: %.2f亿, pct=%.2f, score=%.1f (n=%d)", cur, pct, score, len(hist))
         return max(0, min(100, score)), cur
@@ -826,14 +850,15 @@ def calc_futures_discount_v2(conn, trade_date: str) -> Optional[tuple]:
         cur = float(row[0])
 
         hist = pd.read_sql(
-            "SELECT basis_rate FROM daily_futures_basis WHERE trade_date >= ? AND basis_rate IS NOT NULL",
+            "SELECT basis_rate FROM daily_futures_basis"
+            " WHERE trade_date >= ? AND trade_date <= ? AND basis_rate IS NOT NULL",
             conn,
-            params=[str(int(td[:4]) - 10) + td[4:]],
+            params=[str(int(td[:4]) - 10) + td[4:], td],
         )
         if hist.empty or len(hist) < 60:
             logger.warning("Futures basis: insufficient history (%d records)", len(hist))
             return None
-        pct = _pct_rank(hist["basis_rate"], cur)
+        pct = _pct_rank(hist["basis_rate"], cur, label="futures_discount", asof=trade_date)
         score = pct * 100
         logger.info("IF基差率: %.6f, pct=%.2f, score=%.1f (n=%d)", cur, pct, score, len(hist))
         return max(0, min(100, score)), cur
@@ -867,7 +892,7 @@ def calc_amplitude_v2(conn, trade_date: str) -> Optional[tuple]:
         cur = float(amp.iloc[-1])
         if pd.isna(cur) or cur <= 0:
             return None
-        pct = _pct_rank(amp, cur)
+        pct = _pct_rank(amp, cur, label="amplitude", asof=trade_date)
         score = pct * 100
         logger.info("振幅热度: %.4f, pct=%.2f, score=%.1f (n=%d)", cur, pct, score, len(amp))
         return max(0, min(100, score)), cur
@@ -903,7 +928,7 @@ def calc_realized_vol_v2(conn, trade_date: str, window: int = 20) -> Optional[tu
         cur = float(vol.iloc[-1])
         if cur <= 0:
             return None
-        pct = _pct_rank(-vol, -cur)
+        pct = _pct_rank(-vol, -cur, label="realized_vol", asof=trade_date)
         score = pct * 100
         logger.info("已实现波动率(20日年化): %.4f, pct=%.2f, score=%.1f (n=%d)", cur, pct, score, len(vol))
         return max(0, min(100, score)), cur
@@ -942,7 +967,7 @@ def calc_margin_buy_ratio_v2(conn, trade_date: str) -> Optional[tuple]:
         cur = float(hist.iloc[-1]["ratio"])
         if cur <= 0:
             return None
-        pct = _pct_rank(hist["ratio"], cur)
+        pct = _pct_rank(hist["ratio"], cur, label="margin_buy_ratio", asof=trade_date)
         score = pct * 100
         logger.info("融资买入占比: %.4f, pct=%.2f, score=%.1f (n=%d)", cur, pct, score, len(hist))
         return max(0, min(100, score)), cur

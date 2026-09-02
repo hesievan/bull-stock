@@ -27,19 +27,26 @@ def get_config() -> dict:
     return _config_cache
 
 
-def _pct_rank(series: pd.Series, value: float, scale: str = "0-1") -> float:
+def _pct_rank(series: pd.Series, value: float, scale: str = "0-1", window: int | None = None) -> float:
     """统一百分位计算 (ISSUE-7 修复: 统一三处不同实现)
 
     Args:
-        series: 历史数据序列
+        series: 历史数据序列 (list/array 亦可, 内部转 Series)
         value: 当前要计算分位的值
         scale: 返回值范围 "0-1" (默认, 0~1) 或 "0-100" (0~100)
+        window: 可选滚动窗口 (M1.1) — 若给出且 len(series) > window, 先取最近
+                window 条再算分位。供低频序列按自身频率覆盖 (如月频序列传 60),
+                避免月频 n≈200 << 1260 交易日窗口时 tail 静默失效。
+                None = 使用全序列。
 
     使用含自身的 <= 比较, 确保值一定落在 [0, 1] 或 [0, 100] 内。
     """
-    if series.empty or pd.isna(value):
+    if series is None or len(series) == 0 or pd.isna(value):
         return np.nan
-    clean = series.dropna()
+    s = series if isinstance(series, pd.Series) else pd.Series(series)
+    if window is not None and len(s) > window:
+        s = s.tail(window)
+    clean = s.dropna()
     if clean.empty:
         return np.nan
     pct = (clean <= value).sum() / len(clean)

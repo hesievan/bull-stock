@@ -27,9 +27,14 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(mess
 logger = logging.getLogger(__name__)
 
 
-def _pctr(series, value):
-    """滚动窗口百分位 — 与引擎 _pct_rank 口径一致 (P2.1, tail(ROLLING_PCT_WINDOW))"""
-    return _pct_rank(series.tail(ROLLING_PCT_WINDOW), value)
+def _pctr(series, value, window=ROLLING_PCT_WINDOW):
+    """滚动窗口百分位 — 与引擎 _pct_rank 口径一致
+
+    P2.1: 默认 tail(1260 交易日≈5年)。
+    M1.1 (2026-09): 增加 window 参数 — 月频序列调用传 60 (60 个月窗口),
+    委托 utils._pct_rank 的 window 语义 (len>window 才 tail, 短序列退化为全量)。
+    """
+    return _pct_rank(series, value, window=window)
 
 
 def v2_level(score):
@@ -309,6 +314,7 @@ def run_backtest():
         SELECT a.month, a.m1_yoy - b.m2_yoy AS spread
         FROM m1_monthly a JOIN m2_monthly b ON a.month = b.month
         WHERE a.m1_yoy IS NOT NULL AND b.m2_yoy IS NOT NULL
+        ORDER BY a.month
     """,
         conn,
     )
@@ -408,7 +414,9 @@ def run_backtest():
         if len(cur_pe_row) > 0:
             cur_pe = cur_pe_row.iloc[-1]["pe_med"]
             cur_n = cur_pe_row.iloc[-1]["n_stocks"]
-            hist_pe = pe_df[(pe_df["trade_date"] >= ten_years_ago) & (pe_df["pe_med"].notna())].copy()
+            hist_pe = pe_df[
+                (pe_df["trade_date"] >= ten_years_ago) & (pe_df["trade_date"] <= td) & (pe_df["pe_med"].notna())
+            ].copy()
             if cur_n > 0 and len(hist_pe) > 60:
                 lo, hi = cur_n * 0.5, cur_n * 1.5
                 if cur_n >= 600:
@@ -423,7 +431,11 @@ def run_backtest():
         cur_buffett_row = mvcap_df[mvcap_df["trade_date"] <= td]
         if len(cur_buffett_row) > 0:
             cur_br = cur_buffett_row.iloc[-1]["buffett_ratio"]
-            hist_buffett = mvcap_df[(mvcap_df["trade_date"] >= ten_years_ago) & (mvcap_df["buffett_ratio"].notna())]
+            hist_buffett = mvcap_df[
+                (mvcap_df["trade_date"] >= ten_years_ago)
+                & (mvcap_df["trade_date"] <= td)
+                & (mvcap_df["buffett_ratio"].notna())
+            ]
             if len(hist_buffett) >= 60:
                 pct = _pctr(hist_buffett["buffett_ratio"], cur_br)
                 scores["buffett"] = max(0, min(100, pct * 100))
@@ -433,7 +445,11 @@ def run_backtest():
         cur_margin_row = margin_hist[margin_hist["trade_date"] <= td]
         if len(cur_margin_row) > 0:
             cur_mr = cur_margin_row.iloc[-1]["ratio"]
-            hist_margin = margin_hist[(margin_hist["trade_date"] >= ten_years_ago) & (margin_hist["ratio"].notna())]
+            hist_margin = margin_hist[
+                (margin_hist["trade_date"] >= ten_years_ago)
+                & (margin_hist["trade_date"] <= td)
+                & (margin_hist["ratio"].notna())
+            ]
             if len(hist_margin) >= 60:
                 pct = _pctr(hist_margin["ratio"], cur_mr)
                 if pct <= SATURATION_CUTOFF:
@@ -448,18 +464,23 @@ def run_backtest():
         cur_seal = seal_df[seal_df["trade_date"] == td]
         if len(cur_seal) > 0:
             cur_sr = cur_seal.iloc[0]["seal_rate"]
-            hist_seal = seal_df[(seal_df["trade_date"] >= ten_years_ago) & (seal_df["seal_rate"].notna())]
+            hist_seal = seal_df[
+                (seal_df["trade_date"] >= ten_years_ago)
+                & (seal_df["trade_date"] <= td)
+                & (seal_df["seal_rate"].notna())
+            ]
             if len(hist_seal) >= 60:
                 pct = _pctr(hist_seal["seal_rate"], cur_sr)
                 scores["seal_rate"] = max(0, min(100, pct * 100))
                 raws["seal_rate"] = cur_sr
 
-        # Turnover/M2
+        # Turnover/M2 (M1.1+M1.8: 与引擎同口径 — 月频序列 60 个月窗口, 只用 <= td 所在月, 无未来泄漏)
         cur_tm2 = daily_amt[daily_amt["trade_date"] == td]
         if len(cur_tm2) > 0 and pd.notna(cur_tm2.iloc[0]["turnover_m2"]):
             cur_tm2_val = cur_tm2.iloc[0]["turnover_m2"]
-            if len(m2_merged) >= 60:
-                pct = _pctr(m2_merged["ratio"], cur_tm2_val)
+            m2_le = m2_merged[m2_merged["month"] <= td[:7]]
+            if len(m2_le) >= 60:
+                pct = _pctr(m2_le["ratio"], cur_tm2_val, window=60)
                 scores["turnover_m2"] = max(0, min(100, pct * 100))
                 raws["turnover_m2"] = cur_tm2_val
 
@@ -467,7 +488,11 @@ def run_backtest():
         cur_turnover = turnover_df[turnover_df["trade_date"] == td]
         if len(cur_turnover) > 0:
             cur_tr = cur_turnover.iloc[0]["turnover_rate"]
-            hist_tr = turnover_df[(turnover_df["trade_date"] >= ten_years_ago) & (turnover_df["turnover_rate"].notna())]
+            hist_tr = turnover_df[
+                (turnover_df["trade_date"] >= ten_years_ago)
+                & (turnover_df["trade_date"] <= td)
+                & (turnover_df["turnover_rate"].notna())
+            ]
             if len(hist_tr) >= 60:
                 pct = _pctr(hist_tr["turnover_rate"], cur_tr)
                 scores["turnover"] = max(0, min(100, pct * 100))
@@ -477,7 +502,11 @@ def run_backtest():
         cur_nh = newhigh_df[newhigh_df["trade_date"] == td]
         if len(cur_nh) > 0:
             cur_nh_val = cur_nh.iloc[0]["new_high_ratio"]
-            hist_nh = newhigh_df[(newhigh_df["trade_date"] >= ten_years_ago) & (newhigh_df["new_high_ratio"].notna())]
+            hist_nh = newhigh_df[
+                (newhigh_df["trade_date"] >= ten_years_ago)
+                & (newhigh_df["trade_date"] <= td)
+                & (newhigh_df["new_high_ratio"].notna())
+            ]
             if len(hist_nh) >= 60:
                 pct = _pctr(hist_nh["new_high_ratio"], cur_nh_val)
                 scores["new_high"] = max(0, min(100, pct * 100))
@@ -490,7 +519,9 @@ def run_backtest():
         if len(cur_ma) > 0:
             cur_ma_val = cur_ma.iloc[-1]["ma_alignment_ratio"]
             hist_ma = ma_align_df[
-                (ma_align_df["trade_date"] >= ten_years_ago) & (ma_align_df["ma_alignment_ratio"].notna())
+                (ma_align_df["trade_date"] >= ten_years_ago)
+                & (ma_align_df["trade_date"] <= td)
+                & (ma_align_df["ma_alignment_ratio"].notna())
             ]
             if len(hist_ma) >= 60:
                 pct = _pctr(hist_ma["ma_alignment_ratio"], cur_ma_val)
@@ -501,19 +532,23 @@ def run_backtest():
         cur_ys = yspread_df[yspread_df["trade_date"] <= td]
         if len(cur_ys) > 0 and pd.notna(cur_ys.iloc[-1]["spread"]):
             cur_ys_val = cur_ys.iloc[-1]["spread"]
-            hist_ys = yspread_df[(yspread_df["trade_date"] >= ten_years_ago) & (yspread_df["spread"].notna())]
+            hist_ys = yspread_df[
+                (yspread_df["trade_date"] >= ten_years_ago)
+                & (yspread_df["trade_date"] <= td)
+                & (yspread_df["spread"].notna())
+            ]
             if len(hist_ys) >= 60:
                 pct = _pctr(-hist_ys["spread"], -cur_ys_val)
                 scores["yield_spread"] = max(0, min(100, pct * 100))
                 raws["yield_spread"] = cur_ys_val
 
-        # M1-M2 spread
+        # M1-M2 spread (M1.1+M1.8: 与引擎同口径 — 月频序列按 60 个月窗口取分位, 只用 <= td 所在月, 无未来泄漏)
         cur_mm = _m1m2[_m1m2["trade_date"] <= td]
         if len(cur_mm) > 0 and pd.notna(cur_mm.iloc[-1]["spread"]):
             cur_mm_val = cur_mm.iloc[-1]["spread"]
-            hist_mm = _m1m2[(_m1m2["trade_date"] >= ten_years_ago) & (_m1m2["spread"].notna())]
-            if len(hist_mm) >= 60:
-                pct = _pctr(hist_mm["spread"], cur_mm_val)
+            mser_le = mser[mser["month"] <= td[:7]]
+            if len(mser_le) >= 12:
+                pct = _pctr(mser_le["spread"], cur_mm_val, window=60)
                 scores["m1_m2_spread"] = max(0, min(100, pct * 100))
                 raws["m1_m2_spread"] = cur_mm_val
 
@@ -521,7 +556,11 @@ def run_backtest():
         cur_sb = south_df[south_df["trade_date"] <= td]
         if len(cur_sb) > 0:
             cur_sb_val = cur_sb.iloc[-1]["south_net"]
-            hist_sb = south_df[(south_df["trade_date"] >= ten_years_ago) & (south_df["south_net"].notna())]
+            hist_sb = south_df[
+                (south_df["trade_date"] >= ten_years_ago)
+                & (south_df["trade_date"] <= td)
+                & (south_df["south_net"].notna())
+            ]
             if len(hist_sb) >= 60:
                 pct = _pctr(hist_sb["south_net"], cur_sb_val)
                 scores["southbound"] = max(0, min(100, pct * 100))
@@ -531,7 +570,11 @@ def run_backtest():
         cur_fb = basis_df[basis_df["trade_date"] <= td]
         if len(cur_fb) > 0:
             cur_fb_val = cur_fb.iloc[-1]["basis_rate"]
-            hist_fb = basis_df[(basis_df["trade_date"] >= ten_years_ago) & (basis_df["basis_rate"].notna())]
+            hist_fb = basis_df[
+                (basis_df["trade_date"] >= ten_years_ago)
+                & (basis_df["trade_date"] <= td)
+                & (basis_df["basis_rate"].notna())
+            ]
             if len(hist_fb) >= 60:
                 pct = _pctr(hist_fb["basis_rate"], cur_fb_val)
                 scores["futures_discount"] = max(0, min(100, pct * 100))
@@ -541,7 +584,11 @@ def run_backtest():
         cur_bd = breadth_df[breadth_df["trade_date"] == td]
         if len(cur_bd) > 0:
             cur_bd_val = cur_bd.iloc[0]["up_down_ratio"]
-            hist_bd = breadth_df[(breadth_df["trade_date"] >= ten_years_ago) & (breadth_df["up_down_ratio"].notna())]
+            hist_bd = breadth_df[
+                (breadth_df["trade_date"] >= ten_years_ago)
+                & (breadth_df["trade_date"] <= td)
+                & (breadth_df["up_down_ratio"].notna())
+            ]
             if len(hist_bd) >= 60:
                 pct = _pctr(hist_bd["up_down_ratio"], cur_bd_val)
                 scores["breadth"] = max(0, min(100, pct * 100))
