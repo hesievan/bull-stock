@@ -3,22 +3,15 @@
 # V2 引擎配置（与 heat_index_v2.py 同步, YAML 为唯一事实源）
 v2_engine:
   weights:
-    pe: 0.14
-    buffett: 0.14
-    margin_ratio: 0.05
-    yield_spread: 0.03
-    m1_m2_spread: 0.03
-    southbound: 0.01
-    margin_buy_ratio: 0.03
-    seal_rate: 0.06
-    turnover_m2: 0.14
-    turnover: 0.09
-    futures_discount: 0.02
-    amplitude: 0.02
-    realized_vol: 0.02
-    new_high: 0.12
-    ma_alignment: 0.06
-    breadth: 0.04
+    pe: 0.212121
+    buffett: 0.212121
+    yield_spread: 0.045455
+    m1_m2_spread: 0.045455
+    margin_buy_ratio: 0.045455
+    turnover: 0.136364
+    futures_discount: 0.030303
+    new_high: 0.181818
+    ma_alignment: 0.090909
   divergence:
     turnover_threshold: 70
     decline_threshold: -1.5

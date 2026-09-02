@@ -45,23 +45,26 @@ from src.indicators.utils import _pct_rank as _utils_pct_rank
 logger = logging.getLogger(__name__)
 
 # ── 指标权重配置 (内置默认值, 可被 config/*.yaml 的 v2_engine 覆盖) ─────────────
+# M1.4+M1.5 (2026-09): 16 → 9 计分收敛 (依附录 A + 出口判据)。移出 7 项保留
+# 计算与展示、不再计分:
+#   margin_ratio(风险修饰, M2 恢复共振逻辑) / breadth(背离检测) / turnover_m2(与
+#   turnover 冗余 r=0.972) / seal_rate(IC≈0) / realized_vol(样本外反转) /
+#   amplitude(弃用) / southbound(口径污染待重构)
+# 保留 9 项 = heat 引擎 6 (pe/buffett/futures_discount/new_high/ma_alignment/
+# turnover) + momentum 引擎 3 (margin_buy_ratio/yield_spread/m1_m2_spread) 的成员。
+# 权重按原相对值重归一至 sum=1.0 (原 0.66 → 1.0: 各键 ÷0.66)。释放的 0.34 未
+# 人工分配 — composite = Σ(v·w)/Σw 本与尺度无关, 重归一仅保持"权重表=概率分布"
+# 的表观语义, 数值与"保留 0.66 靠引擎归一"完全一致。
 DEFAULT_WEIGHTS = {
-    "pe": 0.14,  # 大盘PE
-    "buffett": 0.14,  # 巴菲特指标
-    "margin_ratio": 0.05,  # 两融余额市值比 (存量杠杆; P3: 6%→5%)
-    "yield_spread": 0.03,  # 国债期限利差 10Y-2Y (P3: 4%→3%)
-    "m1_m2_spread": 0.03,  # M1-M2剪刀差 (P3: 4%→3%)
-    "southbound": 0.01,  # 南向通净买额 (P1 新增, 补北向退役缺口)
-    "margin_buy_ratio": 0.03,  # 融资买入占比 (P3 新增, 流量杠杆, 与余额比互补)
-    "seal_rate": 0.06,  # 涨停封板率 (P3: 7%→6%)
-    "turnover_m2": 0.14,  # 成交额M2比 (区分度21.5最高; P3: 16%→14%)
-    "turnover": 0.09,  # 换手率 (P3: 10%→9%)
-    "futures_discount": 0.02,  # IF基差 (P1 新增; 回测区分度≈0(-1.8,p=0.135), 权重由拟定的4%降为2%)
-    "amplitude": 0.02,  # 振幅热度 (P3 新增, 多空博弈强度)
-    "realized_vol": 0.02,  # 已实现波动率 (P3 新增, F&G波动率因子; 方向neg)
-    "new_high": 0.12,  # 创新高占比 (P1: 14%→12%, 让位涨跌家数广度)
-    "ma_alignment": 0.06,  # MA排列比 (P1: 8%→6%)
-    "breadth": 0.04,  # 涨跌家数广度 (P1 新增, 市场宽度信号)
+    "pe": 0.212121,  # 大盘PE (估值主锚, 原14% / 0.66)
+    "buffett": 0.212121,  # 巴菲特指标 (估值主锚)
+    "yield_spread": 0.045455,  # 国债期限利差 10Y-2Y (momentum 流动性宽松)
+    "m1_m2_spread": 0.045455,  # M1-M2剪刀差 (momentum 货币活化)
+    "margin_buy_ratio": 0.045455,  # 融资买入占比 (momentum 主力)
+    "turnover": 0.136364,  # 换手率 (成交热度确认, 原9%)
+    "futures_discount": 0.030303,  # IF基差 (独立拐点信号)
+    "new_high": 0.181818,  # 创新高占比 (结构确认, 原12%)
+    "ma_alignment": 0.090909,  # MA排列比 (结构确认, 原6%)
 }
 
 # 背离检测参数 (内置默认值, 可被 v2_engine.divergence 覆盖)
@@ -85,8 +88,9 @@ def _load_v2_config() -> dict:
 
 _cfg = _load_v2_config()
 
-# 引擎规格版本: v2.16 = 16 指标满配单层引擎 (M2 分层重构后 bump)
-ENGINE_VERSION = "v2.16"
+# 引擎规格版本: v2.9 = 9 计分收敛单层引擎 (M1.4+M1.5 权重 16→9, 原 v2.16 16 指标满配;
+# 收敛前为 16 指标 4 维度, 收敛后仅 9 键计分, 移出 7 键仅展示; #87 收尾全量重建 history.json)
+ENGINE_VERSION = "v2.9"
 
 INDICATOR_WEIGHTS = _cfg.get("weights") or DEFAULT_WEIGHTS
 
@@ -115,24 +119,17 @@ _margin_cfg = _cfg.get("margin") or {}
 SATURATION_CUTOFF = float(_margin_cfg.get("saturation_cutoff", 0.85))
 SATURATION_HEADROOM = float(_margin_cfg.get("saturation_headroom", 0.15))
 
-# 各指标所属维度
+# 各指标所属维度 (M1.4+M1.5: 收敛至 9 计分键; 移出 7 键的维度归属仅存于展示层)
 INDICATOR_DIMENSIONS = {
     "pe": "valuation",
     "buffett": "valuation",
-    "margin_ratio": "fund",
     "yield_spread": "fund",
     "m1_m2_spread": "fund",
-    "southbound": "fund",
     "margin_buy_ratio": "fund",
-    "seal_rate": "sentiment",
-    "turnover_m2": "sentiment",
     "turnover": "sentiment",
     "futures_discount": "sentiment",
-    "amplitude": "sentiment",
-    "realized_vol": "sentiment",
     "new_high": "structure",
     "ma_alignment": "structure",
-    "breadth": "structure",
 }
 
 
@@ -1238,8 +1235,8 @@ def compute_index_v2(trade_date: str = None, db_path: str = None) -> dict:
             else:
                 dim_scores[dim_name] = None
 
-        # 综合得分
-        valid_scores = [(k, v) for k, v in scores.items() if v is not None]
+        # 综合得分 (M1.4+M1.5: 仅计分键参与; scores 含 16 展示键, 需按权重表过滤)
+        valid_scores = [(k, v) for k, v in scores.items() if v is not None and k in INDICATOR_WEIGHTS]
         if not valid_scores:
             composite = None
         else:

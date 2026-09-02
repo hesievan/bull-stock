@@ -53,22 +53,16 @@ class TestV2EngineConfig:
             weights = v2["weights"]
             assert abs(sum(weights.values()) - 1.0) < 0.001, f"{env} weights must sum to 1.0"
             assert set(weights) == {
+                # M1.4+M1.5: 权重收敛 16→9 计分键 (移出 7 键仅展示不计分)
                 "pe",
                 "buffett",
-                "margin_ratio",
                 "yield_spread",
                 "m1_m2_spread",
-                "southbound",
                 "margin_buy_ratio",
-                "seal_rate",
-                "turnover_m2",
                 "turnover",
                 "futures_discount",
-                "amplitude",
-                "realized_vol",
                 "new_high",
                 "ma_alignment",
-                "breadth",
             }
 
     def test_v2_engine_matches_code_defaults(self):
@@ -146,23 +140,16 @@ class TestValidateConfig:
     def _good(self):
         return {
             "v2_engine": {
-                "weights": {
-                    "pe": 0.14,
-                    "buffett": 0.14,
-                    "margin_ratio": 0.05,
-                    "yield_spread": 0.03,
-                    "m1_m2_spread": 0.03,
-                    "southbound": 0.01,
-                    "margin_buy_ratio": 0.03,
-                    "seal_rate": 0.06,
-                    "turnover_m2": 0.14,
-                    "turnover": 0.09,
-                    "futures_discount": 0.02,
-                    "amplitude": 0.02,
-                    "realized_vol": 0.02,
-                    "new_high": 0.12,
-                    "ma_alignment": 0.06,
-                    "breadth": 0.04,
+                "weights": {  # M1.4+M1.5: 9 计分键重归一 (原 0.66 → 1.0, 各键 ÷0.66)
+                    "pe": 0.212121,
+                    "buffett": 0.212121,
+                    "yield_spread": 0.045455,
+                    "m1_m2_spread": 0.045455,
+                    "margin_buy_ratio": 0.045455,
+                    "turnover": 0.136364,
+                    "futures_discount": 0.030303,
+                    "new_high": 0.181818,
+                    "ma_alignment": 0.090909,
                 }
             },
             "heat_levels": {

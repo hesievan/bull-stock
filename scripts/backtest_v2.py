@@ -87,20 +87,13 @@ WEIGHTS = INDICATOR_WEIGHTS
 IND_DIMS = {
     "pe": "valuation",
     "buffett": "valuation",
-    "margin_ratio": "fund",
     "yield_spread": "fund",
     "m1_m2_spread": "fund",
-    "southbound": "fund",
     "margin_buy_ratio": "fund",
-    "seal_rate": "sentiment",
-    "turnover_m2": "sentiment",
     "turnover": "sentiment",
     "futures_discount": "sentiment",
-    "amplitude": "sentiment",
-    "realized_vol": "sentiment",
     "new_high": "structure",
     "ma_alignment": "structure",
-    "breadth": "structure",
 }
 DIMS = ["valuation", "fund", "sentiment", "structure"]
 
@@ -645,8 +638,8 @@ def run_backtest():
             w = sum(WEIGHTS[k] for k, _ in available)
             dim_scores[dim_name] = sum(v * WEIGHTS[k] for k, v in available) / w if w > 0 else None
 
-        # 综合得分
-        valid_scores = [(k, v) for k, v in scores.items() if v is not None]
+        # 综合得分 (M1.4+M1.5: 仅计分键参与; scores 含 16 展示键)
+        valid_scores = [(k, v) for k, v in scores.items() if v is not None and k in WEIGHTS]
         if not valid_scores:
             composite = None
         else:

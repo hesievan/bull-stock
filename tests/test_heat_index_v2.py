@@ -756,7 +756,10 @@ class TestComputeIndexV2EndToEnd:
         conn.close()
 
     def test_all_indicators_weighted_sum(self, tmp_path):
-        """全部 16 指标有分 → composite=Σ(w_i·score_i), 维度分按指标权重加权 (F10)"""
+        """9 计分键均有分 → composite=Σ(w_i·score_i), 维度分按指标权重加权 (F10)
+
+        M1.4+M1.5: 权重收敛 16→9 计分键 (移出 7 键仅展示不计分)。
+        """
         db_path = str(tmp_path / "e2e.db")
         init_database(db_path)
         self._full_seed(db_path)
@@ -765,59 +768,36 @@ class TestComputeIndexV2EndToEnd:
         assert res["trade_date"] == self.TD
 
         ind = res["indicators"]
-        # result 键→权重键映射 (两融在 result 中名为 margin_ratio_v2, 权重表用 margin_ratio)
-        result_to_weight = {
-            "pe": "pe",
-            "buffett": "buffett",
-            "margin_ratio_v2": "margin_ratio",
-            "yield_spread": "yield_spread",
-            "m1_m2_spread": "m1_m2_spread",
-            "southbound": "southbound",
-            "margin_buy_ratio": "margin_buy_ratio",
-            "seal_rate": "seal_rate",
-            "turnover_m2": "turnover_m2",
-            "turnover": "turnover",
-            "futures_discount": "futures_discount",
-            "amplitude": "amplitude",
-            "realized_vol": "realized_vol",
-            "new_high": "new_high",
-            "ma_alignment": "ma_alignment",
-            "breadth": "breadth",
-        }
-        # 全部 16 指标均有分数
-        for rk in result_to_weight:
+        # 9 计分键与权重表同名 (两融计分键 margin_buy_ratio, 无 margin_ratio_v2 别名)
+        scored_keys = list(INDICATOR_WEIGHTS)
+        # 全部 9 计分指标均有分数
+        for rk in scored_keys:
             assert ind[rk] is not None, f"{rk} 无分数"
         # 综合分 = 指标加权和 (权重总和=1.0)
-        expected = sum(ind[rk] * INDICATOR_WEIGHTS[result_to_weight[rk]] for rk in result_to_weight)
+        expected = sum(ind[rk] * INDICATOR_WEIGHTS[rk] for rk in scored_keys)
         assert res["composite_score"] == pytest.approx(round(expected, 1), abs=0.1)
 
         # 维度分 = 维度内指标按权重加权 (F10: 与综合分口径一致)
         def _dim_weighted(keys):
-            w = sum(INDICATOR_WEIGHTS[result_to_weight[k]] for k in keys)
-            return sum(ind[k] * INDICATOR_WEIGHTS[result_to_weight[k]] for k in keys) / w
+            w = sum(INDICATOR_WEIGHTS[k] for k in keys)
+            return sum(ind[k] * INDICATOR_WEIGHTS[k] for k in keys) / w
 
         val = _dim_weighted(["pe", "buffett"])
         assert res["dimensions"]["valuation"]["score"] == pytest.approx(round(val, 1), abs=0.1)
-        fund = _dim_weighted(["margin_ratio_v2", "yield_spread", "m1_m2_spread", "southbound", "margin_buy_ratio"])
+        fund = _dim_weighted(["yield_spread", "m1_m2_spread", "margin_buy_ratio"])
         assert res["dimensions"]["fund"]["score"] == pytest.approx(round(fund, 1), abs=0.1)
-        sent = _dim_weighted(["seal_rate", "turnover_m2", "turnover", "futures_discount", "amplitude", "realized_vol"])
+        sent = _dim_weighted(["turnover", "futures_discount"])
         assert res["dimensions"]["sentiment"]["score"] == pytest.approx(round(sent, 1), abs=0.1)
-        struct = _dim_weighted(["new_high", "ma_alignment", "breadth"])
+        struct = _dim_weighted(["new_high", "ma_alignment"])
         assert res["dimensions"]["structure"]["score"] == pytest.approx(round(struct, 1), abs=0.1)
 
         # F10 关键不变量: Σ(维度分 × 维度权重占比) ≈ 综合分
         # 维度权重 = 维度内指标权重之和
         dim_weights = {
-            "valuation": sum(INDICATOR_WEIGHTS[result_to_weight[k]] for k in ("pe", "buffett")),
-            "fund": sum(
-                INDICATOR_WEIGHTS[result_to_weight[k]]
-                for k in ("margin_ratio_v2", "yield_spread", "m1_m2_spread", "southbound", "margin_buy_ratio")
-            ),
-            "sentiment": sum(
-                INDICATOR_WEIGHTS[result_to_weight[k]]
-                for k in ("seal_rate", "turnover_m2", "turnover", "futures_discount", "amplitude", "realized_vol")
-            ),
-            "structure": sum(INDICATOR_WEIGHTS[result_to_weight[k]] for k in ("new_high", "ma_alignment", "breadth")),
+            "valuation": sum(INDICATOR_WEIGHTS[k] for k in ("pe", "buffett")),
+            "fund": sum(INDICATOR_WEIGHTS[k] for k in ("yield_spread", "m1_m2_spread", "margin_buy_ratio")),
+            "sentiment": sum(INDICATOR_WEIGHTS[k] for k in ("turnover", "futures_discount")),
+            "structure": sum(INDICATOR_WEIGHTS[k] for k in ("new_high", "ma_alignment")),
         }
         recon = sum(res["dimensions"][d]["score"] * w for d, w in dim_weights.items())
         assert res["composite_score"] == pytest.approx(recon, abs=0.2)
@@ -838,24 +818,10 @@ class TestComputeIndexV2EndToEnd:
 
         res = compute_index_v2(trade_date=self.TD, db_path=db_path)
         assert res["indicators"]["pe"] is not None
-        # 其余指标无数据 → None
-        for k in (
-            "buffett",
-            "margin_ratio_v2",
-            "yield_spread",
-            "m1_m2_spread",
-            "southbound",
-            "margin_buy_ratio",
-            "seal_rate",
-            "turnover_m2",
-            "turnover",
-            "futures_discount",
-            "amplitude",
-            "realized_vol",
-            "new_high",
-            "ma_alignment",
-            "breadth",
-        ):
+        # 其余计分键无数据 → None (M1.4+M1.5: 计分键=INDICATOR_WEIGHTS 9 键)
+        for k in INDICATOR_WEIGHTS:
+            if k == "pe":
+                continue
             assert res["indicators"][k] is None, f"{k} 应无数据"
         # 仅 PE 有效 → 综合分=PE 分 (total_weight 归一化)
         assert res["composite_score"] == pytest.approx(round(res["indicators"]["pe"], 1), abs=0.1)
