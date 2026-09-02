@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 DB_PATH = os.environ.get("HEAT_INDEX_DB", os.path.join(os.path.dirname(__file__), "..", "..", "data", "heat_index.db"))
 
 # ── 建表 SQL ──────────────────────────────────────────────────────────────────
-SCHEMA_VERSION = 14
+SCHEMA_VERSION = 15
 
 SCHEMA = """
 -- 指数日行情 (tushare index_daily)
@@ -373,6 +373,40 @@ def _migrate(conn: sqlite3.Connection, from_ver: int) -> None:
             )
         except Exception as e:
             logger.warning("v12 index migration skipped: %s", e)
+    if from_ver < 15:
+        # v15 (M1.7, 2026-09): 预计算表重建加 PRIMARY KEY(trade_date) + 去重 —
+        # 旧库(SCHEMA 尚未含 PK 时建的表)无 UNIQUE 约束, INSERT OR REPLACE 退化为
+        # 纯 INSERT → daily_updown/daily_limit/daily_below_net/daily_turnover 每日期
+        # 多行 (P3-3, 实测 updown/limit/below 各 ~8400 行对 ~2830 唯一日)。
+        # 重建保留每 trade_date 最新一代写入 (MAX(rowid) = 现行写入口径),
+        # 与 v9 daily_circ_mv 去重同一模式; 动态取现存列, 向后兼容 V1 遗留的
+        # up_count/down_count/limit_up 等展示列 (SCHEMA 只声明 ratio 列)。
+        for tbl in ("daily_updown", "daily_limit", "daily_below_net", "daily_turnover"):
+            try:
+                info = conn.execute(f"PRAGMA table_info({tbl})").fetchall()
+                if not info or "trade_date" not in {r[1] for r in info}:
+                    continue
+                if any(r[5] == 1 and r[1] == "trade_date" for r in info):
+                    logger.info("v15 migration: %s already has PRIMARY KEY, skip", tbl)
+                    continue
+                col_defs = ", ".join(f"{r[1]} {r[2]}" + (" PRIMARY KEY" if r[1] == "trade_date" else "") for r in info)
+                col_list = ", ".join(r[1] for r in info)
+                before = conn.execute(f"SELECT COUNT(*) FROM {tbl}").fetchone()[0]
+                conn.executescript(
+                    f"""
+                    CREATE TABLE {tbl}_v15 ({col_defs});
+                    INSERT OR REPLACE INTO {tbl}_v15 ({col_list})
+                        SELECT {col_list} FROM {tbl}
+                        WHERE rowid IN (SELECT MAX(rowid) FROM {tbl} GROUP BY trade_date);
+                    DROP TABLE {tbl};
+                    ALTER TABLE {tbl}_v15 RENAME TO {tbl};
+                    """
+                )
+                after = conn.execute(f"SELECT COUNT(*) FROM {tbl}").fetchone()[0]
+                uniq = conn.execute(f"SELECT COUNT(DISTINCT trade_date) FROM {tbl}").fetchone()[0]
+                logger.info("v15 migration: %s dedup %d→%d rows (uniq %d)", tbl, before, after, uniq)
+            except Exception as e:
+                logger.warning("%s v15 dedup skipped: %s", tbl, e)
     logger.info("Database migrated from v%d to v%d", from_ver, SCHEMA_VERSION)
 
 
