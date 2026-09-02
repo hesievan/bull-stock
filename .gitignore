@@ -28,3 +28,6 @@ data/*.bak*
 web/data/*.bak*
 web/data/notification.txt
 .tmp_pytest/
+
+# 覆盖率产物 (pytest --cov)
+.coverage

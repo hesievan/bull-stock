@@ -2,3 +2,5 @@
 pytest~=8.0
 pytest-cov~=5.0
 ruff~=0.6
+# fastapi TestClient 依赖 — tests/test_api_server.py 端点测试需要 (fastapi 本体在 requirements.txt)
+httpx~=0.28.1

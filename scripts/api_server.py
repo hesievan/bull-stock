@@ -156,11 +156,8 @@ def create_app():
         allow_headers=["*"],
     )
 
-    # 静态文件服务 — 前端仪表盘
-    web_dir = Path(__file__).parent.parent / "web"
-    if web_dir.exists():
-        app.mount("/", StaticFiles(directory=str(web_dir), html=True), name="web")
-
+    # 注意: 静态目录必须在所有 API 路由之后 mount — Starlette 按注册序匹配路由,
+    # mount "/" 前缀会吞掉其后注册的 /api/* 路径 (曾致全部 API 端点 404, #12 测试暴露)。
     @app.get("/api/heat")
     def get_heat():
         data = _read_json("index.json")
@@ -227,6 +224,11 @@ def create_app():
             pass
 
         return info
+
+    # 静态文件服务 — 前端仪表盘 (保持在末尾, 见 create_app 顶部注释)
+    web_dir = Path(__file__).parent.parent / "web"
+    if web_dir.exists():
+        app.mount("/", StaticFiles(directory=str(web_dir), html=True), name="web")
 
     return app
 
