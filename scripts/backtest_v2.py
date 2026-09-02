@@ -20,7 +20,7 @@ import pandas as pd
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from src.data.database import DB_PATH
 from src.indicators.utils import _pct_rank
-from src.indicators.heat_index_v2 import INDICATOR_WEIGHTS, ROLLING_PCT_WINDOW
+from src.indicators.heat_index_v2 import INDICATOR_WEIGHTS, ROLLING_PCT_WINDOW, _detrend
 from src.common import timed
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
@@ -423,7 +423,11 @@ def run_backtest():
                     lo = max(lo, 450)
                 hist_pe = hist_pe[hist_pe["n_stocks"].between(lo, hi)]
             if len(hist_pe) >= 60:
-                pct = _pctr(hist_pe["pe_med"], cur_pe)
+                det, cur_det = _detrend(hist_pe["pe_med"], cur_pe)  # M1.3, 与引擎同口径
+                if cur_det is None:  # 历史不足 3 年 → 退化原始值分位
+                    pct = _pctr(hist_pe["pe_med"], cur_pe)
+                else:
+                    pct = _pctr(det.dropna(), cur_det)
                 scores["pe"] = max(0, min(100, pct * 100))
                 raws["pe"] = cur_pe
 
@@ -494,7 +498,11 @@ def run_backtest():
                 & (turnover_df["turnover_rate"].notna())
             ]
             if len(hist_tr) >= 60:
-                pct = _pctr(hist_tr["turnover_rate"], cur_tr)
+                det, cur_det = _detrend(hist_tr["turnover_rate"], cur_tr)  # M1.3, 与引擎同口径
+                if cur_det is None:  # 历史不足 3 年 → 退化原始值分位
+                    pct = _pctr(hist_tr["turnover_rate"], cur_tr)
+                else:
+                    pct = _pctr(det.dropna(), cur_det)
                 scores["turnover"] = max(0, min(100, pct * 100))
                 raws["turnover"] = cur_tr
 
@@ -524,7 +532,11 @@ def run_backtest():
                 & (ma_align_df["ma_alignment_ratio"].notna())
             ]
             if len(hist_ma) >= 60:
-                pct = _pctr(hist_ma["ma_alignment_ratio"], cur_ma_val)
+                det, cur_det = _detrend(hist_ma["ma_alignment_ratio"], cur_ma_val)  # M1.3, 与引擎同口径
+                if cur_det is None:  # 历史不足 3 年 → 退化原始值分位
+                    pct = _pctr(hist_ma["ma_alignment_ratio"], cur_ma_val)
+                else:
+                    pct = _pctr(det.dropna(), cur_det)
                 scores["ma_alignment"] = max(0, min(100, pct * 100))
                 raws["ma_alignment"] = cur_ma_val
 

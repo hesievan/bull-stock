@@ -182,6 +182,30 @@ def _pct_rank(series, value, window: int | None = None, label: str = "", asof: s
     return float(r)
 
 
+# ── M1.3 去趋势 (2026-09) ──────────────────────────────────────────────
+# turnover / ma_alignment / pe 存在结构性水平抬升 (2023-26 慢牛成交中枢上移、
+# 盈利/成分中枢漂移), 使原始值在 1260 日滚动窗口内长期贴顶 → 分位钝化失效。
+# 去趋势 = 原始值 ÷ 自身滚动中位数 (shift 1, 分母不含当日) 后再取分位。
+# YAML v2_engine.detrend.rolling_window 可覆盖 (默认 750 交易日≈3年)。
+DETREND_WINDOW = int((_cfg.get("detrend") or {}).get("rolling_window", 750))
+DETREND_MIN_PERIODS = int((_cfg.get("detrend") or {}).get("min_periods", 250))
+
+
+def _detrend(series: pd.Series, cur: float):
+    """原始值 / 截至昨日的自身滚动中位数 (M1.3)
+
+    Returns:
+        (det_series, cur_det): det_series 与输入等长 (前段为 NaN, 因滚动中位数未就绪);
+        cur_det 为 None 当滚动中位数尚不可用 (历史不足 min_periods)。
+    """
+    med = series.rolling(DETREND_WINDOW, min_periods=DETREND_MIN_PERIODS).median().shift(1)
+    det = series / med
+    last_med = med.dropna()
+    if last_med.empty or not np.isfinite(last_med.iloc[-1]) or last_med.iloc[-1] == 0:
+        return det, None
+    return det, cur / float(last_med.iloc[-1])
+
+
 def _to_numeric(s) -> pd.Series:
     return pd.to_numeric(s, errors="coerce")
 
@@ -241,9 +265,22 @@ def calc_pe(conn, trade_date: str) -> Optional[tuple]:
         if len(hist) < 60:
             return None
 
-        pct = _pct_rank(hist["pe_med"], cur_pe, label="pe", asof=trade_date)
-        score = pct * 100  # PE越高=越贵=热度越高
-        logger.info("大盘PE: %.2f, score=%.1f (n=%d, hist=%d)", cur_pe, score, cur_n, len(hist))
+        # M1.3: 去趋势 — PE 中枢随盈利/成分口径漂移, 除以 3 年滚动中位数后再取分位
+        det, cur_det = _detrend(hist["pe_med"], cur_pe)
+        if cur_det is None:
+            # 历史不足 3 年(滚动中位数无分母)时退化原始值分位, 避免早期段整段缺失
+            pct = _pct_rank(hist["pe_med"], cur_pe, label="pe", asof=trade_date)
+        else:
+            pct = _pct_rank(det.dropna(), cur_det, label="pe", asof=trade_date)
+        score = pct * 100  # 去趋势后 PE 相对 3 年中位越高=越贵=热度越高
+        logger.info(
+            "大盘PE: %.2f (det=%.3f), score=%.1f (n=%d, hist=%d)",
+            cur_pe,
+            cur_det if cur_det is not None else float("nan"),
+            score,
+            cur_n,
+            len(hist),
+        )
         return max(0, min(100, score)), cur_pe
     except Exception as e:
         logger.warning("PE calc failed: %s", e)
@@ -553,9 +590,17 @@ def calc_turnover_v2(conn, trade_date: str) -> Optional[float]:
 
         cur_rate = today["amt"].iloc[0] / today["mv"].iloc[0] * 10
 
-        pct = _pct_rank(hist_rates, cur_rate, label="turnover", asof=trade_date)
+        # M1.3: 去趋势 — 2023-26 成交中枢抬升使 raw 长期贴顶, 除以 3 年滚动中位数后再取分位
+        det, cur_det = _detrend(hist_rates, cur_rate)
+        if cur_det is None:
+            # 历史不足 3 年(滚动中位数无分母)时退化原始值分位
+            pct = _pct_rank(hist_rates, cur_rate, label="turnover", asof=trade_date)
+        else:
+            pct = _pct_rank(det.dropna(), cur_det, label="turnover", asof=trade_date)
         score = pct * 100
-        logger.info("换手率: %.4f%%, score=%.1f (n=%d)", cur_rate, score, len(hist_rates))
+        logger.info(
+            "换手率: %.4f%% (det=%.3f), score=%.1f (n=%d)", cur_rate, cur_det or float("nan"), score, len(hist_rates)
+        )
         return max(0, min(100, score)), cur_rate
     except Exception as e:
         logger.warning("Turnover calc failed: %s", e)
@@ -649,9 +694,22 @@ def calc_ma_alignment_v2(conn, trade_date: str) -> Optional[float]:
             score = max(20, min(cur_val * 100, 80))
             return score, cur_val
 
-        pct = _pct_rank(hist["ma_alignment_ratio"], cur_val, label="ma_alignment", asof=trade_date)
+        # M1.3: 去趋势 — 2023-26 多头排列占比中枢抬升, 除以 3 年滚动中位数后再取分位
+        det, cur_det = _detrend(hist["ma_alignment_ratio"], cur_val)
+        if cur_det is None:
+            # 历史不足 3 年(滚动中位数无分母)时退化原始值分位, 避免早期段整段缺失
+            pct = _pct_rank(hist["ma_alignment_ratio"], cur_val, label="ma_alignment", asof=trade_date)
+        else:
+            pct = _pct_rank(det.dropna(), cur_det, label="ma_alignment", asof=trade_date)
         score = pct * 100
-        logger.info("MA排列比: %.4f, pct=%.2f, score=%.1f (n=%d)", cur_val, pct, score, len(hist))
+        logger.info(
+            "MA排列比: %.4f (det=%.3f), pct=%.2f, score=%.1f (n=%d)",
+            cur_val,
+            cur_det if cur_det is not None else float("nan"),
+            pct,
+            score,
+            len(hist),
+        )
         return max(0, min(100, score)), cur_val
     except Exception as e:
         logger.warning("MA alignment calc failed: %s", e)
