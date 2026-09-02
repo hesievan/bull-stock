@@ -116,9 +116,7 @@ class TestNormalizeToQuarterly:
         ]
         out = normalize_to_quarterly(rows, known=dict(KNOWN_2024))
         got = {r["quarter"]: r["gdp"] for r in out}
-        assert got == pytest.approx(
-            {"2026Q1": 334192.9, "2026Q2": 341395.2, "2026Q3": 354106.3, "2026Q4": 387911.3}
-        )
+        assert got == pytest.approx({"2026Q1": 334192.9, "2026Q2": 341395.2, "2026Q3": 354106.3, "2026Q4": 387911.3})
         assert all(r["gdp_accumulate"] is None for r in out)
 
     def test_fallback_when_prev_year_unknown(self):

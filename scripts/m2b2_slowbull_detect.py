@@ -57,10 +57,10 @@ def load():
     csv["trade_date"] = csv["trade_date"].astype(str)
     px = csv["close"].astype(float)
     r1 = px.pct_change()
-    csv["vol60"] = r1.rolling(60).std() * np.sqrt(250)          # 年化波动率
+    csv["vol60"] = r1.rolling(60).std() * np.sqrt(250)  # 年化波动率
     csv["sma250"] = px.rolling(250).mean()
-    csv["bull"] = px > csv["sma250"]                            # NaN 段=无趋势态
-    csv["ret60"] = px.shift(-60) / px - 1          # 未来 60 日收益（反指评估用）
+    csv["bull"] = px > csv["sma250"]  # NaN 段=无趋势态
+    csv["ret60"] = px.shift(-60) / px - 1  # 未来 60 日收益（反指评估用）
     csv["slope250"] = csv["sma250"].pct_change(60)
     streak, cur = [], 0
     for b in csv["bull"].fillna(False):
@@ -91,8 +91,7 @@ def composite_regime(csv, mask, active_keys):
         num = num + v.fillna(0) * W[k]
         den = den + v.notna() * W[k]
     with np.errstate(divide="ignore", invalid="ignore"):
-        cand = pd.Series(np.where(den > 0, num / np.where(den > 0, den, np.nan), np.nan),
-                         index=csv.index)
+        cand = pd.Series(np.where(den > 0, num / np.where(den > 0, den, np.nan), np.nan), index=csv.index)
     return comp.where(~mask, cand)
 
 
@@ -108,21 +107,24 @@ def main():
     for s, snm in enumerate(SEG_NAMES):
         m = (csv["seg"] == s) & bull
         if m.sum() < 120:
-            print(f"  {snm}: bull n={int(m.sum()):4d} 样本不足"); continue
+            print(f"  {snm}: bull n={int(m.sum()):4d} 样本不足")
+            continue
         med = csv.loc[m, "vol60"].median()
         for half, hm in [("低vol半", m & (csv["vol60"] <= med)), ("高vol半", m & (csv["vol60"] > med))]:
             if hm.sum() < 80:
                 continue
             ic = ic_of(csv, ["turnover", "ma_alignment", "new_high"], hm)
             n = int(hm.sum())
-            print(f"  {snm} {half}: n={n:4d}  " +
-                  "  ".join(f"{k}:{v:+.3f}" for k, v in ic.items()))
+            print(f"  {snm} {half}: n={n:4d}  " + "  ".join(f"{k}:{v:+.3f}" for k, v in ic.items()))
             b_out[f"{snm}_{half}"] = {"n": n, "ic": ic}
         # 全段对照
         ic = ic_of(csv, ["turnover", "ma_alignment", "new_high"], m)
-        print(f"  {snm} 全bull: n={int(m.sum()):4d}  " +
-              "  ".join(f"{k}:{v:+.3f}" for k, v in ic.items()) + "   (vol60 med "
-              f"{csv.loc[m,'vol60'].median():.1%})")
+        print(
+            f"  {snm} 全bull: n={int(m.sum()):4d}  "
+            + "  ".join(f"{k}:{v:+.3f}" for k, v in ic.items())
+            + "   (vol60 med "
+            f"{csv.loc[m, 'vol60'].median():.1%})"
+        )
         b_out[f"{snm}_all"] = {"ic": ic}
     res["B"] = b_out
 
@@ -130,15 +132,15 @@ def main():
     print("\n" + "=" * 88)
     print("C. slow_bull 候选: vol60 绝对/分位阈值 × bull — 覆盖 seg2 bull vs 误伤 seg0/1 bull")
     print("=" * 88)
-    tgt = (csv["seg"] == 2) & bull          # 想覆盖(seg2 慢牛 bull)
-    foe = (csv["seg"] != 2) & bull          # 不想误伤(seg0/1 bull)
+    tgt = (csv["seg"] == 2) & bull  # 想覆盖(seg2 慢牛 bull)
+    foe = (csv["seg"] != 2) & bull  # 不想误伤(seg0/1 bull)
     print(f"  目标 seg2 bull n={int(tgt.sum())} | 误伤池 seg0/1 bull n={int(foe.sum())}")
     c_out = {}
     for th in [0.12, 0.14, 0.16, 0.18, 0.20]:
         cond = bull & (csv["vol60"] <= th)
         cov = int((cond & tgt).sum()) / tgt.sum()
         mis = int((cond & foe).sum()) / foe.sum()
-        extra = int((cond & ~bull).sum())   # bear 中被标记的(理论不该有)
+        extra = int((cond & ~bull).sum())  # bear 中被标记的(理论不该有)
         print(f"  vol60<={th:.0%}: 覆盖 seg2 bull={cov:5.1%}  误伤 seg0/1 bull={mis:5.1%}  非bull标记={extra}")
         c_out[f"vol{th:.0%}"] = {"cov": round(cov, 3), "mis": round(mis, 3)}
     # bull_days 组合: bull & vol<=16% & bull_days>=60
@@ -175,13 +177,18 @@ def main():
         m2hb = m2h & bull
         ic2h = spearman(comp[m2h], ret[m2h])
         ic2hb = spearman(comp[m2hb], ret[m2hb])
-        line = (f"{rname:<26} IC60={ic:+.4f}  " +
-                " | ".join(f"{nm}={v:+.4f}" for nm, v in zip(SEG_NAMES, seg_ics)) +
-                f" | seg2后半={ic2h:+.4f}(bull {ic2hb:+.4f})")
+        line = (
+            f"{rname:<26} IC60={ic:+.4f}  "
+            + " | ".join(f"{nm}={v:+.4f}" for nm, v in zip(SEG_NAMES, seg_ics))
+            + f" | seg2后半={ic2h:+.4f}(bull {ic2hb:+.4f})"
+        )
         print(line)
-        d_out[rname] = {"ic60": round(ic, 4),
-                        "segs": [round(v, 4) if v == v else None for v in seg_ics],
-                        "seg2h": round(ic2h, 4), "seg2hb": round(ic2hb, 4)}
+        d_out[rname] = {
+            "ic60": round(ic, 4),
+            "segs": [round(v, 4) if v == v else None for v in seg_ics],
+            "seg2h": round(ic2h, 4),
+            "seg2hb": round(ic2hb, 4),
+        }
     res["D"] = d_out
 
     with open(OUT, "w") as f:

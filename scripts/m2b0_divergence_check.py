@@ -13,6 +13,7 @@ backtest_v2.py 未复刻引擎的两处背离惩罚 (sentiment/new_high divergen
   2) 触发日对 CSV 的 ind_turnover/ind_new_high 施加惩罚 → csv_patched composite;
   3) 抽样日期跑引擎 compute_index_v2, 对照 engine vs csv vs csv_patched。
 """
+
 import contextlib
 import csv
 import io
@@ -42,8 +43,7 @@ dates = [r["trade_date"] for r in rows]
 def idx_close_asof(td):
     """<=td 最近一条 sh000001 close"""
     cur = conn.execute(
-        "SELECT close FROM index_daily WHERE index_code='sh000001' AND trade_date<=? "
-        "ORDER BY trade_date DESC LIMIT 1",
+        "SELECT close FROM index_daily WHERE index_code='sh000001' AND trade_date<=? ORDER BY trade_date DESC LIMIT 1",
         (td,),
     ).fetchone()
     return float(cur[0]) if cur else None
@@ -51,8 +51,7 @@ def idx_close_asof(td):
 
 def new_high_ratio(td):
     cur = conn.execute(
-        "SELECT new_high_ratio FROM daily_new_high WHERE trade_date<=? "
-        "ORDER BY trade_date DESC LIMIT 1",
+        "SELECT new_high_ratio FROM daily_new_high WHERE trade_date<=? ORDER BY trade_date DESC LIMIT 1",
         (td,),
     ).fetchone()
     return float(cur[0]) if cur else None
@@ -77,9 +76,12 @@ for td in dates:
 
 # 结合 CSV 分的真实触发 (sentiment 需 turnover score>70); rows 建 date 索引加速
 by_date = {r["trade_date"]: r for r in rows}
+
+
 def _f(r, k):
     v = r.get(COL[k])
     return float(v) if v not in (None, "") else None
+
 
 sent_days = [td for td in sent_triggers if by_date.get(td) and (_f(by_date[td], "turnover") or 0) > 70]
 
@@ -87,6 +89,7 @@ print(f"候选 sentiment 背离日(指数20日跌>1.5% & turnover分>70): {len(s
 print("  示例:", sent_days[:10])
 print(f"new_high 顶背离日: {len(nh_triggers)}")
 print("  示例:", sorted(nh_triggers)[:10])
+
 
 # composite helper (9键行重归一, 可选覆盖惩罚)
 def composite(r, penalize=False):
@@ -103,9 +106,11 @@ def composite(r, penalize=False):
         den += INDICATOR_WEIGHTS[k]
     return num / den if den else None
 
+
 # 抽样: 全 sent/nh 触发日 + 等量随机非触发日 (上限 60)
 sample = sorted(set(sent_days) | nh_triggers)
 import random
+
 random.seed(42)
 nontrig = [td for td in dates if td not in sample]
 sample += random.sample(nontrig, min(30, len(nontrig)))

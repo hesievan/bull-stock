@@ -129,6 +129,7 @@ def _weights_for(mode: str = None) -> dict:
         return {k: v / s for k, v in kept.items()} if s > 0 else kept
     return dict(INDICATOR_WEIGHTS)
 
+
 INDICATOR_WEIGHTS = _cfg.get("weights") or DEFAULT_WEIGHTS
 
 # 验证权重总和为1.0

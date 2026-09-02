@@ -70,7 +70,8 @@ def load():
     for k in KEYS:
         col = f"ind_{k}"
         if col not in csv.columns:
-            print(f"!! CSV 缺列 {col}"); sys.exit(1)
+            print(f"!! CSV 缺列 {col}")
+            sys.exit(1)
         csv[col] = pd.to_numeric(csv[col], errors="coerce")
     return csv
 
@@ -81,9 +82,7 @@ def ic_tab(csv, keys=KEYS, mask=None):
     out = {}
     for k in keys:
         ic, t = spearman(csv.loc[m, f"ind_{k}"], csv.loc[m, "ret60"])
-        out[k] = {"ic60": round(ic, 4) if ic == ic else None,
-                  "t60": round(t, 2) if t == t else None,
-                  "n": int(m.sum())}
+        out[k] = {"ic60": round(ic, 4) if ic == ic else None, "t60": round(t, 2) if t == t else None, "n": int(m.sum())}
     return out
 
 
@@ -97,8 +96,9 @@ def main():
     print("=" * 88)
     ic0, t0 = spearman(csv["composite_score"], csv["ret60"])
     print(f"  全样本 IC60 = {ic0:+.4f} (t={t0:.1f}, n={int(pd.notna(csv['ret60']).sum())})")
-    seg_ics = [spearman(csv["composite_score"][csv["seg"] == s],
-                        csv.loc[csv["seg"] == s, "ret60"])[0] for s in range(3)]
+    seg_ics = [
+        spearman(csv["composite_score"][csv["seg"] == s], csv.loc[csv["seg"] == s, "ret60"])[0] for s in range(3)
+    ]
     print("  分段: " + " | ".join(f"{nm}={ic:+.4f}" for nm, ic in zip(SEG_NAMES, seg_ics)))
     res["E0"] = {"ic60": round(ic0, 4), "segs": seg_ics}
 
@@ -123,9 +123,12 @@ def main():
         if sub:
             print(f"    -- {nm} 内 seg 细分 turnover/ma/new_high/buffett/pe:")
             for segn, tb in sub.items():
-                print(f"       {segn:<12} n={tb['turnover']['n']:4d}  " +
-                      "  ".join(f"{k}:{tb[k]['ic60']:+.3f}"
-                                for k in ["turnover", "ma_alignment", "new_high", "buffett", "pe"]))
+                print(
+                    f"       {segn:<12} n={tb['turnover']['n']:4d}  "
+                    + "  ".join(
+                        f"{k}:{tb[k]['ic60']:+.3f}" for k in ["turnover", "ma_alignment", "new_high", "buffett", "pe"]
+                    )
+                )
 
     # ---- E2 温度带分组 ----
     print("\n" + "=" * 88)
@@ -135,8 +138,7 @@ def main():
     for lvl in LEVELS:
         m = lv == lvl
         tab = ic_tab(csv, mask=m)
-        print(f"  {lvl:<6} n={int(m.sum()):4d}  " +
-              "  ".join(f"{k}:{v['ic60']:+.3f}" for k, v in tab.items()))
+        print(f"  {lvl:<6} n={int(m.sum()):4d}  " + "  ".join(f"{k}:{v['ic60']:+.3f}" for k, v in tab.items()))
         res.setdefault("E2", {})[lvl] = tab
 
     # ---- E3 趋势态 × 温度带 网格（关注情绪/结构键 + 估值对照） ----
@@ -157,7 +159,7 @@ def main():
                 ic, t = spearman(csv.loc[m, f"ind_{k}"], csv.loc[m, "ret60"])
                 parts.append(f"{k}:{ic:+.2f}" if ic == ic else f"{k}:NaN")
             print(f"  {bnm:>4}×{bname:<5} n={int(m.sum()):4d}  " + "  ".join(parts))
-            e3[f"{bnm}_{bname}"] = {k: (spearman(csv.loc[m, f'ind_{k}'], csv.loc[m, 'ret60'])[0]) for k in grid_keys}
+            e3[f"{bnm}_{bname}"] = {k: (spearman(csv.loc[m, f"ind_{k}"], csv.loc[m, "ret60"])[0]) for k in grid_keys}
     res["E3"] = e3
 
     # ---- R 调制 A/B（激活开关, 非拟合） ----
@@ -179,30 +181,51 @@ def main():
                 num = num + v.fillna(0) * W[k]
                 den = den + v.notna() * W[k]
             with np.errstate(divide="ignore", invalid="ignore"):
-                cand = pd.Series(np.where(den > 0, num / np.where(den > 0, den, np.nan), np.nan),
-                                 index=csv.index)
+                cand = pd.Series(np.where(den > 0, num / np.where(den > 0, den, np.nan), np.nan), index=csv.index)
             comp = comp.where(~mask, cand)
         return comp
 
     rules = {
         "R0 单层9键(对照)": None,
         # bull 态去掉情绪/结构键(全 seg) — E1 观察: seg2 bull 内 turnover/ma 转正
-        "R1 bull去情绪结构": [((csv["bull"] == True),  # noqa: E712
-                             [k for k in KEYS if k not in senti_struct])],
+        "R1 bull去情绪结构": [
+            (
+                (csv["bull"] == True),  # noqa: E712
+                [k for k in KEYS if k not in senti_struct],
+            )
+        ],
         # R1 改良: 仅 seg2 慢牛 bull 去情绪结构; seg0/1 bull 保留(E1: 它们仍有效)
-        "R1b seg2bull去情绪": [((csv["bull"] == True) & (csv["seg"] == 2),  # noqa: E712
-                              [k for k in KEYS if k not in senti_struct])],
+        "R1b seg2bull去情绪": [
+            (
+                (csv["bull"] == True) & (csv["seg"] == 2),  # noqa: E712
+                [k for k in KEYS if k not in senti_struct],
+            )
+        ],
         # 更细: 仅高温(orange/red) bull 去 ma_alignment(E3: bull×red ma +0.41 最强正)
-        "R1c hot-bull去ma": [((csv["bull"] == True) & hot,  # noqa: E712
-                            [k for k in KEYS if k != "ma_alignment"])],
+        "R1c hot-bull去ma": [
+            (
+                (csv["bull"] == True) & hot,  # noqa: E712
+                [k for k in KEYS if k != "ma_alignment"],
+            )
+        ],
         # bear 去转正资金键(E1: bear 内 yield_spread/m1_m2 转正, 去掉应增强)
-        "R2b bear去资金键": [((csv["bull"] == False),  # noqa: E712
-                            [k for k in KEYS if k not in fund])],
+        "R2b bear去资金键": [
+            (
+                (csv["bull"] == False),  # noqa: E712
+                [k for k in KEYS if k not in fund],
+            )
+        ],
         # 组合: seg2 bull 去情绪结构 + bear 去资金键
-        "R3 组合调制": [((csv["bull"] == True) & (csv["seg"] == 2),  # noqa: E712
-                       [k for k in KEYS if k not in senti_struct]),
-                      ((csv["bull"] == False),  # noqa: E712
-                       [k for k in KEYS if k not in fund])],
+        "R3 组合调制": [
+            (
+                (csv["bull"] == True) & (csv["seg"] == 2),  # noqa: E712
+                [k for k in KEYS if k not in senti_struct],
+            ),
+            (
+                (csv["bull"] == False),  # noqa: E712
+                [k for k in KEYS if k not in fund],
+            ),
+        ],
     }
     r_out = {}
     for rname, rule in rules.items():
@@ -218,26 +241,37 @@ def main():
         for lvl in ["green", "red", "orange", "yellow"]:
             m = lv2 == lvl
             if m.sum() >= 30:
-                bucket[lvl] = {"n": int(m.sum()),
-                             "ret60": round(float(csv.loc[m, "ret60"].mean()), 4) if csv.loc[m, "ret60"].notna().sum() else None,
-                             "win": round(float((csv.loc[m, "ret60"] > 0).mean()), 3)}
+                bucket[lvl] = {
+                    "n": int(m.sum()),
+                    "ret60": round(float(csv.loc[m, "ret60"].mean()), 4) if csv.loc[m, "ret60"].notna().sum() else None,
+                    "win": round(float((csv.loc[m, "ret60"] > 0).mean()), 3),
+                }
         m75 = comp >= 75
         m80 = comp >= 80
         for nm, mm in [(">=75", m75), (">=80", m80)]:
             if mm.sum() >= 20:
-                bucket[nm] = {"n": int(mm.sum()),
-                              "ret60": round(float(csv.loc[mm, "ret60"].mean()), 4),
-                              "win": round(float((csv.loc[mm, "ret60"] > 0).mean()), 3)}
+                bucket[nm] = {
+                    "n": int(mm.sum()),
+                    "ret60": round(float(csv.loc[mm, "ret60"].mean()), 4),
+                    "win": round(float((csv.loc[mm, "ret60"] > 0).mean()), 3),
+                }
         d = ic - ic0
-        line = f"{rname:<22} IC60={ic:+.4f} (Δ{d:+.4f})  " + \
-               " | ".join(f"{nm}={v:+.4f}" for nm, v in zip(SEG_NAMES, seg_ics))
+        line = f"{rname:<22} IC60={ic:+.4f} (Δ{d:+.4f})  " + " | ".join(
+            f"{nm}={v:+.4f}" for nm, v in zip(SEG_NAMES, seg_ics)
+        )
         print(line)
-        bstr = "  " + "  ".join(f"{nm}:n={b['n']} ret60={b['ret60']:+.2%} win={b['win']:.0%}"
-                                for nm, b in bucket.items() if b.get("ret60") is not None)
+        bstr = "  " + "  ".join(
+            f"{nm}:n={b['n']} ret60={b['ret60']:+.2%} win={b['win']:.0%}"
+            for nm, b in bucket.items()
+            if b.get("ret60") is not None
+        )
         print(f"{'':28}{bstr}")
-        r_out[rname] = {"ic60": round(ic, 4), "d_ic60": round(d, 4),
-                        "segs": [round(v, 4) if v == v else None for v in seg_ics],
-                        "buckets": bucket}
+        r_out[rname] = {
+            "ic60": round(ic, 4),
+            "d_ic60": round(d, 4),
+            "segs": [round(v, 4) if v == v else None for v in seg_ics],
+            "buckets": bucket,
+        }
     res["R"] = r_out
 
     # ---- V. R1b 稳健性: seg2 内前后 split ----
@@ -246,13 +280,22 @@ def main():
     print("=" * 88)
     half = "2024-07-01"
     v_out = {}
-    comp_r1b = apply_rule([((csv["bull"] == True) & (csv["seg"] == 2),  # noqa: E712
-                            [k for k in KEYS if k not in senti_struct])])
-    for hname, hmask in [("seg2前半<2024-07", csv["trade_date"] < half),
-                         ("seg2后半>=2024-07", csv["trade_date"] >= half)]:
+    comp_r1b = apply_rule(
+        [
+            (
+                (csv["bull"] == True) & (csv["seg"] == 2),  # noqa: E712
+                [k for k in KEYS if k not in senti_struct],
+            )
+        ]
+    )
+    for hname, hmask in [
+        ("seg2前半<2024-07", csv["trade_date"] < half),
+        ("seg2后半>=2024-07", csv["trade_date"] >= half),
+    ]:
         m = hmask & (csv["seg"] == 2) & (csv["bull"] == True)  # noqa: E712
         if m.sum() < 60:
-            print(f"  {hname:<16} n={int(m.sum()):4d}  (样本不足)"); continue
+            print(f"  {hname:<16} n={int(m.sum()):4d}  (样本不足)")
+            continue
         ic0_h, _ = spearman(csv.loc[m, "composite_score"], csv.loc[m, "ret60"])
         ic1_h, _ = spearman(comp_r1b[m], csv.loc[m, "ret60"])
         print(f"  {hname:<16} n={int(m.sum()):4d}  R0={ic0_h:+.4f}  R1b={ic1_h:+.4f}  Δ={ic1_h - ic0_h:+.4f}")

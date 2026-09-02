@@ -84,7 +84,7 @@ def main():
         x = pd.to_numeric(csv[col], errors="coerce")
         seg2 = csv["seg"] == 2
         print(f"\n--- {k} ---")
-        print(f"  seg2 总 IC60 = {spearman(x[seg2], csv.loc[seg2,'ret60']):+.4f}")
+        print(f"  seg2 总 IC60 = {spearman(x[seg2], csv.loc[seg2, 'ret60']):+.4f}")
         # 分年段 (seg2 = 2023..2026)
         for y in ["2023", "2024", "2025", "2026"]:
             m = seg2 & (csv["year"] == y)
@@ -99,15 +99,21 @@ def main():
         hi = seg2 & (x >= x[seg2].quantile(0.8))
         lo = seg2 & (x <= x[seg2].quantile(0.2))
         if hi.sum() > 20 and lo.sum() > 20:
-            print(f"  seg2 top20%分位日: 过去60日收益均值={csv.loc[hi,'ret_past60'].mean():+.2%}  "
-                  f"未来60日={csv.loc[hi,'ret60'].mean():+.2%}")
-            print(f"  seg2 bot20%分位日: 过去60日收益均值={csv.loc[lo,'ret_past60'].mean():+.2%}  "
-                  f"未来60日={csv.loc[lo,'ret60'].mean():+.2%}")
+            print(
+                f"  seg2 top20%分位日: 过去60日收益均值={csv.loc[hi, 'ret_past60'].mean():+.2%}  "
+                f"未来60日={csv.loc[hi, 'ret60'].mean():+.2%}"
+            )
+            print(
+                f"  seg2 bot20%分位日: 过去60日收益均值={csv.loc[lo, 'ret_past60'].mean():+.2%}  "
+                f"未来60日={csv.loc[lo, 'ret60'].mean():+.2%}"
+            )
         # bull/bear 内 IC
         for bs in [True, False]:
             m = seg2 & (csv["bull"] == bs)
             if m.sum() > 100:
-                print(f"  seg2 {'bull' if bs else 'bear'}态: n={int(m.sum()):4d} IC60={spearman(x[m], csv.loc[m,'ret60']):+.4f}")
+                print(
+                    f"  seg2 {'bull' if bs else 'bear'}态: n={int(m.sum()):4d} IC60={spearman(x[m], csv.loc[m, 'ret60']):+.4f}"
+                )
         res["A"][k] = {
             "seg2_ic60": spearman(x[seg2], csv.loc[seg2, "ret60"]),
             "bucket": bk,

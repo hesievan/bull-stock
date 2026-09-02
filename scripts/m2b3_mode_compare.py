@@ -62,16 +62,17 @@ def main():
     print("=" * 96)
     print("A. IC60 对比 (spearman(composite, ret60)); 越负 = 反指预测力越强")
     print("=" * 96)
-    seg_sets = [("全样本", pd.Series(True, index=c9.index))] + [
-        (SEG_NAMES[s], c9["seg"] == s) for s in range(3)
-    ]
+    seg_sets = [("全样本", pd.Series(True, index=c9.index))] + [(SEG_NAMES[s], c9["seg"] == s) for s in range(3)]
     for nm, m in seg_sets:
         ic9, _ = spearman(c9["composite_score"][m], c9.loc[m, "ret60"])
         ic6, _ = spearman(c6["composite_score"][m], c6.loc[m, "ret60"])
         delta = (ic6 - ic9) if (ic6 == ic6 and ic9 == ic9) else np.nan
         print(f"  {nm:<10} n={int(m.sum()):5d} | single9 {ic9:+.4f} | single6 {ic6:+.4f} | Δ {delta:+.4f}")
-        res.setdefault("A_ic60", {})[nm] = {"single9": round(ic9, 4), "single6": round(ic6, 4),
-                                            "delta": round(delta, 4)}
+        res.setdefault("A_ic60", {})[nm] = {
+            "single9": round(ic9, 4),
+            "single6": round(ic6, 4),
+            "delta": round(delta, 4),
+        }
 
     # ── 2. 近 2 年 (>= 2024-09-01, 未来可预期区) ─────────────────────────
     print("\n" + "=" * 96)
@@ -83,16 +84,24 @@ def main():
     ic9_2y, _ = spearman(c9["composite_score"][m2y], c9.loc[m2y, "ret60"])
     ic6_2y, _ = spearman(c6["composite_score"][m2y], c6.loc[m2y, "ret60"])
     print(f"  近2年 n={int(m2y.sum())}: single9 {ic9_2y:+.4f} | single6 {ic6_2y:+.4f} | Δ {ic6_2y - ic9_2y:+.4f}")
-    res["B_2y"] = {"n": int(m2y.sum()), "single9": round(ic9_2y, 4), "single6": round(ic6_2y, 4),
-                   "delta": round(ic6_2y - ic9_2y, 4)}
+    res["B_2y"] = {
+        "n": int(m2y.sum()),
+        "single9": round(ic9_2y, 4),
+        "single6": round(ic6_2y, 4),
+        "delta": round(ic6_2y - ic9_2y, 4),
+    }
     # 近2年复合/牛熊状态/温度分布
     m2y_bull = c9.loc[m2y, "phase"].isin(BULL_PHASES)
     for st, mm in [("全部", m2y), ("牛市段", m2y & m2y_bull), ("非牛市", m2y & ~m2y_bull)]:
         ic9x, _ = spearman(c9["composite_score"][mm], c9.loc[mm, "ret60"])
         ic6x, _ = spearman(c6["composite_score"][mm], c6.loc[mm, "ret60"])
         print(f"    {st} n={int(mm.sum()):4d}: 9 {ic9x:+.4f} | 6 {ic6x:+.4f} | Δ {ic6x - ic9x:+.4f}")
-        res.setdefault("B_2y_sub", {})[st] = {"n": int(mm.sum()), "single9": round(ic9x, 4),
-                                              "single6": round(ic6x, 4), "delta": round(ic6x - ic9x, 4)}
+        res.setdefault("B_2y_sub", {})[st] = {
+            "n": int(mm.sum()),
+            "single9": round(ic9x, 4),
+            "single6": round(ic6x, 4),
+            "delta": round(ic6x - ic9x, 4),
+        }
 
     # ── 3. composite 分布 / 展示档迁移 ──────────────────────────────────
     print("\n" + "=" * 96)
@@ -100,16 +109,28 @@ def main():
     print("=" * 96)
     for nm, c in [("single9", c9), ("single6", c6)]:
         s = c["composite_score"]
-        print(f"  {nm}: mean={s.mean():.1f} std={s.std():.1f} min={s.min():.0f} max={s.max():.0f} "
-              f"| red≥65: {(s >= 65).sum():4d} ({(s >= 65).mean() * 100:.1f}%) | green<40: {(s < 40).sum():4d} ({(s < 40).mean() * 100:.1f}%)")
-        res.setdefault("C_dist", {})[nm] = {"mean": round(s.mean(), 2), "std": round(s.std(), 2),
-                                            "red_n": int((s >= 65).sum()), "green_n": int((s < 40).sum())}
+        print(
+            f"  {nm}: mean={s.mean():.1f} std={s.std():.1f} min={s.min():.0f} max={s.max():.0f} "
+            f"| red≥65: {(s >= 65).sum():4d} ({(s >= 65).mean() * 100:.1f}%) | green<40: {(s < 40).sum():4d} ({(s < 40).mean() * 100:.1f}%)"
+        )
+        res.setdefault("C_dist", {})[nm] = {
+            "mean": round(s.mean(), 2),
+            "std": round(s.std(), 2),
+            "red_n": int((s >= 65).sum()),
+            "green_n": int((s < 40).sum()),
+        }
     # 逐日差分布
     diff = c6["composite_score"] - c9["composite_score"]
-    print(f"  逐日差 (single6 - single9): mean={diff.mean():+.2f} std={diff.std():.2f} "
-          f"| |Δ|≥5: {(diff.abs() >= 5).sum()} 日 | |Δ|≥10: {(diff.abs() >= 10).sum()} 日")
-    res["C_diff"] = {"mean": round(float(diff.mean()), 3), "std": round(float(diff.std()), 3),
-                     "n_ge5": int((diff.abs() >= 5).sum()), "n_ge10": int((diff.abs() >= 10).sum())}
+    print(
+        f"  逐日差 (single6 - single9): mean={diff.mean():+.2f} std={diff.std():.2f} "
+        f"| |Δ|≥5: {(diff.abs() >= 5).sum()} 日 | |Δ|≥10: {(diff.abs() >= 10).sum()} 日"
+    )
+    res["C_diff"] = {
+        "mean": round(float(diff.mean()), 3),
+        "std": round(float(diff.std()), 3),
+        "n_ge5": int((diff.abs() >= 5).sum()),
+        "n_ge10": int((diff.abs() >= 10).sum()),
+    }
 
     # 展示档迁移 (level 变化日)
     mig = c6["level"] != c9["level"]

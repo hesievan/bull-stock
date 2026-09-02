@@ -97,8 +97,10 @@ def main():
     res["seg"] = seg.values
 
     print(f"\npe 计算完成: {len(ddf)} 天 (fallback→raw 分支 {n_fallback} 天)")
-    print(f"ind_pe(CSV, 引擎回测列) 与 pe_det 复刻对比: "
-          f"mean|diff|={np.mean(np.abs(csv['ind_pe'].values - res['pe_det'].values)):.4f}")
+    print(
+        f"ind_pe(CSV, 引擎回测列) 与 pe_det 复刻对比: "
+        f"mean|diff|={np.mean(np.abs(csv['ind_pe'].values - res['pe_det'].values)):.4f}"
+    )
 
     out = {}
     for name in ["pe_det", "pe_raw"]:

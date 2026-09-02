@@ -254,9 +254,7 @@ def fetch_gdp(since: str = None):
                 "quarter": str(row["quarter"]),
                 "gdp": None if pd.isna(row.get("gdp")) else float(row["gdp"]),
                 "gdp_yoy": None if pd.isna(row.get("gdp_yoy")) else float(row["gdp_yoy"]),
-                "gdp_accumulate": (
-                    None if pd.isna(row.get("gdp_accumulate")) else float(row["gdp_accumulate"])
-                ),
+                "gdp_accumulate": (None if pd.isna(row.get("gdp_accumulate")) else float(row["gdp_accumulate"])),
                 "gdp_accumulate_yoy": (
                     None if pd.isna(row.get("gdp_accumulate_yoy")) else float(row["gdp_accumulate_yoy"])
                 ),
