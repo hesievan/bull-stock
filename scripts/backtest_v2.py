@@ -411,11 +411,8 @@ def run_backtest():
                     lo = max(lo, 450)
                 hist_pe = hist_pe[hist_pe["n_stocks"].between(lo, hi)]
             if len(hist_pe) >= 60:
-                det, cur_det = _detrend(hist_pe["pe_med"], cur_pe)  # M1.3, 与引擎同口径
-                if cur_det is None:  # 历史不足 3 年 → 退化原始值分位
-                    pct = _pctr(hist_pe["pe_med"], cur_pe)
-                else:
-                    pct = _pctr(det.dropna(), cur_det)
+                # M2a D2: 回退 M1.3 去趋势 — 原始 pe_med 分位 (与引擎同口径)
+                pct = _pctr(hist_pe["pe_med"], cur_pe)
                 scores["pe"] = max(0, min(100, pct * 100))
                 raws["pe"] = cur_pe
 
@@ -486,11 +483,8 @@ def run_backtest():
                 & (turnover_df["turnover_rate"].notna())
             ]
             if len(hist_tr) >= 60:
-                det, cur_det = _detrend(hist_tr["turnover_rate"], cur_tr)  # M1.3, 与引擎同口径
-                if cur_det is None:  # 历史不足 3 年 → 退化原始值分位
-                    pct = _pctr(hist_tr["turnover_rate"], cur_tr)
-                else:
-                    pct = _pctr(det.dropna(), cur_det)
+                # M2a D3: 回退 M1.3 去趋势 — 原始换手率分位 (与引擎同口径)
+                pct = _pctr(hist_tr["turnover_rate"], cur_tr)
                 scores["turnover"] = max(0, min(100, pct * 100))
                 raws["turnover"] = cur_tr
 
@@ -538,7 +532,7 @@ def run_backtest():
                 & (yspread_df["spread"].notna())
             ]
             if len(hist_ys) >= 60:
-                pct = _pctr(-hist_ys["spread"], -cur_ys_val)
+                pct = _pctr(hist_ys["spread"], cur_ys_val)  # M2a D1: 方向翻转 (利差高=高分)
                 scores["yield_spread"] = max(0, min(100, pct * 100))
                 raws["yield_spread"] = cur_ys_val
 
@@ -548,7 +542,7 @@ def run_backtest():
             cur_mm_val = cur_mm.iloc[-1]["spread"]
             mser_le = mser[mser["month"] <= td[:7]]
             if len(mser_le) >= 12:
-                pct = _pctr(mser_le["spread"], cur_mm_val, window=60)
+                pct = _pctr(-mser_le["spread"], -cur_mm_val, window=60)  # M2a D1: 方向翻转
                 scores["m1_m2_spread"] = max(0, min(100, pct * 100))
                 raws["m1_m2_spread"] = cur_mm_val
 
@@ -612,13 +606,13 @@ def run_backtest():
             scores["realized_vol"] = max(0, min(100, pct * 100))
             raws["realized_vol"] = cur_vol
 
-        # Margin buy ratio (P3) — 方向 pos
+        # Margin buy ratio (P3) — M2a D1: 方向翻转 (占比低=高分)
         cur_mb = mbuy_df[mbuy_df["trade_date"] <= td]
         if len(cur_mb) > 0:
             cur_mb_val = float(cur_mb.iloc[-1]["ratio"])
             hist_mb = mbuy_df[(mbuy_df["trade_date"] >= ten_years_ago) & (mbuy_df["trade_date"] <= td)]["ratio"]
             if len(hist_mb) >= 60:
-                pct = _pctr(hist_mb, cur_mb_val)
+                pct = _pctr(-hist_mb, -cur_mb_val)
                 scores["margin_buy_ratio"] = max(0, min(100, pct * 100))
                 raws["margin_buy_ratio"] = cur_mb_val
 

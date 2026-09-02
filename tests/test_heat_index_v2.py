@@ -836,7 +836,7 @@ class TestNewFundIndicators:
     TD = "2026-08-06"
 
     def test_calc_yield_spread_v2_direction_flipped(self, v2_db):
-        """期限利差方向已翻转: 低利差(宽松)→高分, 高利差→低分"""
+        """M2a D1 方向翻转: 高利差→高分, 低利差→低分 (利差越高=曲线走陡=未来收益风险越高)"""
         # 历史利差 (y10-y2) 约 0.3~0.625
         for i, d in enumerate(_dates("2016-09-01", 70, step_days=30)):
             v2_db.execute("INSERT INTO bond_yield (trade_date, curve_term, yield_rate) VALUES (?, 2.0, 2.5)", (d,))
@@ -845,20 +845,20 @@ class TestNewFundIndicators:
                 (d, round(2.8 + i * 0.005, 4)),
             )
 
-        # 低利差当前值 (y10-y2 = 0.4, 历史低位) → 应为高分
+        # 低利差当前值 (y10-y2 = 0.4, 历史低位) → 应为低分
         v2_db.execute("INSERT INTO bond_yield (trade_date, curve_term, yield_rate) VALUES (?, 2.0, 2.5)", (self.TD,))
         v2_db.execute("INSERT INTO bond_yield (trade_date, curve_term, yield_rate) VALUES (?, 10.0, 2.9)", (self.TD,))
         v2_db.commit()
         low = calc_yield_spread_v2(v2_db, self.TD)
         assert low is not None and 0 <= low[0] <= 100
 
-        # 高利差当前值 (y10-y2 = 0.7, 高于历史) → 应为低分
+        # 高利差当前值 (y10-y2 = 0.7, 高于历史) → 应为高分
         v2_db.execute("UPDATE bond_yield SET yield_rate=3.2 WHERE trade_date=? AND curve_term=10.0", (self.TD,))
         high = calc_yield_spread_v2(v2_db, self.TD)
         assert high is not None and 0 <= high[0] <= 100
 
-        # 翻转方向: 低利差 → 高分 > 高利差 → 低分
-        assert low[0] > high[0]
+        # 翻转方向 (D1): 高利差 → 高分 > 低利差 → 低分
+        assert high[0] > low[0]
 
     def test_calc_m1_m2_spread_v2(self, v2_db):
         """M1-M2剪刀差 = m1_yoy - m2_yoy; 月频 ffill 到交易日; 返回 (score, 原始差)"""
@@ -1128,7 +1128,8 @@ class TestP3Indicators:
         assert panic[0] <= 5.0
 
     def test_calc_margin_buy_ratio_direction(self, v2_db):
-        """融资买入占比: 占比历史最高 → 高分; 历史最低 → 低分"""
+        """M2a D1 融资买入占比方向翻转: 占比历史最低 → 高分; 历史最高 → 低分"""
+        # 历史占比随 rzmre 递增 (1e9 ~ 1.7e9), turnover/circ_mv 恒定 → 占比递增
         for i, d in enumerate(_dates("2021-08-10", 70, step_days=30)):
             v2_db.execute("INSERT INTO daily_circ_mv (trade_date, total_circ_mv) VALUES (?, 1e8)", (d,))
             v2_db.execute("INSERT INTO daily_turnover (trade_date, turnover_rate) VALUES (?, 1.0)", (d,))
@@ -1137,20 +1138,20 @@ class TestP3Indicators:
                 (d, 1e9 + i * 1e7),
             )
         v2_db.commit()
-        # 当前: 占比最高 → 高分
+        # 当前: 占比历史最高 (rzmre=5e9) → 翻转后应为低分
         v2_db.execute("INSERT INTO daily_circ_mv (trade_date, total_circ_mv) VALUES (?, 1e8)", (self.TD,))
         v2_db.execute("INSERT INTO daily_turnover (trade_date, turnover_rate) VALUES (?, 1.0)", (self.TD,))
         v2_db.execute("INSERT INTO margin_history (trade_date, rzye, rqye, rzmre) VALUES (?, 1e11, 0, 5e9)", (self.TD,))
         v2_db.commit()
-        high = calc_margin_buy_ratio_v2(v2_db, self.TD)
-        assert high is not None
-        assert high[0] >= 95.0
-        # 当前: 占比最低 → 低分
-        v2_db.execute("UPDATE margin_history SET rzmre=1e8 WHERE trade_date=?", (self.TD,))
-        v2_db.commit()
         low = calc_margin_buy_ratio_v2(v2_db, self.TD)
         assert low is not None
         assert low[0] <= 5.0
+        # 当前: 占比历史最低 (rzmre=1e8, 低于历史 1e9 起) → 翻转后应为高分
+        v2_db.execute("UPDATE margin_history SET rzmre=1e8 WHERE trade_date=?", (self.TD,))
+        v2_db.commit()
+        high = calc_margin_buy_ratio_v2(v2_db, self.TD)
+        assert high is not None
+        assert high[0] >= 95.0
 
     def test_insufficient_history_returns_none(self, v2_db):
         """三个新指标历史不足 60 条 → None (宁缺毋滥)"""

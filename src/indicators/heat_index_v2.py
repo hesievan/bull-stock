@@ -88,9 +88,15 @@ def _load_v2_config() -> dict:
 
 _cfg = _load_v2_config()
 
-# 引擎规格版本: v2.9 = 9 计分收敛单层引擎 (M1.4+M1.5 权重 16→9, 原 v2.16 16 指标满配;
-# 收敛前为 16 指标 4 维度, 收敛后仅 9 键计分, 移出 7 键仅展示; #87 收尾全量重建 history.json)
-ENGINE_VERSION = "v2.9"
+# 引擎规格版本: v3.0 = M2a 方向修正 + 去趋势回退 (D1~D3, 2026-09-02)
+#   - v2.9 (M1.4+M1.5): 9 计分收敛单层引擎 (权重 16→9, 移出 7 键仅展示)
+#   - v3.0 变更 (依据 reports/方向体检_M2a.md D1~D3, 引擎真实口径 IC60 −0.052→≈−0.17):
+#       ① D1: yield_spread / m1_m2_spread / margin_buy_ratio 三资金键方向翻转
+#          (原方向 IC60 显著为正=顺周期动量, 与"高热度→未来跌"相反, 反向拉扯综合分)
+#       ② D2: pe 回退去趋势 (原始 pe_med 分位; 去趋势抹掉绝对贵贱信号, raw IC60 −0.116 vs det −0.003)
+#       ③ D3: turnover 回退去趋势 (raw seg0/1 −0.384/−0.339 vs det −0.266/−0.115)
+#       ④ evaluate 基线口径修正: 按行重归一 (align 引擎; #87 A1 值订正 −0.0364→−0.0520)
+ENGINE_VERSION = "v3.0"
 
 INDICATOR_WEIGHTS = _cfg.get("weights") or DEFAULT_WEIGHTS
 
@@ -292,18 +298,14 @@ def calc_pe(conn, trade_date: str) -> Optional[tuple]:
         if len(hist) < 60:
             return None
 
-        # M1.3: 去趋势 — PE 中枢随盈利/成分口径漂移, 除以 3 年滚动中位数后再取分位
-        det, cur_det = _detrend(hist["pe_med"], cur_pe)
-        if cur_det is None:
-            # 历史不足 3 年(滚动中位数无分母)时退化原始值分位, 避免早期段整段缺失
-            pct = _pct_rank(hist["pe_med"], cur_pe, label="pe", asof=trade_date)
-        else:
-            pct = _pct_rank(det.dropna(), cur_det, label="pe", asof=trade_date)
-        score = pct * 100  # 去趋势后 PE 相对 3 年中位越高=越贵=热度越高
+        # M2a D2 (2026-09-02): 回退 M1.3 去趋势 — 原始 pe_med 分位。
+        # 依据: pe_raw IC60 −0.116 vs 去趋势 −0.003 (seg1 −0.159 vs −0.005, seg2 −0.264 vs −0.170);
+        # 去趋势衡量"相对 3 年中枢偏离", 丢失"绝对贵贱"(长窗口内 PE 高位=贵=反转) 核心信号。
+        pct = _pct_rank(hist["pe_med"], cur_pe, label="pe", asof=trade_date)
+        score = pct * 100  # PE 相对 10 年窗口分位越高=越贵=热度越高
         logger.info(
-            "大盘PE: %.2f (det=%.3f), score=%.1f (n=%d, hist=%d)",
+            "大盘PE: %.2f, score=%.1f (n=%d, hist=%d)",
             cur_pe,
-            cur_det if cur_det is not None else float("nan"),
             score,
             cur_n,
             len(hist),
@@ -617,17 +619,12 @@ def calc_turnover_v2(conn, trade_date: str) -> Optional[float]:
 
         cur_rate = today["amt"].iloc[0] / today["mv"].iloc[0] * 10
 
-        # M1.3: 去趋势 — 2023-26 成交中枢抬升使 raw 长期贴顶, 除以 3 年滚动中位数后再取分位
-        det, cur_det = _detrend(hist_rates, cur_rate)
-        if cur_det is None:
-            # 历史不足 3 年(滚动中位数无分母)时退化原始值分位
-            pct = _pct_rank(hist_rates, cur_rate, label="turnover", asof=trade_date)
-        else:
-            pct = _pct_rank(det.dropna(), cur_det, label="turnover", asof=trade_date)
+        # M2a D3 (2026-09-02): 回退 M1.3 去趋势 — 原始换手率分位。
+        # 依据: turnover raw seg0/1 IC60 −0.384/−0.339 vs det −0.266/−0.115, 全样本 −0.110 vs −0.070;
+        # seg2(2023-26) 未转负是 regime 依赖 (bull 态动量/ bear 态反转), 与去趋势无关, 移交 M2b 分层。
+        pct = _pct_rank(hist_rates, cur_rate, label="turnover", asof=trade_date)
         score = pct * 100
-        logger.info(
-            "换手率: %.4f%% (det=%.3f), score=%.1f (n=%d)", cur_rate, cur_det or float("nan"), score, len(hist_rates)
-        )
+        logger.info("换手率: %.4f%%, score=%.1f (n=%d)", cur_rate, score, len(hist_rates))
         return max(0, min(100, score)), cur_rate
     except Exception as e:
         logger.warning("Turnover calc failed: %s", e)
@@ -747,8 +744,9 @@ def calc_yield_spread_v2(conn, trade_date: str) -> Optional[float]:
     """国债期限利差 = 10Y收益率 - 2Y收益率 (2s10s 曲线斜率)
 
     数据源 bond_zh_us_rate, 覆盖 2010~今。1Y 国债历史极短(仅 2020-2021), 故用 2Y 替代 1Y。
-    方向修正(回测发现): A股实证中牛市期 10Y-2Y 利差偏低(短端对宽松更敏感、曲线走平),
-    故利差越小=宽松/多头情绪=热度越高。因此用 -spread 做百分位, 使低利差→高分 (pos)。
+    方向: M2a D1 (2026-09-02) 翻转 — 原实现按"牛市期利差偏低→低利差=宽松=热度高"取 -spread 分位,
+    但实证 IC60=+0.137 (低利差→未来60日续涨, 顺周期动量) 与热度假设相反, 反向拉扯综合分。
+    翻转后: 利差越高(曲线走陡/紧缩预期)→ 得分越高 (该状态下未来收益风险越高)。
     """
     try:
         td = trade_date
@@ -783,9 +781,9 @@ def calc_yield_spread_v2(conn, trade_date: str) -> Optional[float]:
         hist_ratios = hist["spread"].dropna()
         if len(hist_ratios) < 60:
             return None
-        pct = _pct_rank(-hist_ratios, -cur, label="yield_spread", asof=trade_date)
+        pct = _pct_rank(hist_ratios, cur, label="yield_spread", asof=trade_date)
         score = pct * 100
-        logger.info("国债期限利差(10Y-2Y, 已翻转方向): %.4f, score=%.1f (n=%d)", cur, score, len(hist_ratios))
+        logger.info("国债期限利差(10Y-2Y): %.4f, score=%.1f (n=%d)", cur, score, len(hist_ratios))
         return max(0, min(100, score)), cur
     except Exception as e:
         logger.warning("Yield spread calc failed: %s", e)
@@ -796,7 +794,9 @@ def calc_m1_m2_spread_v2(conn, trade_date: str) -> Optional[float]:
     """M1-M2剪刀差 = M1同比 - M2同比 (货币活化程度)
 
     数据源: m1_monthly(M1同比, akshare) + m2_monthly(M2同比, tushare), 按月关联。
-    方向: 剪刀差扩大(企业活期资金占比上升)=资金活性增强=热度越高 (pos)。
+    方向: M2a D1 (2026-09-02) 翻转 — 原方向"剪刀差扩大=资金活性增强=热度越高(pos)"
+    实证 IC60=+0.090 (高剪刀差→未来60日续涨, 顺周期) 与热度假设相反; 翻转后取
+    -spread 分位: 剪刀差越低(资金活化不足)→ 得分越高。
     月频数据映射到每个交易日, 缺失月份沿用最近月 (ffill)。
     """
     try:
@@ -833,7 +833,8 @@ def calc_m1_m2_spread_v2(conn, trade_date: str) -> Optional[float]:
             return None
         # M1.1: 分位在月频序列上按 60 个月窗口取 — 修原日频展开 (同一月值重复
         # ~21 个交易日, 对分位重复加权) + 1260 交易日窗口与月频错配的静默退化。
-        pct = _pct_rank(monthly, cur, window=60, label="m1_m2_spread", asof=trade_date)
+        # M2a D1: 翻转方向 (负输入 → 低剪刀差=高分)。
+        pct = _pct_rank(-monthly, -cur, window=60, label="m1_m2_spread", asof=trade_date)
         score = pct * 100
         logger.info("M1-M2剪刀差: %.4f, score=%.1f (n=%d)", cur, score, len(monthly))
         return max(0, min(100, score)), cur
@@ -1029,7 +1030,9 @@ def calc_margin_buy_ratio_v2(conn, trade_date: str) -> Optional[tuple]:
     雪球恐贪6因子之一, 比余额更灵敏地捕捉边际杠杆变化。零新增抓取
     (融资买入额已在 margin_history, 成交额由 daily_turnover × daily_circ_mv 精确反推:
     amount(元) = turnover_rate × total_circ_mv × 100)。
-    方向: 融资买入占比越高=杠杆资金越激进=热度越高 (pos)。
+    方向: M2a D1 (2026-09-02) 翻转 — 原方向"融资买入占比越高=杠杆资金越激进=热度越高(pos)"
+    实证 IC60=+0.103 (占比高→未来60日续涨, 杠杆跟随趋势的顺周期动量) 与热度假设相反;
+    翻转后取 -ratio 分位: 占比越低(杠杆萎缩/下行趋势)→ 得分越高 (未来收益风险越高)。
     """
     try:
         td = trade_date
@@ -1052,7 +1055,7 @@ def calc_margin_buy_ratio_v2(conn, trade_date: str) -> Optional[tuple]:
         cur = float(hist.iloc[-1]["ratio"])
         if cur <= 0:
             return None
-        pct = _pct_rank(hist["ratio"], cur, label="margin_buy_ratio", asof=trade_date)
+        pct = _pct_rank(-hist["ratio"], -cur, label="margin_buy_ratio", asof=trade_date)
         score = pct * 100
         logger.info("融资买入占比: %.4f, pct=%.2f, score=%.1f (n=%d)", cur, pct, score, len(hist))
         return max(0, min(100, score)), cur
