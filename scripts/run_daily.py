@@ -82,7 +82,7 @@ def _run_step(step_status, step_name, fn, *args, **kwargs):
 
 
 def run_daily(trade_date=None):
-    from src.data.database import init_database, read_dataframe, DB_PATH, SCHEMA_VERSION
+    from src.data.database import init_database, DB_PATH, SCHEMA_VERSION
     from src.common import runtime_meta
     from src.data.fetcher import (
         fetch_all_index_incremental,
@@ -424,21 +424,54 @@ def run_daily(trade_date=None):
 
     _run_step(step_status, "S24i_etf_flow", _step24i)
 
-    # ── Step 3: tushare 融资融券/国债 (akshare) ────────────────────────────
-    logger.info("Step 3: Tushare margin / bond_yield...")
+    # ── Step 3: tushare 融资融券/国债 (akshare) — catch-up 窗口 ─────────────
+    logger.info("Step 3: Tushare margin / bond_yield (catch-up window)...")
 
     def _step3():
+        """拉取 margin/bond 缺口 (D1 修复: 由"仅抓当天"改为"表内 MAX 回看 7 天 ~ td")
+
+        背景: 原实现 fetch(trade_date, trade_date), 若当日数据尚未发布(如 T+1
+        发布日界)或当日请求失败, 缺口会永久遗留且无人补课 —— 2026-08-13~09-01
+        的 16 个交易日 margin 缺口即由此类失败窗口累积而成。
+        现改为: 以表内 MAX(trade_date) 为基准回看 7 个自然日, 一直抓到 trade_date;
+        save_dataframe 为 INSERT OR REPLACE, 重复 upsert 幂等, 窗口内的既有空洞
+        会随每日运行自动自愈。表空时回看 30 天作为首次兜底。
+        """
+        from datetime import timedelta
+        from src.data.database import get_latest_date
+
         any_fetched = False
-        for label, table, fn in [
-            ("margin", "margin_history", lambda: fetch_margin_history(trade_date, trade_date)),
-            ("bond_yield", "bond_yield", lambda: fetch_bond_yield_history(trade_date, trade_date)),
+        td_dt = date.fromisoformat(trade_date)
+
+        for label, table, fetch_fn, is_full_hist in [
+            # is_full_hist: 接口返回全量历史(akshare), 需按窗口过滤后再写
+            ("margin", "margin_history", fetch_margin_history, False),
+            ("bond_yield", "bond_yield", fetch_bond_yield_history, True),
         ]:
-            already = read_dataframe("SELECT 1 FROM " + table + " WHERE trade_date=? LIMIT 1", params=(trade_date,))
-            if not already.empty:
-                step_status["S3_" + label] = {"status": "SKIPPED", "detail": "already in db", "elapsed": 0}
+            latest = get_latest_date(table)
+            latest_dt = date.fromisoformat(latest) if latest else None
+            if latest_dt is not None and latest_dt >= td_dt:
+                step_status["S3_" + label] = {"status": "SKIPPED", "detail": "already up-to-date", "elapsed": 0}
                 continue
-            sub = _run_step(step_status, "S3_" + label, fn)
-            if sub is not None and not sub.empty:
+            # 起点: 表内 MAX 回看 7 天(容错发布日界与窗口内空洞); 表空则回看 30 天
+            base_dt = latest_dt if latest_dt is not None else td_dt - timedelta(days=30)
+            start_dt = base_dt - timedelta(days=7)
+            if start_dt > td_dt:
+                start_dt = td_dt
+            start_s, end_s = start_dt.strftime("%Y-%m-%d"), trade_date
+
+            def _fetch():
+                df = fetch_fn(start_s, end_s)
+                if df is None or df.empty:
+                    return False  # 无新数据 → SKIPPED
+                if is_full_hist:
+                    df = df[(df["trade_date"] >= start_s) & (df["trade_date"] <= end_s)]
+                    if df.empty:
+                        return False
+                return df
+
+            sub = _run_step(step_status, "S3_" + label, _fetch)
+            if sub is not None and hasattr(sub, "empty") and not sub.empty:
                 _save(sub, table)
                 any_fetched = True
         return any_fetched

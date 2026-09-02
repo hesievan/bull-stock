@@ -85,6 +85,9 @@ def _load_v2_config() -> dict:
 
 _cfg = _load_v2_config()
 
+# 引擎规格版本: v2.16 = 16 指标满配单层引擎 (M2 分层重构后 bump)
+ENGINE_VERSION = "v2.16"
+
 INDICATOR_WEIGHTS = _cfg.get("weights") or DEFAULT_WEIGHTS
 
 # 验证权重总和为1.0

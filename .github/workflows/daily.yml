@@ -88,14 +88,18 @@ jobs:
         env:
           TUSHARE_TOKEN: ${{ secrets.TUSHARE_TOKEN }}
         run: |
-          python scripts/fetch_gdp.py || echo "GDP fetch skipped"
+          python scripts/fetch_gdp.py || echo "::warning::GDP fetch skipped/failed (buffett denominator may be stale)"
 
-      - name: Backfill precompute tables if empty
+      # ── 预计算表回填 (缺口自愈) ────────────────────────────────────────────
+      # D1 修复: 原 `|| echo "Precompute backfill skipped"` 把失败静默吞掉,
+      # 导致坏库/空洞被照常缓存并传播(2026-08-13~09-01 每日 3 FAILED 即此根因)。
+      # 现在失败会真实中断 job → 飞书通知失败步骤, 不再静默传播。
+      - name: Backfill precompute tables (gap self-heal)
         if: success()
         env:
           TUSHARE_TOKEN: ${{ secrets.TUSHARE_TOKEN }}
         run: |
-          python scripts/backfill_precompute.py || echo "Precompute backfill skipped"
+          python scripts/backfill_precompute.py
 
       # ── 日常计算 ────────────────────────────────────────────────────────────
       - name: Run daily update

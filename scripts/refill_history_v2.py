@@ -1,25 +1,32 @@
 #!/usr/bin/env python3
 """
-refill_history_v2.py — 用最新 11 项指标, 周频回填 web/data/history.json (2015-2026)
+refill_history_v2.py — 全量重建 web/data/history.json (2015-2026), 16 键满配
 
-高效实现: 复用 reports/backtest_v2_detail.csv 的每日 11 指标百分位 + composite_score,
-配合 web/data/indicator_history.json 的原始值, 仅需 1 次 bulk SQL 补算 margin_ratio_v2 /
-turnover_m2 两个缺失原始值。秒级完成 (不逐日调用引擎, 避免 10 年百分位窗口重复计算)。
+高效实现: 复用 reports/backtest_v2_detail.csv 的每日 16 指标百分位 + composite_score,
+配合 web/data/indicator_history.json 的原始值 (单一数据源, 由 backfill_indicator_history.py
+统一维护), 无需再补算缺失原始值。秒级完成 (不逐日调用引擎, 避免 10 年百分位窗口重复计算)。
 
-采样: ISO 周最后一个交易日 (含末日), 即与既有 history.json 周频口径一致。
+采样: 历史按 ISO 周取最后一个交易日 (与既有 history.json 周频口径一致),
+**最近 TAIL_CALENDAR_DAYS 自然日保留日频尾巴** (含末日), 避免丢近期日频点
+(json_writer 每日 append 也写日频, refill 后保持同类粒度)。
+
+输出每条记录 indicators_v2 恒含 16 键 (缺值用 null 占位, 不再缺键),
+并带 engine_version / indicator_count (=16 键中非空原始值数) 元数据,
+使前端/分析可按统一口径消费, 消除历史"缺键→重归一化"造成的口径断裂。
+
 不含 MA10/MA20 均线 (主趋势线只保留 composite_score + 阈值带)。
 """
 
 import csv
 import json
 import os
-import sqlite3
 import sys
-from datetime import date
+from datetime import date, timedelta
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from src.indicators.heat_index_v2 import (
+    ENGINE_VERSION,
     INDICATOR_WEIGHTS,
     INDICATOR_DIMENSIONS,
     DIMENSIONS,
@@ -31,6 +38,9 @@ CSV = "reports/backtest_v2_detail.csv"
 IND_RAW = "web/data/indicator_history.json"
 OUT = "web/data/history.json"
 VERSION = "v2"
+
+# 采样: 最近 N 自然日保留日频尾巴, 更早历史按 ISO 周取末日
+TAIL_CALENDAR_DAYS = 90
 
 DIM_LABEL = {"valuation": "估值", "fund": "资金", "sentiment": "情绪", "structure": "结构"}
 
@@ -53,22 +63,27 @@ COL2KEY = {
     "ind_ma_alignment": "ma_alignment",
     "ind_breadth": "breadth",
 }
-# indicator_history.json 中可直接取的原始值键
+# indicators_v2 原始值键全集 = 引擎 16 键 (从 indicator_history.json 单一数据源读取)
+# 注: 键名与 json_writer 输出保持一致 (margin_ratio_v2 而非 margin_ratio)
 RAW_KEYS = [
     "pe",
     "buffett",
-    "seal_rate",
-    "turnover",
-    "ma_alignment",
-    "new_high",
+    "margin_ratio_v2",
     "yield_spread",
     "m1_m2_spread",
     "southbound",
+    "margin_buy_ratio",
+    "seal_rate",
+    "turnover_m2",
+    "turnover",
     "futures_discount",
     "amplitude",
     "realized_vol",
+    "new_high",
+    "ma_alignment",
     "breadth",
 ]
+assert len(RAW_KEYS) == 16 and len(set(RAW_KEYS)) == 16
 
 
 def _f(x):
@@ -88,76 +103,32 @@ def load_csv():
     return rows
 
 
-def weekly_sample(dates):
-    """每个 ISO 周取最后一个交易日, 并保证含末日"""
-    weeks = {}
+def sample_dates(dates):
+    """历史 ISO 周取末日 + 最近 TAIL_CALENDAR_DAYS 自然日保留日频尾巴 (含末日)"""
+    dates = sorted(set(dates))
+    if not dates:
+        return []
+    last_dt = date.fromisoformat(dates[-1])
+    cutoff_dt = last_dt - timedelta(days=TAIL_CALENDAR_DAYS)
+    head, tail = [], []
     for d in dates:
+        (tail if date.fromisoformat(d) >= cutoff_dt else head).append(d)
+    weeks = {}
+    for d in head:
         y, w, _ = date(int(d[:4]), int(d[5:7]), int(d[8:10])).isocalendar()
         key = (y, w)
         if key not in weeks or d > weeks[key]:
             weeks[key] = d
-    out = sorted(set(weeks.values()))
+    out = sorted(set(weeks.values()) | set(tail))
     if dates[-1] not in out:
         out = [d for d in out if d <= dates[-1]] + [dates[-1]]
     return sorted(set(out))
 
 
-def bulk_raw(conn, trading_days):
-    """补算 margin_ratio_v2 / turnover_m2 原始值 (元/元比率)。
-
-    与引擎一致: 对每个交易日取 <=当日 的最近可用值 (margin_history 早于 2026-08-11 截止,
-    daily_circ_mv / stock_daily 在部分日期缺失, 用最近值回填)。
-    """
-    import bisect
-
-    # ── margin_ratio_v2: (rzye+rqye) / (total_circ_mv*10000) ──
-    mrows = conn.execute(
-        "SELECT trade_date, rzye, rqye FROM margin_history WHERE rzye > 0 ORDER BY trade_date"
-    ).fetchall()
-    m_dates = [r[0] for r in mrows]
-    m_vals = [(r[1] or 0) + (r[2] or 0) for r in mrows]
-    crows = conn.execute(
-        "SELECT trade_date, total_circ_mv FROM daily_circ_mv WHERE total_circ_mv > 0 ORDER BY trade_date"
-    ).fetchall()
-    c_dates = [r[0] for r in crows]
-    c_vals = [r[1] for r in crows]
-    mr = {}
-    for t in trading_days:
-        i = bisect.bisect_right(m_dates, t) - 1
-        j = bisect.bisect_right(c_dates, t) - 1
-        if i >= 0 and j >= 0 and m_vals[i] and c_vals[j] > 0:
-            mr[t] = round(m_vals[i] / (c_vals[j] * 10000), 6)
-
-    # ── turnover_m2: 当日成交额(元) / M2(元) ──
-    m2rows = conn.execute(
-        "SELECT month, m2_billion FROM m2_monthly WHERE m2_billion IS NOT NULL ORDER BY month"
-    ).fetchall()
-    m2months = [r[0] for r in m2rows]
-    m2vals = [r[1] * 1e8 for r in m2rows]
-    arows = conn.execute(
-        "SELECT trade_date, SUM(amount) * 1000 FROM stock_daily WHERE amount > 0 GROUP BY trade_date ORDER BY trade_date"
-    ).fetchall()
-    adates = [r[0] for r in arows]
-    amap = {r[0]: r[1] for r in arows}
-    tm2 = {}
-    for t in trading_days:
-        i = bisect.bisect_right(adates, t) - 1
-        if i < 0:
-            continue
-        td0 = adates[i]
-        mm = td0[:7]
-        k = bisect.bisect_right(m2months, mm) - 1
-        if k >= 0 and m2vals[k] > 0 and amap.get(td0) is not None:
-            tm2[t] = round(amap[td0] / m2vals[k], 8)
-    return mr, tm2
-
-
 def main():
     rows = load_csv()
     dates = sorted(rows.keys())
-    sample = weekly_sample(dates)
-    conn = sqlite3.connect(DB)
-    mr_raw, tm2_raw = bulk_raw(conn, dates)
+    sample = sample_dates(dates)
     ind_hist = json.load(open(IND_RAW, encoding="utf-8"))
 
     out = []
@@ -179,13 +150,10 @@ def main():
             dims[dim] = round(sum(v * INDICATOR_WEIGHTS[k] for k, v in avail) / w, 1) if w > 0 else None
         cs = _f(row["composite_score"])
         lvl = get_heat_level(cs) if cs is not None else "unknown"
-        # 原始值
-        raw = {}
-        for k in RAW_KEYS:
-            v = ind_hist.get(d, {}).get(k)
-            raw[k] = v
-        raw["margin_ratio_v2"] = mr_raw.get(d)
-        raw["turnover_m2"] = tm2_raw.get(d)
+        # 原始值: 16 键恒在, 缺值 null 占位 (单一数据源 indicator_history.json)
+        day_raw = ind_hist.get(d, {})
+        raw = {k: day_raw.get(k) for k in RAW_KEYS}
+        n_avail = sum(1 for v in raw.values() if v is not None)
         out.append(
             {
                 "trade_date": d,
@@ -193,6 +161,8 @@ def main():
                 "level": lvl,
                 "dimensions": {dim: {"score": dims[dim], "label": DIM_LABEL[dim]} for dim in DIMENSIONS},
                 "indicators_v2": raw,
+                "engine_version": ENGINE_VERSION,
+                "indicator_count": n_avail,
                 "version": VERSION,
                 "updated_at": date.today().strftime("%Y-%m-%d %H:%M:%S"),
             }
@@ -203,7 +173,12 @@ def main():
     with open(tmp, "w", encoding="utf-8") as f:
         json.dump(out, f, ensure_ascii=False, indent=1)
     os.replace(tmp, OUT)
-    print(f"wrote {len(out)} weekly entries ({out[0]['trade_date']} ~ {out[-1]['trade_date']}) -> {OUT}")
+    full16 = sum(1 for r in out if r["indicator_count"] == 16)
+    print(
+        f"wrote {len(out)} entries ({out[0]['trade_date']} ~ {out[-1]['trade_date']}) -> {OUT}\n"
+        f"  16键满配记录: {full16}/{len(out)} | 末段日频尾巴: "
+        f"{TAIL_CALENDAR_DAYS} 自然日"
+    )
 
 
 if __name__ == "__main__":

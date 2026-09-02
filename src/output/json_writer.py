@@ -20,6 +20,16 @@ from typing import Dict, Optional, Tuple
 logger = logging.getLogger(__name__)
 
 
+def _engine_version() -> str:
+    """引擎规格版本 (惰性 import, 避免与 heat_index_v2 顶层互相拖累)"""
+    try:
+        from src.indicators.heat_index_v2 import ENGINE_VERSION
+
+        return ENGINE_VERSION
+    except Exception:
+        return "v2"
+
+
 def _atomic_write_json(filepath: str, data) -> None:
     """原子写入 JSON 文件，先写临时文件再 rename，防止写入中途崩溃"""
     dir_name = os.path.dirname(filepath) or "."
@@ -135,9 +145,12 @@ def save_results_v2(result_v2: Dict, output_dir: str = None) -> Dict:
         },
         "qvix_display": result_v2["indicators"].get("qvix"),
         "qvix_components": result_v2["indicators"].get("qvix_components"),
+        "engine_version": _engine_version(),
         "version": "v2",
         "updated_at": date.today().strftime("%Y-%m-%d %H:%M:%S"),
     }
+    # 有效指标数 = indicators_v2 中非空原始值个数 (口径与 refill_history_v2.py 一致)
+    index_data["indicator_count"] = sum(1 for v in index_data["indicators_v2"].values() if v is not None)
 
     # 得分平滑: 3日移动平均
     history_file = os.path.join(output_dir, "history.json")
