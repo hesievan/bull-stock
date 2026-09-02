@@ -5,77 +5,77 @@
     "init_db": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.0016922950744628906
+      "elapsed": 0.0015399456024169922
     },
     "S1_index": {
       "status": "OK",
       "detail": "",
-      "elapsed": 28.534889459609985
+      "elapsed": 26.410839319229126
     },
     "S2_market": {
       "status": "OK",
       "detail": "",
-      "elapsed": 8.697584629058838
+      "elapsed": 3.4631872177124023
     },
     "S25_index_pe": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.027663230895996094
+      "elapsed": 0.026574373245239258
     },
     "S26_circ_mv": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.003671407699584961
+      "elapsed": 0.003560781478881836
     },
     "S26b_total_mv": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.0044438838958740234
+      "elapsed": 0.0038225650787353516
     },
     "S27_updown": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.008667707443237305
+      "elapsed": 0.007727384567260742
     },
     "S28_limit": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.008668184280395508
+      "elapsed": 0.007832050323486328
     },
     "S29_below_net": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.008244037628173828
+      "elapsed": 0.008402109146118164
     },
     "S30_ma_alignment": {
       "status": "OK",
       "detail": "",
-      "elapsed": 5.944692850112915
+      "elapsed": 5.852214813232422
     },
     "S30b_new_high": {
       "status": "OK",
       "detail": "",
-      "elapsed": 2.3216512203216553
+      "elapsed": 2.263021230697632
     },
     "S30c_turnover": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.004426002502441406
+      "elapsed": 0.004526853561401367
     },
     "S31_qvix": {
       "status": "OK",
       "detail": "",
-      "elapsed": 4.832392692565918
+      "elapsed": 5.046748399734497
     },
     "S31b_seal_rate": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.03305506706237793
+      "elapsed": 0.030963420867919922
     },
     "S31c_index_pe": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.7344653606414795
+      "elapsed": 0.6447763442993164
     },
     "precompute_staleness": [
       {
@@ -161,8 +161,8 @@
       {
         "table": "daily_hsgt_south",
         "desc": "南向净买额",
-        "latest_date": "2026-09-01",
-        "gap_days": 1,
+        "latest_date": "2026-09-02",
+        "gap_days": 0,
         "max_gap_days": 5,
         "stale": false,
         "has_fallback": true,
@@ -171,8 +171,8 @@
       {
         "table": "daily_futures_basis",
         "desc": "IF基差",
-        "latest_date": "2026-09-01",
-        "gap_days": 1,
+        "latest_date": "2026-09-02",
+        "gap_days": 0,
         "max_gap_days": 5,
         "stale": false,
         "has_fallback": true,
@@ -202,79 +202,79 @@
     "S24_precompute_check": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.008094549179077148
+      "elapsed": 0.0079193115234375
     },
     "S24c_m2": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.0013546943664550781
+      "elapsed": 0.0011217594146728516
     },
     "S24d_m1": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.0010848045349121094
+      "elapsed": 0.0010619163513183594
     },
     "S24f_south": {
       "status": "OK",
       "detail": "",
-      "elapsed": 8.450050354003906
+      "elapsed": 8.187938451766968
     },
     "S24g_futures": {
       "status": "OK",
       "detail": "",
-      "elapsed": 4.362154245376587
+      "elapsed": 2.3616437911987305
     },
     "S24h_accounts": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.8978619575500488
+      "elapsed": 1.4784343242645264
     },
     "S24i_etf_flow": {
       "status": "OK",
       "detail": "",
-      "elapsed": 39.349995851516724
+      "elapsed": 39.54468297958374
     },
     "S3_margin": {
       "status": "OK",
       "detail": "",
-      "elapsed": 1.2495276927947998
+      "elapsed": 1.123549222946167
     },
     "S3_bond_yield": {
-      "status": "OK",
-      "detail": "",
-      "elapsed": 9.244039297103882
+      "status": "SKIPPED",
+      "detail": "already up-to-date",
+      "elapsed": 0
     },
     "S3_tushare": {
       "status": "OK",
       "detail": "",
-      "elapsed": 10.50248408317566
+      "elapsed": 1.1287622451782227
     },
     "S3_shenwan": {
       "status": "OK",
       "detail": "",
-      "elapsed": 17.0356764793396
+      "elapsed": 16.28984498977661
     },
     "S3_industry": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.0016596317291259766
+      "elapsed": 0.0014841556549072266
     },
     "S5_calc": {
       "status": "OK",
       "detail": "",
-      "elapsed": 9.908934831619263
+      "elapsed": 9.645284175872803
     },
     "S55_index_heat": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.1381664276123047
+      "elapsed": 0.12700891494750977
     }
   },
-  "n_ok": 29,
+  "n_ok": 28,
   "n_failed": 0,
-  "n_skipped": 0,
+  "n_skipped": 1,
   "schema_version": 15,
   "python_version": "3.12.14",
   "platform": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
-  "memory_mb": 579.65234375
+  "memory_mb": 578.39453125
 }
