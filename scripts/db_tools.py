@@ -12,6 +12,8 @@
   python scripts/db_tools.py backup                    # 创建带日期的备份
   python scripts/db_tools.py restore [backup_file]     # 从备份恢复（默认最新备份）
   python scripts/db_tools.py list                      # 列出所有备份
+  python scripts/db_tools.py cleanup [--keep N] [--days D] [--bak-keep N] [--dry-run]
+                                                       # 清理过期备份（P3-F4）
 """
 
 import sys
@@ -248,32 +250,37 @@ def list_backups():
 # ── 清理过期备份（P3-F4）───────────────────────────────────────────────────────
 
 
-def cleanup_backups(keep: int = 5, days: int | None = None, dry_run: bool = False) -> list:
+def cleanup_backups(keep: int = 5, days: int | None = None, dry_run: bool = False, bak_keep: int = 3) -> list:
     """清理过期备份，避免 data/ 无限膨胀。
 
     - backups/ 下的 gzip 备份：保留最近 `keep` 个（默认 5）；若指定 `days`，
-      额外删除早于 `days` 天的备份（不论 keep）。
-    - data/ 下的 `.bak_*` 开发期临时备份：保留最近 3 个，其余删除。
+      仅当备份同时位于"超出 keep 的候选"且已超过 `days` 天时才删除（保守语义，
+      不会动最近 keep 个以内的备份）。`keep=0` 表示不按个数保留（可全删）。
+    - data/ 下的 `.bak_*` 开发期临时备份：保留最近 `bak_keep` 个（默认 3），
+      其余删除；`bak_keep=0` 表示全部可删。
     - dry_run=True 只预览不删除。
-    返回被处理的文件路径列表。
+    返回被删除（或 dry-run 将删除）的文件路径列表。
     """
     removed: list = []
-    n_backups_removed = 0
+    n_gz_removed = 0
 
-    # 1) 正式备份目录
+    # 1) 正式备份目录 (backups/heat_index_*.db.gz)
+    #    注意: `files[:-keep]` 在 keep=0 时等价 `files[:0]` = []（静默不删），
+    #    故 keep<=0 显式取全量作为候选。
     backups = sorted(glob.glob(os.path.join(BACKUP_DIR, "heat_index_*.db.gz")))
-    for b in backups[:-keep] if keep >= 0 else []:
+    candidates_gz = backups[:-keep] if keep > 0 else list(backups)
+    for b in candidates_gz:
         if days is not None:
             age_days = (time.time() - os.path.getmtime(b)) / 86400
             if age_days < days:
                 continue  # 未超期，跳过（即使超出 keep 也保留）
         removed.append(b)
-        n_backups_removed += 1
+        n_gz_removed += 1
 
-    # 2) 开发期临时备份（.bak_*），保留最近 3 个
+    # 2) 开发期临时备份 (data/*.bak_*)，保留最近 bak_keep 个
     bak_files = sorted(glob.glob(os.path.join(DB_DIR, "*.bak_*")))
-    for b in bak_files[:-3]:
-        removed.append(b)
+    candidates_bak = bak_files[:-bak_keep] if bak_keep > 0 else list(bak_files)
+    removed.extend(candidates_bak)
 
     if dry_run:
         logger.info("cleanup (dry-run): %d file(s) would be removed", len(removed))
@@ -284,11 +291,12 @@ def cleanup_backups(keep: int = 5, days: int | None = None, dry_run: bool = Fals
             except OSError as e:
                 logger.warning("failed to remove %s: %s", b, e)
         logger.info(
-            "cleanup: removed %d file(s) (backups=%d, temp=%d), kept %d backup(s)",
+            "cleanup: removed %d file(s) (backups=%d, temp_bak=%d), kept %d backup(s) / %d temp_bak(s)",
             len(removed),
-            n_backups_removed,
-            len(removed) - n_backups_removed,
-            len(backups) - n_backups_removed,
+            n_gz_removed,
+            len(removed) - n_gz_removed,
+            len(backups) - n_gz_removed,
+            len(bak_files) - len(candidates_bak),
         )
 
     for b in removed:
@@ -310,7 +318,8 @@ Commands:
   backup                  创建带日期的 gzip 备份
   restore [backup_file]   从备份恢复（默认最新）
   list                    列出所有备份
-  cleanup [--keep N] [--days D] [--dry-run]   清理过期备份（保留最近 N 个备份 + 最近 3 个 .bak_*）"""
+  cleanup [--keep N] [--days D] [--bak-keep N] [--dry-run]   清理过期备份
+    (backups/ 保留最近 N 个, 指定 --days 时超期才删; data/*.bak_* 保留最近 N 个)"""
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
@@ -341,6 +350,7 @@ if __name__ == "__main__":
     elif cmd == "cleanup":
         keep = 5
         days = None
+        bak_keep = 3
         dry_run = False
         rest = sys.argv[2:]
         i = 0
@@ -352,12 +362,15 @@ if __name__ == "__main__":
             elif a == "--days" and i + 1 < len(rest):
                 days = int(rest[i + 1])
                 i += 2
+            elif a == "--bak-keep" and i + 1 < len(rest):
+                bak_keep = int(rest[i + 1])
+                i += 2
             elif a == "--dry-run":
                 dry_run = True
                 i += 1
             else:
                 i += 1
-        cleanup_backups(keep=keep, days=days, dry_run=dry_run)
+        cleanup_backups(keep=keep, days=days, dry_run=dry_run, bak_keep=bak_keep)
     else:
         print(f"Unknown command: {cmd}")
         print(USAGE)
