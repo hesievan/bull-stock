@@ -26,10 +26,11 @@ from datetime import date, timedelta
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from src.indicators.heat_index_v2 import (
+    ENGINE_MODE,
     ENGINE_VERSION,
-    INDICATOR_WEIGHTS,
     INDICATOR_DIMENSIONS,
     DIMENSIONS,
+    _weights_for,
 )
 from src.output.json_writer import get_heat_level
 
@@ -132,6 +133,7 @@ def main():
     ind_hist = json.load(open(IND_RAW, encoding="utf-8"))
 
     out = []
+    weights = _weights_for()  # M2b-3: 遵循 engine_mode (env/config 解析), 与 backtest CSV 同构
     for d in sample:
         row = rows.get(d)
         if not row:
@@ -146,8 +148,8 @@ def main():
             if not avail:
                 dims[dim] = None
                 continue
-            w = sum(INDICATOR_WEIGHTS[k] for k, _ in avail)
-            dims[dim] = round(sum(v * INDICATOR_WEIGHTS[k] for k, v in avail) / w, 1) if w > 0 else None
+            w = sum(weights[k] for k, _ in avail)
+            dims[dim] = round(sum(v * weights[k] for k, v in avail) / w, 1) if w > 0 else None
         cs = _f(row["composite_score"])
         lvl = get_heat_level(cs) if cs is not None else "unknown"
         # 原始值: 16 键恒在, 缺值 null 占位 (单一数据源 indicator_history.json)
@@ -162,6 +164,7 @@ def main():
                 "dimensions": {dim: {"score": dims[dim], "label": DIM_LABEL[dim]} for dim in DIMENSIONS},
                 "indicators_v2": raw,
                 "engine_version": ENGINE_VERSION,
+                "engine_mode": ENGINE_MODE,
                 "indicator_count": n_avail,
                 "version": VERSION,
                 "updated_at": date.today().strftime("%Y-%m-%d %H:%M:%S"),

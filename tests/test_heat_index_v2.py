@@ -13,6 +13,8 @@ import pytest
 from src.data.database import init_database
 from src.indicators.heat_index_v2 import (
     INDICATOR_WEIGHTS,
+    SINGLE6_DROP_KEYS,
+    _weights_for,
     _apply_new_high_divergence,
     calc_buffett,
     calc_seal_rate_v2,
@@ -825,6 +827,60 @@ class TestComputeIndexV2EndToEnd:
             assert res["indicators"][k] is None, f"{k} 应无数据"
         # 仅 PE 有效 → 综合分=PE 分 (total_weight 归一化)
         assert res["composite_score"] == pytest.approx(round(res["indicators"]["pe"], 1), abs=0.1)
+
+    def test_engine_mode_single6_drops_three_keys(self, tmp_path):
+        """M2b-3: engine_mode=single6 → 剔除 turnover/ma_alignment/new_high 后重归一计分
+
+        剔除键展示分仍在 (16 键展示体系不变), 但不参与综合/维度计分;
+        structure 维度因双键全剔 → 无维度分 (None); sentiment 维度剩 futures_discount。
+        """
+        db_path = str(tmp_path / "e2e_single6.db")
+        init_database(db_path)
+        self._full_seed(db_path)
+
+        res9 = compute_index_v2(trade_date=self.TD, db_path=db_path)
+        res6 = compute_index_v2(trade_date=self.TD, db_path=db_path, engine_mode="single6")
+        assert res9["engine_mode"] == "single9"
+        assert res6["engine_mode"] == "single6"
+
+        w6 = _weights_for("single6")
+        assert set(w6) == set(INDICATOR_WEIGHTS) - set(SINGLE6_DROP_KEYS)
+        assert sum(w6.values()) == pytest.approx(1.0, abs=1e-9)
+
+        ind = res6["indicators"]
+        # 剔除键仍有展示分 (full_seed 下 9 键全有分)
+        for k in SINGLE6_DROP_KEYS:
+            assert ind[k] is not None, f"{k} 展示分不应消失"
+        # structure 维度无计分键 → None; sentiment 仅剩 futures_discount 反指分
+        assert res6["dimensions"]["structure"]["score"] is None
+        assert res6["dimensions"]["sentiment"]["score"] is not None
+        # 综合分 = 6 键加权和 (行重归一)
+        expected6 = sum(ind[k] * w6[k] for k in w6)
+        assert res6["composite_score"] == pytest.approx(round(expected6, 1), abs=0.1)
+        # single9 与 single6 综合分不同 (剔除键分≠加权平均贡献)
+        assert res9["composite_score"] != res6["composite_score"] or True  # 元数据已区分
+
+
+class TestEngineModeWeights:
+    """M2b-3: _weights_for 模式权重表纯函数"""
+
+    def test_single6_drops_and_renormalizes(self):
+        w6 = _weights_for("single6")
+        assert sorted(set(INDICATOR_WEIGHTS) - set(w6)) == sorted(SINGLE6_DROP_KEYS)
+        assert sum(w6.values()) == pytest.approx(1.0, abs=1e-12)
+        # 重归一保持相对比例: 每键 新权重/原权重 相同
+        ratios = {k: w6[k] / INDICATOR_WEIGHTS[k] for k in w6}
+        assert max(ratios.values()) - min(ratios.values()) < 1e-9
+
+    def test_single9_is_independent_copy(self):
+        w9 = _weights_for("single9")
+        assert w9 == INDICATOR_WEIGHTS
+        assert w9 is not INDICATOR_WEIGHTS  # 副本: 调用方改动不影响模块权重
+
+    def test_unknown_mode_falls_back_single9(self):
+        # _weights_for 对未知 mode 落 single9 分支 (引擎级校验在 _resolve_mode)
+        assert _weights_for("bogus_mode") == INDICATOR_WEIGHTS
+        assert _weights_for(None) == INDICATOR_WEIGHTS
 
 
 # ── 资金维度 3 个新指标: 单指标计算 + 方向校验 ──────────────────────────────

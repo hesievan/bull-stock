@@ -2,6 +2,9 @@
 
 # V2 引擎配置（与 heat_index_v2.py 同步, YAML 为唯一事实源）
 v2_engine:
+  # M2b-3: 计分键模式。single9=9 键全用(v3.0 现状); single6=剔除 turnover/ma_alignment/new_high 三键后权重重归一
+  # 解析序: env HEAT_ENGINE_MODE > config v2_engine.mode > 默认 single9
+  mode: single9
   weights:
     pe: 0.212121
     buffett: 0.212121

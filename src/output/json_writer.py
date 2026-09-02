@@ -30,6 +30,16 @@ def _engine_version() -> str:
         return "v2"
 
 
+def _engine_mode() -> str:
+    """引擎计分模式 single9/single6 (惰性 import)"""
+    try:
+        from src.indicators.heat_index_v2 import ENGINE_MODE
+
+        return ENGINE_MODE
+    except Exception:
+        return "single9"
+
+
 def _atomic_write_json(filepath: str, data) -> None:
     """原子写入 JSON 文件，先写临时文件再 rename，防止写入中途崩溃"""
     dir_name = os.path.dirname(filepath) or "."
@@ -146,6 +156,7 @@ def save_results_v2(result_v2: Dict, output_dir: str = None) -> Dict:
         "qvix_display": result_v2["indicators"].get("qvix"),
         "qvix_components": result_v2["indicators"].get("qvix_components"),
         "engine_version": _engine_version(),
+        "engine_mode": result_v2.get("engine_mode") or _engine_mode(),
         "version": "v2",
         "updated_at": date.today().strftime("%Y-%m-%d %H:%M:%S"),
     }

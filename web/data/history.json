@@ -40,6 +40,7 @@
    "breadth": 0.3363
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 13,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -85,6 +86,7 @@
    "breadth": 3.7113
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 13,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -130,6 +132,7 @@
    "breadth": 0.3445
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 13,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -175,6 +178,7 @@
    "breadth": 0.3656
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -220,6 +224,7 @@
    "breadth": 0.1783
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -265,6 +270,7 @@
    "breadth": 8.0117
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -310,6 +316,7 @@
    "breadth": 1.3176
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 14,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -355,6 +362,7 @@
    "breadth": 2.2339
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -400,6 +408,7 @@
    "breadth": 0.4441
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -445,6 +454,7 @@
    "breadth": 4.4505
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -490,6 +500,7 @@
    "breadth": 1.6102
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -535,6 +546,7 @@
    "breadth": 2.3184
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -580,6 +592,7 @@
    "breadth": 2.897
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 14,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -625,6 +638,7 @@
    "breadth": 8.4815
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -670,6 +684,7 @@
    "breadth": 1.3563
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -715,6 +730,7 @@
    "breadth": 0.7041
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -760,6 +776,7 @@
    "breadth": 0.876
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -805,6 +822,7 @@
    "breadth": 38.0667
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -850,6 +868,7 @@
    "breadth": 0.6004
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -895,6 +914,7 @@
    "breadth": 1.91
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -940,6 +960,7 @@
    "breadth": 1.377
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -985,6 +1006,7 @@
    "breadth": 2.1671
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -1030,6 +1052,7 @@
    "breadth": 2.0595
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -1075,6 +1098,7 @@
    "breadth": 0.0572
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 14,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -1120,6 +1144,7 @@
    "breadth": 0.0252
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -1165,6 +1190,7 @@
    "breadth": 0.0653
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -1210,6 +1236,7 @@
    "breadth": 198.5714
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -1255,6 +1282,7 @@
    "breadth": 92.4783
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -1300,6 +1328,7 @@
    "breadth": 0.3255
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -1345,6 +1374,7 @@
    "breadth": 0.4719
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -1390,6 +1420,7 @@
    "breadth": 38.1207
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -1435,6 +1466,7 @@
    "breadth": 1.192
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -1480,6 +1512,7 @@
    "breadth": 0.0383
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -1525,6 +1558,7 @@
    "breadth": 118.7368
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -1570,6 +1604,7 @@
    "breadth": 0.28
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 14,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -1615,6 +1650,7 @@
    "breadth": 2.4985
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -1660,6 +1696,7 @@
    "breadth": 4.9661
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -1705,6 +1742,7 @@
    "breadth": 0.1109
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -1750,6 +1788,7 @@
    "breadth": 1.8141
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 14,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -1795,6 +1834,7 @@
    "breadth": 5.1263
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -1840,6 +1880,7 @@
    "breadth": 3.1792
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -1885,6 +1926,7 @@
    "breadth": 12.4425
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -1930,6 +1972,7 @@
    "breadth": 0.6769
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -1975,6 +2018,7 @@
    "breadth": 43.9057
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -2020,6 +2064,7 @@
    "breadth": 0.2678
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -2065,6 +2110,7 @@
    "breadth": 2.2622
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -2110,6 +2156,7 @@
    "breadth": 0.0576
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -2155,6 +2202,7 @@
    "breadth": 0.6249
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -2200,6 +2248,7 @@
    "breadth": 0.5466
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -2245,6 +2294,7 @@
    "breadth": 0.5637
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -2290,6 +2340,7 @@
    "breadth": 2.0756
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 14,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -2335,6 +2386,7 @@
    "breadth": 0.2378
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -2380,6 +2432,7 @@
    "breadth": 1.6741
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -2425,6 +2478,7 @@
    "breadth": 0.107
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -2470,6 +2524,7 @@
    "breadth": 7.3432
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -2515,6 +2570,7 @@
    "breadth": 29.7108
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -2560,6 +2616,7 @@
    "breadth": 0.3021
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 14,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -2605,6 +2662,7 @@
    "breadth": 1.4786
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -2650,6 +2708,7 @@
    "breadth": 1.0342
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -2695,6 +2754,7 @@
    "breadth": 0.1715
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -2740,6 +2800,7 @@
    "breadth": 0.8439
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -2785,6 +2846,7 @@
    "breadth": 45.3636
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -2830,6 +2892,7 @@
    "breadth": 2.5141
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 14,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -2875,6 +2938,7 @@
    "breadth": 0.553
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -2920,6 +2984,7 @@
    "breadth": 0.4121
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -2965,6 +3030,7 @@
    "breadth": 0.7206
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -3010,6 +3076,7 @@
    "breadth": 3.5201
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -3055,6 +3122,7 @@
    "breadth": 0.7071
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -3100,6 +3168,7 @@
    "breadth": 0.0539
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -3145,6 +3214,7 @@
    "breadth": 0.5493
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -3190,6 +3260,7 @@
    "breadth": 6.0282
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -3235,6 +3306,7 @@
    "breadth": 0.7849
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -3280,6 +3352,7 @@
    "breadth": 1.2461
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -3325,6 +3398,7 @@
    "breadth": 0.5012
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 14,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -3370,6 +3444,7 @@
    "breadth": 2.4676
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -3415,6 +3490,7 @@
    "breadth": 0.2732
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -3460,6 +3536,7 @@
    "breadth": 0.6716
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 14,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -3505,6 +3582,7 @@
    "breadth": 0.6004
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -3550,6 +3628,7 @@
    "breadth": 0.565
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -3595,6 +3674,7 @@
    "breadth": 0.2826
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -3640,6 +3720,7 @@
    "breadth": 0.4167
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -3685,6 +3766,7 @@
    "breadth": 0.3897
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -3730,6 +3812,7 @@
    "breadth": 7.8073
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -3775,6 +3858,7 @@
    "breadth": 0.9161
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -3820,6 +3904,7 @@
    "breadth": 1.5505
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -3865,6 +3950,7 @@
    "breadth": 0.6221
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -3910,6 +3996,7 @@
    "breadth": 0.3241
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -3955,6 +4042,7 @@
    "breadth": 0.4857
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 14,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -4000,6 +4088,7 @@
    "breadth": 0.5551
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -4045,6 +4134,7 @@
    "breadth": 2.2634
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 14,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -4090,6 +4180,7 @@
    "breadth": 0.7224
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -4135,6 +4226,7 @@
    "breadth": 0.485
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 14,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -4180,6 +4272,7 @@
    "breadth": 0.2986
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -4225,6 +4318,7 @@
    "breadth": 0.7239
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -4270,6 +4364,7 @@
    "breadth": 1.7093
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -4315,6 +4410,7 @@
    "breadth": 0.5465
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -4360,6 +4456,7 @@
    "breadth": 1.1906
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -4405,6 +4502,7 @@
    "breadth": 0.1668
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -4450,6 +4548,7 @@
    "breadth": 0.606
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -4495,6 +4594,7 @@
    "breadth": 3.6451
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -4540,6 +4640,7 @@
    "breadth": 0.2275
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -4585,6 +4686,7 @@
    "breadth": 1.1966
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -4630,6 +4732,7 @@
    "breadth": 0.3996
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -4675,6 +4778,7 @@
    "breadth": 0.2313
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -4720,6 +4824,7 @@
    "breadth": 22.252
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -4765,6 +4870,7 @@
    "breadth": 3.2669
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -4810,6 +4916,7 @@
    "breadth": 0.533
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -4855,6 +4962,7 @@
    "breadth": 0.6298
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -4900,6 +5008,7 @@
    "breadth": 0.3068
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -4945,6 +5054,7 @@
    "breadth": 1.7542
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -4990,6 +5100,7 @@
    "breadth": 1.2404
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -5035,6 +5146,7 @@
    "breadth": 0.8422
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -5080,6 +5192,7 @@
    "breadth": 0.2739
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -5125,6 +5238,7 @@
    "breadth": 1.5195
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -5170,6 +5284,7 @@
    "breadth": 1.7524
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -5215,6 +5330,7 @@
    "breadth": 0.708
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -5260,6 +5376,7 @@
    "breadth": 0.1971
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -5305,6 +5422,7 @@
    "breadth": 0.723
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -5350,6 +5468,7 @@
    "breadth": 1.9832
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -5395,6 +5514,7 @@
    "breadth": 0.2484
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -5440,6 +5560,7 @@
    "breadth": 0.7749
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -5485,6 +5606,7 @@
    "breadth": 0.773
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -5530,6 +5652,7 @@
    "breadth": 1.0353
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -5575,6 +5698,7 @@
    "breadth": 3.9274
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -5620,6 +5744,7 @@
    "breadth": 0.9541
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -5665,6 +5790,7 @@
    "breadth": 0.5334
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -5710,6 +5836,7 @@
    "breadth": 0.9508
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -5755,6 +5882,7 @@
    "breadth": 1.2409
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -5800,6 +5928,7 @@
    "breadth": 1.5851
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -5845,6 +5974,7 @@
    "breadth": 0.4939
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -5890,6 +6020,7 @@
    "breadth": 0.696
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -5935,6 +6066,7 @@
    "breadth": 0.5318
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -5980,6 +6112,7 @@
    "breadth": 0.4637
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -6025,6 +6158,7 @@
    "breadth": 0.226
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -6070,6 +6204,7 @@
    "breadth": 0.4993
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -6115,6 +6250,7 @@
    "breadth": 9.0
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -6160,6 +6296,7 @@
    "breadth": 1.4934
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -6205,6 +6342,7 @@
    "breadth": 1.0689
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -6250,6 +6388,7 @@
    "breadth": 0.6082
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -6295,6 +6434,7 @@
    "breadth": 0.6043
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -6340,6 +6480,7 @@
    "breadth": 3.4259
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -6385,6 +6526,7 @@
    "breadth": 1.9147
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -6430,6 +6572,7 @@
    "breadth": 5.3548
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -6475,6 +6618,7 @@
    "breadth": 0.3911
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -6520,6 +6664,7 @@
    "breadth": 0.4471
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -6565,6 +6710,7 @@
    "breadth": 0.8097
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -6610,6 +6756,7 @@
    "breadth": 0.1084
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -6655,6 +6802,7 @@
    "breadth": 1.3167
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -6700,6 +6848,7 @@
    "breadth": 3.4456
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -6745,6 +6894,7 @@
    "breadth": 5.9491
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -6790,6 +6940,7 @@
    "breadth": 0.6402
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -6835,6 +6986,7 @@
    "breadth": 0.6312
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -6880,6 +7032,7 @@
    "breadth": 2.948
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -6925,6 +7078,7 @@
    "breadth": 0.9767
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -6970,6 +7124,7 @@
    "breadth": 0.4831
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -7015,6 +7170,7 @@
    "breadth": 0.6626
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -7060,6 +7216,7 @@
    "breadth": 0.5701
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -7105,6 +7262,7 @@
    "breadth": 0.6237
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -7150,6 +7308,7 @@
    "breadth": 0.0843
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -7195,6 +7354,7 @@
    "breadth": 1.4461
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -7240,6 +7400,7 @@
    "breadth": 1.5049
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -7285,6 +7446,7 @@
    "breadth": 0.4449
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -7330,6 +7492,7 @@
    "breadth": 6.5311
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -7375,6 +7538,7 @@
    "breadth": 0.7454
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -7420,6 +7584,7 @@
    "breadth": 0.0644
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -7465,6 +7630,7 @@
    "breadth": 3.9279
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -7510,6 +7676,7 @@
    "breadth": 0.5339
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -7555,6 +7722,7 @@
    "breadth": 0.6617
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -7600,6 +7768,7 @@
    "breadth": 0.1287
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -7645,6 +7814,7 @@
    "breadth": 1.5975
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -7690,6 +7860,7 @@
    "breadth": 0.6714
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -7735,6 +7906,7 @@
    "breadth": 0.275
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -7780,6 +7952,7 @@
    "breadth": 1.9823
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -7825,6 +7998,7 @@
    "breadth": 0.4229
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -7870,6 +8044,7 @@
    "breadth": 0.4037
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -7915,6 +8090,7 @@
    "breadth": 0.3053
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -7960,6 +8136,7 @@
    "breadth": 0.1779
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -8005,6 +8182,7 @@
    "breadth": 6.554
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -8050,6 +8228,7 @@
    "breadth": 34.6237
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -8095,6 +8274,7 @@
    "breadth": 1.8407
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -8140,6 +8320,7 @@
    "breadth": 1.1675
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -8185,6 +8366,7 @@
    "breadth": 4.9337
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -8230,6 +8412,7 @@
    "breadth": 0.4646
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -8275,6 +8458,7 @@
    "breadth": 0.3256
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -8320,6 +8504,7 @@
    "breadth": 2.1867
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -8365,6 +8550,7 @@
    "breadth": 0.1328
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -8410,6 +8596,7 @@
    "breadth": 0.6317
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -8455,6 +8642,7 @@
    "breadth": 0.2804
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -8500,6 +8688,7 @@
    "breadth": 1.4466
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -8545,6 +8734,7 @@
    "breadth": 0.3119
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -8590,6 +8780,7 @@
    "breadth": 7.1768
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -8635,6 +8826,7 @@
    "breadth": 4.8269
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -8680,6 +8872,7 @@
    "breadth": 0.5631
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -8725,6 +8918,7 @@
    "breadth": 9.1059
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -8770,6 +8964,7 @@
    "breadth": 1.9148
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -8815,6 +9010,7 @@
    "breadth": 43.4744
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -8860,6 +9056,7 @@
    "breadth": 0.6675
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -8905,6 +9102,7 @@
    "breadth": 1.9637
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -8950,6 +9148,7 @@
    "breadth": 0.0455
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -8995,6 +9194,7 @@
    "breadth": 2.2074
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -9040,6 +9240,7 @@
    "breadth": 1.2331
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -9085,6 +9286,7 @@
    "breadth": 0.0763
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -9130,6 +9332,7 @@
    "breadth": 0.3849
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -9175,6 +9378,7 @@
    "breadth": 1.1791
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -9220,6 +9424,7 @@
    "breadth": 21.3481
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -9265,6 +9470,7 @@
    "breadth": 3.2351
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -9310,6 +9516,7 @@
    "breadth": 2.578
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -9355,6 +9562,7 @@
    "breadth": 0.4049
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -9400,6 +9608,7 @@
    "breadth": 23.469
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 14,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -9445,6 +9654,7 @@
    "breadth": 0.6091
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -9490,6 +9700,7 @@
    "breadth": 10.8956
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -9535,6 +9746,7 @@
    "breadth": 1.3819
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -9580,6 +9792,7 @@
    "breadth": 0.1168
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -9625,6 +9838,7 @@
    "breadth": 4.6904
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -9670,6 +9884,7 @@
    "breadth": 1.0352
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -9715,6 +9930,7 @@
    "breadth": 12.613
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -9760,6 +9976,7 @@
    "breadth": 0.9128
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -9805,6 +10022,7 @@
    "breadth": 0.9851
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -9850,6 +10068,7 @@
    "breadth": 1.8581
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 14,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -9895,6 +10114,7 @@
    "breadth": 0.3976
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -9940,6 +10160,7 @@
    "breadth": 3.4585
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 14,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -9985,6 +10206,7 @@
    "breadth": 62.9107
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -10030,6 +10252,7 @@
    "breadth": 0.0767
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -10075,6 +10298,7 @@
    "breadth": 0.597
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -10120,6 +10344,7 @@
    "breadth": 0.8171
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -10165,6 +10390,7 @@
    "breadth": 0.1324
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -10210,6 +10436,7 @@
    "breadth": 0.1228
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -10255,6 +10482,7 @@
    "breadth": 7.8518
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -10300,6 +10528,7 @@
    "breadth": 0.2205
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -10345,6 +10574,7 @@
    "breadth": 1.4846
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -10390,6 +10620,7 @@
    "breadth": 1.5454
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -10435,6 +10666,7 @@
    "breadth": 2.22
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -10480,6 +10712,7 @@
    "breadth": 0.9089
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -10525,6 +10758,7 @@
    "breadth": 0.1769
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -10570,6 +10804,7 @@
    "breadth": 0.2176
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -10615,6 +10850,7 @@
    "breadth": 1.4865
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -10660,6 +10896,7 @@
    "breadth": 0.5363
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -10705,6 +10942,7 @@
    "breadth": 0.228
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -10750,6 +10988,7 @@
    "breadth": 1.4008
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -10795,6 +11034,7 @@
    "breadth": 2.4365
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 14,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -10840,6 +11080,7 @@
    "breadth": 0.8361
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -10885,6 +11126,7 @@
    "breadth": 2.8905
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 14,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -10930,6 +11172,7 @@
    "breadth": 0.2862
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 14,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -10975,6 +11218,7 @@
    "breadth": 1.07
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -11020,6 +11264,7 @@
    "breadth": 0.2347
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -11065,6 +11310,7 @@
    "breadth": 2.3152
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -11110,6 +11356,7 @@
    "breadth": 3.7304
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -11155,6 +11402,7 @@
    "breadth": 0.5778
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -11200,6 +11448,7 @@
    "breadth": 0.2226
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -11245,6 +11494,7 @@
    "breadth": 0.384
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -11290,6 +11540,7 @@
    "breadth": 1.2592
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -11335,6 +11586,7 @@
    "breadth": 2.1538
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -11380,6 +11632,7 @@
    "breadth": 5.6704
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -11425,6 +11678,7 @@
    "breadth": 0.3273
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -11470,6 +11724,7 @@
    "breadth": 0.4058
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -11515,6 +11770,7 @@
    "breadth": 1.3936
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -11560,6 +11816,7 @@
    "breadth": 0.5533
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -11605,6 +11862,7 @@
    "breadth": 0.5306
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -11650,6 +11908,7 @@
    "breadth": 0.0875
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -11695,6 +11954,7 @@
    "breadth": 1.6921
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -11740,6 +12000,7 @@
    "breadth": 0.8783
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -11785,6 +12046,7 @@
    "breadth": 1.7695
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -11830,6 +12092,7 @@
    "breadth": 0.0658
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -11875,6 +12138,7 @@
    "breadth": 0.683
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -11920,6 +12184,7 @@
    "breadth": 0.2922
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -11965,6 +12230,7 @@
    "breadth": 4.2147
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -12010,6 +12276,7 @@
    "breadth": 0.6772
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -12055,6 +12322,7 @@
    "breadth": 0.452
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -12100,6 +12368,7 @@
    "breadth": 0.1636
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -12145,6 +12414,7 @@
    "breadth": 0.7651
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -12190,6 +12460,7 @@
    "breadth": 0.2386
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -12235,6 +12506,7 @@
    "breadth": 5.5732
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -12280,6 +12552,7 @@
    "breadth": 3.6834
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -12325,6 +12598,7 @@
    "breadth": 0.9922
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -12370,6 +12644,7 @@
    "breadth": 0.2337
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -12415,6 +12690,7 @@
    "breadth": 1.562
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -12460,6 +12736,7 @@
    "breadth": 0.839
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -12505,6 +12782,7 @@
    "breadth": 0.6801
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -12550,6 +12828,7 @@
    "breadth": 1.3275
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -12595,6 +12874,7 @@
    "breadth": 0.6106
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -12640,6 +12920,7 @@
    "breadth": 2.8256
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -12685,6 +12966,7 @@
    "breadth": 0.4467
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -12730,6 +13012,7 @@
    "breadth": 0.9799
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -12775,6 +13058,7 @@
    "breadth": 0.0787
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -12820,6 +13104,7 @@
    "breadth": 2.6379
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -12865,6 +13150,7 @@
    "breadth": 0.3031
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -12910,6 +13196,7 @@
    "breadth": 2.4504
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -12955,6 +13242,7 @@
    "breadth": 1.806
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -13000,6 +13288,7 @@
    "breadth": 2.4823
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -13045,6 +13334,7 @@
    "breadth": 0.9567
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -13090,6 +13380,7 @@
    "breadth": 3.4197
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -13135,6 +13426,7 @@
    "breadth": 4.082
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -13180,6 +13472,7 @@
    "breadth": 0.552
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -13225,6 +13518,7 @@
    "breadth": 0.6032
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -13270,6 +13564,7 @@
    "breadth": 18.2657
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -13315,6 +13610,7 @@
    "breadth": 0.9886
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -13360,6 +13656,7 @@
    "breadth": 0.2546
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -13405,6 +13702,7 @@
    "breadth": 0.1633
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -13450,6 +13748,7 @@
    "breadth": 0.3954
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -13495,6 +13794,7 @@
    "breadth": 0.8918
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -13540,6 +13840,7 @@
    "breadth": 1.2999
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -13585,6 +13886,7 @@
    "breadth": 0.9208
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -13630,6 +13932,7 @@
    "breadth": 0.9703
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -13675,6 +13978,7 @@
    "breadth": 0.2313
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -13720,6 +14024,7 @@
    "breadth": 0.5322
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -13765,6 +14070,7 @@
    "breadth": 2.094
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -13810,6 +14116,7 @@
    "breadth": 3.9288
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -13855,6 +14162,7 @@
    "breadth": 1.0238
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -13900,6 +14208,7 @@
    "breadth": 2.7709
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -13945,6 +14254,7 @@
    "breadth": 0.3829
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -13990,6 +14300,7 @@
    "breadth": 0.3523
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -14035,6 +14346,7 @@
    "breadth": 0.4513
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -14080,6 +14392,7 @@
    "breadth": 1.7406
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -14125,6 +14438,7 @@
    "breadth": 7.2059
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -14170,6 +14484,7 @@
    "breadth": 0.7895
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -14215,6 +14530,7 @@
    "breadth": 2.4697
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -14260,6 +14576,7 @@
    "breadth": 0.8886
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -14305,6 +14622,7 @@
    "breadth": 0.7574
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -14350,6 +14668,7 @@
    "breadth": 3.7959
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -14395,6 +14714,7 @@
    "breadth": 1.2306
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -14440,6 +14760,7 @@
    "breadth": 0.9491
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -14485,6 +14806,7 @@
    "breadth": 4.3732
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -14530,6 +14852,7 @@
    "breadth": 0.3957
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -14575,6 +14898,7 @@
    "breadth": 0.5329
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -14620,6 +14944,7 @@
    "breadth": 0.7547
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -14665,6 +14990,7 @@
    "breadth": 3.3386
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -14710,6 +15036,7 @@
    "breadth": 0.9803
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -14755,6 +15082,7 @@
    "breadth": 0.4745
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -14800,6 +15128,7 @@
    "breadth": 0.7593
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -14845,6 +15174,7 @@
    "breadth": 0.5397
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -14890,6 +15220,7 @@
    "breadth": 1.7789
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -14935,6 +15266,7 @@
    "breadth": 1.1132
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -14980,6 +15312,7 @@
    "breadth": 0.6048
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -15025,6 +15358,7 @@
    "breadth": 1.6627
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -15070,6 +15404,7 @@
    "breadth": 0.7195
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -15115,6 +15450,7 @@
    "breadth": 0.3858
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -15160,6 +15496,7 @@
    "breadth": 1.61
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -15205,6 +15542,7 @@
    "breadth": 0.7521
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -15250,6 +15588,7 @@
    "breadth": 0.762
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -15295,6 +15634,7 @@
    "breadth": 0.5432
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -15340,6 +15680,7 @@
    "breadth": 0.71
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -15385,6 +15726,7 @@
    "breadth": 1.2963
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -15430,6 +15772,7 @@
    "breadth": 0.4997
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -15475,6 +15818,7 @@
    "breadth": 0.6803
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -15520,6 +15864,7 @@
    "breadth": 0.286
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -15565,6 +15910,7 @@
    "breadth": 6.0449
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -15610,6 +15956,7 @@
    "breadth": 3.4101
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -15655,6 +16002,7 @@
    "breadth": 0.4168
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -15700,6 +16048,7 @@
    "breadth": 0.4576
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -15745,6 +16094,7 @@
    "breadth": 3.6891
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -15790,6 +16140,7 @@
    "breadth": 0.687
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -15835,6 +16186,7 @@
    "breadth": 1.6683
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -15880,6 +16232,7 @@
    "breadth": 2.9534
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -15925,6 +16278,7 @@
    "breadth": 0.5315
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -15970,6 +16324,7 @@
    "breadth": 1.5402
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -16015,6 +16370,7 @@
    "breadth": 1.0285
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -16060,6 +16416,7 @@
    "breadth": 0.4379
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -16105,6 +16462,7 @@
    "breadth": 0.295
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -16150,6 +16508,7 @@
    "breadth": 1.6144
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -16195,6 +16554,7 @@
    "breadth": 0.2765
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -16240,6 +16600,7 @@
    "breadth": 0.5046
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -16285,6 +16646,7 @@
    "breadth": 0.4429
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -16330,6 +16692,7 @@
    "breadth": 2.6192
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -16375,6 +16738,7 @@
    "breadth": 0.1506
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -16420,6 +16784,7 @@
    "breadth": 2.114
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -16465,6 +16830,7 @@
    "breadth": 2.8759
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -16510,6 +16876,7 @@
    "breadth": 0.2872
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -16555,6 +16922,7 @@
    "breadth": 1.8123
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -16600,6 +16968,7 @@
    "breadth": 3.1258
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -16645,6 +17014,7 @@
    "breadth": 0.6343
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -16690,6 +17060,7 @@
    "breadth": 0.7557
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -16735,6 +17106,7 @@
    "breadth": 0.5132
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -16780,6 +17152,7 @@
    "breadth": 0.2796
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -16825,6 +17198,7 @@
    "breadth": 0.5408
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -16870,6 +17244,7 @@
    "breadth": 17.4387
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -16915,6 +17290,7 @@
    "breadth": 0.3767
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -16960,6 +17336,7 @@
    "breadth": 1.5371
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -17005,6 +17382,7 @@
    "breadth": 3.3541
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -17050,6 +17428,7 @@
    "breadth": 0.7134
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -17095,6 +17474,7 @@
    "breadth": 1.7663
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -17140,6 +17520,7 @@
    "breadth": 6.3371
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -17185,6 +17566,7 @@
    "breadth": 1.0454
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -17230,6 +17612,7 @@
    "breadth": 1.9555
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -17275,6 +17658,7 @@
    "breadth": 0.7089
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -17320,6 +17704,7 @@
    "breadth": 1.2476
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -17365,6 +17750,7 @@
    "breadth": 0.2718
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -17410,6 +17796,7 @@
    "breadth": 0.688
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -17455,6 +17842,7 @@
    "breadth": 0.4205
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -17500,6 +17888,7 @@
    "breadth": 2.7528
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -17545,6 +17934,7 @@
    "breadth": 0.7337
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -17590,6 +17980,7 @@
    "breadth": 0.3492
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -17635,6 +18026,7 @@
    "breadth": 0.5751
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -17680,6 +18072,7 @@
    "breadth": 3.1795
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -17725,6 +18118,7 @@
    "breadth": 1.024
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -17770,6 +18164,7 @@
    "breadth": 0.1361
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -17815,6 +18210,7 @@
    "breadth": 0.1379
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -17860,6 +18256,7 @@
    "breadth": 0.3705
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -17905,6 +18302,7 @@
    "breadth": 12.3184
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -17950,6 +18348,7 @@
    "breadth": 0.8843
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -17995,6 +18394,7 @@
    "breadth": 0.086
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -18040,6 +18440,7 @@
    "breadth": 6.1274
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -18085,6 +18486,7 @@
    "breadth": 1.4051
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -18130,6 +18532,7 @@
    "breadth": 0.3682
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -18175,6 +18578,7 @@
    "breadth": 0.4583
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -18220,6 +18624,7 @@
    "breadth": 1.6891
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -18265,6 +18670,7 @@
    "breadth": 0.6612
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -18310,6 +18716,7 @@
    "breadth": 0.3731
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -18355,6 +18762,7 @@
    "breadth": 0.7647
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -18400,6 +18808,7 @@
    "breadth": 2.1506
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -18445,6 +18854,7 @@
    "breadth": 0.6196
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -18490,6 +18900,7 @@
    "breadth": 1.5168
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -18535,6 +18946,7 @@
    "breadth": 3.2504
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -18580,6 +18992,7 @@
    "breadth": 0.6259
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -18625,6 +19038,7 @@
    "breadth": 0.8384
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -18670,6 +19084,7 @@
    "breadth": 0.6413
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -18715,6 +19130,7 @@
    "breadth": 0.577
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -18760,6 +19176,7 @@
    "breadth": 0.8516
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -18805,6 +19222,7 @@
    "breadth": 0.1736
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -18850,6 +19268,7 @@
    "breadth": 1.9048
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -18895,6 +19314,7 @@
    "breadth": 0.8975
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -18940,6 +19360,7 @@
    "breadth": 2.5803
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -18985,6 +19406,7 @@
    "breadth": 2.3544
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -19030,6 +19452,7 @@
    "breadth": 1.2636
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -19075,6 +19498,7 @@
    "breadth": 0.1274
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -19120,6 +19544,7 @@
    "breadth": 3.8459
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -19165,6 +19590,7 @@
    "breadth": 0.4041
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -19210,6 +19636,7 @@
    "breadth": 0.3031
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -19255,6 +19682,7 @@
    "breadth": 1.0008
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -19300,6 +19728,7 @@
    "breadth": 1.4411
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -19345,6 +19774,7 @@
    "breadth": 2.1177
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -19390,6 +19820,7 @@
    "breadth": 1.2662
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -19435,6 +19866,7 @@
    "breadth": 1.6838
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -19480,6 +19912,7 @@
    "breadth": 0.2002
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -19525,6 +19958,7 @@
    "breadth": 3.6489
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -19570,6 +20004,7 @@
    "breadth": 0.5646
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -19615,6 +20050,7 @@
    "breadth": 0.7333
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -19660,6 +20096,7 @@
    "breadth": 0.7668
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -19705,6 +20142,7 @@
    "breadth": 2.5486
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -19750,6 +20188,7 @@
    "breadth": 0.8251
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -19795,6 +20234,7 @@
    "breadth": 0.1198
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -19840,6 +20280,7 @@
    "breadth": 0.2613
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -19885,6 +20326,7 @@
    "breadth": 0.2108
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -19930,6 +20372,7 @@
    "breadth": 1.0747
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -19975,6 +20418,7 @@
    "breadth": 1.2274
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -20020,6 +20464,7 @@
    "breadth": 1.1386
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -20065,6 +20510,7 @@
    "breadth": 8.1188
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -20110,6 +20556,7 @@
    "breadth": 2.8711
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -20155,6 +20602,7 @@
    "breadth": 0.3445
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -20200,6 +20648,7 @@
    "breadth": 0.359
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -20245,6 +20694,7 @@
    "breadth": 3.4304
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -20290,6 +20740,7 @@
    "breadth": 3.128
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -20335,6 +20786,7 @@
    "breadth": 0.7556
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -20380,6 +20832,7 @@
    "breadth": 2.7184
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -20425,6 +20878,7 @@
    "breadth": 0.2278
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -20470,6 +20924,7 @@
    "breadth": 1.5551
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -20515,6 +20970,7 @@
    "breadth": 0.3589
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -20560,6 +21016,7 @@
    "breadth": 0.4417
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -20605,6 +21062,7 @@
    "breadth": 0.2353
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -20650,6 +21108,7 @@
    "breadth": 4.9842
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -20695,6 +21154,7 @@
    "breadth": 0.1063
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -20740,6 +21200,7 @@
    "breadth": 0.3988
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -20785,6 +21246,7 @@
    "breadth": 0.1975
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -20830,6 +21292,7 @@
    "breadth": 0.738
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -20875,6 +21338,7 @@
    "breadth": 0.0782
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -20920,6 +21384,7 @@
    "breadth": 11.6775
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -20965,6 +21430,7 @@
    "breadth": 7.0016
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -21010,6 +21476,7 @@
    "breadth": 2.2581
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -21055,6 +21522,7 @@
    "breadth": 2.5768
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -21100,6 +21568,7 @@
    "breadth": 4.8436
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -21145,6 +21614,7 @@
    "breadth": 0.2126
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -21190,6 +21660,7 @@
    "breadth": 3.1306
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -21235,6 +21706,7 @@
    "breadth": 0.5192
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -21280,6 +21752,7 @@
    "breadth": 0.4073
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -21325,6 +21798,7 @@
    "breadth": 0.4808
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -21370,6 +21844,7 @@
    "breadth": 3.0819
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -21415,6 +21890,7 @@
    "breadth": 0.5765
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -21460,6 +21936,7 @@
    "breadth": 0.3622
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -21505,6 +21982,7 @@
    "breadth": 3.7386
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -21550,6 +22028,7 @@
    "breadth": 0.3502
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -21595,6 +22074,7 @@
    "breadth": 1.8588
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -21640,6 +22120,7 @@
    "breadth": 3.4707
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -21685,6 +22166,7 @@
    "breadth": 1.0713
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -21730,6 +22212,7 @@
    "breadth": 0.8115
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -21775,6 +22258,7 @@
    "breadth": 1.4544
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -21820,6 +22304,7 @@
    "breadth": 3.4259
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -21865,6 +22350,7 @@
    "breadth": 0.6375
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -21910,6 +22396,7 @@
    "breadth": 1.6935
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -21955,6 +22442,7 @@
    "breadth": 6.1184
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -22000,6 +22488,7 @@
    "breadth": 0.2425
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -22045,6 +22534,7 @@
    "breadth": 0.3274
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -22090,6 +22580,7 @@
    "breadth": 0.4646
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -22135,6 +22626,7 @@
    "breadth": 0.5771
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -22180,6 +22672,7 @@
    "breadth": 8.1335
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -22225,6 +22718,7 @@
    "breadth": 0.1134
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -22270,6 +22764,7 @@
    "breadth": 0.2152
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -22315,6 +22810,7 @@
    "breadth": 0.4726
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -22360,6 +22856,7 @@
    "breadth": 51.8125
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -22405,6 +22902,7 @@
    "breadth": 635.5
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -22450,6 +22948,7 @@
    "breadth": 0.094
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -22495,6 +22994,7 @@
    "breadth": 24.4596
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -22540,6 +23040,7 @@
    "breadth": 5.1378
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -22585,6 +23086,7 @@
    "breadth": 0.2291
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -22630,6 +23132,7 @@
    "breadth": 0.7608
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -22675,6 +23178,7 @@
    "breadth": 0.1838
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -22720,6 +23224,7 @@
    "breadth": 0.0827
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -22765,6 +23270,7 @@
    "breadth": 4.7689
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -22810,6 +23316,7 @@
    "breadth": 2.4519
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -22855,6 +23362,7 @@
    "breadth": 0.1857
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -22900,6 +23408,7 @@
    "breadth": 2.3058
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -22945,6 +23454,7 @@
    "breadth": 2.1297
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -22990,6 +23500,7 @@
    "breadth": 0.1069
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -23035,6 +23546,7 @@
    "breadth": 0.1134
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -23080,6 +23592,7 @@
    "breadth": 1.1022
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -23125,6 +23638,7 @@
    "breadth": 3.299
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -23170,6 +23684,7 @@
    "breadth": 0.5575
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -23215,6 +23730,7 @@
    "breadth": 3.6028
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -23260,6 +23776,7 @@
    "breadth": 0.8761
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -23305,6 +23822,7 @@
    "breadth": 1.1823
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -23350,6 +23868,7 @@
    "breadth": 0.1127
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -23395,6 +23914,7 @@
    "breadth": 0.4604
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -23440,6 +23960,7 @@
    "breadth": 5.6769
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -23485,6 +24006,7 @@
    "breadth": 0.2348
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -23530,6 +24052,7 @@
    "breadth": 0.2197
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -23575,6 +24098,7 @@
    "breadth": 0.6277
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -23620,6 +24144,7 @@
    "breadth": 1.727
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -23665,6 +24190,7 @@
    "breadth": 0.825
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -23710,6 +24236,7 @@
    "breadth": 1.2326
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -23755,6 +24282,7 @@
    "breadth": 1.8346
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -23800,6 +24328,7 @@
    "breadth": 0.2871
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -23845,6 +24374,7 @@
    "breadth": 1.3978
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -23890,6 +24420,7 @@
    "breadth": 0.2628
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -23935,6 +24466,7 @@
    "breadth": 0.2732
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -23980,6 +24512,7 @@
    "breadth": 1.0081
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -24025,6 +24558,7 @@
    "breadth": 0.1864
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -24070,6 +24604,7 @@
    "breadth": 0.4244
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -24115,6 +24650,7 @@
    "breadth": 1.9417
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -24160,6 +24696,7 @@
    "breadth": 0.2945
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -24205,6 +24742,7 @@
    "breadth": 1.297
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -24250,6 +24788,7 @@
    "breadth": 1.0626
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -24295,6 +24834,7 @@
    "breadth": 0.965
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -24340,6 +24880,7 @@
    "breadth": 1.7456
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -24385,6 +24926,7 @@
    "breadth": 0.9081
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -24430,6 +24972,7 @@
    "breadth": 6.8585
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -24475,6 +25018,7 @@
    "breadth": 1.2308
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -24520,6 +25064,7 @@
    "breadth": 0.5807
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -24565,6 +25110,7 @@
    "breadth": 10.1656
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -24610,6 +25156,7 @@
    "breadth": 0.59
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -24655,6 +25202,7 @@
    "breadth": 0.5771
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -24700,6 +25248,7 @@
    "breadth": 0.5355
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -24745,6 +25294,7 @@
    "breadth": 1.055
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -24790,6 +25340,7 @@
    "breadth": 1.0584
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -24835,6 +25386,7 @@
    "breadth": 0.1283
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -24880,6 +25432,7 @@
    "breadth": 1.3278
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -24925,6 +25478,7 @@
    "breadth": 2.3638
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -24970,6 +25524,7 @@
    "breadth": 0.6885
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -25015,6 +25570,7 @@
    "breadth": 0.6174
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -25060,6 +25616,7 @@
    "breadth": 0.069
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -25105,6 +25662,7 @@
    "breadth": 3.7566
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -25150,6 +25708,7 @@
    "breadth": 4.3474
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -25195,6 +25754,7 @@
    "breadth": 1.0271
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -25240,6 +25800,7 @@
    "breadth": 4.9406
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -25285,6 +25846,7 @@
    "breadth": 0.556
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -25330,6 +25892,7 @@
    "breadth": 0.9049
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -25375,6 +25938,7 @@
    "breadth": 2.923
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -25420,6 +25984,7 @@
    "breadth": 0.8016
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -25465,6 +26030,7 @@
    "breadth": 2.7747
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -25510,6 +26076,7 @@
    "breadth": 0.8731
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -25555,6 +26122,7 @@
    "breadth": 1.0532
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -25600,6 +26168,7 @@
    "breadth": 0.3915
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -25645,6 +26214,7 @@
    "breadth": 1.6794
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -25690,6 +26260,7 @@
    "breadth": 3.8716
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -25735,6 +26306,7 @@
    "breadth": 0.3982
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -25780,6 +26352,7 @@
    "breadth": 0.1368
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -25825,6 +26398,7 @@
    "breadth": 4.3382
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -25870,6 +26444,7 @@
    "breadth": 0.1565
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -25915,6 +26490,7 @@
    "breadth": 2.7232
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -25960,6 +26536,7 @@
    "breadth": 0.7007
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -26005,6 +26582,7 @@
    "breadth": 0.6467
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -26050,6 +26628,7 @@
    "breadth": 1.1308
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -26095,6 +26674,7 @@
    "breadth": 2.0065
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -26140,6 +26720,7 @@
    "breadth": 0.4974
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -26185,6 +26766,7 @@
    "breadth": 2.7896
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -26230,6 +26812,7 @@
    "breadth": 0.3938
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -26275,6 +26858,7 @@
    "breadth": 0.3669
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -26320,6 +26904,7 @@
    "breadth": 0.4719
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -26365,6 +26950,7 @@
    "breadth": 0.3261
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -26410,6 +26996,7 @@
    "breadth": 0.1958
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -26455,6 +27042,7 @@
    "breadth": 0.4008
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -26500,6 +27088,7 @@
    "breadth": 2.6481
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -26545,6 +27134,7 @@
    "breadth": 1.0198
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -26590,6 +27180,7 @@
    "breadth": 0.4614
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 11,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -26635,6 +27226,7 @@
    "breadth": 0.5959
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -26680,6 +27272,7 @@
    "breadth": 1.1815
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -26725,6 +27318,7 @@
    "breadth": 1.0454
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -26770,6 +27364,7 @@
    "breadth": 0.3555
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -26815,6 +27410,7 @@
    "breadth": 0.2912
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -26860,6 +27456,7 @@
    "breadth": 0.1689
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -26905,6 +27502,7 @@
    "breadth": 0.8418
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -26950,6 +27548,7 @@
    "breadth": 1.2919
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -26995,6 +27594,7 @@
    "breadth": 3.7808
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -27040,6 +27640,7 @@
    "breadth": 0.7018
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -27085,6 +27686,7 @@
    "breadth": 2.3366
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -27130,6 +27732,7 @@
    "breadth": 0.5298
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -27175,6 +27778,7 @@
    "breadth": 0.1445
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -27220,6 +27824,7 @@
    "breadth": 0.4203
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -27265,6 +27870,7 @@
    "breadth": 0.8608
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -27310,6 +27916,7 @@
    "breadth": 2.2479
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -27355,6 +27962,7 @@
    "breadth": 0.171
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -27400,6 +28008,7 @@
    "breadth": 3.3769
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -27445,6 +28054,7 @@
    "breadth": 1.5972
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -27490,6 +28100,7 @@
    "breadth": 0.8735
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -27535,6 +28146,7 @@
    "breadth": 0.0964
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -27580,6 +28192,7 @@
    "breadth": 0.469
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -27625,6 +28238,7 @@
    "breadth": 1.3503
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -27670,6 +28284,7 @@
    "breadth": 0.3947
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -27715,6 +28330,7 @@
    "breadth": 3.5265
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -27760,6 +28376,7 @@
    "breadth": 0.1123
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -27805,6 +28422,7 @@
    "breadth": 18.1643
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -27850,6 +28468,7 @@
    "breadth": 0.9401
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -27895,6 +28514,7 @@
    "breadth": 3.5004
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -27940,6 +28560,7 @@
    "breadth": 0.4864
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -27985,6 +28606,7 @@
    "breadth": 6.4437
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 15,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -28030,6 +28652,7 @@
    "breadth": 2.7319
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -28075,6 +28698,7 @@
    "breadth": 2.0847
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -28120,6 +28744,7 @@
    "breadth": 2.298
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -28165,6 +28790,7 @@
    "breadth": 1.0768
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -28210,6 +28836,7 @@
    "breadth": 1.1262
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -28255,6 +28882,7 @@
    "breadth": 2.9245
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -28300,6 +28928,7 @@
    "breadth": 0.4276
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -28345,6 +28974,7 @@
    "breadth": 3.225
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -28390,6 +29020,7 @@
    "breadth": 0.2648
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -28435,6 +29066,7 @@
    "breadth": 0.8081
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -28480,6 +29112,7 @@
    "breadth": 4.0742
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -28525,6 +29158,7 @@
    "breadth": 0.6443
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -28570,6 +29204,7 @@
    "breadth": 0.0886
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -28615,6 +29250,7 @@
    "breadth": 3.0408
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -28660,6 +29296,7 @@
    "breadth": 0.8753
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -28705,6 +29342,7 @@
    "breadth": 0.3682
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -28750,6 +29388,7 @@
    "breadth": 3.3981
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -28795,6 +29434,7 @@
    "breadth": 1.2034
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -28840,6 +29480,7 @@
    "breadth": 1.7459
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -28885,6 +29526,7 @@
    "breadth": 1.2607
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -28930,6 +29572,7 @@
    "breadth": 1.4342
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"
@@ -28975,6 +29618,7 @@
    "breadth": 1.6603
   },
   "engine_version": "v3.0",
+  "engine_mode": "single9",
   "indicator_count": 16,
   "version": "v2",
   "updated_at": "2026-09-02 00:00:00"

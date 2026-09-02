@@ -98,6 +98,37 @@ _cfg = _load_v2_config()
 #       ④ evaluate 基线口径修正: 按行重归一 (align 引擎; #87 A1 值订正 −0.0364→−0.0520)
 ENGINE_VERSION = "v3.0"
 
+# ── engine_mode (M2b-3, #102): 计分键集合开关 ──────────────────────────────
+# single9 (默认): 9 计分键全用 (v3.0 现状)。
+# single6 (M2b-2 结论): 剔除 turnover/ma_alignment/new_high —— M2b-1/2 实证:
+#   2023-26 市场结构漂移后 3 键在牛内动量化(+0.05~+0.67)、熊内与 buffett/pe
+#   冗余, 剔除重归一反增强 (R_all6 IC60 −0.212→−0.259; seg2 后半 bull Δ−0.06)。
+#   注意 futures_discount 维度属 sentiment 但保留 (独立拐点信号)。
+# mode 解析顺序: 环境变量 HEAT_ENGINE_MODE > config v2_engine.mode > 默认 single9
+ENGINE_MODES = ("single9", "single6")
+SINGLE6_DROP_KEYS = ("turnover", "ma_alignment", "new_high")
+
+
+def _resolve_mode() -> str:
+    mode = os.environ.get("HEAT_ENGINE_MODE") or (_cfg.get("mode") or "single9")
+    if mode not in ENGINE_MODES:
+        logger.warning("unknown engine_mode=%r, fallback single9", mode)
+        mode = "single9"
+    return mode
+
+
+ENGINE_MODE = _resolve_mode()
+
+
+def _weights_for(mode: str = None) -> dict:
+    """按 mode 返回计分权重表 (single6 剔除 SINGLE6_DROP_KEYS 后重归一至 Σ=1)"""
+    m = mode or ENGINE_MODE
+    if m == "single6":
+        kept = {k: v for k, v in INDICATOR_WEIGHTS.items() if k not in SINGLE6_DROP_KEYS}
+        s = sum(kept.values())
+        return {k: v / s for k, v in kept.items()} if s > 0 else kept
+    return dict(INDICATOR_WEIGHTS)
+
 INDICATOR_WEIGHTS = _cfg.get("weights") or DEFAULT_WEIGHTS
 
 # 验证权重总和为1.0
@@ -1170,10 +1201,16 @@ def compute_regime(conn, trade_date: str, composite: Optional[float], dim_scores
 # ═══════════════════════════════════════════════════════════════════════════
 
 
-def compute_index_v2(trade_date: str = None, db_path: str = None) -> dict:
-    """计算新版热度指数，返回包含所有指标和分数的字典"""
+def compute_index_v2(trade_date: str = None, db_path: str = None, engine_mode: str = None) -> dict:
+    """计算新版热度指数，返回包含所有指标和分数的字典
+
+    engine_mode: "single9"(默认, 9 键全用) / "single6"(剔除 turnover/ma/new_high)。
+    None → 取模块级 ENGINE_MODE (env HEAT_ENGINE_MODE > config v2_engine.mode)。
+    """
     td = trade_date or date.today().strftime("%Y-%m-%d")
     db = db_path or DB_PATH
+    mode = engine_mode or ENGINE_MODE
+    weights = _weights_for(mode)
 
     conn = _get_conn(db)
     try:
@@ -1265,28 +1302,28 @@ def compute_index_v2(trade_date: str = None, db_path: str = None) -> dict:
         # 新高顶背离: 指数涨 + 新高占比下降
         scores["new_high"] = _apply_new_high_divergence(conn, td, scores["new_high"])
 
-        # 各维度分数计算 (按指标权重加权, 与综合分口径一致)
+        # 各维度分数计算 (按指标权重加权, 与综合分口径一致; M2b-3: 过滤 engine_mode 剔键)
         dim_scores = {}
         for dim_name in DIMENSIONS:
             ind_keys = [k for k, v in INDICATOR_DIMENSIONS.items() if v == dim_name]
-            available = [(k, scores[k]) for k in ind_keys if scores[k] is not None]
+            available = [(k, scores[k]) for k in ind_keys if k in weights and scores[k] is not None]
             if not available:
                 dim_scores[dim_name] = None
                 continue
-            w = sum(INDICATOR_WEIGHTS[k] for k, _ in available)
+            w = sum(weights[k] for k, _ in available)
             if w > 0:
-                dim_scores[dim_name] = sum(v * INDICATOR_WEIGHTS[k] for k, v in available) / w
+                dim_scores[dim_name] = sum(v * weights[k] for k, v in available) / w
             else:
                 dim_scores[dim_name] = None
 
-        # 综合得分 (M1.4+M1.5: 仅计分键参与; scores 含 16 展示键, 需按权重表过滤)
-        valid_scores = [(k, v) for k, v in scores.items() if v is not None and k in INDICATOR_WEIGHTS]
+        # 综合得分 (按 engine_mode 的计分键集合行重归一; scores 含 16 展示键)
+        valid_scores = [(k, v) for k, v in scores.items() if v is not None and k in weights]
         if not valid_scores:
             composite = None
         else:
-            total_weight = sum(INDICATOR_WEIGHTS[k] for k, _ in valid_scores)
+            total_weight = sum(weights[k] for k, _ in valid_scores)
             if total_weight > 0:
-                composite = sum(v * INDICATOR_WEIGHTS[k] for k, v in valid_scores) / total_weight
+                composite = sum(v * weights[k] for k, v in valid_scores) / total_weight
             else:
                 composite = None
 
@@ -1340,6 +1377,8 @@ def compute_index_v2(trade_date: str = None, db_path: str = None) -> dict:
                 "yield_spread": _raw.get("yield_spread"),
                 "m1_m2_spread": _raw.get("m1_m2_spread"),
             },
+            "engine_version": ENGINE_VERSION,
+            "engine_mode": mode,
             "updated_at": date.today().strftime("%Y-%m-%d %H:%M:%S"),
         }
         return result

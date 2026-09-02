@@ -21,11 +21,13 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from src.data.database import DB_PATH
 from src.indicators.utils import _pct_rank
 from src.indicators.heat_index_v2 import (
+    ENGINE_MODE,
     INDICATOR_WEIGHTS,
     ROLLING_PCT_WINDOW,
     _apply_new_high_divergence,
     _apply_sentiment_divergence,
     _detrend,
+    _weights_for,
 )
 from src.output.json_writer import get_heat_level
 from src.common import timed
@@ -153,9 +155,16 @@ def _t_test(a, b):
 
 
 @timed("backtest_v2")
-def run_backtest():
+def run_backtest(mode: str = None):
+    """V2 热度指数全历史回测 (内存优化版)
+
+    mode: "single9"(9 键全用) / "single6"(剔除 turnover/ma/new_high 重归一) / None。
+    None → 与引擎同构, 取模块级 ENGINE_MODE (env HEAT_ENGINE_MODE > config v2_engine.mode)。
+    """
+    effective = mode or ENGINE_MODE
+    weights = _weights_for(effective)
     print("=" * 70)
-    print("V2 热度指数全历史回测 (内存优化版)")
+    print(f"V2 热度指数全历史回测 (内存优化版) — engine_mode={effective} ({len(weights)} scoring keys)")
     print("=" * 70)
 
     conn = sqlite3.connect(DB_PATH)
@@ -679,20 +688,20 @@ def run_backtest():
         dim_scores = {}
         for dim_name in DIMS:
             ind_keys = [k for k, v in IND_DIMS.items() if v == dim_name]
-            available = [(k, scores[k]) for k in ind_keys if k in scores and scores[k] is not None]
+            available = [(k, scores[k]) for k in ind_keys if k in scores and k in weights and scores[k] is not None]
             if not available:
                 dim_scores[dim_name] = None
                 continue
-            w = sum(WEIGHTS[k] for k, _ in available)
-            dim_scores[dim_name] = sum(v * WEIGHTS[k] for k, v in available) / w if w > 0 else None
+            w = sum(weights[k] for k, _ in available)
+            dim_scores[dim_name] = sum(v * weights[k] for k, v in available) / w if w > 0 else None
 
-        # 综合得分 (M1.4+M1.5: 仅计分键参与; scores 含 16 展示键)
-        valid_scores = [(k, v) for k, v in scores.items() if v is not None and k in WEIGHTS]
+        # 综合得分 (M1.4+M1.5: 仅计分键参与; scores 含 16 展示键; M2b-3: 按 engine_mode 键集合)
+        valid_scores = [(k, v) for k, v in scores.items() if v is not None and k in weights]
         if not valid_scores:
             composite = None
         else:
-            total_weight = sum(WEIGHTS[k] for k, _ in valid_scores)
-            composite = sum(v * WEIGHTS[k] for k, v in valid_scores) / total_weight if total_weight > 0 else None
+            total_weight = sum(weights[k] for k, _ in valid_scores)
+            composite = sum(v * weights[k] for k, v in valid_scores) / total_weight if total_weight > 0 else None
 
         results.append(
             {
@@ -983,6 +992,7 @@ def run_backtest():
     summary = {
         "total_dates": len(results),
         "date_range": f"{all_dates[0]} ~ {all_dates[-1]}",
+        "engine_mode": effective,
         "bull_mean_score": round(float(bull_dates["composite_score"].mean()), 1),
         "bear_mean_score": round(float(bear_dates["composite_score"].mean()), 1),
         "bull_correct_pct": round(bull_hit / bull_total * 100, 1) if bull_total > 0 else 0,
@@ -999,4 +1009,14 @@ def run_backtest():
 
 
 if __name__ == "__main__":
-    df, summary = run_backtest()
+    import argparse
+
+    ap = argparse.ArgumentParser(description="V2 热度指数全历史回测 (engine_mode 参数化)")
+    ap.add_argument(
+        "--mode",
+        choices=("single9", "single6"),
+        default=None,
+        help="计分键模式; 缺省走引擎解析 (env HEAT_ENGINE_MODE > config v2_engine.mode > single9)",
+    )
+    args = ap.parse_args()
+    df, summary = run_backtest(args.mode)
