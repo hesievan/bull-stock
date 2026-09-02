@@ -14,7 +14,12 @@ from datetime import datetime
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from src.indicators.heat_index_v2 import compute_index_v2
+from src.indicators.heat_index_v2 import (
+    EXTREME_COLD_MAX,
+    EXTREME_HOT_MIN,
+    REGIME_CUTOFFS,
+    compute_index_v2,
+)
 from src.output.json_writer import get_heat_level
 
 WEB_DATA = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "web", "data")
@@ -70,18 +75,24 @@ def main():
                 dims = he["dimensions"]
                 if he.get("regime"):
                     regime = he["regime"]
-                # 标签按对齐后的综合分重算, 避免分数/标签口径不一致
+                # 标签按对齐后的综合分重算, 避免分数/标签口径不一致 (M1.6: 复用引擎
+                # heat_levels 统一切点, 消灭此处 65/45/30 硬编码与引擎/展示档漂移)
                 if regime and composite is not None:
                     regime = dict(regime)
-                    regime["label"] = (
-                        "过热"
-                        if composite >= 65
-                        else "分歧"
-                        if composite >= 45
-                        else "修复"
-                        if composite >= 30
-                        else "冰点"
-                    )
+                    if composite >= REGIME_CUTOFFS["过热"]:
+                        regime["label"] = "过热"
+                    elif composite >= REGIME_CUTOFFS["分歧"]:
+                        regime["label"] = "分歧"
+                    elif composite >= REGIME_CUTOFFS["修复"]:
+                        regime["label"] = "修复"
+                    else:
+                        regime["label"] = "冰点"
+                    if composite >= EXTREME_HOT_MIN:
+                        regime["extreme"] = "extreme_hot"
+                    elif composite <= EXTREME_COLD_MAX:
+                        regime["extreme"] = "extreme_cold"
+                    else:
+                        regime.pop("extreme", None)
                 print(f"  (卡片分数对齐走势线末点 {trade_date}: composite={composite}, level={he.get('level')})")
         except Exception as e:
             print("  history 对齐跳过:", e)

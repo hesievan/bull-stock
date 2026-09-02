@@ -996,6 +996,27 @@ class TestRegime:
         assert compute_regime(v2_db, self.TD, 20.0, {"structure": 50})["label"] == "冰点"
         assert compute_regime(v2_db, self.TD, None, {"structure": 50})["label"] is None
 
+    def test_labels_aligned_with_display_levels(self, v2_db):
+        """M1.6: regime 切点与展示档统一 (65/55/40, 读 heat_levels 单一事实源)。
+        语义变化: 45→修复(原分歧)、39/30→冰点(原 30 起才修复) — 标签与红橙黄绿档一一对应。
+        """
+        assert compute_regime(v2_db, self.TD, 45.0, {"structure": 50})["label"] == "修复"
+        assert compute_regime(v2_db, self.TD, 39.0, {"structure": 50})["label"] == "冰点"
+        assert compute_regime(v2_db, self.TD, 30.0, {"structure": 50})["label"] == "冰点"
+        assert compute_regime(v2_db, self.TD, 65.0, {"structure": 50})["label"] == "过热"
+
+    def test_extreme_signal(self, v2_db):
+        """M1.6: extreme_hot≥80 / extreme_cold≤29 极值信号 (叠加档, 不替代 4 档 label)"""
+        assert compute_regime(v2_db, self.TD, 90.0, {"structure": 50})["extreme"] == "extreme_hot"
+        assert compute_regime(v2_db, self.TD, 80.0, {"structure": 50})["extreme"] == "extreme_hot"
+        assert compute_regime(v2_db, self.TD, 80.0, {"structure": 50})["label"] == "过热"  # 叠加档并存
+        assert compute_regime(v2_db, self.TD, 79.0, {"structure": 50})["extreme"] is None
+        assert compute_regime(v2_db, self.TD, 29.0, {"structure": 50})["extreme"] == "extreme_cold"
+        assert compute_regime(v2_db, self.TD, 20.0, {"structure": 50})["extreme"] == "extreme_cold"
+        assert compute_regime(v2_db, self.TD, 30.0, {"structure": 50})["extreme"] is None
+        assert compute_regime(v2_db, self.TD, 50.0, {"structure": 50})["extreme"] is None
+        assert compute_regime(v2_db, self.TD, None, {"structure": 50})["extreme"] is None
+
     def test_no_risk_without_index_data(self, v2_db):
         """无指数数据 → 风险=False (不误报)"""
         r = compute_regime(v2_db, self.TD, 50.0, {"structure": 20})

@@ -182,6 +182,13 @@ class TestValidateConfig:
         issues = validate_config(cfg)
         assert any("heat_levels 缺失" in i for i in issues)
 
+    def test_malformed_extreme_level(self):
+        """M1.6: extreme_hot 缺 min/max → 报错 (键本身可选, 配置了就必须完整)"""
+        cfg = self._good()
+        cfg["heat_levels"]["extreme_hot"] = {"label": "极热"}
+        issues = validate_config(cfg)
+        assert any("heat_levels.extreme_hot 缺 min/max" in i for i in issues)
+
     def test_missing_db_path(self):
         cfg = self._good()
         del cfg["data"]
@@ -195,6 +202,9 @@ class TestLoadConfigTyped:
     def test_typed_weights_and_levels(self):
         cfg = load_config_typed(BASE_DIR / "config" / "prod.yaml")
         assert abs(sum(cfg.weights.__dict__.values()) - 1.0) < 0.01
-        assert set(cfg.heat_levels) == {"red", "orange", "yellow", "green"}
+        # M1.6: heat_levels 含连续展示 4 档 + 极值叠加档 2 键
+        assert set(cfg.heat_levels) >= {"red", "orange", "yellow", "green", "extreme_hot", "extreme_cold"}
         assert cfg.heat_levels["red"].min == 65
+        assert cfg.heat_levels["extreme_hot"].min == 80
+        assert cfg.heat_levels["extreme_cold"].max == 29
         assert cfg.raw["v2_engine"]["weights"]["pe"] > 0

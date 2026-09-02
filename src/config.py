@@ -154,6 +154,14 @@ def validate_config(cfg: Dict[str, Any]) -> List[str]:
         if not all(k in lv for k in ("min", "max")):
             issues.append(f"heat_levels.{key} 缺 min/max")
 
+    # M1.6: extreme_hot/extreme_cold 为可选叠加信号档 (向后兼容旧配置);
+    # 若配置则校验结构 (需含 min/max)
+    for key in ("extreme_hot", "extreme_cold"):
+        lv = levels.get(key)
+        if lv is not None:
+            if not all(k in lv for k in ("min", "max")):
+                issues.append(f"heat_levels.{key} 缺 min/max")
+
     # 数据路径
     if "data" not in cfg or not cfg["data"].get("db_path"):
         issues.append("data.db_path 未配置")

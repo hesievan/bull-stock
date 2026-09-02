@@ -141,6 +141,36 @@ ROLLING_PCT_WINDOW = int(
 )
 
 
+# ── M1.6: 统一阈值数据源 (heat_levels 顶层块 — 引擎 regime/极值档、json_writer
+# 展示档/推送共用一份阈值; 消灭 compute_regime 硬编码 65/45/30 与展示档 65/55/40
+# 的数字漂移) ──────────────────────────────────────────────────────────────────
+
+
+def _load_heat_levels() -> dict:
+    """读取 config 顶层 heat_levels 块; 缺失/异常返回空 dict (走内置默认切点)"""
+    try:
+        cfg = load_config()
+        return (cfg.get("heat_levels") or {}) if cfg else {}
+    except Exception:
+        logger.warning("heat_levels config missing, using built-in regime cutoffs")
+        return {}
+
+
+_hl = _load_heat_levels()
+
+# regime label 切点 = heat_levels 连续四档下限 (与 json_writer 颜色档严格同源同值:
+# 过热=red / 分歧=orange / 修复=yellow / 冰点=green)。原硬编码 45/30 切点退役 —
+# 40-54(黄档) 归"修复"、<40(绿档) 归"冰点", 标签与颜色档一一对应。
+REGIME_CUTOFFS = {
+    "过热": float((_hl.get("red") or {}).get("min", 65)),
+    "分歧": float((_hl.get("orange") or {}).get("min", 55)),
+    "修复": float((_hl.get("yellow") or {}).get("min", 40)),
+}
+# 极值信号档 (叠加档, 不改变连续四档 label): extreme_hot ⊂ red 上沿 / extreme_cold ⊂ green 下沿
+EXTREME_HOT_MIN = float((_hl.get("extreme_hot") or {}).get("min", 80))
+EXTREME_COLD_MAX = float((_hl.get("extreme_cold") or {}).get("max", 29))
+
+
 # M1.2 (2026-09): 短序列 (长度 < 窗口) 按 label 只告警一次 — 消除"窗口静默退化
 # 为全历史分位"的不可观测问题 (回测逐日循环时避免日志刷屏)。
 _SHORT_SERIES_WARNED: set[str] = set()
@@ -1074,26 +1104,37 @@ def calc_qvix_components_v2(conn, trade_date: str) -> Optional[dict]:
 
 
 def compute_regime(conn, trade_date: str, composite: Optional[float], dim_scores: dict) -> dict:
-    """在综合分之上叠加市态标签与结构破位风险线 (P2.2, 2026-09)
+    """在综合分之上叠加市态标签、极值信号与结构破位风险线 (P2.2, 2026-09; M1.6 阈值统一)
 
-    标签 (综合分阈值):
-      >=65 过热 | 45-64 分歧 | 30-44 修复 | <30 冰点
+    标签 (综合分阈值, 读 heat_levels 连续四档下限, 与 json_writer 颜色档严格同源):
+      >=red.min 过热 | >=orange.min 分歧 | >=yellow.min 修复 | <yellow.min 冰点
+    极值信号 (M1.6, 读 heat_levels.extreme_* 叠加档):
+      composite >= extreme_hot.min → "extreme_hot"
+      composite <= extreme_cold.max → "extreme_cold"
+      否则 None (叠加档不改连续四档 label)
     结构破位风险 (structure_break_risk):
       结构维度分 < 30 且 近20日指数跌幅 < -3% → True
       (MA排列/新高占比双双走弱 + 指数技术性破位, 对标 MarketMonitoring 双轨中的"破位"线)
 
-    返回 {"label": str|None, "structure_break_risk": bool}
+    返回 {"label": str|None, "extreme": str|None, "structure_break_risk": bool}
     """
     label = None
     if composite is not None:
-        if composite >= 65:
+        if composite >= REGIME_CUTOFFS["过热"]:
             label = "过热"
-        elif composite >= 45:
+        elif composite >= REGIME_CUTOFFS["分歧"]:
             label = "分歧"
-        elif composite >= 30:
+        elif composite >= REGIME_CUTOFFS["修复"]:
             label = "修复"
         else:
             label = "冰点"
+
+    extreme = None
+    if composite is not None:
+        if composite >= EXTREME_HOT_MIN:
+            extreme = "extreme_hot"
+        elif composite <= EXTREME_COLD_MAX:
+            extreme = "extreme_cold"
 
     risk = False
     try:
@@ -1118,7 +1159,7 @@ def compute_regime(conn, trade_date: str, composite: Optional[float], dim_scores
                     logger.info("结构破位风险: struct=%.1f, 指数20日 %.1f%%", struct, ret20)
     except Exception as e:
         logger.warning("regime risk check failed: %s", e)
-    return {"label": label, "structure_break_risk": risk}
+    return {"label": label, "extreme": extreme, "structure_break_risk": risk}
 
 
 # ═══════════════════════════════════════════════════════════════════════════

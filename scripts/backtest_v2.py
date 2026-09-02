@@ -21,6 +21,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from src.data.database import DB_PATH
 from src.indicators.utils import _pct_rank
 from src.indicators.heat_index_v2 import INDICATOR_WEIGHTS, ROLLING_PCT_WINDOW, _detrend
+from src.output.json_writer import get_heat_level
 from src.common import timed
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
@@ -38,15 +39,9 @@ def _pctr(series, value, window=ROLLING_PCT_WINDOW):
 
 
 def v2_level(score):
-    if score is None:
-        return "unknown"
-    if score >= 65:
-        return "red"
-    if score >= 55:
-        return "orange"
-    if score >= 40:
-        return "yellow"
-    return "green"
+    """展示档色标 — M1.6: 统一委托 json_writer.get_heat_level (heat_levels 单源),
+    消灭回测脚本内 65/55/40 硬编码与展示层漂移。"""
+    return get_heat_level(score)
 
 
 # ── A 股已知牛熊周期 ──────────────────────────────────────────────────────
