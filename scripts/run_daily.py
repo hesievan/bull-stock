@@ -36,22 +36,17 @@ def _clean_nan(o):
 
 
 from src.config import load_dotenv_safe
-from src.common import JsonFormatter
+from src.common import setup_logging
 
 load_dotenv_safe()
 
 _log_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-_json_logs = bool(os.environ.get("HEAT_LOG_JSON"))
-_fmt = JsonFormatter() if _json_logs else logging.Formatter("%(asctime)s [%(levelname)s] %(message)s")
-_log_handlers = [
-    logging.StreamHandler(),
-    logging.FileHandler(os.path.join(_log_dir, "run_daily.log"), encoding="utf-8"),
-]
-for _h in _log_handlers:
-    _h.setFormatter(_fmt)
-logging.basicConfig(
-    level=logging.INFO,
-    handlers=_log_handlers,
+# P3-E1 (#16): 统一走 common.setup_logging — HEAT_LOG_JSON=true 时 stdout 与
+# run_daily.log 均输出单行 JSON (JsonFormatter, 支持 extra 结构化字段),
+# 否则保持原有文本格式。行为与旧手写初始化等价 (双 handler 同 formatter)。
+setup_logging(
+    json_logs=bool(os.environ.get("HEAT_LOG_JSON")),
+    log_file=os.path.join(_log_dir, "run_daily.log"),
 )
 logger = logging.getLogger(__name__)
 

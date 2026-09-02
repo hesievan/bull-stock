@@ -131,33 +131,85 @@ class JsonFormatter(logging.Formatter):
     """将日志记录输出为单行 JSON（便于日志采集/ELK）。
 
     默认文本格式保持不变；仅在启用 JSON 日志时使用本 formatter。
+    P3-E1 (#16): 输出键语义对齐结构化日志惯例 — 消息放 ``event``; 日志调用
+    通过 ``extra={...}`` 传入的自由字段 (非 logging 内建属性) 自动并入 JSON
+    顶层 (仅收标量), 供按 step/phase/trade_date 等维度检索。
     """
+
+    # logging.LogRecord 内建属性 + formatter 派生属性 (不并入 extra)
+    _RESERVED = frozenset(
+        {
+            "name",
+            "msg",
+            "args",
+            "levelname",
+            "levelno",
+            "pathname",
+            "filename",
+            "module",
+            "exc_text",
+            "exc_info",
+            "stack_info",
+            "lineno",
+            "funcName",
+            "created",
+            "msecs",
+            "relativeCreated",
+            "thread",
+            "threadName",
+            "processName",
+            "process",
+            "taskName",
+            "message",
+            "asctime",
+        }
+    )
+
+    def _extra(self, record: logging.LogRecord) -> dict:
+        out: dict = {}
+        for k, v in record.__dict__.items():
+            if k in self._RESERVED or k.startswith("_"):
+                continue
+            if isinstance(v, (str, int, float, bool)) or v is None:
+                out[k] = v
+        return out
 
     def format(self, record: logging.LogRecord) -> str:
         payload: dict = {
             "ts": self.formatTime(record, self.datefmt),
             "level": record.levelname,
             "logger": record.name,
-            "msg": record.getMessage(),
+            "event": record.getMessage(),
         }
+        payload.update(self._extra(record))
         if record.exc_info:
             payload["exc"] = self.formatException(record.exc_info)
         return _json.dumps(payload, ensure_ascii=False)
 
 
-def setup_logging(level: int = logging.INFO, json_logs: bool = False) -> None:
-    """配置根日志。json_logs=True 时输出 JSON 行，否则保持原有文本格式。
+def setup_logging(
+    level: int = logging.INFO,
+    json_logs: bool = False,
+    log_file: str | None = None,
+) -> None:
+    """配置根日志（幂等替换 root handlers）。
+
+    Args:
+        level: 根日志级别。
+        json_logs: True 时输出单行 JSON (JsonFormatter), 否则保持文本格式。
+        log_file: 可选日志文件路径; 给出时同时写 stdout 与文件 (同 formatter)。
 
     用法::
 
         from src.common import setup_logging
-        setup_logging(json_logs=bool(os.environ.get("HEAT_LOG_JSON")))
+        setup_logging(json_logs=bool(os.environ.get("HEAT_LOG_JSON")), log_file="run.log")
     """
-    handler = logging.StreamHandler()
-    if json_logs:
-        handler.setFormatter(JsonFormatter())
-    else:
-        handler.setFormatter(logging.Formatter("%(asctime)s [%(levelname)s] %(message)s"))
+    formatter = JsonFormatter() if json_logs else logging.Formatter("%(asctime)s [%(levelname)s] %(message)s")
+    handlers = [logging.StreamHandler()]
+    if log_file:
+        handlers.append(logging.FileHandler(log_file, encoding="utf-8"))
+    for h in handlers:
+        h.setFormatter(formatter)
     root = logging.getLogger()
-    root.handlers = [handler]
+    root.handlers = handlers
     root.setLevel(level)
