@@ -1,0 +1,305 @@
+#!/usr/bin/env python3
+"""
+持仓监控日报 - 盘中实时版
+数据源: 腾讯财经实时行情(盘中) + 本地 stock_daily(DB历史均线/量比)
+推送时间: 每交易日 11:00, 14:00, 16:00 (由外部定时调度触发)
+"""
+
+import json
+import os
+import sys
+import urllib.request
+from datetime import datetime
+from pathlib import Path
+
+import pandas as pd
+import requests
+
+PROJECT_ROOT = Path(__file__).parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
+
+# 项目工具: .env 密钥加载(load_dotenv_safe) + 统一 DB 连接(get_conn, WAL/路径一致)
+from src.config import load_dotenv_safe
+from src.data.database import get_conn
+
+load_dotenv_safe()
+
+# (名称, 腾讯代码, tushare格式代码, DB代码)
+HOLDINGS = [
+    ("顺丰控股", "sz002352", "002352.SZ", "sz002352"),
+    ("五粮液", "sz000858", "000858.SZ", "sz000858"),
+    ("中国平安", "sh601318", "601318.SH", "sh601318"),
+    ("公牛集团", "sh603195", "603195.SH", "sh603195"),
+    ("吉祥航空", "sh603885", "603885.SH", "sh603885"),
+    ("上海机场", "sh600009", "600009.SH", "sh600009"),
+    ("平安银行", "sz000001", "000001.SZ", "sz000001"),
+    ("隆基绿能", "sh601012", "601012.SH", "sh601012"),
+]
+
+FEISHU_WEBHOOK = os.environ.get("FEISHU_WEBHOOK", "")
+
+# Bark 推送配置 (密钥经 BARK_KEY 或旧别名 bark 传入, 二者皆可含 https://api.day.app/ 前缀)
+_BARK_KEY = os.environ.get("BARK_KEY", os.environ.get("bark", "").replace("https://api.day.app/", "").rstrip("/"))
+_BARK_API = f"https://api.day.app/{_BARK_KEY}" if _BARK_KEY else ""
+
+
+def parse_tencent_line(line: str) -> dict | None:
+    """解析单行腾讯行情响应, 返回行情 dict 或 None(空行/字段不足/坏数字)。"""
+    if not line.strip() or "~" not in line:
+        return None
+    parts = line.split("~")
+    if len(parts) < 45:
+        return None
+    try:
+        return {
+            "name": parts[1].strip(),
+            "code": parts[2].strip(),
+            "close": float(parts[3]),
+            "chg": float(parts[32]),
+            "vol": float(parts[6]),  # 万手
+            "amount": float(parts[37]),  # 万元
+            "open": float(parts[5]) if parts[5] else 0,
+            "prev_close": float(parts[4]) if parts[4] else 0,
+            "high": float(parts[33]) if parts[33] else 0,
+            "low": float(parts[34]) if parts[34] else 0,
+        }
+    except (ValueError, IndexError):
+        return None
+
+
+def fetch_realtime_tencent() -> dict:
+    """腾讯财经实时行情"""
+    tencent_codes = [h[1] for h in HOLDINGS]
+    url = f"http://qt.gtimg.cn/q={','.join(tencent_codes)}"
+    r = requests.get(url, timeout=10)
+    result = {}
+    for line in r.text.strip().split("\n"):
+        q = parse_tencent_line(line)
+        if q is not None:
+            result[q["code"]] = q
+    return result
+
+
+def fetch_history(db_code: str, days: int = 120) -> pd.DataFrame:
+    """本地 stock_daily 读历史数据(走项目统一 get_conn)"""
+    with get_conn() as conn:
+        df = pd.read_sql_query(
+            "SELECT trade_date, close, volume, amount FROM stock_daily "
+            "WHERE stock_code = ? ORDER BY trade_date DESC LIMIT ?",
+            conn,
+            params=(db_code, days * 2),
+        )
+    if df.empty:
+        return pd.DataFrame()
+    for c in ["close", "volume", "amount"]:
+        df[c] = pd.to_numeric(df[c], errors="coerce")
+    return df.sort_values("trade_date").tail(days).reset_index(drop=True)
+
+
+def build_report():
+    now = datetime.now()
+    lines = [f"📊 **持仓监控日报** · {now.strftime('%Y-%m-%d %H:%M')}\n"]
+
+    # 1. 腾讯实时数据
+    try:
+        rt = fetch_realtime_tencent()
+    except Exception as e:
+        return f"❌ 腾讯实时接口调用失败: {e}"
+
+    if not rt:
+        return "❌ 未获取到实时数据"
+
+    results = []
+    for name, tencent_code, ts_code, db_code in HOLDINGS:
+        try:
+            code_num = tencent_code[2:]  # 去掉 sh/sz 前缀
+            if code_num not in rt:
+                lines.append(f"**{name}** — ⚠️ 无数据\n")
+                continue
+
+            q = rt[code_num]
+            close = q["close"]
+            chg = q["chg"]
+            vol = q["vol"]  # 万手
+            amount = q["amount"]  # 万元
+
+            # 历史数据 (需要250天以支持MA200)
+            hist = fetch_history(db_code, days=250)
+            close_arr = hist["close"].values.astype(float) if not hist.empty else []
+            amt_arr = hist["amount"].values.astype(float) if not hist.empty else []
+            n = len(close_arr)
+
+            # 均线
+            ma = {}
+            for p in [5, 20, 60, 120, 200]:
+                ma[p] = round(float(close_arr[-p:].mean()), 2) if n >= p else None
+
+            # 趋势
+            if ma[5] and ma[20] and ma[60] and ma[120]:
+                above = sum(1 for p in [5, 20, 60, 120, 200] if close > ma[p])
+                if above == 5:
+                    trend, te = "上升趋势", "🟢"
+                elif above == 0:
+                    trend, te = "下降趋势", "🔴"
+                else:
+                    trend, te = "震荡", "🟡"
+            else:
+                trend, te = "数据不足", "⚪"
+
+            # MA20 偏离
+            bias20 = ((close - ma[20]) / ma[20] * 100) if ma[20] else None
+
+            # 量比: 今日成交额 / 5日均成交额
+            # 本地 amount 单位千元, 腾讯 amount 单位万元
+            vol_ratio = None
+            avg5_amt = None
+            avg20_amt = None
+            if n >= 5:
+                hist_avg5 = float(amt_arr[-5:].mean()) / 1e2  # 千元→万元
+                if hist_avg5 > 0:
+                    vol_ratio = amount / hist_avg5
+                avg5_amt = hist_avg5 / 1e4  # 万元→亿元
+            if n >= 20:
+                avg20_amt = float(amt_arr[-20:].mean()) / 1e2 / 1e4  # 千元→亿元
+
+            # 区间涨跌
+            chg5 = (close / close_arr[-6] - 1) * 100 if n >= 6 else None
+            chg20 = (close / close_arr[-21] - 1) * 100 if n >= 21 else None
+
+            results.append((name, close, chg))
+
+            # 输出
+            ce = "📈" if chg > 0 else "📉" if chg < 0 else "➡️"
+            lines.append(f"**{name}** ({ts_code})  {close:.2f}  {ce}{chg:+.2f}%  {te} {trend}")
+
+            # 均线
+            ma_parts = []
+            for p in [5, 20, 60, 120, 200]:
+                v = ma.get(p)
+                if v:
+                    pos = "↑" if close > v else "↓"
+                    ma_parts.append(f"MA{p}={v:.2f}{pos}")
+            if ma_parts:
+                lines.append(f"  均线: {' · '.join(ma_parts)}")
+
+            if bias20 is not None:
+                lines.append(f"  MA20偏离: {bias20:+.1f}%")
+
+            # 买入/卖出信号 (基于 MA120)
+            signal_parts = []
+            if ma.get(120):
+                ma120 = ma[120]
+                buy_threshold = ma120 * 0.80
+                sell_threshold = ma120 * 1.30
+                if close < buy_threshold:
+                    signal_parts.append(f"🟢 **买入信号**: 价格 {close:.2f} < MA120×80% ({buy_threshold:.2f})")
+                elif close > sell_threshold:
+                    signal_parts.append(f"🔴 **卖出信号**: 价格 {close:.2f} > MA120×130% ({sell_threshold:.2f})")
+            if signal_parts:
+                for s in signal_parts:
+                    lines.append(f"  {s}")
+
+            # 成交
+            parts = [f"成交 {amount / 1e4:.2f}亿", f"量 {vol / 1e4:.2f}万手"]
+            if vol_ratio is not None:
+                parts.append(f"量比 {vol_ratio:.2f}")
+            lines.append(f"  {' · '.join(parts)}")
+
+            if avg5_amt and avg20_amt:
+                lines.append(f"  5日均量 {avg5_amt:.2f}亿 · 20日均量 {avg20_amt:.2f}亿")
+
+            # 区间
+            period = []
+            if chg5 is not None:
+                period.append(f"5日{chg5:+.1f}%")
+            if chg20 is not None:
+                period.append(f"20日{chg20:+.1f}%")
+            if period:
+                lines.append(f"  {' · '.join(period)}")
+
+            lines.append("")
+        except Exception as e:
+            lines.append(f"**{name}** ({ts_code}) — ⚠️ 异常: {e}\n")
+
+    # 汇总
+    if results:
+        lines.append("---")
+        up = sum(1 for _, _, c in results if c > 0)
+        down = sum(1 for _, _, c in results if c < 0)
+        flat = len(results) - up - down
+        lines.append(f"📈 上涨 {up} · 📉 下跌 {down} · ➡️ 平盘 {flat}")
+        sorted_r = sorted(results, key=lambda x: x[2], reverse=True)
+        if sorted_r:
+            lines.append(f"🏆 最强: {sorted_r[0][0]} {sorted_r[0][2]:+.2f}%")
+            lines.append(f"💀 最弱: {sorted_r[-1][0]} {sorted_r[-1][2]:+.2f}%")
+
+    lines.append("\n---\n> ⚠️ 不构成投资建议，仅供参考")
+    return "\n".join(lines)
+
+
+def push_feishu(text):
+    payload = {"msg_type": "text", "content": {"text": text}}
+    try:
+        r = requests.post(FEISHU_WEBHOOK, json=payload, timeout=10)
+        print(f"Feishu push: {r.status_code}")
+    except Exception as e:
+        print(f"Feishu push failed: {e}")
+
+
+def push_bark(title, body, level="active", group="Watchlist"):
+    """通过 Bark 推送持仓监控到 iPhone"""
+    if not _BARK_API:
+        print("Bark not configured, skip")
+        return
+    payload = json.dumps(
+        {
+            "title": title,
+            "body": body,
+            "group": group,
+            "level": level,
+        }
+    ).encode("utf-8")
+    req = urllib.request.Request(
+        _BARK_API,
+        data=payload,
+        headers={"Content-Type": "application/json"},
+        method="POST",
+    )
+    try:
+        resp = urllib.request.urlopen(req, timeout=10)
+        result = json.loads(resp.read())
+        if result.get("code") == 200:
+            print(f"Bark push OK: {title}")
+        else:
+            print(f"Bark push failed: {result}")
+    except Exception as e:
+        print(f"Bark push error: {e}")
+
+
+def main() -> int:
+    report = build_report()
+    print(report)
+
+    out_dir = PROJECT_ROOT / "reports" / "watchlist"
+    out_dir.mkdir(parents=True, exist_ok=True)
+    out_file = out_dir / f"{datetime.now().strftime('%Y%m%d_%H%M')}.md"
+    out_file.write_text(report, encoding="utf-8")
+    print(f"\n--- saved to {out_file} ---")
+
+    push_feishu(report)
+
+    # Bark 推送（完整信息，与飞书通知内容一致）
+    try:
+        now_str = datetime.now().strftime("%H:%M")
+        push_bark(
+            title=f"📊 持仓监控 {now_str}",
+            body=report,
+            group="Watchlist",
+        )
+    except Exception as e:
+        print(f"Bark push error: {e}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
