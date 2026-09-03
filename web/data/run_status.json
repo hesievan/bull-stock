@@ -5,77 +5,77 @@
     "init_db": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.0017728805541992188
+      "elapsed": 0.0012965202331542969
     },
     "S1_index": {
       "status": "OK",
       "detail": "",
-      "elapsed": 24.375344038009644
+      "elapsed": 25.374112367630005
     },
     "S2_market": {
       "status": "OK",
       "detail": "",
-      "elapsed": 6.395854473114014
+      "elapsed": 7.014527797698975
     },
     "S25_index_pe": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.026916027069091797
+      "elapsed": 0.020360946655273438
     },
     "S26_circ_mv": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.004058361053466797
+      "elapsed": 0.003228425979614258
     },
     "S26b_total_mv": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.003675222396850586
+      "elapsed": 0.0029511451721191406
     },
     "S27_updown": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.007999658584594727
+      "elapsed": 0.005961418151855469
     },
     "S28_limit": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.00781869888305664
+      "elapsed": 0.00580906867980957
     },
     "S29_below_net": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.01029658317565918
+      "elapsed": 0.005703926086425781
     },
     "S30_ma_alignment": {
       "status": "OK",
       "detail": "",
-      "elapsed": 5.593379974365234
+      "elapsed": 4.281676292419434
     },
     "S30b_new_high": {
       "status": "OK",
       "detail": "",
-      "elapsed": 2.337527275085449
+      "elapsed": 1.7944667339324951
     },
     "S30c_turnover": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.004739522933959961
+      "elapsed": 0.003999471664428711
     },
     "S31_qvix": {
       "status": "OK",
       "detail": "",
-      "elapsed": 7.0788304805755615
+      "elapsed": 4.134095668792725
     },
     "S31b_seal_rate": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.03074789047241211
+      "elapsed": 0.024441957473754883
     },
     "S31c_index_pe": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.4611327648162842
+      "elapsed": 0.5140364170074463
     },
     "precompute_staleness": [
       {
@@ -202,72 +202,72 @@
     "S24_precompute_check": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.008007049560546875
+      "elapsed": 0.006090879440307617
     },
     "S24c_m2": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.0014159679412841797
+      "elapsed": 0.0008635520935058594
     },
     "S24d_m1": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.0011758804321289062
+      "elapsed": 0.0008535385131835938
     },
     "S24f_south": {
       "status": "OK",
       "detail": "",
-      "elapsed": 9.760348320007324
+      "elapsed": 7.886719226837158
     },
     "S24g_futures": {
       "status": "OK",
       "detail": "",
-      "elapsed": 1.6242613792419434
+      "elapsed": 2.1960132122039795
     },
     "S24h_accounts": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.893841028213501
+      "elapsed": 0.88102126121521
     },
     "S24i_etf_flow": {
       "status": "OK",
       "detail": "",
-      "elapsed": 104.57183408737183
+      "elapsed": 34.64372491836548
     },
     "S3_margin": {
       "status": "OK",
       "detail": "",
-      "elapsed": 1.32261061668396
+      "elapsed": 1.2626619338989258
     },
     "S3_bond_yield": {
       "status": "OK",
       "detail": "",
-      "elapsed": 3.9700942039489746
+      "elapsed": 3.340291976928711
     },
     "S3_tushare": {
       "status": "OK",
       "detail": "",
-      "elapsed": 5.301271677017212
+      "elapsed": 4.802713871002197
     },
     "S3_shenwan": {
       "status": "OK",
       "detail": "",
-      "elapsed": 16.15041708946228
+      "elapsed": 15.345556259155273
     },
     "S3_industry": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.001445770263671875
+      "elapsed": 0.0013318061828613281
     },
     "S5_calc": {
       "status": "OK",
       "detail": "",
-      "elapsed": 9.6076078414917
+      "elapsed": 7.40409779548645
     },
     "S55_index_heat": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.1224367618560791
+      "elapsed": 0.08658862113952637
     }
   },
   "n_ok": 29,
@@ -276,5 +276,5 @@
   "schema_version": 15,
   "python_version": "3.12.3",
   "platform": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
-  "memory_mb": 572.296875
+  "memory_mb": 570.6328125
 }
