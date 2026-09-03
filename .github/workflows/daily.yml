@@ -25,16 +25,18 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - name: Set up uv
+        # P2-2 依赖锁定: 依赖单一来源 = pyproject.toml, 锁定产物 = uv.lock (多平台+哈希)。
+        # setup-uv 自动缓存 uv 下载; python-version 安装托管 CPython 3.12。
+        uses: astral-sh/setup-uv@v5
         with:
           python-version: '3.12'
-          cache: 'pip'
 
-      - name: Install dependencies
+      - name: Install dependencies (locked)
+        # uv sync --frozen: 严格按 uv.lock 安装, 不改动锁; 后续步骤通过 GITHUB_PATH 使用 .venv/bin。
         run: |
-          pip install -r requirements.txt
-          pip install -r requirements-dev.txt
+          uv sync --frozen
+          echo "$PWD/.venv/bin" >> "$GITHUB_PATH"
 
       - name: Lint
         run: |
@@ -233,7 +235,7 @@ jobs:
           # (软失败靠 run_daily 的 data_quality 与数据新鲜度在通知正文中体现)。
           FAILED_STEPS=""
           if [ "${{ job.status }}" != "success" ]; then
-            FAILED_STEPS=$(python3 scripts/ci_failed_steps.py)
+            FAILED_STEPS=$(python scripts/ci_failed_steps.py)
           fi
 
           MSG=""

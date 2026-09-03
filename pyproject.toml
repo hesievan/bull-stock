@@ -1,0 +1,33 @@
+# bull-market-heat-index 依赖单一来源 (P2-2 依赖锁定)
+# - 顶层声明只在此处维护 (下界 = 最低可用, 上界 = 已验证版本族)
+# - 锁定产物 = uv.lock (uv 多平台 universal 解析, 含 marker 分支与 sha256 哈希)
+#   关键背景: akshare>=1.18.8x 的 JS 引擎依赖是平台条件分支
+#   (Linux → py-mini-racer+akracer; 非 Linux → mini-racer),
+#   单平台 requirements 哈希锁无法同时服务 macOS 本地 + Linux CI, 故统一走 uv.lock。
+# - 升级流程: 改此处上下界 → `uv lock` 重锁 → `uv sync --frozen` 本地重建 → pytest/ruff 验证 → 提交
+[project]
+name = "bull-market-heat-index"
+version = "3.30.0"
+description = "A股市场热度指数 — 多维度量化打分与每日流水线"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "tushare>=1.4.29,<1.5",
+    "akshare>=1.18.84,<1.19",
+    "pandas>=3.0.5,<3.1",
+    "numpy>=2.5.2,<3",
+    "pyyaml>=6.0,<7",
+    "requests>=2.31.0,<3",
+    "fastapi>=0.141.0,<0.142",
+    "uvicorn>=0.29.0,<0.30",
+]
+
+[dependency-groups]
+# 开发/CI 依赖。pytest 锁 <9 消除本地 9.1.0 vs CI 8.x 漂移(锁定后统一 8.x);
+# ruff 锁 0.16 族对齐已验证版本。
+dev = [
+    "pytest>=8.0,<9",
+    "pytest-cov>=5.0,<6",
+    "ruff>=0.16,<0.17",
+    # fastapi TestClient 依赖 — tests/test_api_server.py 端点测试需要 (fastapi 本体在 dependencies)
+    "httpx>=0.28.1,<0.29",
+]

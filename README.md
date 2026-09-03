@@ -260,7 +260,7 @@ SQLite 当前 **29 张业务表**（2026-08-12 清理 12 张 V1 遗留/死表后
 
 ### 前置条件
 
-- Python 3.10+
+- Python 3.12（依赖由 uv.lock 锁定, 见 pyproject.toml）
 - tushare 账号（2000+ 积分）
 - SQLite（系统自带）
 
@@ -269,8 +269,9 @@ SQLite 当前 **29 张业务表**（2026-08-12 清理 12 张 V1 遗留/死表后
 ```bash
 git clone <repo_url>
 cd bull-market-heat-index
-python -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
+# 安装 uv (https://docs.astral.sh/uv/): curl -LsSf https://astral.sh/uv/install.sh | sh
+uv sync          # 创建 .venv 并按 uv.lock 安装锁定依赖(生产+开发)
+source .venv/bin/activate
 cp .env.example .env
 # 编辑 .env，填入你的 TUSHARE_TOKEN
 ```
@@ -478,8 +479,8 @@ bull-market-heat-index/
 ├── data/                            # SQLite 数据库（~1.7GB，gitignore）
 ├── logs/                            # 运行日志
 ├── .github/workflows/               # CI/CD 流水线（含 Lighthouse 门禁）
-├── requirements.txt                 # 生产依赖
-├── requirements-dev.txt             # 开发依赖
+├── pyproject.toml                   # 依赖声明源(单一来源)
+├── uv.lock                          # 依赖锁定(多平台+sha256 哈希, 勿手改)
 └── 使用指南.md                       # 详细操作文档
 ```
 
@@ -489,7 +490,7 @@ bull-market-heat-index/
 
 | 层 | 技术 |
 |----|------|
-| 语言 | Python 3.10+ |
+| 语言 | Python 3.12 |
 | 数据存储 | SQLite（29 表，WAL 模式，~1.7GB） |
 | 数据源 | tushare pro + akshare + optbbs.com（CFFEX QVIX） |
 | 核心库 | pandas, numpy, pyyaml, requests |
@@ -497,15 +498,15 @@ bull-market-heat-index/
 | 前端 | Vanilla JS + ECharts（定制构建，深/浅色 SPA，响应式） |
 | CI/CD | GitHub Actions（每日 18:00 北京时 + Lighthouse 质量门禁） |
 | 通知 | 飞书 Webhook + Bark（iOS 推送） |
-| 测试 | pytest（116 例）+ ruff（lint/format） |
+| 测试 | pytest（173 例）+ ruff（lint/format） |
 
 ---
 
 ## 开发
 
 ```bash
-# 安装开发依赖
-pip install -r requirements-dev.txt
+# 安装开发依赖（dev 组已随 uv sync 装入; 改 pyproject.toml 后重跑 uv sync 即可）
+uv sync
 
 # 代码检查
 ruff check src/ scripts/ --select E,F,W
