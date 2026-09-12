@@ -74,6 +74,9 @@ def main():
     conn.close()
     for k, df in raw_tables.items():
         df["trade_date"] = df["trade_date"].astype(str)
+        # P0-5/P1-11: 读自 SQLite 无 ORDER BY → 物理存储序, 在此显式排序
+        # (否则 "<= td 取 .iloc[-1]" 会取到错误日期; ma_alignment 实测 74.6% 的交易日命中错行)
+        df.sort_values("trade_date", inplace=True, kind="mergesort")
 
     print("=" * 80)
     print("A. CSV(去趋势)口径 seg2 内部分析")
@@ -149,16 +152,20 @@ def main():
         j = csv.set_index("trade_date")
         j = j.join(pdf)
         print(f"\n--- {k}: det(引擎回测) vs raw ---")
+        res["B"][k] = {}
         for nm in [f"{k}_det", f"{k}_raw"]:
             x = pd.to_numeric(j[nm], errors="coerce")
             ic60 = spearman(x, j["ret60"])
             segs = [spearman(x[j["seg"] == s], j.loc[j["seg"] == s, "ret60"]) for s in range(3)]
+            res["B"][k][nm] = {"ic60": ic60, "seg0": segs[0], "seg1": segs[1], "seg2": segs[2]}
             print(f"  {nm:16s} ic60={ic60:+.4f}  seg0={segs[0]:+.4f}  seg1={segs[1]:+.4f}  seg2={segs[2]:+.4f}")
         # 与 CSV det 列对齐校验
         csv_col = f"ind_{k}"
         cmp = j[[csv_col, f"{k}_det"]].dropna()
         if len(cmp):
-            print(f"  复刻校验 mean|diff| vs CSV = {np.mean(np.abs(cmp[csv_col] - cmp[f'{k}_det'])):.4f}")
+            diff = float(np.mean(np.abs(cmp[csv_col] - cmp[f"{k}_det"])))
+            res["B"][k]["replicate_mean_abs_diff"] = diff
+            print(f"  复刻校验 mean|diff| vs CSV = {diff:.4f}")
 
     os.makedirs("reports", exist_ok=True)
     with open(OUT, "w") as f:

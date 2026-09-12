@@ -54,6 +54,8 @@ def main():
     pe_df = pd.read_sql("SELECT trade_date, pe_med, n_stocks FROM index_daily_pe WHERE pe_med IS NOT NULL", conn)
     conn.close()
     pe_df["trade_date"] = pe_df["trade_date"].astype(str)
+    # P0-5/P1-11: 无 ORDER BY → "<= td 取 .iloc[-1]" 跑在物理乱序上, 显式排序
+    pe_df.sort_values("trade_date", inplace=True, kind="mergesort")
 
     det_rows, raw_rows = [], []
     n_fallback = 0

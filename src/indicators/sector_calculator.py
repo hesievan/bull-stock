@@ -217,9 +217,14 @@ def calculate_sector_heat(trade_date: str, db_path: str) -> list:
             conn,
             params=[trade_date],
         )
-        # 如果指定日期没有数据，使用最新可用日期
+        # 如果指定日期没有数据，使用不超过该日期的最近可用日期
+        # P0-7: 原实现取全表 MAX(trade_date), 当 trade_date 早于库内最新日期时会引入未来数据
         if today.empty:
-            latest = pd.read_sql("SELECT MAX(trade_date) as d FROM stock_daily", conn)
+            latest = pd.read_sql(
+                "SELECT MAX(trade_date) as d FROM stock_daily WHERE trade_date <= ?",
+                conn,
+                params=[trade_date],
+            )
             if not latest.empty and latest.iloc[0]["d"]:
                 actual_date = latest.iloc[0]["d"]
                 logger.info("Using latest available date: %s (requested: %s)", actual_date, trade_date)

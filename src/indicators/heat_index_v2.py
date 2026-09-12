@@ -631,13 +631,20 @@ def calc_turnover_v2(conn, trade_date: str) -> Optional[float]:
             params=(td,),
         )
         if today.empty or today["mv"].iloc[0] is None or today["mv"].iloc[0] <= 0:
-            # fallback: 最近日期
-            today = pd.read_sql(
-                "SELECT SUM(amount) as amt, SUM(circ_mv) as mv "
-                "FROM stock_daily WHERE trade_date = (SELECT MAX(trade_date) FROM stock_daily WHERE circ_mv > 0) "
-                "AND amount > 0 AND circ_mv > 0",
-                conn,
-            )
+            # fallback: 最近可用日期
+            # P0-7: 必须带上界 trade_date <= td, 否则当 td 早于库内最新日期时会取到"未来"数据
+            fb_row = conn.execute(
+                "SELECT MAX(trade_date) FROM stock_daily WHERE circ_mv > 0 AND trade_date <= ?", (td,)
+            ).fetchone()
+            fb_date = fb_row[0] if fb_row else None
+            if fb_date:
+                logger.warning("Turnover: %s 无当日数据, 回退到最近可用日 %s", td, fb_date)
+                today = pd.read_sql(
+                    "SELECT SUM(amount) as amt, SUM(circ_mv) as mv "
+                    "FROM stock_daily WHERE trade_date = ? AND amount > 0 AND circ_mv > 0",
+                    conn,
+                    params=(fb_date,),
+                )
         if today.empty or today["mv"].iloc[0] is None or today["mv"].iloc[0] <= 0:
             return None
 
@@ -666,10 +673,18 @@ def calc_new_high_v2(conn, trade_date: str) -> Optional[float]:
                 "SELECT stock_code, close FROM stock_daily WHERE trade_date=? AND close > 0", conn, params=(td,)
             )
             if today.empty or len(today) < 100:
-                today = pd.read_sql(
-                    "SELECT stock_code, close FROM stock_daily WHERE trade_date = (SELECT MAX(trade_date) FROM stock_daily WHERE close > 0) AND close > 0",
-                    conn,
-                )
+                # P0-7: fallback 必须带上界, 防止取到 td 之后的日期 (前视泄漏)
+                fb_row = conn.execute(
+                    "SELECT MAX(trade_date) FROM stock_daily WHERE close > 0 AND trade_date <= ?", (td,)
+                ).fetchone()
+                fb_date = fb_row[0] if fb_row else None
+                if fb_date:
+                    logger.warning("New high: %s 无当日数据, 回退到最近可用日 %s", td, fb_date)
+                    today = pd.read_sql(
+                        "SELECT stock_code, close FROM stock_daily WHERE trade_date = ? AND close > 0",
+                        conn,
+                        params=(fb_date,),
+                    )
             if today.empty or len(today) < 100:
                 return None
 
@@ -1385,23 +1400,32 @@ def compute_index_v2(trade_date: str = None, db_path: str = None, engine_mode: s
 
 
 def _apply_sentiment_divergence(conn, trade_date: str, sentiment_scores: dict) -> dict:
-    """情绪背离惩罚: 高活跃度(换手率高) + 指数下跌 = 减分"""
+    """情绪背离惩罚: 高活跃度(换手率高) + 指数下跌 = 减分
+
+    P1-1 修复 (2026-09-12): 配置语义是"lookback_days 内指数跌幅 > decline_threshold",
+    旧实现用窗口内 `ORDER BY ... DESC LIMIT 2` 取最近两条 → 实际退化成"昨收→今收"单日涨跌:
+    单日跌 1.5% 即误报, 而 20 日阴跌 15% 但当日微涨则漏报 (与 _apply_new_high_divergence
+    的端点口径也不一致)。现按 lookback_days 取两个端点 (td 与 td-lookback 各自取 <= 的最近交易日)。
+    """
     try:
         td = trade_date
-        idx_close = pd.read_sql(
-            """
-            SELECT trade_date, close FROM index_daily
-            WHERE index_code='sh000001' AND trade_date <= ? AND trade_date >= date(?, ?)
-            ORDER BY trade_date DESC LIMIT 2
-        """,
-            conn,
-            params=(td, td, f"-{DIVERGENCE_CONFIG['lookback_days']} days"),
-        )
+        lookback = DIVERGENCE_CONFIG["lookback_days"]
+        prev_date = (pd.Timestamp(td) - pd.DateOffset(days=lookback)).strftime("%Y-%m-%d")
 
-        if len(idx_close) < 2:
+        def _close_at(d):
+            row = conn.execute(
+                "SELECT close FROM index_daily WHERE index_code='sh000001' AND trade_date <= ?"
+                " ORDER BY trade_date DESC LIMIT 1",
+                (d,),
+            ).fetchone()
+            return row[0] if row else None
+
+        cur_close = _close_at(td)
+        prev_close = _close_at(prev_date)
+        if cur_close is None or not prev_close:
             return sentiment_scores
 
-        pct_change = (idx_close.iloc[0]["close"] / idx_close.iloc[-1]["close"] - 1) * 100
+        pct_change = (cur_close / prev_close - 1) * 100
 
         turnover_score = sentiment_scores.get("turnover")
         if (

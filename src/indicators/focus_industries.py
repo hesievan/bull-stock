@@ -230,7 +230,10 @@ def compute_focus_industries(trade_date: str, db_path: str = None) -> list:
             params=[trade_date],
         )
         if today.empty:
-            latest = conn.execute("SELECT MAX(trade_date) as d FROM stock_daily").fetchone()
+            # P0-7: 回退目标必须是 <= 请求日期的最近可用日, 否则会取到未来数据
+            latest = conn.execute(
+                "SELECT MAX(trade_date) as d FROM stock_daily WHERE trade_date <= ?", (trade_date,)
+            ).fetchone()
             if latest and latest["d"]:
                 actual = latest["d"]
                 logger.info("focus_industries: using latest date %s instead of %s", actual, trade_date)

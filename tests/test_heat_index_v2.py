@@ -96,7 +96,7 @@ class TestSentimentDivergence:
         td = "2026-08-06"
         v2_db.executemany(
             "INSERT INTO index_daily (trade_date, index_code, close) VALUES (?, 'sh000001', ?)",
-            [("2026-07-20", 100.0), (td, 98.0)],  # 指数 -2% < -1.5% 触发
+            [("2026-07-10", 100.0), (td, 98.0)],  # 20日窗口 (07-17 前的最近收盘) -2% < -1.5% 触发
         )
         v2_db.commit()
         scores = {"turnover_m2": 80.0, "turnover": 85.0}
@@ -108,7 +108,7 @@ class TestSentimentDivergence:
         td = "2026-08-06"
         v2_db.executemany(
             "INSERT INTO index_daily (trade_date, index_code, close) VALUES (?, 'sh000001', ?)",
-            [("2026-07-20", 100.0), (td, 98.0)],
+            [("2026-07-10", 100.0), (td, 98.0)],
         )
         v2_db.commit()
         scores = {"turnover_m2": 60.0, "turnover": 65.0}  # 均 ≤70 不触发
@@ -119,12 +119,36 @@ class TestSentimentDivergence:
         td = "2026-08-06"
         v2_db.executemany(
             "INSERT INTO index_daily (trade_date, index_code, close) VALUES (?, 'sh000001', ?)",
-            [("2026-07-20", 98.0), (td, 100.0)],  # 指数 +2% 不触发
+            [("2026-07-10", 98.0), (td, 100.0)],  # 20日累计 +2% 不触发
         )
         v2_db.commit()
         scores = {"turnover_m2": 80.0, "turnover": 85.0}
         out = _apply_sentiment_divergence(v2_db, td, scores)
         assert out == scores
+
+    def test_no_penalty_when_daily_drop_but_window_gain(self, v2_db):
+        """P1-1: 单日跌 2% 但 20 日累计 +5% → 不触发 (旧实现按单日口径会误报)"""
+        td = "2026-08-06"
+        v2_db.executemany(
+            "INSERT INTO index_daily (trade_date, index_code, close) VALUES (?, 'sh000001', ?)",
+            [("2026-07-10", 93.0), ("2026-08-05", 100.0), (td, 98.0)],
+        )
+        v2_db.commit()
+        scores = {"turnover": 85.0}
+        out = _apply_sentiment_divergence(v2_db, td, scores)
+        assert out == scores  # 98/93-1 = +5.4% (20日口径)
+
+    def test_penalty_when_window_decline_but_flat_day(self, v2_db):
+        """P1-1: 20 日阴跌 17% 但当日微涨 → 触发 (旧实现按单日口径会漏报)"""
+        td = "2026-08-06"
+        v2_db.executemany(
+            "INSERT INTO index_daily (trade_date, index_code, close) VALUES (?, 'sh000001', ?)",
+            [("2026-07-10", 110.0), ("2026-08-05", 91.0), (td, 91.1)],
+        )
+        v2_db.commit()
+        scores = {"turnover": 85.0}
+        out = _apply_sentiment_divergence(v2_db, td, scores)
+        assert out["turnover"] == pytest.approx(65.0)
 
 
 # ── F4: 两融余额高分位单调饱和 ───────────────────────────────────────────────
