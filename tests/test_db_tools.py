@@ -7,6 +7,7 @@ days 保护未超期候选 / bak_keep 参数化。全部用 tmp 目录 + monkeyp
 
 import gzip
 import os
+import sqlite3
 import sys
 import time
 from pathlib import Path
@@ -118,3 +119,115 @@ class TestCleanupBackups:
 
         assert len(removed) == 3
         assert _surviving_bak(data_dir) == ["heat_index.db.bak_tmp4", "heat_index.db.bak_tmp5"]
+
+
+# ── P0-4: 归档失败必须中止删除 ───────────────────────────────────────────────
+
+
+def _mk_archive_db(path, rows: int = 3, tables=None) -> None:
+    """造一个含归档目标表的小库，日期统一落在 2018-01-xx（早于 2020 截止线）。"""
+    tables = tables or db_tools.ARCHIVE_TABLES
+    conn = sqlite3.connect(path)
+    for t in tables:
+        conn.execute(f"CREATE TABLE {t} (trade_date TEXT, value REAL)")
+        for i in range(rows):
+            conn.execute(f"INSERT INTO {t} VALUES (?, ?)", (f"2018-01-{i + 1:02d}", float(i)))
+    conn.commit()
+    conn.close()
+
+
+def _count(db_path, table: str) -> int:
+    conn = sqlite3.connect(db_path)
+    try:
+        return conn.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0]
+    finally:
+        conn.close()
+
+
+class TestArchiveBeforeYear:
+    def test_success_moves_rows(self, tmp_path):
+        """正常路径: 行被复制到归档库并从主库删除。
+
+        回归点: 旧实现用 `CREATE TABLE IF NOT EXISTS t AS SELECT * FROM t` 在**归档连接**
+        上建表，源表在归档库里并不存在 → 每张表首次归档都抛异常，却仍无条件执行删除。
+        """
+        db = tmp_path / "heat_index.db"
+        _mk_archive_db(db, rows=3)
+
+        assert db_tools.archive_before_year(2020, db_path=str(db)) is True
+
+        for t in db_tools.ARCHIVE_TABLES:
+            assert _count(db, t) == 0, f"{t} 未删除"
+        archive = tmp_path / "heat_index_archive_2020.db"
+        assert archive.exists()
+        for t in db_tools.ARCHIVE_TABLES:
+            assert _count(archive, t) == 3, f"{t} 未归档"
+
+    def test_archive_failure_aborts_delete(self, tmp_path, monkeypatch):
+        """任一表归档失败 → 所有表都不得删除（旧实现会照删不误）。"""
+        db = tmp_path / "heat_index.db"
+        _mk_archive_db(db, rows=3)
+
+        real_archive = db_tools._archive_table
+
+        def flaky(conn, tname, cutoff, alias=db_tools.ARCHIVE_ALIAS):
+            if tname == "bond_yield":
+                raise RuntimeError("simulated archive failure")
+            return real_archive(conn, tname, cutoff, alias)
+
+        monkeypatch.setattr(db_tools, "_archive_table", flaky)
+
+        assert db_tools.archive_before_year(2020, db_path=str(db)) is False
+
+        for t in db_tools.ARCHIVE_TABLES:
+            assert _count(db, t) == 3, f"{t} 在归档失败的情况下仍被删除"
+
+    def test_reconciliation_mismatch_aborts_delete(self, tmp_path, monkeypatch):
+        """归档数 ≠ 待删数（如归档写了一半）→ 中止删除。"""
+        db = tmp_path / "heat_index.db"
+        _mk_archive_db(db, rows=5)
+
+        real_archive = db_tools._archive_table
+
+        def underreport(conn, tname, cutoff, alias=db_tools.ARCHIVE_ALIAS):
+            real_archive(conn, tname, cutoff, alias)
+            return 0  # 谎报归档 0 行 → 对账不符
+
+        monkeypatch.setattr(db_tools, "_archive_table", underreport)
+
+        assert db_tools.archive_before_year(2020, db_path=str(db)) is False
+        assert _count(db, "stock_daily") == 5
+
+    def test_no_data_to_archive(self, tmp_path):
+        """截止线之前无数据 → 直接返回 True，不产生归档文件。"""
+        db = tmp_path / "heat_index.db"
+        _mk_archive_db(db, rows=3)
+
+        assert db_tools.archive_before_year(2015, db_path=str(db)) is True
+        assert _count(db, "stock_daily") == 3
+        assert not (tmp_path / "heat_index_archive_2015.db").exists()
+
+    def test_missing_tables_are_skipped(self, tmp_path):
+        """只存在部分表时，缺失表跳过而非整单中止。"""
+        db = tmp_path / "heat_index.db"
+        _mk_archive_db(db, rows=2, tables=["stock_daily"])
+
+        assert db_tools.archive_before_year(2020, db_path=str(db)) is True
+        assert _count(db, "stock_daily") == 0
+        assert _count(tmp_path / "heat_index_archive_2020.db", "stock_daily") == 2
+
+    def test_idempotent_rerun(self, tmp_path):
+        """重复归档同一区间不产生重复副本（归档库里先清区间再写）。"""
+        db = tmp_path / "heat_index.db"
+        _mk_archive_db(db, rows=4)
+
+        assert db_tools.archive_before_year(2020, db_path=str(db)) is True
+        # 再灌一批同区间数据，模拟重复执行
+        conn = sqlite3.connect(db)
+        for i in range(2):
+            conn.execute("INSERT INTO stock_daily VALUES (?, ?)", (f"2019-06-0{i + 1}", 1.0))
+        conn.commit()
+        conn.close()
+
+        assert db_tools.archive_before_year(2020, db_path=str(db)) is True
+        assert _count(tmp_path / "heat_index_archive_2020.db", "stock_daily") == 2

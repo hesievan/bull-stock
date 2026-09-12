@@ -88,8 +88,57 @@ def vacuum_db(db_path=None):
 # ── 归档 ─────────────────────────────────────────────────────────────────────
 
 
-def archive_before_year(year: int, db_path=None):
-    """归档指定年份之前的数据到独立文件"""
+ARCHIVE_ALIAS = "arch"
+ARCHIVE_TABLES = [
+    "stock_daily",
+    "index_daily",
+    "margin_history",
+    "northbound_history",
+    "bond_yield",
+]
+
+
+def _archive_table(conn: sqlite3.Connection, tname: str, cutoff: str, alias: str = ARCHIVE_ALIAS) -> int:
+    """把主库 ``tname`` 中 ``trade_date < cutoff`` 的行复制到已 ATTACH 的归档库。
+
+    返回本次归档的行数。表结构直接取自**主库** schema，因此不存在旧实现
+    "归档库里 `CREATE TABLE ... AS SELECT * FROM tname` 找不到源表 → 抛异常"
+    的问题（旧实现每一张表首次归档都失败，随后仍无条件删除，等于删数据不留档）。
+
+    同区间重复归档是幂等的：先清掉归档库中该区间的旧副本再写入。
+    """
+    cols = [d[1] for d in conn.execute(f"PRAGMA table_info({tname})").fetchall()]
+    if not cols:
+        raise RuntimeError(f"主库不存在表 {tname}")
+
+    rows = conn.execute(f"SELECT * FROM {tname} WHERE trade_date < ?", (cutoff,)).fetchall()
+    if not rows:
+        return 0
+
+    # 注意: PRAGMA 不支持 `schema.table` 作为参数, 必须写成 `PRAGMA schema.table_info(table)`
+    arch_cols = [d[1] for d in conn.execute(f"PRAGMA {alias}.table_info({tname})").fetchall()]
+    if not arch_cols:
+        conn.execute(f"CREATE TABLE {alias}.{tname} AS SELECT * FROM {tname} WHERE 1=0")
+    elif set(arch_cols) != set(cols):
+        raise RuntimeError(
+            f"归档表 {tname} 与主库结构不一致（主库 {len(cols)} 列 / 归档 {len(arch_cols)} 列），拒绝写入以免错列"
+        )
+
+    conn.execute(f"DELETE FROM {alias}.{tname} WHERE trade_date < ?", (cutoff,))
+    col_list = ", ".join(f'"{c}"' for c in cols)
+    placeholders = ", ".join(["?"] * len(cols))
+    conn.executemany(f"INSERT INTO {alias}.{tname} ({col_list}) VALUES ({placeholders})", rows)
+    logger.info("  Archived %s: %d rows", tname, len(rows))
+    return len(rows)
+
+
+def archive_before_year(year: int, db_path=None) -> bool:
+    """归档指定年份之前的数据到独立文件。
+
+    **P0-4**: 归档是删除的前提。任一表归档失败、或归档数与待删数对账不符，
+    一律中止删除并返回 False —— 宁可数据留在主库，也不能删了却没留档。
+    返回 True 表示归档流程正常结束（含"无数据可归档"）。
+    """
     path = db_path or DB_PATH
     cutoff = f"{year}-01-01"
     archive_path = path.replace(".db", f"_archive_{year}.db")
@@ -97,49 +146,75 @@ def archive_before_year(year: int, db_path=None):
     logger.info("Archiving data before %s to %s", cutoff, archive_path)
 
     with get_conn(path) as conn:
-        tables_to_archive = ["stock_daily", "index_daily", "margin_history", "northbound_history", "bond_yield"]
+        existing = {r[0] for r in conn.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()}
+        tables_to_archive = [t for t in ARCHIVE_TABLES if t in existing]
+        missing = [t for t in ARCHIVE_TABLES if t not in existing]
+        if missing:
+            logger.warning("  库中不存在，跳过: %s", missing)
+
         total = 0
         for tname in tables_to_archive:
             try:
                 count = conn.execute(f"SELECT COUNT(*) FROM {tname} WHERE trade_date < ?", (cutoff,)).fetchone()[0]
                 total += count
-            except Exception:
-                pass
+            except Exception as e:
+                logger.warning("  统计 %s 失败: %s", tname, str(e)[:80])
 
         if total == 0:
             logger.info("No data to archive")
-            return
+            return True
 
         logger.info("Found %d rows to archive", total)
 
-        archive_conn = sqlite3.connect(archive_path)
-        archive_conn.execute("PRAGMA journal_mode=WAL")
+        # ATTACH 归档库到主连接：归档与删除处于同一事务，归档结果可对账
+        conn.execute(f"ATTACH DATABASE ? AS {ARCHIVE_ALIAS}", (archive_path,))
+        ok = True
+        try:
+            archived_cnt: dict[str, int] = {}
+            failed_tables: list[str] = []
+            for tname in tables_to_archive:
+                try:
+                    archived_cnt[tname] = _archive_table(conn, tname, cutoff)
+                except Exception as e:
+                    logger.error("  归档 %s 失败: %s", tname, str(e)[:100])
+                    failed_tables.append(tname)
 
-        for tname in tables_to_archive:
+            mismatched: list[str] = []
+            if not failed_tables:
+                for tname in tables_to_archive:
+                    expected = conn.execute(f"SELECT COUNT(*) FROM {tname} WHERE trade_date < ?", (cutoff,)).fetchone()[
+                        0
+                    ]
+                    if archived_cnt.get(tname, 0) != expected:
+                        mismatched.append(f"{tname}(已归档 {archived_cnt.get(tname, 0)} / 待删 {expected})")
+
+            if failed_tables or mismatched:
+                logger.error(
+                    "归档未完成，已中止全部删除操作（数据安全优先）: 失败表=%s 对账不符=%s",
+                    failed_tables or "无",
+                    mismatched or "无",
+                )
+                ok = False
+            else:
+                for tname in tables_to_archive:
+                    deleted = conn.execute(f"DELETE FROM {tname} WHERE trade_date < ?", (cutoff,)).rowcount
+                    if deleted:
+                        logger.info("  Deleted from %s: %d rows", tname, deleted)
+        finally:
+            # 先把归档写入落盘，再解挂；任一失败都不影响主库数据完整性
             try:
-                conn.execute(f"SELECT * FROM {tname} WHERE 1=0").fetchall()
-                cols = [d[1] for d in conn.execute(f"PRAGMA table_info({tname})").fetchall()]
-
-                rows = conn.execute(f"SELECT * FROM {tname} WHERE trade_date < ?", (cutoff,)).fetchall()
-                if rows:
-                    archive_conn.execute(f"CREATE TABLE IF NOT EXISTS {tname} AS SELECT * FROM {tname} WHERE 1=0")
-                    archive_conn.executemany(f"INSERT INTO {tname} VALUES ({','.join(['?'] * len(cols))})", rows)
-                    logger.info("  Archived %s: %d rows", tname, len(rows))
+                conn.commit()
             except Exception as e:
-                logger.warning("  Skip %s: %s", tname, str(e)[:60])
-
-        archive_conn.commit()
-        archive_conn.close()
-
-        for tname in tables_to_archive:
+                logger.warning("归档提交失败: %s", e)
+                ok = False
             try:
-                deleted = conn.execute(f"DELETE FROM {tname} WHERE trade_date < ?", (cutoff,)).rowcount
-                if deleted:
-                    logger.info("  Deleted from %s: %d rows", tname, deleted)
-            except Exception:
-                pass
+                conn.execute(f"DETACH DATABASE {ARCHIVE_ALIAS}")
+            except Exception as e:
+                logger.warning("DETACH %s 失败: %s", ARCHIVE_ALIAS, e)
 
-    logger.info("Archive complete: %s", archive_path)
+    if ok:
+        logger.info("Archive complete: %s", archive_path)
+    return ok
 
 
 # ── gzip 压缩/解压 ──────────────────────────────────────────────────────────
@@ -334,7 +409,8 @@ if __name__ == "__main__":
         vacuum_db()
     elif cmd == "archive":
         year = int(sys.argv[2]) if len(sys.argv) > 2 else 2020
-        archive_before_year(year)
+        if not archive_before_year(year):
+            sys.exit(1)  # 归档未完成 → 非零退出，避免 CI/脚本误以为成功
     elif cmd == "compress":
         compress()
     elif cmd == "decompress":

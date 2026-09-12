@@ -9,7 +9,9 @@ from __future__ import annotations
 
 import json
 import os
+import shutil
 import tempfile
+import time
 import logging
 import urllib.request
 import urllib.error
@@ -57,6 +59,50 @@ def _atomic_write_json(filepath: str, data) -> None:
         except OSError:
             pass
         raise
+
+
+# ── 历史产物防截断守卫 (P0-3) ────────────────────────────────────────────────
+# 旧实现: 读取失败 → 内存态退化为空 → 立刻用当日单条覆写整个文件, 造成历史丢失。
+# 现在: 文件损坏(解析失败/类型不符)时只留证据、放弃写回, 绝不覆写。
+_SHRINK_GUARD_MIN = 10  # 少于该条数不做收缩判定(首次运行/小样本会误判)
+_SHRINK_GUARD_RATIO = 0.5  # 条数低于原值的一半视为异常收缩
+
+
+def _quarantine_corrupt(path: str, reason: str) -> None:
+    """把损坏的历史文件另存为 ``<path>.corrupt.<ts>`` 留证, 便于人工恢复。"""
+    logger.error("%s 不可用(%s), 已跳过本次写回以防历史丢失", path, reason)
+    try:
+        backup = f"{path}.corrupt.{int(time.time())}"
+        shutil.copy2(path, backup)
+        logger.error("  已备份损坏文件至 %s", backup)
+    except OSError as e:  # 备份失败不阻断流程, 但必须留下记录
+        logger.error("  备份损坏文件失败: %s", e)
+
+
+def _load_json_guarded(path: str, expected_type: type):
+    """安全加载 JSON 历史文件。
+
+    返回 ``(data, ok)``。
+
+    - 文件不存在 → ``(None, True)``, 视为首次运行, 允许写
+    - 文件存在但解析失败 / 类型不符 → ``(None, False)``, **调用方必须放弃写回**
+    - 正常 → ``(data, True)``
+
+    类型不符同样按损坏处理: 例如 history.json 内容变成 ``{}`` 时, 若仅按
+    "不是 list 就当空列表" 处理, prev_len 归零会绕过收缩守卫, 依然截断历史。
+    """
+    if not os.path.exists(path):
+        return None, True
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+    except (json.JSONDecodeError, OSError) as e:
+        _quarantine_corrupt(path, f"解析失败: {e}")
+        return None, False
+    if not isinstance(data, expected_type):
+        _quarantine_corrupt(path, f"类型异常: 期望 {expected_type.__name__}, 实际 {type(data).__name__}")
+        return None, False
+    return data, True
 
 
 # 加载配置（惰性; P3-B1: 与引擎同源, 统一走 HeatConfig 强类型视图）
@@ -204,48 +250,57 @@ def save_results_v2(result_v2: Dict, output_dir: str = None) -> Dict:
     _atomic_write_json(os.path.join(output_dir, "detail.json"), detail_data)
 
     # 历史数据（去重追加）
+    # P0-3: 读取失败时禁止写回 —— 旧实现退化为空列表后用当日单条覆写整个文件。
     history_file = os.path.join(output_dir, "history.json")
-    history = []
-    if os.path.exists(history_file):
-        try:
-            with open(history_file, "r", encoding="utf-8") as f:
-                history = json.load(f)
-        except (json.JSONDecodeError, FileNotFoundError, OSError) as e:
-            logger.warning("Failed to load history.json: %s", e)
-            history = []
-    # 兼容新旧格式: 如果已有 V1 历史，保留并追加 V2 格式
-    history = [h for h in history if h.get("trade_date") != trade_date]
-    history.append(index_data)
-    history.sort(key=lambda x: x["trade_date"])
-    _atomic_write_json(history_file, history)
+    history, hist_ok = _load_json_guarded(history_file, list)
+    if not hist_ok:
+        logger.error("history.json 本次不写入, 当日数据仍已保存至 index.json / detail.json")
+    else:
+        prev_len = len(history or [])
+        # 兼容新旧格式: 如果已有 V1 历史，保留并追加 V2 格式
+        history = [h for h in (history or []) if isinstance(h, dict) and h.get("trade_date") != trade_date]
+        history.append(index_data)
+        # P2-17: 缺 trade_date 的脏记录不应抛 KeyError 中断整条流水线
+        history.sort(key=lambda x: str(x.get("trade_date") or ""))
+        if prev_len > _SHRINK_GUARD_MIN and len(history) < prev_len * _SHRINK_GUARD_RATIO:
+            logger.error("history.json 条数异常收缩 (%d → %d), 已放弃写回", prev_len, len(history))
+        else:
+            _atomic_write_json(history_file, history)
 
     # 更新 indicator_history.json (供前端9指标趋势图)
+    # P0-3: 同上, 读取失败时禁止写回 (旧实现 except Exception 直接吞掉异常且无日志)。
     ind_hist_file = os.path.join(output_dir, "indicator_history.json")
-    ind_hist = {}
-    if os.path.exists(ind_hist_file):
-        try:
-            with open(ind_hist_file, "r", encoding="utf-8") as f:
-                ind_hist = json.load(f)
-        except Exception:
-            ind_hist = {}
-    # 存原始值（小数/倍数），与 backfill_indicator_history.py 格式一致
-    raw = result_v2.get("indicator_raw", {})
-    ind_hist[trade_date] = {}
-    for k, v in result_v2["indicators"].items():
-        if k in ("qvix", "qvix_components") or v is None:
-            continue
-        rk = k.replace("_v2", "")  # margin_ratio_v2 → margin_ratio
-        rv = raw.get(rk) if rk in raw else raw.get(k)
-        # 保留原始值精度 (round 6 位), 不能用 _round_score(1位小数),
-        # 否则 turnover_m2(~0.005)/new_high(~0.015)/margin_ratio_v2(~0.026)/ma_alignment(~0.046)
-        # 等小数值会被截断为 0.0, 导致前端趋势图/牛熊均值失真。
-        # raw 缺失时不回退到分数(score), 避免分数泄漏进原始值历史。
-        if rv is not None:
-            try:
-                ind_hist[trade_date][k] = round(float(rv), 6)
-            except (TypeError, ValueError):
-                ind_hist[trade_date][k] = rv
-    _atomic_write_json(ind_hist_file, ind_hist)
+    ind_hist, ind_ok = _load_json_guarded(ind_hist_file, dict)
+    if not ind_ok:
+        logger.error("indicator_history.json 本次不写入")
+    else:
+        prev_ind_len = len(ind_hist or {})
+        ind_hist = ind_hist or {}
+        # 存原始值（小数/倍数），与 backfill_indicator_history.py 格式一致
+        raw = result_v2.get("indicator_raw", {})
+        ind_hist[trade_date] = {}
+        for k, v in result_v2["indicators"].items():
+            if k in ("qvix", "qvix_components") or v is None:
+                continue
+            rk = k.replace("_v2", "")  # margin_ratio_v2 → margin_ratio
+            rv = raw.get(rk) if rk in raw else raw.get(k)
+            # 保留原始值精度 (round 6 位), 不能用 _round_score(1位小数),
+            # 否则 turnover_m2(~0.005)/new_high(~0.015)/margin_ratio_v2(~0.026)/ma_alignment(~0.046)
+            # 等小数值会被截断为 0.0, 导致前端趋势图/牛熊均值失真。
+            # raw 缺失时不回退到分数(score), 避免分数泄漏进原始值历史。
+            if rv is not None:
+                try:
+                    ind_hist[trade_date][k] = round(float(rv), 6)
+                except (TypeError, ValueError):
+                    ind_hist[trade_date][k] = rv
+        if prev_ind_len > _SHRINK_GUARD_MIN and len(ind_hist) < prev_ind_len * _SHRINK_GUARD_RATIO:
+            logger.error(
+                "indicator_history.json 条数异常收缩 (%d → %d), 已放弃写回",
+                prev_ind_len,
+                len(ind_hist),
+            )
+        else:
+            _atomic_write_json(ind_hist_file, ind_hist)
 
     logger.info("V2 Results saved: score=%.1f level=%s", composite, index_data["level"])
     return index_data
