@@ -1,6 +1,6 @@
 {
   "trade_date": "2026-09-12",
-  "composite_score": 35.8,
+  "composite_score": 34.1,
   "level": "green",
   "regime": {
     "label": "冰点",
@@ -9,11 +9,11 @@
   },
   "dimensions": {
     "valuation": {
-      "score": 34.4,
+      "score": 21.0,
       "label": "估值"
     },
     "fund": {
-      "score": 32.7,
+      "score": 59.2,
       "label": "资金"
     },
     "sentiment": {
@@ -21,18 +21,18 @@
       "label": "情绪"
     },
     "structure": {
-      "score": 21.5,
+      "score": 18.6,
       "label": "结构"
     }
   },
   "indicators_v2": {
-    "pe": 22.2005,
+    "pe": 21.54175,
     "buffett": null,
-    "margin_ratio_v2": 0.013504540419574062,
+    "margin_ratio_v2": 0.013761343401933182,
     "yield_spread": null,
     "m1_m2_spread": -3.7,
     "southbound": 44.3102,
-    "margin_buy_ratio": 0.08273628983388602,
+    "margin_buy_ratio": 0.043118045927249785,
     "seal_rate": null,
     "turnover_m2": null,
     "turnover": 2.0261139140932736,
@@ -40,8 +40,8 @@
     "amplitude": 0.023802749679090785,
     "realized_vol": 0.17275371617506644,
     "new_high": 0.008108108108108109,
-    "ma_alignment": 0.246995,
-    "breadth": 0.492586
+    "ma_alignment": 0.213065,
+    "breadth": 0.132033
   },
   "qvix_display": null,
   "qvix_components": {
@@ -55,28 +55,28 @@
   "version": "v2",
   "updated_at": "2026-09-12 00:00:00",
   "indicator_count": 12,
-  "composite_score_smoothed": 38.3,
+  "composite_score_smoothed": 37.1,
   "level_smoothed": "green",
   "display_new_accounts": 99.59,
   "display_new_accounts_month": "2023-08",
-  "display_etf_shares": 2488.37,
+  "display_etf_shares": 2493.77,
   "indicators": {
-    "pe": 34.44444444444444,
+    "pe": 21.03174603174603,
     "buffett": null,
-    "margin_ratio_v2": 0,
+    "margin_ratio_v2": 0.07936507936507936,
     "yield_spread": null,
     "m1_m2_spread": 18.333333333333332,
     "southbound": 70.31746031746032,
-    "margin_buy_ratio": 46.98412698412698,
+    "margin_buy_ratio": 100,
     "seal_rate": null,
     "turnover_m2": null,
     "turnover": 76.26984126984127,
     "futures_discount": 0.9523809523809524,
     "amplitude": 92.22222222222223,
     "realized_vol": 30.952380952380953,
-    "new_high": 6.428571428571428,
-    "ma_alignment": 51.587301587301596,
-    "breadth": 29.365079365079367,
+    "new_high": 6.507936507936509,
+    "ma_alignment": 42.698412698412696,
+    "breadth": 5.158730158730158,
     "qvix": null,
     "qvix_components": {
       "qvix_50": 18.97,
