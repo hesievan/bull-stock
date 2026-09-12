@@ -24,34 +24,34 @@
     "top_gainers": [
       {
         "stock_code": "sh600016",
-        "stock_name": "民生银行",
+        "stock_name": "",
         "pct_change": 1.37
       },
       {
         "stock_code": "sh601939",
-        "stock_name": "建设银行",
+        "stock_name": "",
         "pct_change": 0.64
       },
       {
         "stock_code": "sh601988",
-        "stock_name": "中国银行",
+        "stock_name": "",
         "pct_change": 0.61
       }
     ],
     "top_losers": [
       {
         "stock_code": "sh601528",
-        "stock_name": "瑞丰银行",
+        "stock_name": "",
         "pct_change": -3.46
       },
       {
         "stock_code": "sh600908",
-        "stock_name": "无锡银行",
+        "stock_name": "",
         "pct_change": -2.64
       },
       {
         "stock_code": "sz002958",
-        "stock_name": "青农商行",
+        "stock_name": "",
         "pct_change": -2.6
       }
     ],
@@ -88,34 +88,34 @@
     "top_gainers": [
       {
         "stock_code": "sh601088",
-        "stock_name": "中国神华",
+        "stock_name": "",
         "pct_change": 0.49
       },
       {
         "stock_code": "sh601225",
-        "stock_name": "陕西煤业",
+        "stock_name": "",
         "pct_change": -0.15
       },
       {
         "stock_code": "sh601918",
-        "stock_name": "新集能源",
+        "stock_name": "",
         "pct_change": -0.67
       }
     ],
     "top_losers": [
       {
         "stock_code": "sh600121",
-        "stock_name": "郑州煤电",
+        "stock_name": "",
         "pct_change": -8.42
       },
       {
         "stock_code": "sh600403",
-        "stock_name": "大有能源",
+        "stock_name": "",
         "pct_change": -7.84
       },
       {
         "stock_code": "sh600408",
-        "stock_name": "安泰集团",
+        "stock_name": "",
         "pct_change": -5.44
       }
     ],
@@ -152,34 +152,34 @@
     "top_gainers": [
       {
         "stock_code": "sh605011",
-        "stock_name": "杭州热电",
+        "stock_name": "",
         "pct_change": 10.0
       },
       {
         "stock_code": "sz000993",
-        "stock_name": "闽东电力",
+        "stock_name": "",
         "pct_change": 9.98
       },
       {
         "stock_code": "sz002218",
-        "stock_name": "拓日新能",
+        "stock_name": "",
         "pct_change": 9.98
       }
     ],
     "top_losers": [
       {
         "stock_code": "sz001258",
-        "stock_name": "立新能源",
+        "stock_name": "",
         "pct_change": -8.03
       },
       {
         "stock_code": "sz001299",
-        "stock_name": "美能能源",
+        "stock_name": "",
         "pct_change": -7.86
       },
       {
         "stock_code": "sh600396",
-        "stock_name": "华电辽能",
+        "stock_name": "",
         "pct_change": -5.87
       }
     ],
@@ -216,34 +216,34 @@
     "top_gainers": [
       {
         "stock_code": "sh600519",
-        "stock_name": "贵州茅台",
+        "stock_name": "",
         "pct_change": -0.78
       },
       {
         "stock_code": "sz000858",
-        "stock_name": "五粮液",
+        "stock_name": "",
         "pct_change": -1.04
       },
       {
         "stock_code": "sz002304",
-        "stock_name": "洋河股份",
+        "stock_name": "",
         "pct_change": -1.07
       }
     ],
     "top_losers": [
       {
         "stock_code": "sh600702",
-        "stock_name": "舍得酒业",
+        "stock_name": "",
         "pct_change": -3.53
       },
       {
         "stock_code": "sz002646",
-        "stock_name": "天佑德酒",
+        "stock_name": "",
         "pct_change": -3.53
       },
       {
         "stock_code": "sz000995",
-        "stock_name": "皇台酒业",
+        "stock_name": "",
         "pct_change": -3.51
       }
     ],
@@ -280,34 +280,34 @@
     "top_gainers": [
       {
         "stock_code": "sh601628",
-        "stock_name": "中国人寿",
+        "stock_name": "",
         "pct_change": -0.76
       },
       {
         "stock_code": "sh601318",
-        "stock_name": "中国平安",
+        "stock_name": "",
         "pct_change": -1.24
       },
       {
         "stock_code": "sh601319",
-        "stock_name": "中国人保",
+        "stock_name": "",
         "pct_change": -1.39
       }
     ],
     "top_losers": [
       {
         "stock_code": "sh601336",
-        "stock_name": "新华保险",
+        "stock_name": "",
         "pct_change": -2.38
       },
       {
         "stock_code": "sh601601",
-        "stock_name": "中国太保",
+        "stock_name": "",
         "pct_change": -1.96
       },
       {
         "stock_code": "sh601319",
-        "stock_name": "中国人保",
+        "stock_name": "",
         "pct_change": -1.39
       }
     ],
@@ -344,34 +344,34 @@
     "top_gainers": [
       {
         "stock_code": "sh601628",
-        "stock_name": "中国人寿",
+        "stock_name": "",
         "pct_change": -0.76
       },
       {
         "stock_code": "sh600901",
-        "stock_name": "江苏金租",
+        "stock_name": "",
         "pct_change": -1.17
       },
       {
         "stock_code": "sh601318",
-        "stock_name": "中国平安",
+        "stock_name": "",
         "pct_change": -1.24
       }
     ],
     "top_losers": [
       {
         "stock_code": "sh600318",
-        "stock_name": "新力金融",
+        "stock_name": "",
         "pct_change": -10.01
       },
       {
         "stock_code": "sz000712",
-        "stock_name": "锦龙股份",
+        "stock_name": "",
         "pct_change": -9.5
       },
       {
         "stock_code": "sh600830",
-        "stock_name": "香溢融通",
+        "stock_name": "",
         "pct_change": -9.38
       }
     ],
@@ -408,34 +408,34 @@
     "top_gainers": [
       {
         "stock_code": "sh688260",
-        "stock_name": "昀冢科技",
+        "stock_name": "",
         "pct_change": 18.68
       },
       {
         "stock_code": "sz002815",
-        "stock_name": "崇达技术",
+        "stock_name": "",
         "pct_change": 10.03
       },
       {
         "stock_code": "sh603386",
-        "stock_name": "骏亚科技",
+        "stock_name": "",
         "pct_change": 10.03
       }
     ],
     "top_losers": [
       {
         "stock_code": "sz300808",
-        "stock_name": "久量股份",
+        "stock_name": "",
         "pct_change": -18.32
       },
       {
         "stock_code": "sz002855",
-        "stock_name": "捷荣技术",
+        "stock_name": "",
         "pct_change": -10.01
       },
       {
         "stock_code": "sz002955",
-        "stock_name": "鸿合科技",
+        "stock_name": "",
         "pct_change": -9.38
       }
     ],
@@ -472,34 +472,34 @@
     "top_gainers": [
       {
         "stock_code": "sh600084",
-        "stock_name": "*ST尼雅",
+        "stock_name": "",
         "pct_change": 3.76
       },
       {
         "stock_code": "sz000752",
-        "stock_name": "*ST西发",
+        "stock_name": "",
         "pct_change": 1.73
       },
       {
         "stock_code": "sh600186",
-        "stock_name": "莲花控股",
+        "stock_name": "",
         "pct_change": 1.61
       }
     ],
     "top_losers": [
       {
         "stock_code": "sz002661",
-        "stock_name": "克明食品",
+        "stock_name": "",
         "pct_change": -10.0
       },
       {
         "stock_code": "sz002702",
-        "stock_name": "海欣食品",
+        "stock_name": "",
         "pct_change": -9.97
       },
       {
         "stock_code": "sh603696",
-        "stock_name": "安记食品",
+        "stock_name": "",
         "pct_change": -7.58
       }
     ],
@@ -536,34 +536,34 @@
     "top_gainers": [
       {
         "stock_code": "sh603439",
-        "stock_name": "三力制药",
+        "stock_name": "",
         "pct_change": 10.0
       },
       {
         "stock_code": "sh688581",
-        "stock_name": "安杰思",
+        "stock_name": "",
         "pct_change": 9.79
       },
       {
         "stock_code": "sh688151",
-        "stock_name": "华强科技",
+        "stock_name": "",
         "pct_change": 7.61
       }
     ],
     "top_losers": [
       {
         "stock_code": "sh600479",
-        "stock_name": "千金药业",
+        "stock_name": "",
         "pct_change": -9.99
       },
       {
         "stock_code": "sh600488",
-        "stock_name": "津药药业",
+        "stock_name": "",
         "pct_change": -9.32
       },
       {
         "stock_code": "sh688137",
-        "stock_name": "近岸蛋白",
+        "stock_name": "",
         "pct_change": -8.14
       }
     ],
@@ -600,34 +600,34 @@
     "top_gainers": [
       {
         "stock_code": "sz000909",
-        "stock_name": "*ST数源",
+        "stock_name": "",
         "pct_change": 2.57
       },
       {
         "stock_code": "sz000056",
-        "stock_name": "*ST皇庭",
+        "stock_name": "",
         "pct_change": 2.36
       },
       {
         "stock_code": "sz000668",
-        "stock_name": "*ST荣控",
+        "stock_name": "",
         "pct_change": 0.19
       }
     ],
     "top_losers": [
       {
         "stock_code": "sh600773",
-        "stock_name": "西藏城投",
+        "stock_name": "",
         "pct_change": -7.08
       },
       {
         "stock_code": "sh600162",
-        "stock_name": "香江控股",
+        "stock_name": "",
         "pct_change": -6.68
       },
       {
         "stock_code": "sz000560",
-        "stock_name": "我爱我家",
+        "stock_name": "",
         "pct_change": -6.48
       }
     ],
@@ -664,34 +664,34 @@
     "top_gainers": [
       {
         "stock_code": "sh600255",
-        "stock_name": "鑫科材料",
+        "stock_name": "",
         "pct_change": 4.02
       },
       {
         "stock_code": "sz002171",
-        "stock_name": "楚江新材",
+        "stock_name": "",
         "pct_change": 2.45
       },
       {
         "stock_code": "sz002501",
-        "stock_name": "*ST利源",
+        "stock_name": "",
         "pct_change": 1.54
       }
     ],
     "top_losers": [
       {
         "stock_code": "sz000737",
-        "stock_name": "北方铜业",
+        "stock_name": "",
         "pct_change": -10.01
       },
       {
         "stock_code": "sz002295",
-        "stock_name": "精艺股份",
+        "stock_name": "",
         "pct_change": -9.98
       },
       {
         "stock_code": "sz000878",
-        "stock_name": "云南铜业",
+        "stock_name": "",
         "pct_change": -8.18
       }
     ],
@@ -728,34 +728,34 @@
     "top_gainers": [
       {
         "stock_code": "sz002560",
-        "stock_name": "通达股份",
+        "stock_name": "",
         "pct_change": 10.08
       },
       {
         "stock_code": "sh600207",
-        "stock_name": "安彩高科",
+        "stock_name": "",
         "pct_change": 10.02
       },
       {
         "stock_code": "sz300410",
-        "stock_name": "正业科技",
+        "stock_name": "",
         "pct_change": 6.79
       }
     ],
     "top_losers": [
       {
         "stock_code": "sh688611",
-        "stock_name": "杭州柯林",
+        "stock_name": "",
         "pct_change": -8.17
       },
       {
         "stock_code": "sz002580",
-        "stock_name": "圣阳股份",
+        "stock_name": "",
         "pct_change": -7.25
       },
       {
         "stock_code": "sz300491",
-        "stock_name": "通合科技",
+        "stock_name": "",
         "pct_change": -7.16
       }
     ],
