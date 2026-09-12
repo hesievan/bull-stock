@@ -89,7 +89,18 @@ def test_run_daily_e2e_smoke(monkeypatch, _web_data_backup):
     from scripts.run_daily import run_daily
 
     # 不应抛异常
-    run_daily(trade_date="2026-08-11")
+    result, step_status = run_daily(trade_date="2026-08-11")
+
+    # P0-1: run_daily 必须回传 step 状态供退出码分级使用
+    assert isinstance(step_status, dict) and step_status, "step_status 为空"
+    assert "S5_calc" in step_status and "S8_final_save" in step_status
+
+    # P0-2: data_quality 必须有真实产出（此前只有读取方、无生产者）
+    assert "data_quality" in result, "result 缺少 data_quality"
+    dq = result["data_quality"]
+    assert dq["overall_quality"] in ("good", "degraded", "poor")
+    assert dq["indicator_total"] > 0
+    assert isinstance(dq["missing_indicators"], list)
 
     # run_status.json 必须产出且结构正确
     status_path = WEB_DATA / "run_status.json"

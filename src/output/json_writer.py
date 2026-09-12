@@ -146,12 +146,64 @@ def _get_quiet_hours() -> dict:
     return _get_config().raw.get("notification", {}).get("quiet_hours", {})
 
 
-# 飞书 Webhook（可选，通过环境变量）
-FEISHU_WEBHOOK = os.environ.get("FEISHU_WEBHOOK", "")
+def get_feishu_webhook() -> str:
+    """飞书 Webhook 地址。
+
+    P1-14: 历史上代码/CI secret 用 ``FEISHU_WEBHOOK``, 而《使用指南》与
+    `.env.example` 写的是 ``FEISHU_WEBHOOK_URL`` —— 按文档配置的人会静默收不到
+    通知。此处两个名字都认, 文档统一为 ``FEISHU_WEBHOOK``。
+    """
+    return os.environ.get("FEISHU_WEBHOOK") or os.environ.get("FEISHU_WEBHOOK_URL") or ""
+
+
+# 飞书 Webhook（可选，通过环境变量; 兼容既有引用）
+FEISHU_WEBHOOK = get_feishu_webhook()
 
 # Bark 推送配置
 BARK_KEY = os.environ.get("BARK_KEY", os.environ.get("bark", "").replace("https://api.day.app/", "").rstrip("/"))
 BARK_API = f"https://api.day.app/{BARK_KEY}" if BARK_KEY else ""
+
+# 数据质量档位中文 (P0-2)
+_QUALITY_CN = {"good": "正常", "degraded": "降级", "poor": "缺失"}
+
+# 指标中文名 — 通知正文的"关注指标"与数据质量的"缺失指标"共用一份,
+# 避免同一指标在两处出现不同译名 (与 web/app.html 的 indMeta.label 对齐)。
+INDICATOR_LABELS = {
+    "pe": "大盘PE",
+    "buffett": "巴菲特指标",
+    "margin_ratio_v2": "两融余额占比",
+    "yield_spread": "国债期限利差",
+    "m1_m2_spread": "M1-M2剪刀差",
+    "southbound": "南向净买额",
+    "margin_buy_ratio": "融资买入占比",
+    "seal_rate": "涨停封板率",
+    "turnover_m2": "成交额M2比",
+    "turnover": "换手率",
+    "futures_discount": "IF基差",
+    "amplitude": "振幅热度",
+    "realized_vol": "已实现波动率",
+    "breadth": "涨跌家数广度",
+    "new_high": "创新高占比",
+    "ma_alignment": "MA排列比",
+}
+
+# 通知"关注指标"的展示顺序 (仅顺序, 名称取自 INDICATOR_LABELS)
+_V2_HIGHLIGHT_ORDER = (
+    "pe",
+    "buffett",
+    "margin_ratio_v2",
+    "yield_spread",
+    "m1_m2_spread",
+    "southbound",
+    "margin_buy_ratio",
+    "seal_rate",
+    "turnover_m2",
+    "turnover",
+    "futures_discount",
+    "amplitude",
+    "realized_vol",
+    "breadth",
+)
 
 
 def get_heat_level(score: float) -> str:
@@ -504,23 +556,8 @@ def build_feishu_notification(result: Dict, history: list = None) -> Optional[st
         lines.extend(["", "🔥 板块热度 TOP5：", *sec_lines])
     highlights = []
     # V2 评分指标(百分位分 >80 为偏高)
-    v2_highlights = [
-        ("pe", "大盘PE"),
-        ("buffett", "巴菲特指标"),
-        ("margin_ratio_v2", "两融余额占比"),
-        ("yield_spread", "国债期限利差"),
-        ("m1_m2_spread", "M1-M2剪刀差"),
-        ("southbound", "南向净买额"),
-        ("margin_buy_ratio", "融资买入占比"),
-        ("seal_rate", "涨停封板率"),
-        ("turnover_m2", "成交额M2比"),
-        ("turnover", "换手率"),
-        ("futures_discount", "IF基差"),
-        ("amplitude", "振幅热度"),
-        ("realized_vol", "已实现波动率"),
-        ("breadth", "涨跌家数广度"),
-    ]
-    for _k, _label in v2_highlights:
+    for _k in _V2_HIGHLIGHT_ORDER:
+        _label = INDICATOR_LABELS.get(_k, _k)
         _v = sub_indicators.get(_k)
         if _v is not None and _v > 80:
             highlights.append(f"{_label} {_v:.0f}分 (偏高)")
@@ -530,19 +567,23 @@ def build_feishu_notification(result: Dict, history: list = None) -> Optional[st
     if highlights:
         lines.extend(["", "⚠️ 关注指标：", *[f"  · {h}" for h in highlights]])
 
-    # 数据质量告警
+    # 数据质量告警 (P0-2: 生产者见 run_daily._build_data_quality)
     dq = result.get("data_quality") or {}
     if dq and dq.get("overall_quality") != "good":
-        quality_lines = ["", f"📊 数据质量 ({dq['overall_quality']})："]
+        quality_lines = ["", f"📊 数据质量 ({_QUALITY_CN.get(dq['overall_quality'], dq['overall_quality'])}):"]
         for dim_name, dim_info in dq.get("dimensions", {}).items():
-            icon = "✅" if dim_info["status"] == "ok" else "⚠️" if dim_info["status"] == "degraded" else "❌"
+            status = dim_info.get("status", "ok")
+            icon = "✅" if status == "ok" else "⚠️" if status == "degraded" else "❌"
             quality_lines.append(
-                f"  {icon} {dim_info['label']}: {dim_info['available']}/{dim_info['total']} "
-                f"(新鲜度 {dim_info['freshness']:.0%})"
+                f"  {icon} {dim_info.get('label', dim_name)}: "
+                f"{dim_info.get('available', 0)}/{dim_info.get('total', 0)} 项计分指标有数据"
             )
         if dq.get("missing_indicators"):
-            quality_lines.append(f"  缺失: {', '.join(dq['missing_indicators'][:5])}")
-        quality_lines.append("  提示: 评分可信度降低，建议关注数据恢复")
+            names = [INDICATOR_LABELS.get(k, k) for k in dq["missing_indicators"][:5]]
+            quality_lines.append(f"  缺失: {', '.join(names)}")
+        if dq.get("critical_failed_steps"):
+            quality_lines.append(f"  致命步骤失败: {', '.join(dq['critical_failed_steps'])}")
+        quality_lines.append("  提示: 缺失指标会触发重归一化，当日分数与历史不可比，建议关注数据恢复")
         lines.extend(quality_lines)
 
     lines.extend(

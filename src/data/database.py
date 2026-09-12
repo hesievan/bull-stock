@@ -18,7 +18,33 @@ import numpy as np
 
 logger = logging.getLogger(__name__)
 
-DB_PATH = os.environ.get("HEAT_INDEX_DB", os.path.join(os.path.dirname(__file__), "..", "..", "data", "heat_index.db"))
+
+def _resolve_db_path() -> str:
+    """解析数据库路径 (P0-6)。
+
+    优先级: ``HEAT_INDEX_DB`` 环境变量 > config 的 ``data.db_path`` > 内置默认。
+
+    此前 config 里的 ``data.db_path`` 只被 validate_config 校验、**从未被消费** ——
+    改 YAML 不生效, 实际路径永远由环境变量或硬编码决定 (`HEAT_INDEX_ENV=dev`
+    也照样连生产库)。相对路径以仓库根目录为基准解析, 不受 CWD 影响。
+    """
+    env = os.environ.get("HEAT_INDEX_DB")
+    if env:
+        return env
+
+    repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+    try:
+        from src.config import load_config_typed
+
+        cfg_path = load_config_typed().db_path
+        if cfg_path:
+            return cfg_path if os.path.isabs(cfg_path) else os.path.join(repo_root, cfg_path)
+    except Exception as e:  # 配置缺失/解析失败一律回退内置路径, 不阻断导入
+        logger.debug("config db_path 不可用, 回退内置路径: %s", e)
+    return os.path.join(repo_root, "data", "heat_index.db")
+
+
+DB_PATH = _resolve_db_path()
 
 # ── 建表 SQL ──────────────────────────────────────────────────────────────────
 SCHEMA_VERSION = 15

@@ -28,6 +28,8 @@ data/*.bak*
 web/data/*.bak*
 web/data/notification.txt
 .tmp_pytest/
+# 沙箱下 pytest tmp_path 夹具需要仓库内 TMPDIR（见 .workbuddy/memory 2026-09-12）
+.pytest_tmp/
 
 # 覆盖率产物 (pytest --cov)
 .coverage

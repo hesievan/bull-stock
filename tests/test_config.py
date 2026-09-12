@@ -210,6 +210,13 @@ class TestValidateConfig:
         issues = validate_config(cfg)
         assert any("db_path" in i for i in issues)
 
+    def test_unknown_weight_key_is_reported(self):
+        """P1-13: 拼错的权重键会被引擎静默忽略 —— 必须显式报出来。"""
+        cfg = self._good()
+        cfg["v2_engine"]["weights"]["turnvover"] = 0.02  # 拼错: turnover
+        issues = validate_config(cfg)
+        assert any("未知键" in i and "turnvover" in i for i in issues)
+
 
 class TestLoadConfigTyped:
     """P3-B1: 强类型配置视图。"""
@@ -245,6 +252,26 @@ class TestLoadConfigTyped:
         # YAML label/color 透传到 HeatLevel
         assert cfg.heat_levels["red"].label == "红色预警"
         assert cfg.heat_levels["red"].color == "#f85149"
+
+    def test_db_path_is_exposed(self):
+        """P0-6: data.db_path 此前只被 validate_config 校验、从不被消费 → 改配置不生效。
+
+        现由 HeatConfig.db_path 暴露给 src.data.database._resolve_db_path()。
+        """
+        prod = load_config_typed(BASE_DIR / "config" / "prod.yaml")
+        dev = load_config_typed(BASE_DIR / "config" / "dev.yaml")
+        assert prod.db_path == "data/heat_index.db"
+        assert dev.db_path == "data/heat_index_dev.db"
+
+    def test_db_path_defaults_when_missing(self):
+        cfg = HeatConfig.from_dict({"v2_engine": {}, "heat_levels": {}})
+        assert cfg.db_path == "data/heat_index.db"
+
+    def test_unknown_weight_key_does_not_break_from_dict(self):
+        """未知键告警但不抛异常 (引擎仍需可跑)。"""
+        w = EngineWeights.from_dict({"pe": 0.1, "nonsense": 0.9})
+        assert w.pe == 0.1
+        assert not hasattr(w, "nonsense")
 
     def test_engine_defaults_match_engine_literals(self):
         """防漂移: config.py 内置默认 (EngineWeights/EngineConfig) == 引擎 DEFAULT_* 字面量"""

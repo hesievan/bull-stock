@@ -38,6 +38,17 @@ def _clean_nan(o):
 from src.config import load_dotenv_safe
 from src.common import setup_logging
 
+
+def _engine_mode_for_log() -> str:
+    """引擎计分模式 (仅用于启动日志; 取值失败不影响主流程)"""
+    try:
+        from src.indicators.heat_index_v2 import ENGINE_MODE
+
+        return ENGINE_MODE
+    except Exception:
+        return "unknown"
+
+
 load_dotenv_safe()
 
 _log_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -53,8 +64,66 @@ logger = logging.getLogger(__name__)
 
 _STEP_SEQ = {"n": 0}
 
+# ── P0-1: step 分级 ─────────────────────────────────────────────────────────
+# 致命: 失败则当日产物不可信/不可用 → 退出码 1, 阻断后续 commit 与部署
+CRITICAL_STEPS = frozenset(
+    {
+        "init_db",  # 库不可用则一切无效
+        "S1_index",  # 指数日线缺失 → regime / 指数热度全空
+        "S2_market",  # 无全市场日线 → 9 计分键中多键为 None, 重归一化后不可比
+        "S5_calc",  # 核心计算
+        "S6_save",  # 首轮产物写出
+        "S8_final_save",  # 最终产物写出
+    }
+)
+# 降级: 失败只影响部分展示/辅助数据 → 退出码 0, 但在通知与 run_status 中标注
+DEGRADED_STEPS = frozenset(
+    {
+        "S24_precompute_check",
+        "S24c_m2",
+        "S24d_m1",
+        "S24f_south",
+        "S24g_futures",
+        "S24h_accounts",
+        "S24i_etf_flow",
+        "S25_index_pe",
+        "S26_circ_mv",
+        "S26b_total_mv",
+        "S27_updown",
+        "S28_limit",
+        "S29_below_net",
+        "S3_bond_yield",
+        "S30_ma_alignment",
+        "S30b_new_high",
+        "S30c_turnover",
+        "S3_industry",
+        "S31_qvix",
+        "S31b_seal_rate",
+        "S31c_index_pe",
+        "S3_margin",
+        "S3_shenwan",
+        "S3_tushare",
+        "S55_index_heat",
+        "S7_sectors",
+        "S75_focus",
+        "S9_notify",
+        "S10_analyze",
+    }
+)
+# 注: 未列入上述两集合的 step 一律按"降级"处理(非阻断), 新增 step 不会意外卡住 CI。
+
+_DIMENSION_LABELS = {"valuation": "估值", "fund": "资金", "sentiment": "情绪", "structure": "结构"}
+
 
 def _run_step(step_status, step_name, fn, *args, **kwargs):
+    """执行单个 step 并把三态结果写入 step_status。
+
+    返回语义 (P1-7):
+      - ``False`` → SKIPPED (确认"无需数据", 如"表已是最新")
+      - ``None``  → FAILED  (旧实现记成 OK —— 什么都没产出却显示成功)
+      - 其他值    → OK
+      - 抛异常    → FAILED
+    """
     _STEP_SEQ["n"] += 1
     seq = _STEP_SEQ["n"]
     t0 = time.time()
@@ -62,11 +131,21 @@ def _run_step(step_status, step_name, fn, *args, **kwargs):
         result = fn(*args, **kwargs)
         elapsed = time.time() - t0
         if result is False:
-            step_status[step_name] = {"status": "SKIPPED", "detail": "no data needed", "elapsed": elapsed}
-            logger.info("  [%02d] step %s: SKIPPED (%.1fs)", seq, step_name, elapsed)
+            status, detail = "SKIPPED", "no data needed"
+        elif result is None:
+            status, detail = "FAILED", "returned None (no result produced)"
         else:
-            step_status[step_name] = {"status": "OK", "detail": "", "elapsed": elapsed}
-            logger.info("  [%02d] step %s: OK (%.1fs)", seq, step_name, elapsed)
+            status, detail = "OK", ""
+        step_status[step_name] = {"status": status, "detail": detail, "elapsed": elapsed}
+        logger.log(
+            logging.ERROR if status == "FAILED" else logging.INFO,
+            "  [%02d] step %s: %s (%.1fs)%s",
+            seq,
+            step_name,
+            status,
+            elapsed,
+            f" -- {detail}" if detail else "",
+        )
         return result
     except Exception as exc:
         elapsed = time.time() - t0
@@ -74,6 +153,95 @@ def _run_step(step_status, step_name, fn, *args, **kwargs):
         step_status[step_name] = {"status": "FAILED", "detail": msg, "elapsed": elapsed}
         logger.error("  [%02d] step %s: FAILED -- %s", seq, step_name, msg)
         return None
+
+
+def _failed_steps(step_status: dict) -> set:
+    """从 step_status 中筛出 FAILED 的 step 名 (忽略 precompute_staleness 等非 step 值)。"""
+    return {k for k, v in step_status.items() if isinstance(v, dict) and v.get("status") == "FAILED"}
+
+
+def _exit_code_for(step_status: dict) -> int:
+    """按 step 分级给出进程退出码 (P0-1)。
+
+    致命 step 失败 → 1 (阻断后续 commit/部署); 非致命失败或全部成功 → 0。
+    """
+    return 1 if (_failed_steps(step_status) & CRITICAL_STEPS) else 0
+
+
+def _build_data_quality(result: dict, step_status: dict) -> dict:
+    """合成当日数据质量摘要 (P0-2)。
+
+    此前 ``json_writer.build_feishu_notification`` 一直在读 ``result["data_quality"]``,
+    但全流程没有任何生产者 —— 那段质量告警永远不会显示, 数据缺一半时通知看起来
+    一切正常。
+
+    维度可用率取自**引擎实际参与计分的键**(engine_mode 决定 9 键或 6 键): 指标缺失
+    会触发行重归一化, 使当日分数与历史不可比 —— 这比"哪个 step 失败"更贴近使用者
+    关心的问题。step 级失败另附, 用于定位根因。
+    """
+    scoring_keys: list = []
+    present: list = []
+    missing: list = []
+    dims: dict = {}
+    stats_ok = True
+    try:
+        from src.indicators.heat_index_v2 import (
+            DIMENSIONS,
+            INDICATOR_DIMENSIONS,
+            _weights_for,
+        )
+
+        weights = _weights_for(result.get("engine_mode"))
+        inds = result.get("indicators") or {}
+        scoring_keys = [k for k in INDICATOR_DIMENSIONS if k in weights]
+        present = [k for k in scoring_keys if inds.get(k) is not None]
+        missing = [k for k in scoring_keys if inds.get(k) is None]
+
+        for dim in DIMENSIONS:
+            keys = [k for k in scoring_keys if INDICATOR_DIMENSIONS[k] == dim]
+            got = [k for k in keys if inds.get(k) is not None]
+            if len(got) == len(keys):
+                status = "ok"
+            elif got:
+                status = "degraded"
+            else:
+                status = "bad"
+            dims[dim] = {
+                "status": status,
+                "label": _DIMENSION_LABELS.get(dim, dim),
+                "available": len(got),
+                "total": len(keys),
+                "missing": [k for k in keys if inds.get(k) is None],
+            }
+    except Exception as e:  # 质量统计本身失败不应影响主流程, 但必须体现为"质量降级"
+        stats_ok = False
+        logger.warning("data_quality 指标维度统计失败: %s", e)
+
+    # step_status 里除 step 记录外还混有 precompute_staleness 等非 step 值, 需过滤
+    steps = {k: v for k, v in step_status.items() if isinstance(v, dict) and "status" in v}
+    failed = sorted(k for k, v in steps.items() if v.get("status") == "FAILED")
+    skipped = sorted(k for k, v in steps.items() if v.get("status") == "SKIPPED")
+    critical_failed = [k for k in failed if k in CRITICAL_STEPS]
+
+    if critical_failed:
+        overall = "poor"
+    elif failed or missing or not stats_ok:
+        overall = "degraded"
+    else:
+        overall = "good"
+
+    return {
+        "overall_quality": overall,
+        "stats_ok": stats_ok,
+        "indicator_available": len(present),
+        "indicator_total": len(scoring_keys),
+        "missing_indicators": missing,
+        "dimensions": dims,
+        "failed_steps": failed,
+        "skipped_steps": skipped,
+        "critical_failed_steps": critical_failed,
+        "degraded_failed_steps": [k for k in failed if k not in CRITICAL_STEPS],
+    }
 
 
 def run_daily(trade_date=None):
@@ -86,7 +254,12 @@ def run_daily(trade_date=None):
         fetch_bond_yield_history,
         _save,
     )
-    from src.output.json_writer import save_results_v2, build_feishu_notification, send_feishu_webhook
+    from src.output.json_writer import (
+        build_feishu_notification,
+        get_feishu_webhook,
+        save_results_v2,
+        send_feishu_webhook,
+    )
 
     trade_date = trade_date or date.today().strftime("%Y-%m-%d")
     t_start = time.time()
@@ -96,10 +269,18 @@ def run_daily(trade_date=None):
     logger.info("=" * 60)
     logger.info("BULL MARKET HEAT INDEX -- Daily Run v3 (tushare only)")
     logger.info("Trade Date: %s", trade_date)
+    # P0-6: 数据库路径解析结果必须可见, 否则 "算到了别的库" 无从排查
+    logger.info("Database: %s", DB_PATH)
+    logger.info("Engine mode: %s", _engine_mode_for_log())
     logger.info("=" * 60)
 
     # ── Step 0: 基础设施 ───────────────────────────────────────────────────
-    _run_step(step_status, "init_db", init_database)
+    # init_database 返回 None (纯建表/迁移), 需显式包装成 True 才不会误判为 FAILED
+    def _step0():
+        init_database()
+        return True
+
+    _run_step(step_status, "init_db", _step0)
 
     # ── Step 1: 指数日行情 (tushare) ───────────────────────────────────────
     logger.info("Step 1: Index daily (tushare)...")
@@ -120,7 +301,8 @@ def run_daily(trade_date=None):
         latest = conn.execute("SELECT MAX(trade_date) FROM stock_daily").fetchone()[0]
         conn.close()
         if latest is None:
-            return fetch_daily_basic_to_stock_daily(trade_date)
+            n = fetch_daily_basic_to_stock_daily(trade_date)
+            return n if n else False  # 0 行写入 = 无数据可写, 语义上等同 SKIPPED
         import datetime
 
         cursor = latest
@@ -593,6 +775,8 @@ def run_daily(trade_date=None):
     logger.info("Step 6: Saving results...")
 
     def _step6():
+        # P0-2: 注入数据质量摘要 (消费方: build_feishu_notification)
+        result["data_quality"] = _build_data_quality(result, step_status)
         save_results_v2(result)
         out_dir = os.path.join(os.path.dirname(__file__), "..", "web", "data")
         os.makedirs(out_dir, exist_ok=True)
@@ -686,7 +870,7 @@ def run_daily(trade_date=None):
         notif_file = os.path.join(os.path.dirname(__file__), "..", "web", "data", "notification.txt")
         with open(notif_file, "w", encoding="utf-8") as nf:
             nf.write(msg)
-        webhook_url = os.environ.get("FEISHU_WEBHOOK", "")
+        webhook_url = get_feishu_webhook()  # P1-14: 兼容两个历史变量名
         if webhook_url:
             try:
                 send_feishu_webhook(msg, webhook_url=webhook_url)
@@ -730,14 +914,22 @@ def run_daily(trade_date=None):
     n_fail = sum(1 for v in step_status.values() if isinstance(v, dict) and v.get("status") == "FAILED")
     n_skip = sum(1 for v in step_status.values() if isinstance(v, dict) and v.get("status") == "SKIPPED")
 
+    critical_failed = sorted(
+        k for k, v in step_status.items() if isinstance(v, dict) and v.get("status") == "FAILED" and k in CRITICAL_STEPS
+    )
+
     logger.info("=" * 60)
     logger.info("RUN SUMMARY: %d OK / %d FAILED / %d SKIPPED (%.1fs)", n_ok, n_fail, n_skip, elapsed)
     for sn, sv in step_status.items():
         if isinstance(sv, dict) and sv.get("status") != "OK":
             logger.info("  [%s] %s: %s", sv["status"], sn, sv.get("detail", ""))
+    if critical_failed:
+        logger.error("CRITICAL FAILED: %s —— 当日产物不可信", critical_failed)
+    elif n_fail:
+        logger.warning("DEGRADED: %d 个非致命 step 失败, 数据部分降级", n_fail)
     logger.info("=" * 60)
 
-    return result
+    return result, step_status
 
 
 if __name__ == "__main__":
@@ -746,4 +938,15 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Daily Heat Index Calculation")
     parser.add_argument("trade_date", nargs="?", help="Trade date (YYYY-MM-DD)")
     args = parser.parse_args()
-    run_daily(args.trade_date)
+
+    _, _step_status = run_daily(args.trade_date)
+
+    _failed = _failed_steps(_step_status)
+    _critical_failed = sorted(_failed & CRITICAL_STEPS)
+    if _critical_failed:
+        logger.error("致命步骤失败, 退出码 1 (阻断后续 commit/部署): %s", _critical_failed)
+        sys.exit(_exit_code_for(_step_status))
+    _degraded_failed = sorted(_failed - CRITICAL_STEPS)
+    if _degraded_failed:
+        logger.warning("非致命步骤失败 (数据降级, 退出码 0): %s", _degraded_failed)
+    sys.exit(_exit_code_for(_step_status))

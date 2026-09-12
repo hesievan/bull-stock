@@ -4,9 +4,10 @@ import json
 from datetime import date, timedelta
 
 from src.output.json_writer import (
+    analyze_state,
+    get_feishu_webhook,
     get_heat_level,
     get_heat_level_cn,
-    analyze_state,
     save_results_v2,
 )
 
@@ -199,3 +200,130 @@ class TestHistoryWriteGuards:
         data = json.loads((out / "history.json").read_text(encoding="utf-8"))
         assert len(data) == 1
         assert not list(out.glob("*.corrupt.*"))
+
+
+class TestFeishuWebhookEnv:
+    """P1-14: 代码用 FEISHU_WEBHOOK, 文档写 FEISHU_WEBHOOK_URL —— 两个名字都要认。"""
+
+    def test_primary_name(self, monkeypatch):
+        monkeypatch.setenv("FEISHU_WEBHOOK", "https://a")
+        monkeypatch.delenv("FEISHU_WEBHOOK_URL", raising=False)
+        assert get_feishu_webhook() == "https://a"
+
+    def test_documented_alias(self, monkeypatch):
+        monkeypatch.delenv("FEISHU_WEBHOOK", raising=False)
+        monkeypatch.setenv("FEISHU_WEBHOOK_URL", "https://b")
+        assert get_feishu_webhook() == "https://b"
+
+    def test_primary_wins_when_both_set(self, monkeypatch):
+        monkeypatch.setenv("FEISHU_WEBHOOK", "https://a")
+        monkeypatch.setenv("FEISHU_WEBHOOK_URL", "https://b")
+        assert get_feishu_webhook() == "https://a"
+
+    def test_empty_when_neither_set(self, monkeypatch):
+        monkeypatch.delenv("FEISHU_WEBHOOK", raising=False)
+        monkeypatch.delenv("FEISHU_WEBHOOK_URL", raising=False)
+        assert get_feishu_webhook() == ""
+
+
+class TestNotificationDataQuality:
+    """P0-2: 通知里的质量段落由 run_daily 产出的 data_quality 驱动。
+
+    旧代码读的是 ``dim_info['freshness']`` —— 该字段从未有过生产者,
+    一旦真的接上生产者就会 KeyError。这里锁死渲染路径的健壮性。
+    """
+
+    def _result(self, dq):
+        return {
+            "trade_date": "2026-09-12",
+            "composite_score": 62.0,
+            "dimensions": {
+                "valuation": {"score": 70.0, "label": "估值"},
+                "fund": {"score": 60.0, "label": "资金"},
+                "sentiment": {"score": 65.0, "label": "情绪"},
+                "structure": {"score": 50.0, "label": "结构"},
+            },
+            "indicators": {"pe": 85.0},
+            "data_quality": dq,
+        }
+
+    def _dq(self):
+        return {
+            "overall_quality": "degraded",
+            "missing_indicators": ["turnover", "new_high"],
+            "critical_failed_steps": [],
+            "dimensions": {
+                "valuation": {"status": "ok", "label": "估值", "available": 2, "total": 2, "missing": []},
+                "fund": {"status": "ok", "label": "资金", "available": 3, "total": 3, "missing": []},
+                "sentiment": {
+                    "status": "degraded",
+                    "label": "情绪",
+                    "available": 1,
+                    "total": 2,
+                    "missing": ["turnover"],
+                },
+                "structure": {
+                    "status": "degraded",
+                    "label": "结构",
+                    "available": 1,
+                    "total": 2,
+                    "missing": ["new_high"],
+                },
+            },
+        }
+
+    def test_quality_section_rendered(self, monkeypatch):
+        import src.output.json_writer as jw
+
+        monkeypatch.setattr(jw, "_should_notify", lambda *a, **k: True)
+        # analyze_state 空历史返回 "stable" → 函数末尾会拦掉通知, 需放行
+        monkeypatch.setattr(jw, "analyze_state", lambda *a, **k: ("enter_red", 1))
+
+        msg = jw.build_feishu_notification(self._result(self._dq()), history=[])
+        assert msg is not None
+        assert "数据质量" in msg
+        assert "估值: 2/2 项计分指标有数据" in msg
+        assert "情绪: 1/2 项计分指标有数据" in msg
+        # 缺失指标应渲染为中文名而非机器键
+        assert "换手率" in msg and "创新高占比" in msg
+
+    def test_good_quality_renders_no_section(self, monkeypatch):
+        import src.output.json_writer as jw
+
+        monkeypatch.setattr(jw, "_should_notify", lambda *a, **k: True)
+        # analyze_state 空历史返回 "stable" → 函数末尾会拦掉通知, 需放行
+        monkeypatch.setattr(jw, "analyze_state", lambda *a, **k: ("enter_red", 1))
+
+        dq = self._dq()
+        dq["overall_quality"] = "good"
+        msg = jw.build_feishu_notification(self._result(dq), history=[])
+        assert msg is not None
+        assert "数据质量" not in msg
+
+    def test_missing_data_quality_does_not_break(self, monkeypatch):
+        import src.output.json_writer as jw
+
+        monkeypatch.setattr(jw, "_should_notify", lambda *a, **k: True)
+        # analyze_state 空历史返回 "stable" → 函数末尾会拦掉通知, 需放行
+        monkeypatch.setattr(jw, "analyze_state", lambda *a, **k: ("enter_red", 1))
+
+        result = self._result({})
+        result.pop("data_quality")
+        msg = jw.build_feishu_notification(result, history=[])
+        assert msg is not None
+        assert "数据质量" not in msg
+
+    def test_partial_dimension_schema_is_tolerated(self, monkeypatch):
+        """生产者字段缺失时用 .get 兜底, 不抛 KeyError。"""
+        import src.output.json_writer as jw
+
+        monkeypatch.setattr(jw, "_should_notify", lambda *a, **k: True)
+        # analyze_state 空历史返回 "stable" → 函数末尾会拦掉通知, 需放行
+        monkeypatch.setattr(jw, "analyze_state", lambda *a, **k: ("enter_red", 1))
+
+        dq = self._dq()
+        dq["dimensions"] = {"valuation": {"status": "bad"}}  # 缺 label/available/total
+        dq["missing_indicators"] = []
+        msg = jw.build_feishu_notification(self._result(dq), history=[])
+        assert msg is not None
+        assert "valuation: 0/0" in msg

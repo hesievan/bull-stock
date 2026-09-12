@@ -135,7 +135,15 @@ class EngineWeights:
 
     @classmethod
     def from_dict(cls, d: Dict[str, Any]) -> "EngineWeights":
-        """缺失键回落内置默认权重 (YAML 缺键时引擎仍可跑, validate_config 会先告警)。"""
+        """缺失键回落内置默认权重 (YAML 缺键时引擎仍可跑, validate_config 会先告警)。
+
+        P1-13: YAML 里写错的键名会被 ``cls(**{...})`` 静默丢弃 —— 使用者以为改了
+        权重, 实际引擎用的是默认值。这里显式告警, 让"改了没生效"可见。
+        """
+        d = d or {}
+        unknown = sorted(set(d) - set(cls.__dataclass_fields__))
+        if unknown:
+            logger.warning("v2_engine.weights 含未知键, 将被忽略: %s", unknown)
         return cls(**{k: float(d.get(k, _WEIGHT_DEFAULTS[k])) for k in cls.__dataclass_fields__})
 
     def to_dict(self) -> Dict[str, float]:
@@ -225,6 +233,9 @@ class HeatConfig:
 
     engine: EngineConfig = field(default_factory=EngineConfig)
     heat_levels: Dict[str, HeatLevel] = field(default_factory=_default_heat_levels)
+    # P0-6: data.db_path 此前只被 validate_config 校验、从不被消费, 导致"改配置不生效"。
+    # 现由此字段暴露, 由 src.data.database._resolve_db_path() 读取。
+    db_path: str = "data/heat_index.db"
     raw: Dict[str, Any] = field(default_factory=dict)
 
     @property
@@ -238,7 +249,12 @@ class HeatConfig:
         hl = _default_heat_levels()
         for k, v in (cfg.get("heat_levels") or {}).items():
             hl[k] = HeatLevel.from_dict(v)
-        return cls(engine=EngineConfig.from_dict(cfg.get("v2_engine")), heat_levels=hl, raw=cfg)
+        return cls(
+            engine=EngineConfig.from_dict(cfg.get("v2_engine")),
+            heat_levels=hl,
+            db_path=str((cfg.get("data") or {}).get("db_path") or "data/heat_index.db"),
+            raw=cfg,
+        )
 
 
 def validate_config(cfg: Dict[str, Any]) -> List[str]:
@@ -252,6 +268,10 @@ def validate_config(cfg: Dict[str, Any]) -> List[str]:
     missing = [k for k in _EXPECTED_WEIGHT_KEYS if k not in weights]
     if missing:
         issues.append(f"v2_engine.weights 缺失键: {missing}")
+    # P1-13: 未知键会被引擎静默忽略 (拼错的键名 = 改了权重但不生效)
+    unknown = sorted(k for k in weights if k not in _EXPECTED_WEIGHT_KEYS)
+    if unknown:
+        issues.append(f"v2_engine.weights 含未知键（引擎将忽略）: {unknown}")
     try:
         total = sum(float(v) for v in weights.values())
         if abs(total - 1.0) > 0.01:
