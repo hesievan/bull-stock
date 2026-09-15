@@ -1,67 +1,67 @@
 {
-  "trade_date": "2026-09-14",
-  "composite_score": 41.3,
-  "level": "yellow",
+  "trade_date": "2026-09-15",
+  "composite_score": 38.7,
+  "level": "green",
   "regime": {
-    "label": "修复",
+    "label": "冰点",
     "extreme": null,
     "structure_break_risk": false
   },
   "dimensions": {
     "valuation": {
-      "score": 54.2,
+      "score": 53.2,
       "label": "估值"
     },
     "fund": {
-      "score": 39.3,
+      "score": 38.7,
       "label": "资金"
     },
     "sentiment": {
-      "score": 50.8,
+      "score": 50.5,
       "label": "情绪"
     },
     "structure": {
-      "score": 16.5,
+      "score": 8.8,
       "label": "结构"
     }
   },
   "indicators_v2": {
-    "pe": 21.565350000000002,
-    "buffett": 0.9111467322104144,
-    "margin_ratio_v2": 0.02685390857460026,
-    "yield_spread": 0.44520000000000004,
+    "pe": 21.6616,
+    "buffett": 0.9034008155123708,
+    "margin_ratio_v2": 0.027036853497019724,
+    "yield_spread": 0.4426000000000001,
     "m1_m2_spread": -3.7,
-    "southbound": 44.7148,
+    "southbound": 8.80669999999998,
     "margin_buy_ratio": 0.08046147475118524,
-    "seal_rate": 0.571429,
-    "turnover_m2": 0.004621501909427233,
-    "turnover": 1.6765462371099193,
-    "futures_discount": -0.02033,
-    "amplitude": 0.0067409727309880995,
-    "realized_vol": 0.20632209910597898,
-    "new_high": 0.009009,
-    "ma_alignment": 0.186157,
-    "breadth": 1.405576
+    "seal_rate": 0.533333,
+    "turnover_m2": 0.004571632399580803,
+    "turnover": 1.6727869367812338,
+    "futures_discount": -0.021177,
+    "amplitude": 0.011680076130747655,
+    "realized_vol": 0.18169712854476502,
+    "new_high": 0.00721,
+    "ma_alignment": 0.113556,
+    "breadth": 0.255941
   },
   "qvix_display": null,
   "qvix_components": {
     "qvix_50": 18.97,
-    "qvix_300": null,
+    "qvix_300": 21.19,
     "qvix_1000": null,
     "concentration": null
   },
   "engine_version": "v3.0",
   "engine_mode": "single9",
   "version": "v2",
-  "updated_at": "2026-09-14 00:00:00",
+  "updated_at": "2026-09-15 00:00:00",
   "indicator_count": 16,
-  "composite_score_smoothed": 38.9,
+  "composite_score_smoothed": 39.6,
   "level_smoothed": "green",
-  "display_up_down_ratio": 1.4056,
-  "display_limit_up_ratio": 0.0151,
-  "display_limit_ratio": 4.2,
-  "display_below_net_rate": 0.0777,
+  "display_up_down_ratio": 0.2559,
+  "display_limit_up_ratio": 0.0074,
+  "display_limit_ratio": 0.9535,
+  "display_below_net_rate": 0.0819,
   "display_new_accounts": 99.59,
   "display_new_accounts_month": "2023-08",
-  "display_etf_shares": 2517.82
+  "display_etf_shares": 2495.31
 }
