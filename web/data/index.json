@@ -1,19 +1,19 @@
 {
-  "trade_date": "2026-09-24",
-  "composite_score": 38.8,
+  "trade_date": "2026-09-25",
+  "composite_score": 27.2,
   "level": "green",
   "regime": {
     "label": "冰点",
-    "extreme": null,
+    "extreme": "extreme_cold",
     "structure_break_risk": false
   },
   "dimensions": {
     "valuation": {
-      "score": 51.5,
+      "score": 23.7,
       "label": "估值"
     },
     "fund": {
-      "score": 26.9,
+      "score": 23.7,
       "label": "资金"
     },
     "sentiment": {
@@ -21,27 +21,27 @@
       "label": "情绪"
     },
     "structure": {
-      "score": 16.9,
+      "score": 15.8,
       "label": "结构"
     }
   },
   "indicators_v2": {
-    "pe": 21.0285,
-    "buffett": 0.9144821759638491,
-    "margin_ratio_v2": 0.027067497414007716,
-    "yield_spread": 0.40290000000000004,
+    "pe": 21.6561,
+    "buffett": null,
+    "margin_ratio_v2": 0.01351509261727997,
+    "yield_spread": null,
     "m1_m2_spread": -3.7,
     "southbound": 28.9977,
     "margin_buy_ratio": 0.0911436670724524,
-    "seal_rate": 0.753623,
-    "turnover_m2": 0.004695009873405732,
+    "seal_rate": null,
+    "turnover_m2": null,
     "turnover": 1.7016404640892222,
     "futures_discount": -0.01445,
     "amplitude": 0.01351641259222775,
     "realized_vol": 0.18857268055749518,
-    "new_high": 0.012417,
-    "ma_alignment": 0.150998,
-    "breadth": 0.260102
+    "new_high": 0.014396256973186972,
+    "ma_alignment": 0.103046,
+    "breadth": 4.846154
   },
   "qvix_display": null,
   "qvix_components": {
@@ -53,14 +53,10 @@
   "engine_version": "v3.0",
   "engine_mode": "single9",
   "version": "v2",
-  "updated_at": "2026-09-24 00:00:00",
-  "indicator_count": 16,
-  "composite_score_smoothed": 40.3,
-  "level_smoothed": "yellow",
-  "display_up_down_ratio": 0.2601,
-  "display_limit_up_ratio": 0.0117,
-  "display_limit_ratio": 2.9545,
-  "display_below_net_rate": 0.0769,
+  "updated_at": "2026-09-25 00:00:00",
+  "indicator_count": 12,
+  "composite_score_smoothed": 31.1,
+  "level_smoothed": "green",
   "display_new_accounts": 99.59,
   "display_new_accounts_month": "2023-08",
   "display_etf_shares": 2493.77
