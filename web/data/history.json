@@ -30954,5 +30954,72 @@
     "display_new_accounts": 99.59,
     "display_new_accounts_month": "2023-08",
     "display_etf_shares": 2493.77
+  },
+  {
+    "trade_date": "2026-09-29",
+    "composite_score": 34.2,
+    "level": "green",
+    "regime": {
+      "label": "冰点",
+      "extreme": null,
+      "structure_break_risk": true
+    },
+    "dimensions": {
+      "valuation": {
+        "score": 47.4,
+        "label": "估值"
+      },
+      "fund": {
+        "score": 27.3,
+        "label": "资金"
+      },
+      "sentiment": {
+        "score": 38.9,
+        "label": "情绪"
+      },
+      "structure": {
+        "score": 14.1,
+        "label": "结构"
+      }
+    },
+    "indicators_v2": {
+      "pe": 20.9893,
+      "buffett": 0.8983739954860661,
+      "margin_ratio_v2": 0.02710668383449275,
+      "yield_spread": 0.40800000000000014,
+      "m1_m2_spread": -3.7,
+      "southbound": 0.14629999999999,
+      "margin_buy_ratio": 0.0911436670724524,
+      "seal_rate": 0.785714,
+      "turnover_m2": 0.003998777604163503,
+      "turnover": 1.4760350264948863,
+      "futures_discount": -0.015651,
+      "amplitude": 0.008010657132226913,
+      "realized_vol": 0.20128427296592233,
+      "new_high": 0.009174,
+      "ma_alignment": 0.156356,
+      "breadth": 1.795654
+    },
+    "qvix_display": null,
+    "qvix_components": {
+      "qvix_50": 18.97,
+      "qvix_300": 21.19,
+      "qvix_1000": null,
+      "concentration": null
+    },
+    "engine_version": "v3.0",
+    "engine_mode": "single9",
+    "version": "v2",
+    "updated_at": "2026-09-29 00:00:00",
+    "indicator_count": 16,
+    "composite_score_smoothed": 34.8,
+    "level_smoothed": "green",
+    "display_up_down_ratio": 1.7957,
+    "display_limit_up_ratio": 0.0144,
+    "display_limit_ratio": 5.0,
+    "display_below_net_rate": 0.0776,
+    "display_new_accounts": 99.59,
+    "display_new_accounts_month": "2023-08",
+    "display_etf_shares": 2493.77
   }
 ]
