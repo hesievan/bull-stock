@@ -1,5 +1,5 @@
 {
-  "trade_date": "2026-10-06",
+  "trade_date": "2026-10-07",
   "composite_score": 27.2,
   "level": "green",
   "regime": {
@@ -53,7 +53,7 @@
   "engine_version": "v3.0",
   "engine_mode": "single9",
   "version": "v2",
-  "updated_at": "2026-10-06 00:00:00",
+  "updated_at": "2026-10-07 00:00:00",
   "indicator_count": 12,
   "composite_score_smoothed": 27.2,
   "level_smoothed": "green",
