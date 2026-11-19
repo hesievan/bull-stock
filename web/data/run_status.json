@@ -1,87 +1,87 @@
 {
-  "trade_date": "2026-11-18",
-  "generated_at": "2026-11-18 00:00:00",
+  "trade_date": "2026-11-19",
+  "generated_at": "2026-11-19 00:00:00",
   "steps": {
     "init_db": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.0013566017150878906
+      "elapsed": 0.0008590221405029297
     },
     "S1_index": {
       "status": "OK",
       "detail": "",
-      "elapsed": 21.447715997695923
+      "elapsed": 27.509740114212036
     },
     "S2_market": {
       "status": "OK",
       "detail": "",
-      "elapsed": 10.043188095092773
+      "elapsed": 12.911914825439453
     },
     "S25_index_pe": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.029730796813964844
+      "elapsed": 0.015191793441772461
     },
     "S26_circ_mv": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.0036132335662841797
+      "elapsed": 0.002761363983154297
     },
     "S26b_total_mv": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.01178431510925293
+      "elapsed": 0.002374887466430664
     },
     "S27_updown": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.007401943206787109
+      "elapsed": 0.0051174163818359375
     },
     "S28_limit": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.0059397220611572266
+      "elapsed": 0.0044956207275390625
     },
     "S29_below_net": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.0075168609619140625
+      "elapsed": 0.004517078399658203
     },
     "S30_ma_alignment": {
       "status": "OK",
       "detail": "",
-      "elapsed": 3.960284948348999
+      "elapsed": 3.4455716609954834
     },
     "S30b_new_high": {
       "status": "OK",
       "detail": "",
-      "elapsed": 1.5087974071502686
+      "elapsed": 1.1426975727081299
     },
     "S30c_turnover": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.0039014816284179688
+      "elapsed": 0.003088712692260742
     },
     "S31_qvix": {
       "status": "OK",
       "detail": "",
-      "elapsed": 3.286430835723877
+      "elapsed": 16.046851873397827
     },
     "S31b_seal_rate": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.023856639862060547
+      "elapsed": 0.018157482147216797
     },
     "S31c_index_pe": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.43641233444213867
+      "elapsed": 0.45545077323913574
     },
     "precompute_staleness": [
       {
         "table": "daily_updown",
         "desc": "涨跌家数比",
-        "latest_date": "2026-11-18",
+        "latest_date": "2026-11-19",
         "gap_days": 0,
         "max_gap_days": 5,
         "stale": false,
@@ -91,7 +91,7 @@
       {
         "table": "daily_limit",
         "desc": "涨停/跌停",
-        "latest_date": "2026-11-18",
+        "latest_date": "2026-11-19",
         "gap_days": 0,
         "max_gap_days": 5,
         "stale": false,
@@ -101,7 +101,7 @@
       {
         "table": "daily_below_net",
         "desc": "破净率",
-        "latest_date": "2026-11-18",
+        "latest_date": "2026-11-19",
         "gap_days": 0,
         "max_gap_days": 5,
         "stale": false,
@@ -111,7 +111,7 @@
       {
         "table": "daily_ma_alignment",
         "desc": "MA排列比",
-        "latest_date": "2026-11-18",
+        "latest_date": "2026-11-19",
         "gap_days": 0,
         "max_gap_days": 5,
         "stale": false,
@@ -121,7 +121,7 @@
       {
         "table": "daily_new_high",
         "desc": "创新高占比",
-        "latest_date": "2026-11-18",
+        "latest_date": "2026-11-19",
         "gap_days": 0,
         "max_gap_days": 5,
         "stale": false,
@@ -131,7 +131,7 @@
       {
         "table": "daily_turnover",
         "desc": "换手率(10年窗口)",
-        "latest_date": "2026-11-18",
+        "latest_date": "2026-11-19",
         "gap_days": 0,
         "max_gap_days": 5,
         "stale": false,
@@ -141,7 +141,7 @@
       {
         "table": "daily_seal_rate",
         "desc": "涨停封板率",
-        "latest_date": "2026-11-18",
+        "latest_date": "2026-11-19",
         "gap_days": 0,
         "max_gap_days": 5,
         "stale": false,
@@ -151,7 +151,7 @@
       {
         "table": "daily_circ_mv",
         "desc": "流通市值",
-        "latest_date": "2026-11-18",
+        "latest_date": "2026-11-19",
         "gap_days": 0,
         "max_gap_days": 5,
         "stale": false,
@@ -162,7 +162,7 @@
         "table": "daily_hsgt_south",
         "desc": "南向净买额",
         "latest_date": "2026-11-16",
-        "gap_days": 2,
+        "gap_days": 3,
         "max_gap_days": 5,
         "stale": false,
         "has_fallback": true,
@@ -172,7 +172,7 @@
         "table": "daily_futures_basis",
         "desc": "IF基差",
         "latest_date": "2026-11-16",
-        "gap_days": 2,
+        "gap_days": 3,
         "max_gap_days": 5,
         "stale": false,
         "has_fallback": true,
@@ -181,7 +181,7 @@
       {
         "table": "qvix_daily",
         "desc": "QVIX恐慌",
-        "latest_date": "2026-11-18",
+        "latest_date": "2026-11-19",
         "gap_days": 0,
         "max_gap_days": 5,
         "stale": false,
@@ -191,7 +191,7 @@
       {
         "table": "index_daily_pe",
         "desc": "指数PE中位数",
-        "latest_date": "2026-11-18",
+        "latest_date": "2026-11-19",
         "gap_days": 0,
         "max_gap_days": 5,
         "stale": false,
@@ -202,79 +202,79 @@
     "S24_precompute_check": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.005549192428588867
+      "elapsed": 0.0037314891815185547
     },
     "S24c_m2": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.0009379386901855469
+      "elapsed": 0.0007760524749755859
     },
     "S24d_m1": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.0007905960083007812
+      "elapsed": 0.0007412433624267578
     },
     "S24f_south": {
       "status": "OK",
       "detail": "",
-      "elapsed": 5.640279531478882
+      "elapsed": 6.110418796539307
     },
     "S24g_futures": {
       "status": "OK",
       "detail": "",
-      "elapsed": 1.7167036533355713
+      "elapsed": 3.3008949756622314
     },
     "S24h_accounts": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.6679606437683105
+      "elapsed": 0.7897582054138184
     },
     "S24i_etf_flow": {
       "status": "SKIPPED",
       "detail": "no data needed",
-      "elapsed": 8.71069622039795
+      "elapsed": 8.942778587341309
     },
     "S3_margin": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.4395008087158203
+      "elapsed": 0.46817445755004883
     },
     "S3_bond_yield": {
       "status": "OK",
       "detail": "",
-      "elapsed": 6.000837802886963
+      "elapsed": 3.8477163314819336
     },
     "S3_tushare": {
       "status": "OK",
       "detail": "",
-      "elapsed": 6.469716310501099
+      "elapsed": 4.322895050048828
     },
     "S3_shenwan": {
-      "status": "OK",
-      "detail": "",
-      "elapsed": 8.348400592803955
+      "status": "FAILED",
+      "detail": "Failed to fetch Shenwan industry data",
+      "elapsed": 7.972552537918091
     },
     "S3_industry": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.001161813735961914
+      "elapsed": 0.0012149810791015625
     },
     "S5_calc": {
       "status": "OK",
       "detail": "",
-      "elapsed": 4.9995176792144775
+      "elapsed": 4.2538652420043945
     },
     "S55_index_heat": {
       "status": "OK",
       "detail": "",
-      "elapsed": 0.07450485229492188
+      "elapsed": 0.07315731048583984
     }
   },
-  "n_ok": 28,
-  "n_failed": 0,
+  "n_ok": 27,
+  "n_failed": 1,
   "n_skipped": 1,
   "schema_version": 15,
   "python_version": "3.12.16",
-  "platform": "Linux-7.0.0-1019-azure-x86_64-with-glibc2.43",
-  "memory_mb": 581.890625
+  "platform": "Linux-7.0.0-1016-aws-x86_64-with-glibc2.43",
+  "memory_mb": 582.625
 }
